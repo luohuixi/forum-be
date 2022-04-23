@@ -6,7 +6,7 @@ import (
 	"forum-user/errno"
 	"forum-user/model"
 	"forum-user/pkg/auth"
-	// pb "forum-user/proto"
+	pb "forum-user/proto"
 	"forum-user/util"
 	e "forum/pkg/err"
 	"forum/pkg/token"

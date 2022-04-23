@@ -5,7 +5,7 @@ import (
 
 	errno "forum-user/errno"
 	model "forum-user/model"
-	// pb "forum-user/proto"
+	pb "forum-user/proto"
 	e "forum/pkg/err"
 )
 

@@ -4,7 +4,7 @@ import (
 	"context"
 	errno "forum-user/errno"
 	"forum-user/model"
-	// pb "forum-user/proto"
+	pb "forum-user/proto"
 	e "forum/pkg/err"
 )
 

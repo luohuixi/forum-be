@@ -1,10 +1,12 @@
 package main
 
 import (
+	"github.com/micro/go-micro"
+	"github.com/opentracing/opentracing-go"
 	"log"
 
 	"forum-user/pkg/auth"
-	// pb "forum-user/proto"
+	pb "forum-user/proto"
 	s "forum-user/service"
 	"forum/config"
 	logger "forum/log"

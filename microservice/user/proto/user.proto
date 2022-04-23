@@ -10,7 +10,6 @@ service UserService {
   rpc List(ListRequest) returns (ListResponse) {}
 
   rpc UpdateInfo(UpdateInfoRequest) returns (Response) {}
-  rpc UpdateTeamAndGroupForUsers(UpdateTeamGroupRequest) returns (Response) {}
 }
 
 message UpdateTeamGroupRequest {

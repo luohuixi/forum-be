@@ -20,6 +20,7 @@ type UserModel struct {
 	GroupID      uint32 `json:"groupId" gorm:"column:group_id;" binding:"required"`
 	EmailService uint32 `json:"emailService" gorm:"column:email_service;" binding:"required"`
 	Message      uint32 `json:"message" gorm:"column:message;" binding:"required"`
+	PasswordHash string `json:"password_hash" gorm:"column:password_hash;" binding:"required"`
 }
 
 func (u *UserModel) TableName() string {
