@@ -1,0 +1,105 @@
+syntax = "proto3";
+
+package user;
+
+service UserService {
+  rpc Register(RegisterRequest) returns (Response) {}
+  rpc Login(LoginRequest) returns (LoginResponse) {}
+  rpc GetInfo(GetInfoRequest) returns (UserInfoResponse) {}
+  rpc GetProfile(GetRequest) returns (UserProfile) {}
+  rpc List(ListRequest) returns (ListResponse) {}
+
+  rpc UpdateInfo(UpdateInfoRequest) returns (Response) {}
+  rpc UpdateTeamAndGroupForUsers(UpdateTeamGroupRequest) returns (Response) {}
+}
+
+message UpdateTeamGroupRequest {
+  repeated uint32 ids = 1;
+  uint32 value = 2;    // 目标值（team_id or group_id）
+  uint32 kind = 3;     // 1 => team; 2 => group
+}
+
+message UpdateInfoRequest {
+  uint32 id = 1;
+  UserInfo info = 2;
+}
+
+message GetRequest {
+  uint32 id = 1;
+}
+
+message GetInfoRequest {
+  repeated uint32 ids = 1;
+}
+
+message RegisterRequest {
+  string email = 1;
+  string name = 2;
+  string password = 3;
+}
+
+message LoginRequest {
+  string oauth_code = 1;
+}
+
+message LoginResponse {
+  string token = 1;
+  string redirect_url = 2;
+}
+
+message UserInfo {
+  uint32 id = 1;
+  string name = 2;
+  string real_name = 3;
+  string avatar_url = 4;
+  string email = 5;
+  string tel = 6;
+}
+
+message UserInfoResponse {
+  repeated UserInfo list = 1;
+}
+
+message UserProfile {
+  uint32 id = 1;
+  string name = 2;
+  string real_name = 3;
+  string avatar = 4;
+  string email = 5;
+  string tel = 6;
+  uint32 role = 7;
+  uint32 team = 8;
+  uint32 group = 9;
+}
+
+message GetResponse {
+  User user = 1;
+}
+
+message ListRequest {
+  uint32 last_id = 1;
+  uint32 offset = 2;
+  uint32 limit = 3;
+  uint32 team = 4;
+  uint32 group = 5; // 0 则不筛选
+}
+
+message ListResponse {
+  uint32 count = 1;
+  repeated User list = 2;
+}
+
+message Request {}
+
+message Response {}
+
+message User {
+  uint32 id = 1;
+  string name = 2;
+  string real_name = 3;
+  string email = 4;
+  string avatar = 5;
+  uint32 role = 6;
+  uint32 team = 7;
+  uint32 group = 8;
+}
