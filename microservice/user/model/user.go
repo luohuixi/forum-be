@@ -11,16 +11,12 @@ import (
 type UserModel struct {
 	ID           uint32 `json:"id" gorm:"column:id;not null" binding:"required"`
 	Name         string `json:"name" gorm:"column:name;" binding:"required"`
-	RealName     string `json:"realName" gorm:"column:real_name;" binding:"required"`
 	Email        string `json:"email" gorm:"column:email;" binding:"required"`
 	Avatar       string `json:"avatar" gorm:"column:avatar;" binding:"required"`
-	Tel          string `json:"tel" gorm:"column:tel;"`
 	Role         uint32 `json:"role" gorm:"column:role;" binding:"required"`
-	TeamID       uint32 `json:"teamId" gorm:"column:team_id;" binding:"required"`
-	GroupID      uint32 `json:"groupId" gorm:"column:group_id;" binding:"required"`
-	EmailService uint32 `json:"emailService" gorm:"column:email_service;" binding:"required"`
 	Message      uint32 `json:"message" gorm:"column:message;" binding:"required"`
 	PasswordHash string `json:"password_hash" gorm:"column:password_hash;" binding:"required"`
+	StudentID    string `json:"student_id" gorm:"column:student_id;"`
 }
 
 func (u *UserModel) TableName() string {
@@ -97,17 +93,7 @@ func ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, er
 	return list, nil
 }
 
-// UpdateTeamAndGroup update user's team_id and group_id.
-func UpdateTeamAndGroup(ids []uint32, value, kind uint32) (err error) {
-	query := m.DB.Self.Table("users").Where("id In (?)", ids)
-	if kind == 1 {
-		err = query.Update("team_id", value).Error
-	} else if kind == 2 {
-		err = query.Update("group_id", value).Error
-	}
-	return
-}
-
+//
 func GeneratePasswordHash(password string) string {
 	return security.GeneratePasswordHash(password)
 }
