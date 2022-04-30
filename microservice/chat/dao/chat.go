@@ -1,11 +1,10 @@
 package dao
 
 import (
-	"forum-chat/service"
 	"strconv"
 )
 
-func (d *Dao) Create(data *service.ChatData) error {
+func (d *Dao) Create(data *ChatData) error {
 	return d.Redis.LPush(data.Receiver, strconv.Itoa(int(data.Sender))+"/"+data.Date+"/"+data.Message).Err()
 }
 

@@ -108,7 +108,6 @@ func (c *Client) Write() {
 		}
 
 		for _, msg := range res.List {
-			// message += s
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(msg))
 		}
 	}

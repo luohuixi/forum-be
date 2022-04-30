@@ -9,10 +9,8 @@ type ChatService struct {
 	Dao dao.Interface
 }
 
-// ChatData 发送到redis里面的数据
-type ChatData struct {
-	Message  string `json:"message"`
-	Date     string `json:"date"`
-	Receiver string `json:"receiver"`
-	Sender   uint32 `json:"sender"`
+func New(i dao.Interface) *ChatService {
+	service := new(ChatService)
+	service.Dao = i
+	return service
 }

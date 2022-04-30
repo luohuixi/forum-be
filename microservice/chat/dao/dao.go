@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"forum-chat/service"
 	"forum/model"
 	"github.com/go-redis/redis"
 )
@@ -17,7 +16,7 @@ type Dao struct {
 
 // Interface dao
 type Interface interface {
-	Create(*service.ChatData) error
+	Create(*ChatData) error
 	GetList(uint32) ([]string, error)
 }
 
@@ -30,4 +29,17 @@ func Init() {
 	dao = &Dao{
 		Redis: model.RedisDB.Self,
 	}
+
+}
+
+// ChatData 发送到redis里面的数据
+type ChatData struct {
+	Message  string `json:"message"`
+	Date     string `json:"date"`
+	Receiver string `json:"receiver"`
+	Sender   uint32 `json:"sender"`
+}
+
+func GetDao() *Dao {
+	return dao
 }

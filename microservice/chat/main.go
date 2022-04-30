@@ -58,7 +58,7 @@ func main() {
 	dao.Init()
 
 	// Register handler
-	pb.RegisterChatServiceHandler(srv.Server(), &s.ChatService{})
+	pb.RegisterChatServiceHandler(srv.Server(), s.New(dao.GetDao()))
 
 	// Run the server
 	if err := srv.Run(); err != nil {
