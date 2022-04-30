@@ -1,91 +1,86 @@
 package user
 
-// LoginRequest login 请求
-type LoginRequest struct {
+// teamLoginRequest login 请求
+type teamLoginRequest struct {
 	OauthCode string `json:"oauth_code"`
-} // @name LoginRequest
+} // @name teamLoginRequest
 
-// LoginResponse login 请求响应
-type LoginResponse struct {
+// studentLoginRequest StudentLogin 请求
+type studentLoginRequest struct {
+	StudentId string `json:"student_id"`
+	Password  string `json:"password"`
+} // @name studentLoginRequest
+
+// teamLoginResponse login 请求响应
+type teamLoginResponse struct {
 	Token       string `json:"token"`
 	RedirectURL string `json:"redirect_url"`
-} // @name LoginResponse
+} // @name teamLoginResponse
 
-// RegisterRequest 注册请求
-type RegisterRequest struct {
-	Email    string `json:"email" binding:"required"`
-	Name     string `json:"name" binding:"required"`
-	Password string `json:"password" binding:"required"`
-} // @name RegisterRequest
+// studentLoginResponse login 请求响应
+type studentLoginResponse struct {
+	Token string `json:"token"`
+} // @name studentLoginResponse
 
 // GetInfoRequest 获取 info 请求
-type GetInfoRequest struct {
+type getInfoRequest struct {
 	Ids []uint32 `json:"ids" binding:"required"`
 } // @name GetInfoRequest
 
-type UserInfo struct {
+type userInfo struct {
 	Id        uint32 `json:"id"`
 	Name      string `json:"name"`
-	RealName  string `json:"real_name"`
 	AvatarURL string `json:"avatar_url"`
 	Email     string `json:"email"`
-	Tel       string `json:"tel"`
 }
 
 // GetInfoResponse 获取 info 响应
-type GetInfoResponse struct {
-	List []UserInfo `json:"list"`
-} // @name GetInfoResponse
+type getInfoResponse struct {
+	List []userInfo `json:"list"`
+} // @name getInfoResponse
 
-// GetProfileRequest 获取 profile 请求
-type GetProfileRequest struct {
+// getProfileRequest 获取 profile 请求
+type getProfileRequest struct {
 	Id uint32 `json:"id"`
-} // @name GetProfileRequest
+} // @name getProfileRequest
 
-// UserProfile 获取 profile 响应
-type UserProfile struct {
-	Id       uint32 `json:"id"`
-	Name     string `json:"name"`
-	RealName string `json:"real_name"`
-	Avatar   string `json:"avatar"`
-	Email    string `json:"email"`
-	Tel      string `json:"tel"`
-	Role     uint32 `json:"role"`
-	Team     uint32 `json:"team"`
-	Group    uint32 `json:"group"`
-} // @name UserProfile
+// userProfile 获取 profile 响应
+type userProfile struct {
+	Id     uint32 `json:"id"`
+	Name   string `json:"name"`
+	Avatar string `json:"avatar"`
+	Email  string `json:"email"`
+	Role   uint32 `json:"role"`
+} // @name userProfile
 
-// ListRequest 获取 userList 请求
-type ListRequest struct {
+// listRequest 获取 userList 请求
+type listRequest struct {
 	Team  uint32 `json:"team"`
 	Group uint32 `json:"group"`
-} // @name ListRequest
+} // @name listRequest
 
-type User struct {
-	Id       uint32 `json:"id"`
-	Name     string `json:"name"`
-	RealName string `json:"real_name"`
-	Email    string `json:"email"`
-	Avatar   string `json:"avatar"`
-	Role     uint32 `json:"role"`
-	Team     uint32 `json:"team"`
-	Group    uint32 `json:"group"`
-} // @name User
+type user struct {
+	Id     uint32 `json:"id"`
+	Name   string `json:"name"`
+	Email  string `json:"email"`
+	Avatar string `json:"avatar"`
+	Role   uint32 `json:"role"`
+} // @name user
 
-// ListResponse 获取 userList 响应
-type ListResponse struct {
+// listResponse 获取 userList 响应
+type listResponse struct {
 	Count uint32 `json:"count"`
-	List  []User `json:"list"`
-} // @name ListResponse
+	List  []user `json:"list"`
+} // @name listResponse
 
-// UpdateInfoRequest 更新 userInfo 请求
-type UpdateInfoRequest struct {
-	UserInfo
-} // @name UpdateInfoRequest
+// updateInfoRequest 更新 userInfo 请求
+type updateInfoRequest struct {
+	userInfo
+} // @name updateInfoRequest
 
-// UpdateTeamGroupRequest
-type UpdateTeamGroupRequest struct {
+// updateTeamGroupRequest
+type updateTeamGroupRequest struct {
 	Ids   []uint32 `json:"ids"`
 	Value uint32   `json:"value"`
 	Kind  uint32   `json:"kind"`
-} // @name UpdateTeamGroupRequest
+} // @name updateTeamGroupRequest

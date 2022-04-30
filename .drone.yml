@@ -1,6 +1,6 @@
 kind: pipeline
 type: docker
-name: workbench-be
+name: forum-be
 
 trigger:
   ref:
@@ -23,7 +23,7 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/workbench_user  #要推送docker地址
+      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/forum_user  #要推送docker地址
       registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
       tags: ${DRONE_TAG} 
       build_args:
@@ -41,7 +41,7 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/workbench_gateway  #要推送docker地址
+      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/forum_gateway  #要推送docker地址
       registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
       tags: ${DRONE_TAG} 
       build_args:
@@ -59,7 +59,7 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/workbench_status  #要推送docker地址
+      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/forum_status  #要推送docker地址
       registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
       tags: ${DRONE_TAG} 
       build_args:
@@ -77,7 +77,7 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/workbench_feed  #要推送docker地址
+      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/forum_feed  #要推送docker地址
       registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
       tags: ${DRONE_TAG} 
       build_args:
@@ -95,7 +95,7 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/workbench_project  #要推送docker地址
+      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/forum_project  #要推送docker地址
       registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
       tags: ${DRONE_TAG} 
       build_args:
@@ -113,7 +113,7 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/workbench_team  #要推送docker地址
+      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/forum_team  #要推送docker地址
       registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
       tags: ${DRONE_TAG} 
       build_args:
@@ -131,7 +131,7 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/workbench_subscribe  #要推送docker地址
+      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/forum_subscribe  #要推送docker地址
       registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
       tags: ${DRONE_TAG} 
       build_args:
@@ -149,7 +149,7 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/workbench_attention  #要推送docker地址
+      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi_site/forum_attention  #要推送docker地址
       registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
       tags: ${DRONE_TAG}
       build_args:

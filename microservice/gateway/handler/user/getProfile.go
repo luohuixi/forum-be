@@ -15,7 +15,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func GetUserProfile(id uint32) (*UserProfile, error) {
+func GetUserProfile(id uint32) (*userProfile, error) {
 
 	getProfileReq := &pb.GetRequest{Id: uint32(id)}
 
@@ -26,7 +26,7 @@ func GetUserProfile(id uint32) (*UserProfile, error) {
 	}
 
 	// 构造返回 response
-	resp := &UserProfile{
+	resp := &userProfile{
 		Id:     getProfileResp.Id,
 		Name:   getProfileResp.Name,
 		Avatar: getProfileResp.Avatar,

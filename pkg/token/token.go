@@ -31,7 +31,6 @@ func getJwtKey() string {
 type TokenPayload struct {
 	ID      uint32        `json:"id"`
 	Role    uint32        `json:"role"`
-	TeamID  uint32        `json:"team_id"`
 	Expired time.Duration `json:"expired"` // 有效时间（nanosecond）
 }
 
@@ -48,7 +47,6 @@ func GenerateToken(payload *TokenPayload) (string, error) {
 	claims := &TokenClaims{
 		ID:        payload.ID,
 		Role:      payload.Role,
-		TeamID:    payload.TeamID,
 		ExpiresAt: time.Now().Unix() + int64(payload.Expired.Seconds()),
 	}
 

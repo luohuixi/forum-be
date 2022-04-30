@@ -16,9 +16,9 @@ import (
 	"go.uber.org/zap"
 )
 
-// Login ... 登录
+// TeamLogin ... 团队登录
 // @Summary login api
-// @Description login the workbench
+// @Description login the team-forum
 // @Tags auth
 // @Accept  application/json
 // @Produce  application/json
@@ -26,13 +26,13 @@ import (
 // @Success 200 {object} LoginResponse
 // @Failure 401 {object} handler.Response
 // @Failure 500 {object} handler.Response
-// @Router /auth/login [post]
-func Login(c *gin.Context) {
-	log.Info("User login function called.",
+// @Router /auth/login/team [post]
+func TeamLogin(c *gin.Context) {
+	log.Info("team login function called.",
 		zap.String("X-Request-Id", util.GetReqID(c)))
 
 	// 从前端获取 oauth_code
-	var req LoginRequest
+	var req teamLoginRequest
 	if err := c.Bind(&req); err != nil {
 		SendBadRequest(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
@@ -62,7 +62,7 @@ func Login(c *gin.Context) {
 	}
 
 	// 构造返回 response
-	resp := LoginResponse{
+	resp := loginResponse{
 		Token:       loginResp.Token,
 		RedirectURL: loginResp.RedirectUrl,
 	}

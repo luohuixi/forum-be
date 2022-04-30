@@ -13,10 +13,7 @@ import (
 func (s *UserService) List(ctx context.Context, req *pb.ListRequest, res *pb.ListResponse) error {
 
 	// 过滤条件
-	filter := &model.UserModel{TeamID: req.Team}
-	if req.Group != 0 {
-		filter.GroupID = req.Group
-	}
+	filter := &model.UserModel{Role: req.Role}
 
 	// DB 查询
 	list, err := model.ListUser(req.Offset, req.Limit, req.LastId, filter)
@@ -28,14 +25,11 @@ func (s *UserService) List(ctx context.Context, req *pb.ListRequest, res *pb.Lis
 
 	for _, item := range list {
 		resList = append(resList, &pb.User{
-			Id:       item.ID,
-			Name:     item.Name,
-			RealName: item.RealName,
-			Email:    item.Email,
-			Avatar:   item.Avatar,
-			Role:     item.Role,
-			Team:     item.TeamID,
-			Group:    item.GroupID,
+			Id:     item.ID,
+			Name:   item.Name,
+			Email:  item.Email,
+			Avatar: item.Avatar,
+			Role:   item.Role,
 		})
 	}
 

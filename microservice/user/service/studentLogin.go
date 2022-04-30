@@ -39,7 +39,7 @@ func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest, res *pb.L
 		return e.ServerErr(errno.ErrGetUserInfo, err.Error())
 	}
 
-	// 根据 email 在本地 DB 查询 user
+	// 根据 email 在 DB 查询 user
 	user, err := model.GetUserByEmail(userInfo.Email)
 
 	if err != nil {
@@ -64,7 +64,6 @@ func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest, res *pb.L
 	token, err := token.GenerateToken(&token.TokenPayload{
 		ID:      user.ID,
 		Role:    user.Role,
-		TeamID:  user.TeamID,
 		Expired: util.GetExpiredTime(),
 	})
 	if err != nil {

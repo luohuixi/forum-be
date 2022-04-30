@@ -14,13 +14,13 @@ var UserService micro.Service
 var UserClient pbu.UserServiceClient
 
 func UserInit() {
-	UserService = micro.NewService(micro.Name("workbench.cli.user"),
+	UserService = micro.NewService(micro.Name("forum.cli.user"),
 		micro.WrapClient(
 			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
 		),
 		micro.WrapCall(handler.ClientErrorHandlerWrapper()))
 	UserService.Init()
 
-	UserClient = pbu.NewUserServiceClient("workbench.service.user", UserService.Client())
+	UserClient = pbu.NewUserServiceClient("forum.service.user", UserService.Client())
 
 }

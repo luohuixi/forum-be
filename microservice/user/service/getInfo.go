@@ -23,7 +23,6 @@ func (s *UserService) GetInfo(ctx context.Context, req *pb.GetInfoRequest, res *
 		userInfos = append(userInfos, &pb.UserInfo{
 			Id:        user.ID,
 			Name:      user.Name,
-			RealName:  user.RealName,
 			AvatarUrl: user.Avatar,
 			Email:     user.Email,
 		})

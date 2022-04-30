@@ -19,14 +19,14 @@ func GetInfo(c *gin.Context) {
 		zap.String("X-Request-Id", util.GetReqID(c)))
 
 	// 从前端获取 Ids
-	var req GetInfoRequest
+	var req getInfoRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		SendBadRequest(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
 	if len(req.Ids) == 0 {
-		SendResponse(c, nil, &GetInfoResponse{})
+		SendResponse(c, nil, &getInfoResponse{})
 		return
 	}
 
@@ -44,9 +44,9 @@ func GetInfo(c *gin.Context) {
 	}
 
 	// 构造返回 response
-	var resp GetInfoResponse
+	var resp getInfoResponse
 	for _, item := range getInfoResp.List {
-		resp.List = append(resp.List, UserInfo{
+		resp.List = append(resp.List, userInfo{
 			Id:        item.Id,
 			Name:      item.Name,
 			AvatarURL: item.AvatarUrl,

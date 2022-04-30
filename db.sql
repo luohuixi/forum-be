@@ -1,6 +1,6 @@
-CREATE DATABASE workbench;
+CREATE DATABASE forum;
 
-use workbench;
+use forum;
 
 -- ----------------------------
 -- Table structure for status

@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package chat;
+
+service ChatService {
+    rpc Create(PushRequest) returns (Response) {}
+    rpc GetQueue(GetQueueRequest) returns (GetQueueResponse) {}
+}
+
+message PushRequest {
+    uint32 user_id = 1;
+    uint32 target_user_id = 2;
+    string message = 3;
+}
+
+message Response {}
+
+message GetQueueRequest {
+    uint32 user_id = 1;
+}
+
+message GetQueueResponse {
+    repeated Queue list = 1;
+}
+
+message Queue {
+    uint32 user_Id = 1;
+    string message = 2;
+}
