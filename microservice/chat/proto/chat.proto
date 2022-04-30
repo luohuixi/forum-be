@@ -3,27 +3,22 @@ syntax = "proto3";
 package chat;
 
 service ChatService {
-    rpc Create(PushRequest) returns (Response) {}
-    rpc GetQueue(GetQueueRequest) returns (GetQueueResponse) {}
+    rpc Create(CreateRequest) returns (Response) {}
+    rpc GetList(GetListRequest) returns (GetListResponse) {}
 }
 
-message PushRequest {
+message CreateRequest {
     uint32 user_id = 1;
-    uint32 target_user_id = 2;
+    string target_user_id = 2;
     string message = 3;
 }
 
 message Response {}
 
-message GetQueueRequest {
+message GetListRequest {
     uint32 user_id = 1;
 }
 
-message GetQueueResponse {
-    repeated Queue list = 1;
-}
-
-message Queue {
-    uint32 user_Id = 1;
-    string message = 2;
+message GetListResponse {
+    repeated string list = 1;
 }

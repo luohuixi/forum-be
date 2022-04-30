@@ -23,7 +23,7 @@ import (
 func GetMyProfile(c *gin.Context) {
 	log.Info("User getInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	userId := c.MustGet("userID").(uint32)
+	userId := c.MustGet("userId").(uint32)
 
 	user, err := GetUserProfile(userId)
 

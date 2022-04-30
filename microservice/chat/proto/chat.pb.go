@@ -26,55 +26,55 @@ var _ = math.Inf
 // proto package needs to be updated.
 const _ = proto.ProtoPackageIsVersion3 // please upgrade the proto package
 
-type PushRequest struct {
+type CreateRequest struct {
 	UserId               uint32   `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
-	TargetUserId         uint32   `protobuf:"varint,2,opt,name=target_user_id,json=targetUserId,proto3" json:"target_user_id,omitempty"`
+	TargetUserId         string   `protobuf:"bytes,2,opt,name=target_user_id,json=targetUserId,proto3" json:"target_user_id,omitempty"`
 	Message              string   `protobuf:"bytes,3,opt,name=message,proto3" json:"message,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *PushRequest) Reset()         { *m = PushRequest{} }
-func (m *PushRequest) String() string { return proto.CompactTextString(m) }
-func (*PushRequest) ProtoMessage()    {}
-func (*PushRequest) Descriptor() ([]byte, []int) {
+func (m *CreateRequest) Reset()         { *m = CreateRequest{} }
+func (m *CreateRequest) String() string { return proto.CompactTextString(m) }
+func (*CreateRequest) ProtoMessage()    {}
+func (*CreateRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ed7e7dde45555b7d, []int{0}
 }
 
-func (m *PushRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_PushRequest.Unmarshal(m, b)
+func (m *CreateRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_CreateRequest.Unmarshal(m, b)
 }
-func (m *PushRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_PushRequest.Marshal(b, m, deterministic)
+func (m *CreateRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_CreateRequest.Marshal(b, m, deterministic)
 }
-func (m *PushRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_PushRequest.Merge(m, src)
+func (m *CreateRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_CreateRequest.Merge(m, src)
 }
-func (m *PushRequest) XXX_Size() int {
-	return xxx_messageInfo_PushRequest.Size(m)
+func (m *CreateRequest) XXX_Size() int {
+	return xxx_messageInfo_CreateRequest.Size(m)
 }
-func (m *PushRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_PushRequest.DiscardUnknown(m)
+func (m *CreateRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_CreateRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_PushRequest proto.InternalMessageInfo
+var xxx_messageInfo_CreateRequest proto.InternalMessageInfo
 
-func (m *PushRequest) GetUserId() uint32 {
+func (m *CreateRequest) GetUserId() uint32 {
 	if m != nil {
 		return m.UserId
 	}
 	return 0
 }
 
-func (m *PushRequest) GetTargetUserId() uint32 {
+func (m *CreateRequest) GetTargetUserId() string {
 	if m != nil {
 		return m.TargetUserId
 	}
-	return 0
+	return ""
 }
 
-func (m *PushRequest) GetMessage() string {
+func (m *CreateRequest) GetMessage() string {
 	if m != nil {
 		return m.Message
 	}
@@ -112,159 +112,110 @@ func (m *Response) XXX_DiscardUnknown() {
 
 var xxx_messageInfo_Response proto.InternalMessageInfo
 
-type GetQueueRequest struct {
+type GetListRequest struct {
 	UserId               uint32   `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetQueueRequest) Reset()         { *m = GetQueueRequest{} }
-func (m *GetQueueRequest) String() string { return proto.CompactTextString(m) }
-func (*GetQueueRequest) ProtoMessage()    {}
-func (*GetQueueRequest) Descriptor() ([]byte, []int) {
+func (m *GetListRequest) Reset()         { *m = GetListRequest{} }
+func (m *GetListRequest) String() string { return proto.CompactTextString(m) }
+func (*GetListRequest) ProtoMessage()    {}
+func (*GetListRequest) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ed7e7dde45555b7d, []int{2}
 }
 
-func (m *GetQueueRequest) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetQueueRequest.Unmarshal(m, b)
+func (m *GetListRequest) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetListRequest.Unmarshal(m, b)
 }
-func (m *GetQueueRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetQueueRequest.Marshal(b, m, deterministic)
+func (m *GetListRequest) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetListRequest.Marshal(b, m, deterministic)
 }
-func (m *GetQueueRequest) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetQueueRequest.Merge(m, src)
+func (m *GetListRequest) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetListRequest.Merge(m, src)
 }
-func (m *GetQueueRequest) XXX_Size() int {
-	return xxx_messageInfo_GetQueueRequest.Size(m)
+func (m *GetListRequest) XXX_Size() int {
+	return xxx_messageInfo_GetListRequest.Size(m)
 }
-func (m *GetQueueRequest) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetQueueRequest.DiscardUnknown(m)
+func (m *GetListRequest) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetListRequest.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetQueueRequest proto.InternalMessageInfo
+var xxx_messageInfo_GetListRequest proto.InternalMessageInfo
 
-func (m *GetQueueRequest) GetUserId() uint32 {
+func (m *GetListRequest) GetUserId() uint32 {
 	if m != nil {
 		return m.UserId
 	}
 	return 0
 }
 
-type GetQueueResponse struct {
-	List                 []*Queue `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
+type GetListResponse struct {
+	List                 []string `protobuf:"bytes,1,rep,name=list,proto3" json:"list,omitempty"`
 	XXX_NoUnkeyedLiteral struct{} `json:"-"`
 	XXX_unrecognized     []byte   `json:"-"`
 	XXX_sizecache        int32    `json:"-"`
 }
 
-func (m *GetQueueResponse) Reset()         { *m = GetQueueResponse{} }
-func (m *GetQueueResponse) String() string { return proto.CompactTextString(m) }
-func (*GetQueueResponse) ProtoMessage()    {}
-func (*GetQueueResponse) Descriptor() ([]byte, []int) {
+func (m *GetListResponse) Reset()         { *m = GetListResponse{} }
+func (m *GetListResponse) String() string { return proto.CompactTextString(m) }
+func (*GetListResponse) ProtoMessage()    {}
+func (*GetListResponse) Descriptor() ([]byte, []int) {
 	return fileDescriptor_ed7e7dde45555b7d, []int{3}
 }
 
-func (m *GetQueueResponse) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_GetQueueResponse.Unmarshal(m, b)
+func (m *GetListResponse) XXX_Unmarshal(b []byte) error {
+	return xxx_messageInfo_GetListResponse.Unmarshal(m, b)
 }
-func (m *GetQueueResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_GetQueueResponse.Marshal(b, m, deterministic)
+func (m *GetListResponse) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
+	return xxx_messageInfo_GetListResponse.Marshal(b, m, deterministic)
 }
-func (m *GetQueueResponse) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_GetQueueResponse.Merge(m, src)
+func (m *GetListResponse) XXX_Merge(src proto.Message) {
+	xxx_messageInfo_GetListResponse.Merge(m, src)
 }
-func (m *GetQueueResponse) XXX_Size() int {
-	return xxx_messageInfo_GetQueueResponse.Size(m)
+func (m *GetListResponse) XXX_Size() int {
+	return xxx_messageInfo_GetListResponse.Size(m)
 }
-func (m *GetQueueResponse) XXX_DiscardUnknown() {
-	xxx_messageInfo_GetQueueResponse.DiscardUnknown(m)
+func (m *GetListResponse) XXX_DiscardUnknown() {
+	xxx_messageInfo_GetListResponse.DiscardUnknown(m)
 }
 
-var xxx_messageInfo_GetQueueResponse proto.InternalMessageInfo
+var xxx_messageInfo_GetListResponse proto.InternalMessageInfo
 
-func (m *GetQueueResponse) GetList() []*Queue {
+func (m *GetListResponse) GetList() []string {
 	if m != nil {
 		return m.List
 	}
 	return nil
 }
 
-type Queue struct {
-	User_Id              uint32   `protobuf:"varint,1,opt,name=user_Id,json=userId,proto3" json:"user_Id,omitempty"`
-	Message              string   `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
-	XXX_NoUnkeyedLiteral struct{} `json:"-"`
-	XXX_unrecognized     []byte   `json:"-"`
-	XXX_sizecache        int32    `json:"-"`
-}
-
-func (m *Queue) Reset()         { *m = Queue{} }
-func (m *Queue) String() string { return proto.CompactTextString(m) }
-func (*Queue) ProtoMessage()    {}
-func (*Queue) Descriptor() ([]byte, []int) {
-	return fileDescriptor_ed7e7dde45555b7d, []int{4}
-}
-
-func (m *Queue) XXX_Unmarshal(b []byte) error {
-	return xxx_messageInfo_Queue.Unmarshal(m, b)
-}
-func (m *Queue) XXX_Marshal(b []byte, deterministic bool) ([]byte, error) {
-	return xxx_messageInfo_Queue.Marshal(b, m, deterministic)
-}
-func (m *Queue) XXX_Merge(src proto.Message) {
-	xxx_messageInfo_Queue.Merge(m, src)
-}
-func (m *Queue) XXX_Size() int {
-	return xxx_messageInfo_Queue.Size(m)
-}
-func (m *Queue) XXX_DiscardUnknown() {
-	xxx_messageInfo_Queue.DiscardUnknown(m)
-}
-
-var xxx_messageInfo_Queue proto.InternalMessageInfo
-
-func (m *Queue) GetUser_Id() uint32 {
-	if m != nil {
-		return m.User_Id
-	}
-	return 0
-}
-
-func (m *Queue) GetMessage() string {
-	if m != nil {
-		return m.Message
-	}
-	return ""
-}
-
 func init() {
-	proto.RegisterType((*PushRequest)(nil), "chat.PushRequest")
+	proto.RegisterType((*CreateRequest)(nil), "chat.CreateRequest")
 	proto.RegisterType((*Response)(nil), "chat.Response")
-	proto.RegisterType((*GetQueueRequest)(nil), "chat.GetQueueRequest")
-	proto.RegisterType((*GetQueueResponse)(nil), "chat.GetQueueResponse")
-	proto.RegisterType((*Queue)(nil), "chat.Queue")
+	proto.RegisterType((*GetListRequest)(nil), "chat.GetListRequest")
+	proto.RegisterType((*GetListResponse)(nil), "chat.GetListResponse")
 }
 
 func init() { proto.RegisterFile("proto/chat.proto", fileDescriptor_ed7e7dde45555b7d) }
 
 var fileDescriptor_ed7e7dde45555b7d = []byte{
-	// 254 bytes of a gzipped FileDescriptorProto
-	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x51, 0x4d, 0x4f, 0xc2, 0x40,
-	0x10, 0xb5, 0x80, 0x05, 0xa7, 0x8a, 0x38, 0x89, 0xda, 0x70, 0xb1, 0xd9, 0x78, 0x68, 0x4c, 0xc4,
-	0x04, 0x6e, 0x7a, 0xe4, 0x60, 0xb8, 0x69, 0x8d, 0x67, 0xb2, 0xc2, 0x48, 0x9b, 0xa8, 0xc5, 0x9d,
-	0x59, 0x13, 0xff, 0xbd, 0x61, 0x37, 0x8b, 0xd8, 0x8b, 0xb7, 0x79, 0x1f, 0xd3, 0x79, 0xaf, 0x0b,
-	0x83, 0xb5, 0xa9, 0xa5, 0xbe, 0x59, 0x94, 0x5a, 0x46, 0x6e, 0xc4, 0xce, 0x66, 0x56, 0xaf, 0x90,
-	0x3c, 0x58, 0x2e, 0x0b, 0xfa, 0xb4, 0xc4, 0x82, 0xe7, 0xd0, 0xb5, 0x4c, 0x66, 0x5e, 0x2d, 0xd3,
-	0x28, 0x8b, 0xf2, 0xa3, 0x22, 0xde, 0xc0, 0xd9, 0x12, 0x2f, 0xa1, 0x2f, 0xda, 0xac, 0x48, 0xe6,
-	0x41, 0x6f, 0x39, 0xfd, 0xd0, 0xb3, 0xcf, 0xde, 0x95, 0x42, 0xf7, 0x9d, 0x98, 0xf5, 0x8a, 0xd2,
-	0x76, 0x16, 0xe5, 0x07, 0x45, 0x80, 0x0a, 0xa0, 0x57, 0x10, 0xaf, 0xeb, 0x0f, 0x26, 0x75, 0x05,
-	0xc7, 0xf7, 0x24, 0x8f, 0x96, 0x2c, 0xfd, 0x77, 0x57, 0x4d, 0x60, 0xf0, 0xeb, 0xf5, 0xfb, 0x78,
-	0x01, 0x9d, 0xb7, 0x8a, 0x25, 0x8d, 0xb2, 0x76, 0x9e, 0x8c, 0x93, 0x91, 0x2b, 0xe5, 0x2d, 0x4e,
-	0x50, 0xb7, 0xb0, 0xef, 0xe0, 0xf6, 0xb3, 0xb3, 0x66, 0x9d, 0x9d, 0xa0, 0xad, 0x3f, 0x41, 0xc7,
-	0xdf, 0x90, 0x4c, 0x4b, 0x2d, 0x4f, 0x64, 0xbe, 0xaa, 0x05, 0xe1, 0x35, 0xc4, 0x53, 0x43, 0x5a,
-	0x08, 0x4f, 0xfc, 0x9d, 0x9d, 0xbf, 0x35, 0xec, 0x7b, 0x6a, 0x5b, 0x6c, 0x0f, 0xef, 0xa0, 0x17,
-	0xe2, 0xe2, 0xa9, 0x57, 0x1b, 0x55, 0x87, 0x67, 0x4d, 0x3a, 0x2c, 0xbf, 0xc4, 0xee, 0x61, 0x26,
-	0x3f, 0x01, 0x00, 0x00, 0xff, 0xff, 0x25, 0x20, 0x53, 0xcb, 0xac, 0x01, 0x00, 0x00,
+	// 230 bytes of a gzipped FileDescriptorProto
+	0x1f, 0x8b, 0x08, 0x00, 0x00, 0x00, 0x00, 0x00, 0x02, 0xff, 0x84, 0x50, 0xc1, 0x4a, 0xc3, 0x40,
+	0x10, 0x75, 0x6d, 0x49, 0xec, 0x68, 0xa3, 0x8c, 0x8a, 0x4b, 0x4f, 0x61, 0x51, 0x88, 0x97, 0x16,
+	0xf4, 0xe2, 0xbd, 0x07, 0x11, 0x3c, 0xad, 0x78, 0x2e, 0x6b, 0x3b, 0x34, 0x0b, 0x6a, 0xea, 0xce,
+	0x54, 0xfc, 0x7c, 0xe9, 0xae, 0x09, 0xc4, 0x4b, 0x6f, 0x6f, 0xde, 0x9b, 0xe1, 0xbd, 0x37, 0x70,
+	0xb6, 0x09, 0x8d, 0x34, 0xb3, 0x65, 0xed, 0x64, 0x1a, 0x21, 0x0e, 0x77, 0xd8, 0xd4, 0x30, 0x9e,
+	0x07, 0x72, 0x42, 0x96, 0xbe, 0xb6, 0xc4, 0x82, 0x57, 0x90, 0x6f, 0x99, 0xc2, 0xc2, 0xaf, 0xb4,
+	0x2a, 0x55, 0x35, 0xb6, 0xd9, 0x6e, 0x7c, 0x5a, 0xe1, 0x35, 0x14, 0xe2, 0xc2, 0x9a, 0x64, 0xd1,
+	0xea, 0x87, 0xa5, 0xaa, 0x46, 0xf6, 0x24, 0xb1, 0xaf, 0x69, 0x4b, 0x43, 0xfe, 0x41, 0xcc, 0x6e,
+	0x4d, 0x7a, 0x10, 0xe5, 0x76, 0x34, 0x00, 0x47, 0x96, 0x78, 0xd3, 0x7c, 0x32, 0x99, 0x5b, 0x28,
+	0x1e, 0x49, 0x9e, 0x3d, 0xcb, 0x3e, 0x5b, 0x73, 0x03, 0xa7, 0xdd, 0x6a, 0xba, 0x46, 0x84, 0xe1,
+	0xbb, 0x67, 0xd1, 0xaa, 0x1c, 0x54, 0x23, 0x1b, 0xf1, 0xdd, 0x0f, 0x1c, 0xcf, 0x6b, 0x27, 0x2f,
+	0x14, 0xbe, 0xfd, 0x92, 0x70, 0x06, 0x59, 0xaa, 0x85, 0xe7, 0xd3, 0xd8, 0xb9, 0x57, 0x72, 0x52,
+	0x24, 0xb2, 0xcb, 0x73, 0x80, 0x0f, 0x90, 0xff, 0xd9, 0xe0, 0x45, 0x12, 0xfb, 0x01, 0x27, 0x97,
+	0xff, 0xd8, 0xf6, 0xf2, 0x2d, 0x8b, 0xef, 0xbc, 0xff, 0x0d, 0x00, 0x00, 0xff, 0xff, 0x09, 0x58,
+	0x17, 0x48, 0x62, 0x01, 0x00, 0x00,
 }
 
 // Reference imports to suppress errors if they are not otherwise used.
@@ -275,8 +226,8 @@ var _ server.Option
 // Client API for ChatService service
 
 type ChatServiceClient interface {
-	Create(ctx context.Context, in *PushRequest, opts ...client.CallOption) (*Response, error)
-	GetQueue(ctx context.Context, in *GetQueueRequest, opts ...client.CallOption) (*GetQueueResponse, error)
+	Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*Response, error)
+	GetList(ctx context.Context, in *GetListRequest, opts ...client.CallOption) (*GetListResponse, error)
 }
 
 type chatServiceClient struct {
@@ -297,7 +248,7 @@ func NewChatServiceClient(serviceName string, c client.Client) ChatServiceClient
 	}
 }
 
-func (c *chatServiceClient) Create(ctx context.Context, in *PushRequest, opts ...client.CallOption) (*Response, error) {
+func (c *chatServiceClient) Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*Response, error) {
 	req := c.c.NewRequest(c.serviceName, "ChatService.Create", in)
 	out := new(Response)
 	err := c.c.Call(ctx, req, out, opts...)
@@ -307,9 +258,9 @@ func (c *chatServiceClient) Create(ctx context.Context, in *PushRequest, opts ..
 	return out, nil
 }
 
-func (c *chatServiceClient) GetQueue(ctx context.Context, in *GetQueueRequest, opts ...client.CallOption) (*GetQueueResponse, error) {
-	req := c.c.NewRequest(c.serviceName, "ChatService.GetQueue", in)
-	out := new(GetQueueResponse)
+func (c *chatServiceClient) GetList(ctx context.Context, in *GetListRequest, opts ...client.CallOption) (*GetListResponse, error) {
+	req := c.c.NewRequest(c.serviceName, "ChatService.GetList", in)
+	out := new(GetListResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -320,8 +271,8 @@ func (c *chatServiceClient) GetQueue(ctx context.Context, in *GetQueueRequest, o
 // Server API for ChatService service
 
 type ChatServiceHandler interface {
-	Create(context.Context, *PushRequest, *Response) error
-	GetQueue(context.Context, *GetQueueRequest, *GetQueueResponse) error
+	Create(context.Context, *CreateRequest, *Response) error
+	GetList(context.Context, *GetListRequest, *GetListResponse) error
 }
 
 func RegisterChatServiceHandler(s server.Server, hdlr ChatServiceHandler, opts ...server.HandlerOption) {
@@ -332,10 +283,10 @@ type ChatService struct {
 	ChatServiceHandler
 }
 
-func (h *ChatService) Create(ctx context.Context, in *PushRequest, out *Response) error {
+func (h *ChatService) Create(ctx context.Context, in *CreateRequest, out *Response) error {
 	return h.ChatServiceHandler.Create(ctx, in, out)
 }
 
-func (h *ChatService) GetQueue(ctx context.Context, in *GetQueueRequest, out *GetQueueResponse) error {
-	return h.ChatServiceHandler.GetQueue(ctx, in, out)
+func (h *ChatService) GetList(ctx context.Context, in *GetListRequest, out *GetListResponse) error {
+	return h.ChatServiceHandler.GetList(ctx, in, out)
 }

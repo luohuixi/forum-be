@@ -3,8 +3,8 @@ syntax = "proto3";
 package user;
 
 service UserService {
-  rpc TeamLogin(TeamLoginRequest) returns (TeamLoginResponse) {}
-  rpc StudentLogin(StudentLoginRequest) returns (StudentLoginResponse) {}
+  rpc TeamLogin(TeamLoginRequest) returns (LoginResponse) {}
+  rpc StudentLogin(StudentLoginRequest) returns (LoginResponse) {}
   rpc GetInfo(GetInfoRequest) returns (UserInfoResponse) {}
   rpc GetProfile(GetRequest) returns (UserProfile) {}
   rpc List(ListRequest) returns (ListResponse) {}
@@ -40,13 +40,9 @@ message TeamLoginRequest {
   string oauth_code = 1;
 }
 
-message TeamLoginResponse {
+message LoginResponse {
   string token = 1;
   string redirect_url = 2;
-}
-
-message StudentLoginResponse {
-  string token = 1;
 }
 
 message UserInfo {

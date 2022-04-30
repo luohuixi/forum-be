@@ -9,19 +9,17 @@ import (
 
 func TestToken(t *testing.T) {
 	var (
-		token  string
-		id     uint32 = 2020
-		role   uint32 = 3
-		teamID uint32 = 1
+		token string
+		id    uint32 = 2020
+		role  uint32 = 3
 	)
 
 	Convey("Test token", t, func() {
 		Convey("Test token generation", func() {
 			var err error
 			token, err = GenerateToken(&TokenPayload{
-				ID:      id,
+				Id:      id,
 				Role:    role,
-				TeamID:  teamID,
 				Expired: time.Hour * 2,
 			})
 			So(err, ShouldBeNil)
@@ -30,9 +28,8 @@ func TestToken(t *testing.T) {
 		Convey("Test token resolution", func() {
 			t, err := ResolveToken(token)
 			So(err, ShouldBeNil)
-			So(t.ID, ShouldEqual, id)
+			So(t.Id, ShouldEqual, id)
 			So(t.Role, ShouldEqual, role)
-			So(t.TeamID, ShouldEqual, teamID)
 		})
 	})
 }

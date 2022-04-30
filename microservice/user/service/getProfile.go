@@ -19,7 +19,7 @@ func (s *UserService) GetProfile(ctx context.Context, req *pb.GetRequest, res *p
 		return e.ServerErr(errno.ErrUserNotExisted, "")
 
 	}
-	res.Id = user.ID
+	res.Id = user.Id
 	res.Name = user.Name
 	res.Avatar = user.Avatar
 	res.Email = user.Email

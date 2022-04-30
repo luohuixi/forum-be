@@ -2,59 +2,41 @@ package service
 
 import (
 	"context"
-
 	"forum-user/errno"
 	"forum-user/model"
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
 	"forum-user/util"
+	"forum/pkg/constvar"
 	e "forum/pkg/err"
 	"forum/pkg/token"
 )
 
-// Login ... 登录
+// StudentLogin ... 登录
 // 如果无 code，则返回 oauth 的地址，让前端去请求 oauth，
 // 否则，用 code 获取 oauth 的 access token，并生成该应用的 auth token，返回给前端。
-func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest, res *pb.LoginResponse) error {
-	if req.OauthCode == "" {
-		res.RedirectUrl = auth.OauthURL
-		return nil
-	}
-
-	// get access token by auth code from auth-server
-	if err := auth.OauthManager.ExchangeAccessTokenWithCode(req.OauthCode); err != nil {
-		return e.ServerErr(errno.ErrRemoteAccessToken, err.Error())
-	}
-
-	// 尝试获取 access token，
-	// 并在其中检查是否有效，如失效则尝试从 auth-server 更新
-	accessToken, err := auth.OauthManager.GetAccessToken()
-	if err != nil {
-		return e.ServerErr(errno.ErrLocalAccessToken, err.Error())
-	}
-
-	// get user info by access token from auth-server
-	userInfo, err := auth.GetInfoRequest(accessToken)
-	if err != nil {
-		return e.ServerErr(errno.ErrGetUserInfo, err.Error())
-	}
-
-	// 根据 email 在 DB 查询 user
-	user, err := model.GetUserByEmail(userInfo.Email)
+func (s *UserService) StudentLogin(ctx context.Context, req *pb.StudentLoginRequest, res *pb.LoginResponse) error {
+	// 根据 StudentId 在 DB 查询 user
+	user, err := model.GetUserByStudentId(req.StudentId)
 
 	if err != nil {
 		return e.ServerErr(errno.ErrDatabase, err.Error())
-	} else if user == nil {
-		info := &RegisterInfo{
-			Name:  userInfo.Username,
-			Email: userInfo.Email,
+	}
+	if user == nil {
+		if err := auth.GetUserInfoFormOne(req.StudentId, req.Password); err != nil {
+			return e.ServerErr(errno.ErrRegister, err.Error())
+		}
+		info := &model.RegisterInfo{
+			StudentId: req.StudentId,
+			Password:  req.Password,
+			Role:      constvar.Normal,
 		}
 		// 用户未注册，自动注册
-		if err := RegisterUser(info); err != nil {
+		if err := model.RegisterUser(info); err != nil {
 			return e.ServerErr(errno.ErrDatabase, err.Error())
 		}
 		// 注册后重新查询
-		user, err = model.GetUserByEmail(userInfo.Email)
+		user, err = model.GetUserByStudentId(req.StudentId)
 		if err != nil {
 			return e.ServerErr(errno.ErrDatabase, err.Error())
 		}
@@ -62,7 +44,7 @@ func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest, res *pb.L
 
 	// 生成 auth token
 	token, err := token.GenerateToken(&token.TokenPayload{
-		ID:      user.ID,
+		Id:      user.Id,
 		Role:    user.Role,
 		Expired: util.GetExpiredTime(),
 	})

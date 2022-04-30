@@ -1,6 +1,7 @@
 package router
 
 import (
+	"forum-gateway/handler/chat"
 	"forum-gateway/handler/sd"
 	"net/http"
 
@@ -36,10 +37,10 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	// superAdminRequired := middleware.AuthMiddleware(constvar.AuthLevelSuperAdmin)
 
 	// auth 模块
-	authRouter := g.Group("api/v1/auth")
+	authRouter := g.Group("api/v1/auth/login")
 	{
-		authRouter.POST("/login", user.Login)
-		authRouter.POST("/signup", user.Register)
+		authRouter.POST("/student", user.StudentLogin)
+		authRouter.POST("/team", user.TeamLogin)
 	}
 
 	// user 模块
@@ -49,7 +50,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		// userRouter.GET("/infos", user.GetInfo)
 		userRouter.GET("/profile/:id", user.GetProfile)
 		userRouter.GET("/myprofile", user.GetMyProfile)
-		userRouter.GET("/list/:group_id/:team_id", user.List)
+		userRouter.GET("/list", user.List)
 		userRouter.PUT("", user.UpdateInfo)
 	}
 
@@ -61,6 +62,14 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	// 	trashbinRouter.PUT("/:id", project.UpdateTrashbin)
 	// 	trashbinRouter.DELETE("/:id", project.DeleteTrashbin)
 	// }
+
+	chatRouter := g.Group("api/v1/chat")
+	chatRouter.GET("/ws", chat.WsHandler)
+	chatRouter.Use(normalRequired)
+	{
+		chatRouter.POST("", chat.Create)
+		chatRouter.GET("", chat.GetList)
+	}
 
 	// The health check handlers
 	svcd := g.Group("/sd")

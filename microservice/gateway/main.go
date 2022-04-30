@@ -25,6 +25,7 @@ var (
 
 func init() {
 	service.UserInit()
+	service.ChatInit()
 }
 
 // @title forum-gateway
@@ -37,6 +38,8 @@ func init() {
 // @tag.description 用户服务
 // @tag.name auth
 // @tag.description 认证服务
+// @tag.name chat
+// @tag.description 聊天服务
 
 func main() {
 	pflag.Parse()
@@ -49,9 +52,6 @@ func main() {
 	// logger sync
 	defer log.SyncLogger()
 
-	// init db
-	model.DB.Init()
-	defer model.DB.Close()
 	// init redis
 	model.RedisDB.Init()
 	defer model.RedisDB.Close()

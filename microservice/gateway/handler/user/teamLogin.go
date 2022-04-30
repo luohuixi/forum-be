@@ -7,8 +7,8 @@ import (
 	"forum-gateway/pkg/errno"
 	"forum-gateway/service"
 	"forum-gateway/util"
+	pb "forum-user/proto"
 	e "forum/pkg/err"
-	pb "user/proto"
 
 	errors "github.com/micro/go-micro/errors"
 
@@ -22,8 +22,8 @@ import (
 // @Tags auth
 // @Accept  application/json
 // @Produce  application/json
-// @Param object body LoginRequest true "login_request"
-// @Success 200 {object} LoginResponse
+// @Param object body teamLoginRequest true "login_request"
+// @Success 200 {object} teamLoginResponse
 // @Failure 401 {object} handler.Response
 // @Failure 500 {object} handler.Response
 // @Router /auth/login/team [post]
@@ -39,12 +39,12 @@ func TeamLogin(c *gin.Context) {
 	}
 
 	// 构造请求给 login
-	loginReq := &pb.LoginRequest{
+	loginReq := &pb.TeamLoginRequest{
 		OauthCode: req.OauthCode,
 	}
 
 	// 发送请求
-	loginResp, err := service.UserClient.Login(context.Background(), loginReq)
+	loginResp, err := service.UserClient.TeamLogin(context.Background(), loginReq)
 
 	if err != nil {
 		parsedErr := errors.Parse(err.Error())
@@ -62,7 +62,7 @@ func TeamLogin(c *gin.Context) {
 	}
 
 	// 构造返回 response
-	resp := loginResponse{
+	resp := teamLoginResponse{
 		Token:       loginResp.Token,
 		RedirectURL: loginResp.RedirectUrl,
 	}

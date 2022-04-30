@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"forum/pkg/constvar"
 
 	"forum-user/errno"
 	"forum-user/model"
@@ -12,10 +13,10 @@ import (
 	"forum/pkg/token"
 )
 
-// Login ... 登录
+// TeamLogin ... 登录
 // 如果无 code，则返回 oauth 的地址，让前端去请求 oauth，
 // 否则，用 code 获取 oauth 的 access token，并生成该应用的 auth token，返回给前端。
-func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest, res *pb.LoginResponse) error {
+func (s *UserService) TeamLogin(ctx context.Context, req *pb.TeamLoginRequest, res *pb.LoginResponse) error {
 	if req.OauthCode == "" {
 		res.RedirectUrl = auth.OauthURL
 		return nil
@@ -45,12 +46,13 @@ func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest, res *pb.L
 	if err != nil {
 		return e.ServerErr(errno.ErrDatabase, err.Error())
 	} else if user == nil {
-		info := &RegisterInfo{
+		info := &model.RegisterInfo{
 			Name:  userInfo.Username,
 			Email: userInfo.Email,
+			Role:  constvar.TeamNormal,
 		}
 		// 用户未注册，自动注册
-		if err := RegisterUser(info); err != nil {
+		if err := model.RegisterUser(info); err != nil {
 			return e.ServerErr(errno.ErrDatabase, err.Error())
 		}
 		// 注册后重新查询
@@ -62,7 +64,7 @@ func (s *UserService) Login(ctx context.Context, req *pb.LoginRequest, res *pb.L
 
 	// 生成 auth token
 	token, err := token.GenerateToken(&token.TokenPayload{
-		ID:      user.ID,
+		Id:      user.Id,
 		Role:    user.Role,
 		Expired: util.GetExpiredTime(),
 	})

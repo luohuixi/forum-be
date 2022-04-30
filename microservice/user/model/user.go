@@ -9,7 +9,7 @@ import (
 )
 
 type UserModel struct {
-	ID           uint32 `json:"id" gorm:"column:id;not null" binding:"required"`
+	Id           uint32 `json:"id" gorm:"column:id;not null" binding:"required"`
 	Name         string `json:"name" gorm:"column:name;" binding:"required"`
 	Email        string `json:"email" gorm:"column:email;" binding:"required"`
 	Avatar       string `json:"avatar" gorm:"column:avatar;" binding:"required"`
@@ -17,6 +17,17 @@ type UserModel struct {
 	Message      uint32 `json:"message" gorm:"column:message;" binding:"required"`
 	PasswordHash string `json:"password_hash" gorm:"column:password_hash;" binding:"required"`
 	StudentID    string `json:"student_id" gorm:"column:student_id;"`
+}
+type test struct {
+	UserModel
+	RegisterInfo
+}
+type RegisterInfo struct {
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	StudentId string `json:"student_id"`
+	Password  string `json:"password"`
+	Role      uint32 `json:"role"`
 }
 
 func (u *UserModel) TableName() string {
@@ -93,11 +104,33 @@ func ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, er
 	return list, nil
 }
 
-//
-func GeneratePasswordHash(password string) string {
+// GetUserByStudentId get a user by studentId.
+func GetUserByStudentId(studentId string) (*UserModel, error) {
+	u := &UserModel{}
+	err := m.DB.Self.Where("email = ?", studentId).First(u).Error
+	if gorm.IsRecordNotFoundError(err) {
+		return nil, nil
+	}
+	return u, err
+}
+
+// generatePasswordHash pwd -> hashPwd
+func generatePasswordHash(password string) string {
 	return security.GeneratePasswordHash(password)
 }
 
 func (u *UserModel) CheckPassword(password string) bool {
 	return security.CheckPasswordHash(password, u.PasswordHash)
+}
+
+func RegisterUser(info *RegisterInfo) error {
+	// 本地 user 数据库创建用户
+	user := &UserModel{
+		Name:         info.Name,
+		Email:        info.Email,
+		StudentID:    info.StudentId,
+		PasswordHash: generatePasswordHash(info.Password),
+		Role:         info.Role,
+	}
+	return user.Create()
 }

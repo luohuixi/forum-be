@@ -20,25 +20,6 @@ var (
 	ErrUserNotFound      = &Errno{Code: 20201, Message: "The user was not found."}
 	ErrPasswordIncorrect = &Errno{Code: 20202, Message: "The password was incorrect."}
 
-	// feed errors
-	ErrFeedList = &Errno{Code: 20301, Message: "Error occurred while getting feed list."}
-
-	// attention errors
-	ErrAttentionList = &Errno{Code: 20401, Message: "Error occurred while getting attention list."}
-
-	// project errors
-	ErrTrashbinType            = &Errno{Code: 20501, Message: "Invalid trashbin type."}
-	ErrNoProjectId             = &Errno{Code: 20502, Message: "Project service must have project_id in query."}
-	ErrProjectPermissionDenied = &Errno{Code: 20503, Message: "Permission denied or this project has been deleted."}
-
-	// status errors
-	// ...
-
-	// upload errors
-	ErrGetFile    = &Errno{Code: 20701, Message: "Error occurred in getting file from FormFile()"}
-	ErrUploadFile = &Errno{Code: 20702, Message: "Error occurred in uploading file to oss"}
-
-	// team errors
-	// ...
-
+	// chat errors
+	ErrWebsocket = &Errno{Code: 40401, Message: "Error occurred in upgrade HTTP to websocket"}
 )

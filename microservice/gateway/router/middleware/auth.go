@@ -22,15 +22,10 @@ func AuthMiddleware(limit uint32) gin.HandlerFunc {
 			handler.SendResponse(c, errno.ErrPermissionDenied, "")
 			c.Abort()
 			return
-		} else if ctx.TeamID == 0 {
-			handler.SendResponse(c, errno.ErrNotJoined, "")
-			c.Abort()
-			return
 		}
 
-		c.Set("userID", ctx.ID)
+		c.Set("userId", ctx.Id)
 		c.Set("role", ctx.Role)
-		c.Set("teamID", ctx.TeamID)
 		c.Set("expiresAt", ctx.ExpiresAt)
 
 		c.Next()

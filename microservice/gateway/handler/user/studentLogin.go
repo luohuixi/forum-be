@@ -7,8 +7,8 @@ import (
 	"forum-gateway/pkg/errno"
 	"forum-gateway/service"
 	"forum-gateway/util"
+	pb "forum-user/proto"
 	e "forum/pkg/err"
-	pb "user/proto"
 
 	errors "github.com/micro/go-micro/errors"
 

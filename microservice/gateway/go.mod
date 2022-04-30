@@ -2,7 +2,9 @@ module forum-gateway
 
 replace forum => ../../
 
-replace user => ../user
+replace forum-user => ../user
+
+replace forum-chat => ../chat
 
 go 1.16
 
@@ -12,7 +14,10 @@ replace github.com/micro/go-micro => github.com/Lofanmi/go-micro v1.16.1-0.20210
 
 require (
 	forum v0.0.0-00010101000000-000000000000
+	forum-chat v0.0.0-00010101000000-000000000000
+	forum-user v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.7.7
+	github.com/gorilla/websocket v1.4.1
 	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-plugins/registry/kubernetes v0.0.0-20200119172437-4fe21aa238fd
 	github.com/micro/go-plugins/wrapper/trace/opentracing v0.0.0-20200119172437-4fe21aa238fd
@@ -30,5 +35,4 @@ require (
 	github.com/yusufpapurcu/wmi v1.2.2 // indirect
 	go.uber.org/zap v1.21.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
-	user v0.0.0-00010101000000-000000000000
 )

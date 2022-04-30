@@ -9,7 +9,7 @@ import (
 	"forum-gateway/pkg/errno"
 	"forum-gateway/service"
 	"forum-gateway/util"
-	pb "user/proto"
+	pb "forum-user/proto"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -17,7 +17,7 @@ import (
 
 func GetUserProfile(id uint32) (*userProfile, error) {
 
-	getProfileReq := &pb.GetRequest{Id: uint32(id)}
+	getProfileReq := &pb.GetRequest{Id: id}
 
 	// 发送请求
 	getProfileResp, err := service.UserClient.GetProfile(context.Background(), getProfileReq)

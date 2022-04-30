@@ -2,9 +2,9 @@ package service
 
 import (
 	"context"
+	"forum-user/model"
 
 	errno "forum-user/errno"
-	model "forum-user/model"
 	pb "forum-user/proto"
 	e "forum/pkg/err"
 )
@@ -21,7 +21,7 @@ func (s *UserService) GetInfo(ctx context.Context, req *pb.GetInfoRequest, res *
 
 	for _, user := range list {
 		userInfos = append(userInfos, &pb.UserInfo{
-			Id:        user.ID,
+			Id:        user.Id,
 			Name:      user.Name,
 			AvatarUrl: user.Avatar,
 			Email:     user.Email,

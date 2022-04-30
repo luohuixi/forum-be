@@ -1,32 +1,23 @@
 package dao
 
 import (
-	"forum/model"
-	"github.com/go-redis/redis"
+	"forum-chat/service"
+	"strconv"
 )
 
-var (
-	dao *Dao
-)
-
-// Dao .
-type Dao struct {
-	Redis *redis.Client
+func (d *Dao) Create(data *service.ChatData) error {
+	return d.Redis.LPush(data.Receiver, strconv.Itoa(int(data.Sender))+"/"+data.Date+"/"+data.Message).Err()
 }
 
-// Interface dao
-type Interface interface {
-	Post(queue string, data []byte) error
-	CreateQueue(queue string) error
-}
+func (d *Dao) GetList(id uint32) ([]string, error) {
+	var list []string
 
-// Init init dao
-func Init() {
-	if dao != nil {
-		return
+	for message, err := d.Redis.RPop(strconv.Itoa(int(id))).Result(); message != ""; {
+		if err != nil {
+			return nil, err
+		}
+		list = append(list, message)
 	}
 
-	dao = &Dao{
-		Redis: model.RedisDB.Self,
-	}
+	return list, nil
 }

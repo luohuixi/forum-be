@@ -7,8 +7,8 @@ import (
 	"forum-gateway/pkg/errno"
 	"forum-gateway/service"
 	"forum-gateway/util"
+	pb "forum-user/proto"
 	"strconv"
-	pb "user/proto"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

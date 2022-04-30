@@ -25,9 +25,8 @@ func (s *UserService) List(ctx context.Context, req *pb.ListRequest, res *pb.Lis
 
 	for _, item := range list {
 		resList = append(resList, &pb.User{
-			Id:     item.ID,
+			Id:     item.Id,
 			Name:   item.Name,
-			Email:  item.Email,
 			Avatar: item.Avatar,
 			Role:   item.Role,
 		})
