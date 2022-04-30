@@ -4,8 +4,8 @@ import (
 	"context"
 	"forum/pkg/constvar"
 
+	"forum-user/dao"
 	"forum-user/errno"
-	"forum-user/model"
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
 	"forum-user/util"
@@ -41,22 +41,22 @@ func (s *UserService) TeamLogin(ctx context.Context, req *pb.TeamLoginRequest, r
 	}
 
 	// 根据 email 在 DB 查询 user
-	user, err := model.GetUserByEmail(userInfo.Email)
+	user, err := dao.GetUserByEmail(userInfo.Email)
 
 	if err != nil {
 		return e.ServerErr(errno.ErrDatabase, err.Error())
 	} else if user == nil {
-		info := &model.RegisterInfo{
+		info := &dao.RegisterInfo{
 			Name:  userInfo.Username,
 			Email: userInfo.Email,
 			Role:  constvar.TeamNormal,
 		}
 		// 用户未注册，自动注册
-		if err := model.RegisterUser(info); err != nil {
+		if err := dao.RegisterUser(info); err != nil {
 			return e.ServerErr(errno.ErrDatabase, err.Error())
 		}
 		// 注册后重新查询
-		user, err = model.GetUserByEmail(userInfo.Email)
+		user, err = dao.GetUserByEmail(userInfo.Email)
 		if err != nil {
 			return e.ServerErr(errno.ErrDatabase, err.Error())
 		}

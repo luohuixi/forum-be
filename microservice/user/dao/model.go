@@ -1,0 +1,40 @@
+package dao
+
+import (
+	m "forum/model"
+	"github.com/ShiinaOrez/GoSecurity/security"
+)
+
+type UserModel struct {
+	Id           uint32 `json:"id" gorm:"column:id;not null" binding:"required"`
+	Name         string `json:"name" gorm:"column:name;" binding:"required"`
+	Email        string `json:"email" gorm:"column:email;" binding:"required"`
+	Avatar       string `json:"avatar" gorm:"column:avatar;" binding:"required"`
+	Role         uint32 `json:"role" gorm:"column:role;" binding:"required"`
+	Message      uint32 `json:"message" gorm:"column:message;" binding:"required"`
+	PasswordHash string `json:"password_hash" gorm:"column:password_hash;" binding:"required"`
+	StudentID    string `json:"student_id" gorm:"column:student_id;"`
+}
+
+func (u *UserModel) TableName() string {
+	return "users"
+}
+
+// Create ... create user
+func (u *UserModel) Create() error {
+	return m.DB.Self.Create(u).Error
+}
+
+// Save ... save user.
+func (u *UserModel) Save() error {
+	return m.DB.Self.Save(u).Error
+}
+
+// generatePasswordHash pwd -> hashPwd
+func generatePasswordHash(password string) string {
+	return security.GeneratePasswordHash(password)
+}
+
+func (u *UserModel) CheckPassword(password string) bool {
+	return security.CheckPasswordHash(password, u.PasswordHash)
+}

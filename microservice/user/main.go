@@ -1,12 +1,12 @@
 package main
 
 import (
+	"forum-user/dao"
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
 	s "forum-user/service"
 	"forum/config"
 	logger "forum/log"
-	"forum/model"
 	"forum/pkg/handler"
 	tracer "forum/pkg/tracer"
 	"github.com/micro/go-micro"
@@ -35,10 +35,6 @@ func main() {
 	// set var t to Global Tracer (opentracing single instance mode)
 	opentracing.SetGlobalTracer(t)
 
-	// init db
-	model.DB.Init()
-	defer model.DB.Close()
-
 	// init oauth-manager and some variables
 	auth.InitVar()
 	auth.OauthManager.Init()
@@ -54,8 +50,9 @@ func main() {
 	// Init will parse the command line flags.
 	srv.Init()
 
+	dao.Init()
 	// Register handler
-	pb.RegisterUserServiceHandler(srv.Server(), &s.UserService{})
+	pb.RegisterUserServiceHandler(srv.Server(), s.New(dao.GetDao()))
 
 	// Run the server
 	if err := srv.Run(); err != nil {

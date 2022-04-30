@@ -1,47 +1,17 @@
-package model
+package dao
 
 import (
 	m "forum/model"
 	"forum/pkg/constvar"
-	"github.com/ShiinaOrez/GoSecurity/security"
-
 	"github.com/jinzhu/gorm"
 )
 
-type UserModel struct {
-	Id           uint32 `json:"id" gorm:"column:id;not null" binding:"required"`
-	Name         string `json:"name" gorm:"column:name;" binding:"required"`
-	Email        string `json:"email" gorm:"column:email;" binding:"required"`
-	Avatar       string `json:"avatar" gorm:"column:avatar;" binding:"required"`
-	Role         uint32 `json:"role" gorm:"column:role;" binding:"required"`
-	Message      uint32 `json:"message" gorm:"column:message;" binding:"required"`
-	PasswordHash string `json:"password_hash" gorm:"column:password_hash;" binding:"required"`
-	StudentID    string `json:"student_id" gorm:"column:student_id;"`
-}
-type test struct {
-	UserModel
-	RegisterInfo
-}
 type RegisterInfo struct {
 	Name      string `json:"name"`
 	Email     string `json:"email"`
 	StudentId string `json:"student_id"`
 	Password  string `json:"password"`
 	Role      uint32 `json:"role"`
-}
-
-func (u *UserModel) TableName() string {
-	return "users"
-}
-
-// Create ... create user
-func (u *UserModel) Create() error {
-	return m.DB.Self.Create(u).Error
-}
-
-// Save ... save user.
-func (u *UserModel) Save() error {
-	return m.DB.Self.Save(u).Error
 }
 
 // GetUser get a single user by id
@@ -112,15 +82,6 @@ func GetUserByStudentId(studentId string) (*UserModel, error) {
 		return nil, nil
 	}
 	return u, err
-}
-
-// generatePasswordHash pwd -> hashPwd
-func generatePasswordHash(password string) string {
-	return security.GeneratePasswordHash(password)
-}
-
-func (u *UserModel) CheckPassword(password string) bool {
-	return security.CheckPasswordHash(password, u.PasswordHash)
 }
 
 func RegisterUser(info *RegisterInfo) error {
