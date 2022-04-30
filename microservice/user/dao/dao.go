@@ -16,8 +16,12 @@ type Dao struct {
 
 // Interface dao
 type Interface interface {
-	// Create() error
-	// GetList(uint32) ([]string, error)
+	GetUser(id uint32) (*UserModel, error)
+	GetUserByIds(ids []uint32) ([]*UserModel, error)
+	GetUserByEmail(email string) (*UserModel, error)
+	ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, error)
+	GetUserByStudentId(studentId string) (*UserModel, error)
+	RegisterUser(info *RegisterInfo) error
 }
 
 // Init init dao

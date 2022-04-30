@@ -16,7 +16,7 @@ func (s *UserService) List(ctx context.Context, req *pb.ListRequest, res *pb.Lis
 	filter := &dao.UserModel{Role: req.Role}
 
 	// DB 查询
-	list, err := dao.ListUser(req.Offset, req.Limit, req.LastId, filter)
+	list, err := s.Dao.ListUser(req.Offset, req.Limit, req.LastId, filter)
 	if err != nil {
 		return e.ServerErr(errno.ErrDatabase, err.Error())
 	}

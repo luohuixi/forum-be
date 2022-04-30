@@ -2,8 +2,6 @@ package service
 
 import (
 	"context"
-	"forum-user/dao"
-
 	errno "forum-user/errno"
 	pb "forum-user/proto"
 	e "forum/pkg/err"
@@ -12,7 +10,7 @@ import (
 // GetInfo ... 获取用户信息
 func (s *UserService) GetInfo(ctx context.Context, req *pb.GetInfoRequest, res *pb.UserInfoResponse) error {
 
-	list, err := dao.GetUserByIds(req.Ids)
+	list, err := s.Dao.GetUserByIds(req.Ids)
 	if err != nil {
 		return e.ServerErr(errno.ErrDatabase, err.Error())
 	}

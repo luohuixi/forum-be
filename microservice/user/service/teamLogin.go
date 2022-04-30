@@ -41,7 +41,7 @@ func (s *UserService) TeamLogin(ctx context.Context, req *pb.TeamLoginRequest, r
 	}
 
 	// 根据 email 在 DB 查询 user
-	user, err := dao.GetUserByEmail(userInfo.Email)
+	user, err := s.Dao.GetUserByEmail(userInfo.Email)
 
 	if err != nil {
 		return e.ServerErr(errno.ErrDatabase, err.Error())
@@ -52,11 +52,11 @@ func (s *UserService) TeamLogin(ctx context.Context, req *pb.TeamLoginRequest, r
 			Role:  constvar.TeamNormal,
 		}
 		// 用户未注册，自动注册
-		if err := dao.RegisterUser(info); err != nil {
+		if err := s.Dao.RegisterUser(info); err != nil {
 			return e.ServerErr(errno.ErrDatabase, err.Error())
 		}
 		// 注册后重新查询
-		user, err = dao.GetUserByEmail(userInfo.Email)
+		user, err = s.Dao.GetUserByEmail(userInfo.Email)
 		if err != nil {
 			return e.ServerErr(errno.ErrDatabase, err.Error())
 		}

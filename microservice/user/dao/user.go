@@ -1,7 +1,6 @@
 package dao
 
 import (
-	m "forum/model"
 	"forum/pkg/constvar"
 	"github.com/jinzhu/gorm"
 )
@@ -15,28 +14,28 @@ type RegisterInfo struct {
 }
 
 // GetUser get a single user by id
-func GetUser(id uint32) (*UserModel, error) {
+func (d *Dao) GetUser(id uint32) (*UserModel, error) {
 	user := &UserModel{}
-	d := m.DB.Self.Where("id = ?", id).First(user)
-	if d.Error == gorm.ErrRecordNotFound {
+	res := d.DB.Where("id = ?", id).First(user)
+	if res.Error == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
-	return user, d.Error
+	return user, res.Error
 }
 
 // GetUserByIds get user by id array
-func GetUserByIds(ids []uint32) ([]*UserModel, error) {
+func (d *Dao) GetUserByIds(ids []uint32) ([]*UserModel, error) {
 	list := make([]*UserModel, 0)
-	if err := m.DB.Self.Where("id IN (?)", ids).Find(&list).Error; err != nil {
+	if err := d.DB.Where("id IN (?)", ids).Find(&list).Error; err != nil {
 		return list, err
 	}
 	return list, nil
 }
 
 // GetUserByEmail get a user by email.
-func GetUserByEmail(email string) (*UserModel, error) {
+func (d *Dao) GetUserByEmail(email string) (*UserModel, error) {
 	u := &UserModel{}
-	err := m.DB.Self.Where("email = ?", email).First(u).Error
+	err := d.DB.Where("email = ?", email).First(u).Error
 	if gorm.IsRecordNotFoundError(err) {
 		return nil, nil
 	}
@@ -44,24 +43,24 @@ func GetUserByEmail(email string) (*UserModel, error) {
 }
 
 // GetUserByName get a user by name.
-func GetUserByName(name string) (*UserModel, error) {
-	u := &UserModel{}
-	err := m.DB.Self.Where("name = ?", name).First(u).Error
-	if gorm.IsRecordNotFoundError(err) {
-		return nil, nil
-	}
-	return u, err
-}
+// func GetUserByName(name string) (*UserModel, error) {
+// 	u := &UserModel{}
+// 	err := m.DB.Self.Where("name = ?", name).First(u).Error
+// 	if gorm.IsRecordNotFoundError(err) {
+// 		return nil, nil
+// 	}
+// 	return u, err
+// }
 
 // ListUser list users
-func ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, error) {
+func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, error) {
 	if limit == 0 {
 		limit = constvar.DefaultLimit
 	}
 
 	list := make([]*UserModel, 0)
 
-	query := m.DB.Self.Model(&UserModel{}).Where(filter).Offset(offset).Limit(limit)
+	query := d.DB.Model(&UserModel{}).Where(filter).Offset(offset).Limit(limit)
 
 	if lastId != 0 {
 		query = query.Where("id < ?", lastId).Order("id desc")
@@ -75,16 +74,16 @@ func ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, er
 }
 
 // GetUserByStudentId get a user by studentId.
-func GetUserByStudentId(studentId string) (*UserModel, error) {
+func (d *Dao) GetUserByStudentId(studentId string) (*UserModel, error) {
 	u := &UserModel{}
-	err := m.DB.Self.Where("email = ?", studentId).First(u).Error
+	err := d.DB.Where("email = ?", studentId).First(u).Error
 	if gorm.IsRecordNotFoundError(err) {
 		return nil, nil
 	}
 	return u, err
 }
 
-func RegisterUser(info *RegisterInfo) error {
+func (d *Dao) RegisterUser(info *RegisterInfo) error {
 	// 本地 user 数据库创建用户
 	user := &UserModel{
 		Name:         info.Name,
