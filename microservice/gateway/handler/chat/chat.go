@@ -77,17 +77,23 @@ func (c *Client) Read() {
 			c.Socket.WriteMessage(websocket.CloseMessage, []byte("format error, eg. 5-外比巴卜"))
 			break
 		}
-		if _, err := strconv.Atoi(string(message)[:index]); err != nil {
+		targetUserId := string(message)[:index]
+		if _, err := strconv.Atoi(targetUserId); err != nil {
 			c.Socket.WriteMessage(websocket.CloseMessage, []byte("format error, eg. 5-外比巴卜"))
+			break
+		}
+
+		if targetUserId == c.UserId {
+			c.Socket.WriteMessage(websocket.CloseMessage, []byte("error: can't message yourself"))
 			break
 		}
 
 		createReq := &pb.CreateRequest{
 			UserId:       c.UserId,
-			TargetUserId: string(message)[:index],
+			TargetUserId: targetUserId,
 			Message:      string(message)[index+1:],
 		}
-		fmt.Println(c.UserId, string(message)[:index], string(message)[index+1:])
+
 		if _, err := service.ChatClient.Create(context.Background(), createReq); err != nil {
 			fmt.Println(err)
 			c.Socket.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
@@ -106,23 +112,15 @@ func (c *Client) Write() {
 		if !c.Open {
 			break
 		}
-		getListReq := &pb.GetListRequest{
-			UserId: c.UserId,
-		}
 
-		res, err := service.ChatClient.GetList(context.Background(), getListReq)
+		res, err := m.RedisDB.Self.BRPop(time.Hour, c.UserId).Result()
 		if err != nil {
 			log.Error(err.Error())
 			c.Socket.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
 			break
 		}
 
-		if len(res.List) == 0 {
-			time.Sleep(time.Second)
-			continue
-		}
-
-		for _, msg := range res.List {
+		for _, msg := range res {
 			l.Println(msg)
 			if err != nil {
 				c.Socket.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
