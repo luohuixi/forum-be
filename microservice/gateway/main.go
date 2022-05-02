@@ -31,7 +31,7 @@ func init() {
 // @title forum-gateway
 // @version 1.0
 // @description The gateway of forum
-// @host work.test.muxi-tech.xyz ///////
+// @host work.test.muxi-tech.xyz
 // @BasePath /api/v1
 
 // @tag.name user
@@ -41,6 +41,8 @@ func init() {
 // @tag.name chat
 // @tag.description 聊天服务
 
+func main1() {
+}
 func main() {
 	pflag.Parse()
 
@@ -57,9 +59,9 @@ func main() {
 	defer model.RedisDB.Close()
 
 	// 黑名单过期数据定时清理
-	go service.TidyBlacklist()
+	// go service.TidyBlacklist()
 	// 同步黑名单数据
-	service.SynchronizeBlacklistToRedis()
+	// service.SynchronizeBlacklistToRedis()
 
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))

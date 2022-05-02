@@ -6,11 +6,13 @@ import (
 	errno "forum-chat/errno"
 	pb "forum-chat/proto"
 	e "forum/pkg/err"
+	"log"
 	"time"
 )
 
 // Create 发送消息
 func (s *ChatService) Create(ctx context.Context, req *pb.CreateRequest, resp *pb.Response) error {
+	log.Println("service.Create", req.UserId)
 	data := &dao.ChatData{
 		Message:  req.Message,
 		Date:     time.Now().Format("2006-01-02 15:04:05"),

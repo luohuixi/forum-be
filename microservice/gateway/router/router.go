@@ -64,11 +64,10 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	// }
 
 	chatRouter := g.Group("api/v1/chat")
-	chatRouter.GET("/ws", chat.WsHandler)
-	chatRouter.Use(normalRequired)
+	// chatRouter.Use(normalRequired)
 	{
-		chatRouter.POST("", chat.Create)
-		chatRouter.GET("", chat.GetList)
+		// chatRouter.GET("", normalRequired, chat.GetId)
+		chatRouter.GET("/ws", chat.WsHandler)
 	}
 
 	// The health check handlers

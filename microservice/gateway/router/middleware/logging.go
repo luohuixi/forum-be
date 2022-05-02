@@ -28,7 +28,7 @@ func (w bodyLogWriter) Write(b []byte) (int, error) {
 	return w.ResponseWriter.Write(b)
 }
 
-// Logging is a middleware function that logs the each request.
+// Logging is a middleware function that logs each request.
 func Logging() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now().UTC()
@@ -44,6 +44,11 @@ func Logging() gin.HandlerFunc {
 			return
 		}
 
+		// Skip for the websocket requests.
+		if len(path) >= 3 && path[len(path)-3:] == "/ws" {
+			return
+		}
+
 		// Read the Body content
 		var bodyBytes []byte
 		if c.Request.Body != nil {
@@ -53,7 +58,7 @@ func Logging() gin.HandlerFunc {
 		// Restore the io.ReadCloser to its original state
 		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
 
-		// The basic informations.
+		// The basic information.
 		method := c.Request.Method
 		ip := c.ClientIP()
 

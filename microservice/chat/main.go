@@ -6,7 +6,6 @@ import (
 	s "forum-chat/service"
 	"forum/config"
 	logger "forum/log"
-	"forum/model"
 	"forum/pkg/handler"
 	tracer "forum/pkg/tracer"
 	"github.com/micro/go-micro"
@@ -22,7 +21,7 @@ import (
 
 func main() {
 	// init config
-	if err := config.Init("", "FORUM_USER"); err != nil {
+	if err := config.Init("", "FORUM_chat"); err != nil {
 		panic(err)
 	}
 
@@ -35,14 +34,6 @@ func main() {
 
 	// set var t to Global Tracer (opentracing single instance mode)
 	opentracing.SetGlobalTracer(t)
-
-	// init db
-	// model.DB.Init()
-	// defer model.DB.Close()
-
-	// init redis
-	model.RedisDB.Init()
-	defer model.RedisDB.Close()
 
 	srv := micro.NewService(
 		micro.Name(viper.GetString("local_name")),

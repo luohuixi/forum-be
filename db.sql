@@ -87,15 +87,3 @@ CREATE TABLE `user2files` (
   `file_kind` int(11) DEFAULT NULL COMMENT 'file 的类型，包括 doc 和 file，1-doc 2-file',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;
-
-
--- token 黑名单
-DROP TABLE IF EXISTS `blacklist`;
-CREATE TABLE `blacklist` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `token` varchar(255) DEFAULT '' NOT NULL,
-  `created_at` datetime DEFAULT NULL,
-  `expires_at` int(11) unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_token` (`token`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 ROW_FORMAT=DYNAMIC;

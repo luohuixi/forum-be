@@ -11,17 +11,19 @@ package service
 // 	"github.com/spf13/viper"
 // 	"go.uber.org/zap"
 // )
-//
-// // CheckInBlacklist checks whether a token is in blacklist
-// func CheckInBlacklist(token string) (bool, error) {
-// 	// 从 redis 中查找是否有该 token 数据，若有，则在黑名单中
-// 	exist, err := m.HasExistedInRedis(token)
-// 	if err != nil {
-// 		log.Error("HasExistedInRedis error", zap.String("cause", err.Error()))
-// 		return false, err
-// 	}
-// 	return exist, nil
-// }
+
+// CheckInBlacklist checks whether a token is in blacklist
+func CheckInBlacklist(token string) (bool, error) {
+	// 从 redis 中查找是否有该 token 数据，若有，则在黑名单中
+	// exist, err := m.HasExistedInRedis(token)
+	// if err != nil {
+	// log.Error("HasExistedInRedis error", zap.String("cause", err.Error()))
+	// return false, err
+	// }
+	// return exist, nil
+	return false, nil
+}
+
 //
 // // AddToBlacklist adds a token into blacklist
 // func AddToBlacklist(token string, expiresAt int64) error {

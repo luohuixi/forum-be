@@ -1,11 +1,18 @@
 package dao
 
 import (
+	"encoding/json"
+	"fmt"
 	"strconv"
 )
 
 func (d *Dao) Create(data *ChatData) error {
-	return d.Redis.LPush(data.Receiver, strconv.Itoa(int(data.Sender))+"/"+data.Date+"/"+data.Message).Err()
+	fmt.Println("dao.Create")
+	msg, err := json.Marshal(data)
+	if err != nil {
+		return err
+	}
+	return d.Redis.LPush(data.Receiver, msg).Err()
 }
 
 func (d *Dao) GetList(id uint32) ([]string, error) {
@@ -19,4 +26,5 @@ func (d *Dao) GetList(id uint32) ([]string, error) {
 	}
 
 	return list, nil
+	// return d.Redis.LRange(strconv.Itoa(int(id)), -1, 0).Result()
 }

@@ -26,6 +26,9 @@ func Init() {
 		return
 	}
 
+	// init redis
+	model.RedisDB.Init()
+
 	dao = &Dao{
 		Redis: model.RedisDB.Self,
 	}
@@ -36,7 +39,7 @@ func Init() {
 type ChatData struct {
 	Message  string `json:"message"`
 	Date     string `json:"date"`
-	Receiver string `json:"receiver"`
+	Receiver string `json:"-"`
 	Sender   uint32 `json:"sender"`
 }
 
