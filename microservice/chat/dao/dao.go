@@ -17,7 +17,7 @@ type Dao struct {
 // Interface dao
 type Interface interface {
 	Create(*ChatData) error
-	GetList(uint32) ([]string, error)
+	GetList(string) ([]string, error)
 }
 
 // Init init dao
@@ -40,7 +40,7 @@ type ChatData struct {
 	Message  string `json:"message"`
 	Date     string `json:"date"`
 	Receiver string `json:"-"`
-	Sender   uint32 `json:"sender"`
+	Sender   string `json:"sender"`
 }
 
 func GetDao() *Dao {

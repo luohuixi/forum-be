@@ -64,9 +64,9 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	// }
 
 	chatRouter := g.Group("api/v1/chat")
-	// chatRouter.Use(normalRequired)
 	{
-		// chatRouter.GET("", normalRequired, chat.GetId)
+		chatRouter.GET("", normalRequired, chat.GetId)
+		// chatRouter.GET("", chat.GetId)
 		chatRouter.GET("/ws", chat.WsHandler)
 	}
 

@@ -76,7 +76,7 @@ func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*User
 // GetUserByStudentId get a user by studentId.
 func (d *Dao) GetUserByStudentId(studentId string) (*UserModel, error) {
 	u := &UserModel{}
-	err := d.DB.Where("email = ?", studentId).First(u).Error
+	err := d.DB.Where("student_id = ?", studentId).First(u).Error
 	if gorm.IsRecordNotFoundError(err) {
 		return nil, nil
 	}
@@ -89,7 +89,7 @@ func (d *Dao) RegisterUser(info *RegisterInfo) error {
 		Name:         info.Name,
 		Email:        info.Email,
 		StudentID:    info.StudentId,
-		PasswordHash: generatePasswordHash(info.Password),
+		HashPassword: generatePasswordHash(info.Password),
 		Role:         info.Role,
 	}
 	return user.Create()

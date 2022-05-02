@@ -9,6 +9,7 @@ import (
 	"forum-gateway/pkg/errno"
 	"forum-gateway/service"
 	"forum-gateway/util"
+	m "forum/model"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
@@ -20,7 +21,7 @@ import (
 )
 
 type Client struct {
-	UserId uint32
+	UserId string
 	Socket *websocket.Conn
 	Open   bool
 }
@@ -29,8 +30,6 @@ type Client struct {
 func WsHandler(c *gin.Context) {
 	log.Info("Chat WsHandler function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	// id := c.MustGet("userId").(uint32)
-	id, err := strconv.Atoi(c.DefaultQuery("id", "20"))
 	var upGrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
 
 	// Upgrade our raw HTTP connection to a websocket based one
@@ -41,8 +40,16 @@ func WsHandler(c *gin.Context) {
 		return
 	}
 
+	id := c.DefaultQuery("id", "20")
+	userId, ok, err := m.GetStringFromRedis(id)
+	if !ok {
+		l.Println("not ok")
+		conn.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
+		return
+	}
+
 	client := &Client{
-		UserId: uint32(id),
+		UserId: userId,
 		Socket: conn,
 		Open:   true,
 	}
@@ -82,7 +89,6 @@ func (c *Client) Read() {
 		}
 		fmt.Println(c.UserId, string(message)[:index], string(message)[index+1:])
 		if _, err := service.ChatClient.Create(context.Background(), createReq); err != nil {
-			fmt.Println(err)
 			fmt.Println(err)
 			c.Socket.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
 			break

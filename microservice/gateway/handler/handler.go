@@ -64,7 +64,7 @@ func SendError(c *gin.Context, err error, data interface{}, cause string, source
 func GetLine() string {
 	_, file, line, ok := runtime.Caller(1)
 	if !ok {
-		return "forum-geteway/handler/handler.go:66"
+		return "forum-gateway/handler/handler.go:67"
 	}
 	return file + ":" + strconv.Itoa(line)
 }

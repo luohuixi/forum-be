@@ -15,8 +15,8 @@ import (
 var (
 	jwtKey string
 
-	ErrTokenInvalid = errors.New("The token is invalid.")
-	ErrTokenExpired = errors.New("The token is expired.")
+	ErrTokenInvalid = errors.New("the token is invalid")
+	ErrTokenExpired = errors.New("the token is expired")
 )
 
 // getJwtKey get jwtKey.
@@ -58,7 +58,7 @@ func ResolveToken(tokenStr string) (*TokenResolve, error) {
 	claims := &TokenClaims{}
 	token, err := jwt.ParseWithClaims(tokenStr, claims, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
-			return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
 		return []byte(getJwtKey()), nil
 	})

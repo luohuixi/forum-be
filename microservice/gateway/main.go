@@ -63,6 +63,9 @@ func main() {
 	// 同步黑名单数据
 	// service.SynchronizeBlacklistToRedis()
 
+	// init redis
+	model.RedisDB.Init()
+
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))
 

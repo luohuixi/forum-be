@@ -2,7 +2,6 @@ package auth
 
 import (
 	"errors"
-
 	"forum-gateway/log"
 	"forum-gateway/service"
 	"forum/pkg/token"

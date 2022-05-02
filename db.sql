@@ -10,7 +10,7 @@ CREATE TABLE `users` (
   `student_id` char(10) DEFAULT NULL,
   `hash_password` varchar(100) DEFAULT NULL,
   `role` int(11) DEFAULT NULL COMMENT '权限 0-无权限用户 1-普通学生用户 2（闲置，可能学生管理员） 3-团队成员 4-团队管理员',
-  `message` tinyint(1) DEFAULT NULL,
+  `message` varchar(200) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `role` (`role`)

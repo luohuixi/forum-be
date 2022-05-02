@@ -3,7 +3,6 @@ package dao
 import (
 	"encoding/json"
 	"fmt"
-	"strconv"
 )
 
 func (d *Dao) Create(data *ChatData) error {
@@ -15,10 +14,10 @@ func (d *Dao) Create(data *ChatData) error {
 	return d.Redis.LPush(data.Receiver, msg).Err()
 }
 
-func (d *Dao) GetList(id uint32) ([]string, error) {
+func (d *Dao) GetList(id string) ([]string, error) {
 	var list []string
 
-	for message, err := d.Redis.RPop(strconv.Itoa(int(id))).Result(); message != ""; {
+	for message, err := d.Redis.RPop(id).Result(); message != ""; {
 		if err != nil {
 			return nil, err
 		}

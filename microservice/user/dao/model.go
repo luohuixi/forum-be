@@ -12,7 +12,7 @@ type UserModel struct {
 	Avatar       string `json:"avatar" gorm:"column:avatar;" binding:"required"`
 	Role         uint32 `json:"role" gorm:"column:role;" binding:"required"`
 	Message      uint32 `json:"message" gorm:"column:message;" binding:"required"`
-	PasswordHash string `json:"password_hash" gorm:"column:password_hash;" binding:"required"`
+	HashPassword string `json:"hash_password" gorm:"column:hash_password;" binding:"required"`
 	StudentID    string `json:"student_id" gorm:"column:student_id;"`
 }
 
@@ -36,5 +36,5 @@ func generatePasswordHash(password string) string {
 }
 
 func (u *UserModel) CheckPassword(password string) bool {
-	return security.CheckPasswordHash(password, u.PasswordHash)
+	return security.CheckPasswordHash(password, u.HashPassword)
 }

@@ -8,7 +8,7 @@ service ChatService {
 }
 
 message CreateRequest {
-    uint32 user_id = 1;
+    string user_id = 1;
     string target_user_id = 2;
     string message = 3;
 }
@@ -16,7 +16,7 @@ message CreateRequest {
 message Response {}
 
 message GetListRequest {
-    uint32 user_id = 1;
+    string user_id = 1;
 }
 
 message GetListResponse {

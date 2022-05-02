@@ -34,7 +34,6 @@ func Init() {
 
 	// init db
 	model.DB.Init()
-	defer model.DB.Close()
 
 	dao = &Dao{
 		DB: model.DB.Self,
