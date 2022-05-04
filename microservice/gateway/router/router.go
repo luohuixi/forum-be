@@ -54,6 +54,12 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		userRouter.PUT("", user.UpdateInfo)
 	}
 
+	chatRouter := g.Group("api/v1/chat")
+	{
+		chatRouter.GET("", normalRequired, chat.GetId)
+		chatRouter.GET("/ws", chat.WsHandler)
+	}
+
 	// 回收站 read delete recover
 	// trashbinRouter := g.Group("api/v1/trashbin")
 	// trashbinRouter.Use(normalRequired)
@@ -62,13 +68,6 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	// 	trashbinRouter.PUT("/:id", project.UpdateTrashbin)
 	// 	trashbinRouter.DELETE("/:id", project.DeleteTrashbin)
 	// }
-
-	chatRouter := g.Group("api/v1/chat")
-	{
-		chatRouter.GET("", normalRequired, chat.GetId)
-		// chatRouter.GET("", chat.GetId)
-		chatRouter.GET("/ws", chat.WsHandler)
-	}
 
 	// The health check handlers
 	svcd := g.Group("/sd")

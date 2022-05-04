@@ -49,11 +49,11 @@ func WsHandler(c *gin.Context) {
 	}
 
 	client := &Client{
-		UserId:  userId,
-		Socket:  conn,
-		Close:   make(chan bool),
-		Message: make(chan string),
+		UserId: userId,
+		Socket: conn,
+		Close:  make(chan bool, 1),
 	}
+	client.Close <- true // to control rewrite the data not written successfully
 
 	go client.Read()
 	go client.Write()
@@ -62,7 +62,7 @@ func WsHandler(c *gin.Context) {
 // Read 从client接收消息
 func (c *Client) Read() {
 	defer func() {
-		c.Close <- false
+		close(c.Close)
 		c.Socket.Close()
 	}()
 
@@ -113,34 +113,26 @@ func (c *Client) Write() {
 	}()
 
 	for {
-		go func() {
-			res, err := m.RedisDB.Self.BRPop(time.Hour, c.UserId).Result()
-			if err != nil {
-				log.Error(err.Error())
-				c.Close <- false
-				c.Socket.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
-			}
-			select {
-			case <-c.Close:
-				for i := len(res); i > 0; i-- { // 未成功发送的消息逆序放回list的Right
-					m.RedisDB.Self.RPush(c.UserId, res[i-1])
-				}
-			default:
-				for _, msg := range res {
-					c.Message <- msg
-				}
-				return
-			}
-		}()
-
-		select {
-		case msg := <-c.Message:
-			fmt.Println(msg)
-			c.Socket.WriteMessage(websocket.TextMessage, []byte(msg))
-		case <-c.Close:
-			log.Info("return")
+		getListRequest := &pb.GetListRequest{
+			UserId: c.UserId,
+		}
+		ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(time.Hour)) // set rpc deadline to 1 Hour
+		// defer cancel()
+		res, err := service.ChatClient.GetList(ctx, getListRequest)
+		if err != nil {
+			log.Error(err.Error())
+			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 			return
 		}
 
+		if _, ok := <-c.Close; ok {
+			for i := len(res.List); i > 0; i-- { // 未成功发送的消息逆序放回list的Right
+				m.RedisDB.Self.RPush(c.UserId, res.List[i-1])
+			} // TODO
+			return
+		}
+		for _, msg := range res.List {
+			c.Socket.WriteMessage(websocket.TextMessage, []byte(msg))
+		}
 	}
 }
