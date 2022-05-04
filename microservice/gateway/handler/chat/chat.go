@@ -20,10 +20,9 @@ import (
 )
 
 type Client struct {
-	UserId  string
-	Socket  *websocket.Conn
-	Close   chan bool
-	Message chan string
+	UserId string
+	Socket *websocket.Conn
+	Close  chan struct{}
 }
 
 // WsHandler socket 连接 中间件 作用:升级协议,用户验证,自定义信息等
@@ -51,9 +50,8 @@ func WsHandler(c *gin.Context) {
 	client := &Client{
 		UserId: userId,
 		Socket: conn,
-		Close:  make(chan bool, 1),
+		Close:  make(chan struct{}),
 	}
-	client.Close <- true // to control rewrite the data not written successfully
 
 	go client.Read()
 	go client.Write()
@@ -116,8 +114,13 @@ func (c *Client) Write() {
 		getListRequest := &pb.GetListRequest{
 			UserId: c.UserId,
 		}
-		ctx, _ := context.WithDeadline(context.Background(), time.Now().Add(time.Hour)) // set rpc deadline to 1 Hour
-		// defer cancel()
+		ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Hour)) // set rpc expiration to 1 Hour
+		go func() {
+			<-c.Close // cancel the request when client close connect
+			fmt.Println("cancel", c.UserId)
+			cancel()
+		}()
+
 		res, err := service.ChatClient.GetList(ctx, getListRequest)
 		if err != nil {
 			log.Error(err.Error())
@@ -125,13 +128,8 @@ func (c *Client) Write() {
 			return
 		}
 
-		if _, ok := <-c.Close; ok {
-			for i := len(res.List); i > 0; i-- { // 未成功发送的消息逆序放回list的Right
-				m.RedisDB.Self.RPush(c.UserId, res.List[i-1])
-			} // TODO
-			return
-		}
 		for _, msg := range res.List {
+			fmt.Println("msg", msg)
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(msg))
 		}
 	}

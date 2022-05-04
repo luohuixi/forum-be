@@ -4,13 +4,15 @@ import err "forum/pkg/err"
 
 var (
 	// Common errors
-	OK                = &err.Errno{Code: 0, Message: "OK"}
-	ErrDatabase       = &err.Errno{Code: 10001, Message: "Database error"}
-	ErrBind           = &err.Errno{Code: 10002, Message: "Error occurred while binding the request body to the struct."}
-	ErrBadRequest     = &err.Errno{Code: 10003, Message: "Request error"}
-	ErrUserExisted    = &err.Errno{Code: 10004, Message: "User has existed"}
-	ErrAuthToken      = &err.Errno{Code: 10005, Message: "Error occurred while handling the auth token"}
-	ErrUserNotExisted = &err.Errno{Code: 10006, Message: "User not existed"}
+	OK                  = &err.Errno{Code: 0, Message: "OK"}
+	ErrDatabase         = &err.Errno{Code: 10001, Message: "Database error"}
+	ErrBind             = &err.Errno{Code: 10002, Message: "Error occurred while binding the request body to the struct."}
+	ErrBadRequest       = &err.Errno{Code: 10003, Message: "Request error"}
+	ErrUserExisted      = &err.Errno{Code: 10004, Message: "User has existed"}
+	ErrAuthToken        = &err.Errno{Code: 10005, Message: "Error occurred while handling the auth token"}
+	ErrUserNotExisted   = &err.Errno{Code: 10006, Message: "User not existed"}
+	ErrGetRedisList     = &err.Errno{Code: 10007, Message: "Get list from Redis out of expiration time"}
+	ErrRewriteRedisList = &err.Errno{Code: 10008, Message: "rewrite list to Redis when cancel"}
 
 	// oauth errors
 	ErrRegister          = &err.Errno{Code: 20001, Message: "Error occurred while registering on auth-server"}

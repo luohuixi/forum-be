@@ -3,6 +3,7 @@ package dao
 import (
 	"forum/model"
 	"github.com/go-redis/redis"
+	"time"
 )
 
 var (
@@ -17,7 +18,8 @@ type Dao struct {
 // Interface dao
 type Interface interface {
 	Create(*ChatData) error
-	GetList(string) ([]string, error)
+	GetList(string, time.Duration) ([]string, error)
+	Rewrite(string, []string) error
 }
 
 // Init init dao
