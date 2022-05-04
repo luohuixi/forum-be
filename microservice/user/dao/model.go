@@ -8,12 +8,12 @@ import (
 type UserModel struct {
 	Id           uint32 `json:"id" gorm:"column:id;not null" binding:"required"`
 	Name         string `json:"name" gorm:"column:name;" binding:"required"`
-	Email        string `json:"email" gorm:"column:email;" binding:"required"`
+	Email        string `json:"email" gorm:"column:email;default:null"`
 	Avatar       string `json:"avatar" gorm:"column:avatar;" binding:"required"`
 	Role         uint32 `json:"role" gorm:"column:role;" binding:"required"`
 	Message      uint32 `json:"message" gorm:"column:message;" binding:"required"`
 	HashPassword string `json:"hash_password" gorm:"column:hash_password;" binding:"required"`
-	StudentID    string `json:"student_id" gorm:"column:student_id;"`
+	StudentId    string `json:"student_id" gorm:"column:student_id;"`
 }
 
 func (u *UserModel) TableName() string {

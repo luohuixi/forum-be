@@ -13,7 +13,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
-	l "log"
 	"net/http"
 	"strconv"
 	"strings"
@@ -21,9 +20,10 @@ import (
 )
 
 type Client struct {
-	UserId string
-	Socket *websocket.Conn
-	Open   bool
+	UserId  string
+	Socket  *websocket.Conn
+	Close   chan bool
+	Message chan string
 }
 
 // WsHandler socket 连接 中间件 作用:升级协议,用户验证,自定义信息等
@@ -43,15 +43,16 @@ func WsHandler(c *gin.Context) {
 	id := c.DefaultQuery("id", "20")
 	userId, ok, err := m.GetStringFromRedis(id)
 	if !ok {
-		l.Println("not ok")
-		conn.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
+		log.Error("not ok")
+		conn.WriteMessage(websocket.CloseMessage, []byte("error"))
 		return
 	}
 
 	client := &Client{
-		UserId: userId,
-		Socket: conn,
-		Open:   true,
+		UserId:  userId,
+		Socket:  conn,
+		Close:   make(chan bool),
+		Message: make(chan string),
 	}
 
 	go client.Read()
@@ -61,30 +62,33 @@ func WsHandler(c *gin.Context) {
 // Read 从client接收消息
 func (c *Client) Read() {
 	defer func() {
+		c.Close <- false
 		c.Socket.Close()
 	}()
 
 	for {
 		_, message, err := c.Socket.ReadMessage()
 		if err != nil {
-			l.Println("client close connect")
-			c.Open = false
+			log.Info("client close connect")
 			break
 		}
 
 		index := strings.IndexByte(string(message), '-')
 		if index == -1 || index == 0 {
-			c.Socket.WriteMessage(websocket.CloseMessage, []byte("format error, eg. 5-外比巴卜"))
+			log.Error("index wrong")
+			c.Socket.WriteMessage(websocket.TextMessage, []byte("format error, eg. 5-外比巴卜"))
 			break
 		}
 		targetUserId := string(message)[:index]
 		if _, err := strconv.Atoi(targetUserId); err != nil {
-			c.Socket.WriteMessage(websocket.CloseMessage, []byte("format error, eg. 5-外比巴卜"))
+			log.Error(err.Error())
+			c.Socket.WriteMessage(websocket.TextMessage, []byte("format error, eg. 5-外比巴卜"))
 			break
 		}
 
 		if targetUserId == c.UserId {
-			c.Socket.WriteMessage(websocket.CloseMessage, []byte("error: can't message yourself"))
+			log.Error("error: can't message yourself")
+			c.Socket.WriteMessage(websocket.TextMessage, []byte("error: can't message yourself"))
 			break
 		}
 
@@ -96,7 +100,7 @@ func (c *Client) Read() {
 
 		if _, err := service.ChatClient.Create(context.Background(), createReq); err != nil {
 			fmt.Println(err)
-			c.Socket.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
+			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 			break
 		}
 	}
@@ -109,24 +113,34 @@ func (c *Client) Write() {
 	}()
 
 	for {
-		if !c.Open {
-			break
-		}
-
-		res, err := m.RedisDB.Self.BRPop(time.Hour, c.UserId).Result()
-		if err != nil {
-			log.Error(err.Error())
-			c.Socket.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
-			break
-		}
-
-		for _, msg := range res {
-			l.Println(msg)
+		go func() {
+			res, err := m.RedisDB.Self.BRPop(time.Hour, c.UserId).Result()
 			if err != nil {
+				log.Error(err.Error())
+				c.Close <- false
 				c.Socket.WriteMessage(websocket.CloseMessage, []byte(err.Error()))
-				break
 			}
+			select {
+			case <-c.Close:
+				for i := len(res); i > 0; i-- { // 未成功发送的消息逆序放回list的Right
+					m.RedisDB.Self.RPush(c.UserId, res[i-1])
+				}
+			default:
+				for _, msg := range res {
+					c.Message <- msg
+				}
+				return
+			}
+		}()
+
+		select {
+		case msg := <-c.Message:
+			fmt.Println(msg)
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(msg))
+		case <-c.Close:
+			log.Info("return")
+			return
 		}
+
 	}
 }

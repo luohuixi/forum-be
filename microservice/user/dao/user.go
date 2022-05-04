@@ -88,7 +88,7 @@ func (d *Dao) RegisterUser(info *RegisterInfo) error {
 	user := &UserModel{
 		Name:         info.Name,
 		Email:        info.Email,
-		StudentID:    info.StudentId,
+		StudentId:    info.StudentId,
 		HashPassword: generatePasswordHash(info.Password),
 		Role:         info.Role,
 	}
