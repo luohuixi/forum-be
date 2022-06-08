@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package chat;
+
+service ChatService {
+//    rpc Create(CreateRequest) returns (Response) {}
+//    rpc GetList(GetListRequest) returns (GetListResponse) {}
+}
+
+message CreateRequest {
+    string user_id = 1;
+    string target_user_id = 2;
+    string message = 3;
+}
+
+message Response {}
+
+message GetListRequest {
+    string user_id = 1;
+}
+
+message GetListResponse {
+    repeated string list = 1;
+}

@@ -1,7 +1,6 @@
 package dao
 
 import (
-	m "forum/model"
 	"github.com/ShiinaOrez/GoSecurity/security"
 )
 
@@ -22,12 +21,12 @@ func (u *UserModel) TableName() string {
 
 // Create ... create user
 func (u *UserModel) Create() error {
-	return m.DB.Self.Create(u).Error
+	return dao.DB.Create(u).Error
 }
 
 // Save ... save user.
 func (u *UserModel) Save() error {
-	return m.DB.Self.Save(u).Error
+	return dao.DB.Save(u).Error
 }
 
 // generatePasswordHash pwd -> hashPwd
