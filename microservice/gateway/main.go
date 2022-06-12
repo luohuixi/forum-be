@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"forum-gateway/config"
+	"forum-gateway/dao"
 	"forum-gateway/log"
 	"forum-gateway/router"
 	"forum-gateway/router/middleware"
 	"forum-gateway/service"
-	"forum/model"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
@@ -26,6 +26,7 @@ var (
 func init() {
 	service.UserInit()
 	service.ChatInit()
+	service.PostInit()
 }
 
 // @title forum-gateway
@@ -40,6 +41,8 @@ func init() {
 // @tag.description 认证服务
 // @tag.name chat
 // @tag.description 聊天服务
+// @tag.name post
+// @tag.description 帖子服务
 
 func main1() {
 }
@@ -54,17 +57,12 @@ func main() {
 	// logger sync
 	defer log.SyncLogger()
 
-	// init redis
-	model.RedisDB.Init()
-	defer model.RedisDB.Close()
+	dao.Init()
 
 	// 黑名单过期数据定时清理
 	// go service.TidyBlacklist()
 	// 同步黑名单数据
 	// service.SynchronizeBlacklistToRedis()
-
-	// init redis
-	model.RedisDB.Init()
 
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))

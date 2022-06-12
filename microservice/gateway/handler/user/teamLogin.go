@@ -20,8 +20,8 @@ import (
 // @Summary login api
 // @Description login the team-forum
 // @Tags auth
-// @Accept  application/json
-// @Produce  application/json
+// @Accept application/json
+// @Produce application/json
 // @Param object body teamLoginRequest true "login_request"
 // @Success 200 {object} teamLoginResponse
 // @Failure 401 {object} handler.Response

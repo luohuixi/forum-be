@@ -6,15 +6,18 @@ replace forum-user => ../user
 
 replace forum-chat => ../chat
 
+replace forum-post => ../post
+
 go 1.16
 
-replace google.golang.org/grpc v1.46.0 => google.golang.org/grpc v1.26.0
+replace google.golang.org/grpc => google.golang.org/grpc v1.26.0
 
 replace github.com/micro/go-micro => github.com/Lofanmi/go-micro v1.16.1-0.20210804063523-68bbf601cfa4 // to go 1.16
 
 require (
 	forum v0.0.0-00010101000000-000000000000
 	forum-chat v0.0.0-00010101000000-000000000000
+	forum-post v0.0.0-00010101000000-000000000000
 	forum-user v0.0.0-00010101000000-000000000000
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gorilla/websocket v1.4.1
@@ -25,7 +28,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
 	github.com/spf13/pflag v1.0.5
-	github.com/spf13/viper v1.11.0
+	github.com/spf13/viper v1.12.0
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 	github.com/swaggo/gin-swagger v1.4.2
 	github.com/swaggo/swag v1.8.1

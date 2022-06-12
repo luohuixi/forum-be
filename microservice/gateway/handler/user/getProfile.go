@@ -41,8 +41,8 @@ func GetUserProfile(id uint32) (*userProfile, error) {
 // @Summary get user_profile api
 // @Description 通过 userId 获取完整 user 信息
 // @Tags user
-// @Accept  application/json
-// @Produce  application/json
+// @Accept application/json
+// @Produce application/json
 // @Param id path int true "user_id"
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} UserProfile
@@ -64,7 +64,7 @@ func GetProfile(c *gin.Context) {
 	user, err := GetUserProfile(uint32(id))
 
 	if err != nil {
-		// TO DO: 判断错误是否是用户不存在
+		// TODO: 判断错误是否是用户不存在
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return
 	}

@@ -1,14 +1,15 @@
 package dao
 
 type PostModel struct {
-	Id       uint32
-	Type     uint8
-	Context  string
-	Title    string
-	Time     string
-	Category string
-	Re       bool
-	Creator  uint
+	Id           uint32
+	Type         uint8
+	Content      string
+	Title        string
+	CreateTime   string
+	Category     string
+	Re           bool
+	CreatorId    uint32
+	LastEditTime string
 }
 
 func (u *PostModel) TableName() string {

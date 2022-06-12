@@ -18,8 +18,8 @@ import (
 // @Summary get user_list api
 // @Description 通过 group 和 team 获取 user_list
 // @Tags user
-// @Accept  application/json
-// @Produce  application/json
+// @Accept application/json
+// @Produce application/json
 // @Param limit query int false "limit"
 // @Param page query int false "page"
 // @Param last_id query int false "last_id"

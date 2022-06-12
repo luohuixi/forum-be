@@ -23,8 +23,7 @@ type Response struct {
 
 func SendResponse(c *gin.Context, err error, data interface{}) {
 	code, message := errno.DecodeErr(err)
-	log.Info(message,
-		zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info(message, zap.String("X-Request-Id", util.GetReqID(c)))
 
 	c.JSON(http.StatusOK, Response{
 		Code:    code,

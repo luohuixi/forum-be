@@ -13,8 +13,8 @@ import (
 // @Summary get my_profile api
 // @Description 获取 my 完整 user 信息
 // @Tags user
-// @Accept  application/json
-// @Produce  application/json
+// @Accept application/json
+// @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} UserProfile
 // @Failure 401 {object} handler.Response

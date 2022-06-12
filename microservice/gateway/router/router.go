@@ -5,7 +5,9 @@ import (
 	"forum-gateway/handler/sd"
 	"net/http"
 
+	"forum-gateway/dao"
 	_ "forum-gateway/docs"
+	"forum-gateway/handler/post"
 	"forum-gateway/handler/user"
 	"forum-gateway/router/middleware"
 	"forum/pkg/constvar"
@@ -58,6 +60,12 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	{
 		chatRouter.GET("", normalRequired, chat.GetId)
 		chatRouter.GET("/ws", chat.WsHandler)
+	}
+
+	postRouter := g.Group("api/v1/post")
+	postApi := post.New(dao.GetDao())
+	{
+		postRouter.PUT("", postApi.UpdateInfo)
 	}
 
 	// 回收站 read delete recover

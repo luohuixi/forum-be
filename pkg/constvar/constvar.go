@@ -23,4 +23,8 @@ const (
 	FileCommentCodeLevel1 = uint8(2)
 	DocCommentLevel2      = uint8(3)
 	FileCommentCodeLevel2 = uint8(4)
+
+	// casbin
+	Write = uint8(1)
+	Read  = uint8(2)
 )

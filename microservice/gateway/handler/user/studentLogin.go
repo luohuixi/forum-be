@@ -20,8 +20,8 @@ import (
 // @Summary login api
 // @Description login the student-forum
 // @Tags auth
-// @Accept  application/json
-// @Produce  application/json
+// @Accept application/json
+// @Produce application/json
 // @Param object body studentLoginRequest true "login_request"
 // @Success 200 {object} LoginResponse
 // @Failure 401 {object} handler.Response
