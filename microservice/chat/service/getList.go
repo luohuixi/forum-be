@@ -4,14 +4,14 @@ import (
 	"context"
 	"forum-chat/errno"
 	pb "forum-chat/proto"
+	logger "forum/log"
 	e "forum/pkg/err"
-	"log"
 	"time"
 )
 
 // GetList 获取列表
 func (s *ChatService) GetList(ctx context.Context, req *pb.GetListRequest, resp *pb.GetListResponse) error {
-	log.Println("CharService.GetList", req.UserId)
+	logger.Info("CharService GetList")
 
 	var expiration time.Duration
 

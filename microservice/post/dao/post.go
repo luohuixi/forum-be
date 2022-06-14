@@ -19,7 +19,7 @@ func (d *Dao) Create(post *PostModel) error {
 
 func (d *Dao) List(typeId uint8) ([]*pb.Post, error) {
 	var posts []*pb.Post
-	err := d.DB.Table("posts").Find(posts).Error
+	err := d.DB.Table("posts").Where("type = ?", typeId).Find(posts).Error
 	return posts, err
 }
 

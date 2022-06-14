@@ -14,7 +14,7 @@ var PostService micro.Service
 var PostClient pbp.PostServiceClient
 
 func PostInit() {
-	UserService = micro.NewService(micro.Name("forum.cli.post"),
+	PostService = micro.NewService(micro.Name("forum.cli.post"),
 		micro.WrapClient(
 			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
 		),

@@ -3,9 +3,11 @@ package model
 import (
 	"fmt"
 	"github.com/casbin/casbin/v2"
+	"github.com/casbin/casbin/v2/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
+	"go.uber.org/zap"
 )
 
 type Casbin struct {
@@ -21,22 +23,36 @@ func initCasbin(username, password, addr, DBName string) *casbin.Enforcer {
 		addr,
 		DBName)
 
-	a, _ := gormadapter.NewAdapter("mysql", config, true) // Your driver and data source.
-
-	cb, err := casbin.NewEnforcer("./model.conf", a)
+	a, err := gormadapter.NewAdapter("mysql", config, true) // Your driver and data source.
 	if err != nil {
-
+		zap.L().Error("casbin数据库加载失败!", zap.Error(err))
+		return nil
 	}
+
+	text := `
+		[request_definition]
+		r = sub, obj, act
+		
+		[policy_definition]
+		p = sub, obj, act
+		
+		[role_definition]
+		g = _, _
+		
+		[policy_effect]
+		e = some(where (p.eft == allow))
+		
+		[matchers]
+		m = g(r.sub,p.sub) && keyMatch2(r.obj,p.obj) && r.act == p.act
+		`
+	m, err := model.NewModelFromString(text)
+	if err != nil {
+		zap.L().Error("字符串加载模型失败!", zap.Error(err))
+		return nil
+	}
+	cb, _ := casbin.NewEnforcer(m, a)
+
 	return cb
-	// sub := "alice" // the user that wants to access a resource.
-	// obj := "data1" // the resource that is going to be accessed.
-	// act := "read"  // the operation that the user performs on the resource.
-	//
-	// if res, _ := e.Enforce(sub, obj, act); res {
-	// 	// permit alice to read data1
-	// } else {
-	// 	// deny the request, show an error
-	// }
 }
 
 func (c *Casbin) Init() {

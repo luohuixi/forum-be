@@ -23,21 +23,19 @@ import (
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body UpdateInfoRequest  true "update_info_request"
 // @Success 200 {object} handler.Response
-// @Failure 401 {object} handler.Response
-// @Failure 500 {object} handler.Response
 // @Router /post [put]
 func (a *Api) UpdateInfo(c *gin.Context) {
 	log.Info("Post getInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req UpdateInfoRequest
-	if err := c.BindJSON(&req); err != nil {
+	var req *pb.UpdateInfoRequest
+	if err := c.BindJSON(req); err != nil {
 		SendBadRequest(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
-	userId := c.MustGet("userId").(uint32)
+	req.UserId = c.MustGet("userId").(uint32)
 
-	ok, err := a.Dao.Verify(userId, req.Id, constvar.Write)
+	ok, err := a.Dao.Enforce(req.UserId, req.Id, constvar.Write)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return
@@ -48,17 +46,8 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 		return
 	}
 
-	// 构造请求给 getInfo
-	updateInfoReq := &pb.UpdateInfoRequest{
-		Id:       req.Id,
-		Content:  req.Content,
-		Title:    req.Title,
-		Category: req.Category,
-		UserId:   userId,
-	}
-
 	// 发送请求
-	_, err = service.PostClient.UpdateInfo(context.Background(), updateInfoReq)
+	_, err = service.PostClient.UpdateInfo(context.Background(), req)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return

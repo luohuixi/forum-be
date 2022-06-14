@@ -27,7 +27,10 @@ message CreateRequest {
 message Response {}
 
 message ListRequest {
-    uint32 type_id = 1;
+    uint32 last_id = 1;
+    uint32 offset = 2;
+    uint32 limit = 3;
+    string type_id = 4;
 }
 
 message ListResponse {

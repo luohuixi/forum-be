@@ -5,11 +5,14 @@ import (
 
 	"forum-user/errno"
 	pb "forum-user/proto"
+	logger "forum/log"
 	e "forum/pkg/err"
 )
 
 // UpdateInfo ... 更新用户信息
 func (s *UserService) UpdateInfo(ctx context.Context, req *pb.UpdateInfoRequest, res *pb.Response) error {
+	logger.Info("UserService UpdateInfo")
+
 	user, err := s.Dao.GetUser(req.Id)
 	if err != nil {
 		return e.ServerErr(errno.ErrDatabase, err.Error())

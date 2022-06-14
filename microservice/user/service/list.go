@@ -6,11 +6,13 @@ import (
 	"forum-user/dao"
 	errno "forum-user/errno"
 	pb "forum-user/proto"
+	logger "forum/log"
 	e "forum/pkg/err"
 )
 
 // List ... 获取用户列表
 func (s *UserService) List(ctx context.Context, req *pb.ListRequest, res *pb.ListResponse) error {
+	logger.Info("UserService List")
 
 	// 过滤条件
 	filter := &dao.UserModel{Role: req.Role}

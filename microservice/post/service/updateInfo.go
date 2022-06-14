@@ -4,11 +4,14 @@ import (
 	"context"
 	errno "forum-post/errno"
 	pb "forum-post/proto"
+	logger "forum/log"
 	e "forum/pkg/err"
 	"time"
 )
 
 func (s *PostService) UpdateInfo(ctx context.Context, req *pb.UpdateInfoRequest, resp *pb.Response) error {
+	logger.Info("PostService UpdateInfo")
+
 	post, err := s.Dao.Get(req.Id)
 	if err != nil {
 		return e.ServerErr(errno.ErrDatabase, err.Error())

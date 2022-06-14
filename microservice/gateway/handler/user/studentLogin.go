@@ -24,8 +24,6 @@ import (
 // @Produce application/json
 // @Param object body studentLoginRequest true "login_request"
 // @Success 200 {object} LoginResponse
-// @Failure 401 {object} handler.Response
-// @Failure 500 {object} handler.Response
 // @Router /auth/login/student [post]
 func StudentLogin(c *gin.Context) {
 	log.Info("student login function called.",

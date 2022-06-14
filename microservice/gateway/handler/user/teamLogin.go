@@ -24,8 +24,6 @@ import (
 // @Produce application/json
 // @Param object body teamLoginRequest true "login_request"
 // @Success 200 {object} teamLoginResponse
-// @Failure 401 {object} handler.Response
-// @Failure 500 {object} handler.Response
 // @Router /auth/login/team [post]
 func TeamLogin(c *gin.Context) {
 	log.Info("team login function called.",

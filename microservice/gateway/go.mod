@@ -19,7 +19,9 @@ require (
 	forum-chat v0.0.0-00010101000000-000000000000
 	forum-post v0.0.0-00010101000000-000000000000
 	forum-user v0.0.0-00010101000000-000000000000
+	github.com/casbin/casbin/v2 v2.47.2
 	github.com/gin-gonic/gin v1.7.7
+	github.com/go-redis/redis v6.15.9+incompatible
 	github.com/gorilla/websocket v1.4.1
 	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-plugins/registry/kubernetes v0.0.0-20200119172437-4fe21aa238fd

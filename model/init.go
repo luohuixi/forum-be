@@ -2,12 +2,10 @@ package model
 
 import (
 	"fmt"
-
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
 
 	"forum/log"
-
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
 )
@@ -50,7 +48,7 @@ func setupDB(db *gorm.DB) {
 	}
 }
 
-// used for cli
+// InitSelfDB used for cli
 func InitSelfDB() *gorm.DB {
 	return openDB(viper.GetString("db.username"),
 		viper.GetString("db.password"),

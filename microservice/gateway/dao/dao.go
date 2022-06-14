@@ -19,7 +19,7 @@ type Dao struct {
 
 // Interface dao
 type Interface interface {
-	Verify(...interface{}) (bool, error)
+	Enforce(...interface{}) (bool, error)
 	// Create(*PostModel) error
 	// List(uint8) ([]*pb.Post, error)
 	// UpdateInfo(*PostModel) error
@@ -48,6 +48,6 @@ func GetDao() *Dao {
 	return dao
 }
 
-func (d *Dao) Verify(rvals ...interface{}) (bool, error) {
+func (d *Dao) Enforce(rvals ...interface{}) (bool, error) {
 	return d.CB.Enforce(rvals)
 }

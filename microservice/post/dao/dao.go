@@ -47,7 +47,6 @@ func Init() {
 		Redis: model.RedisDB.Self,
 		CB:    model.CB.Self,
 	}
-
 }
 
 func GetDao() *Dao {

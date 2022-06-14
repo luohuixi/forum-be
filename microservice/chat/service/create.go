@@ -5,14 +5,14 @@ import (
 	"forum-chat/dao"
 	errno "forum-chat/errno"
 	pb "forum-chat/proto"
+	logger "forum/log"
 	e "forum/pkg/err"
-	"log"
 	"time"
 )
 
 // Create 发送消息
 func (s *ChatService) Create(ctx context.Context, req *pb.CreateRequest, resp *pb.Response) error {
-	log.Println("CharService.Create", req.UserId)
+	logger.Info("CharService Create")
 
 	data := &dao.ChatData{
 		Message:  req.Message,

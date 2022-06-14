@@ -9,6 +9,7 @@ import (
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
 	"forum-user/util"
+	logger "forum/log"
 	e "forum/pkg/err"
 	"forum/pkg/token"
 )
@@ -17,6 +18,8 @@ import (
 // 如果无 code，则返回 oauth 的地址，让前端去请求 oauth，
 // 否则，用 code 获取 oauth 的 access token，并生成该应用的 auth token，返回给前端。
 func (s *UserService) TeamLogin(ctx context.Context, req *pb.TeamLoginRequest, res *pb.LoginResponse) error {
+	logger.Info("UserService TeamLogin")
+
 	if req.OauthCode == "" {
 		res.RedirectUrl = auth.OauthURL
 		return nil
