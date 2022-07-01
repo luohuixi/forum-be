@@ -5,8 +5,7 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 )
 
 func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Post) error {
@@ -16,12 +15,12 @@ func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Pos
 	post, err := s.Dao.GetPostInfo(req.Id)
 
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	comments, err := s.Dao.ListCommentByPostId(req.Id)
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	likeNum, err := s.Dao.GetLikedNum(dao.Item{
@@ -29,7 +28,7 @@ func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Pos
 		TypeId: 1,
 	})
 	if err != nil {
-		return e.ServerErr(errno.ErrRedis, err.Error())
+		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
 
 	resp = &pb.Post{

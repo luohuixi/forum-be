@@ -4,8 +4,7 @@ import (
 	"context"
 	pb "forum-post/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 	"time"
 )
 
@@ -14,7 +13,7 @@ func (s *PostService) UpdatePostInfo(ctx context.Context, req *pb.UpdateInfoRequ
 
 	post, err := s.Dao.GetPost(req.Id)
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	post.Title = req.Title
@@ -23,7 +22,7 @@ func (s *PostService) UpdatePostInfo(ctx context.Context, req *pb.UpdateInfoRequ
 	post.Category = req.Category
 
 	if err := s.Dao.UpdatePostInfo(post); err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	return nil

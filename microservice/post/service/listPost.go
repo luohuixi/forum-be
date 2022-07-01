@@ -5,8 +5,7 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 	// "github.com/micro/micro/v3/service/logger"
 	"strconv"
 )
@@ -16,12 +15,12 @@ func (s *PostService) ListPost(ctx context.Context, req *pb.ListRequest, resp *p
 
 	id, err := strconv.Atoi(req.TypeId)
 	if err != nil {
-		return e.ServerErr(errno.ErrBadRequest, err.Error())
+		return errno.ServerErr(errno.ErrBadRequest, err.Error())
 	}
 
 	posts, err := s.Dao.ListPost(uint8(id))
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	for _, post := range posts {
@@ -32,7 +31,7 @@ func (s *PostService) ListPost(ctx context.Context, req *pb.ListRequest, resp *p
 			TypeId: 1,
 		})
 		if err != nil {
-			return e.ServerErr(errno.ErrRedis, err.Error())
+			return errno.ServerErr(errno.ErrRedis, err.Error())
 		}
 
 		// limit max len of post content

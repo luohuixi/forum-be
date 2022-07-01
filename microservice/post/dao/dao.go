@@ -64,6 +64,7 @@ func Init() {
 		CB:    model.CB.Self,
 	}
 
+	dao.Map = make(map[uint8]string, 2)
 	dao.Map[1] = "post"
 	dao.Map[2] = "comment"
 }

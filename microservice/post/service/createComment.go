@@ -5,8 +5,7 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 	"time"
 )
 
@@ -26,7 +25,7 @@ func (s *PostService) CreateComment(ctx context.Context, req *pb.CreateCommentRe
 	err := s.Dao.CreateComment(data)
 
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	return nil
