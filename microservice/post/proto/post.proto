@@ -3,9 +3,43 @@ syntax = "proto3";
 package post;
 
 service PostService {
-    rpc Create(CreateRequest) returns (Response) {}
-    rpc List(ListRequest) returns (ListResponse) {}
-    rpc UpdateInfo(UpdateInfoRequest) returns (Response) {}
+    rpc CreatePost(CreatePostRequest) returns (Response) {}
+    rpc ListPost(ListRequest) returns (ListResponse) {}
+    rpc UpdatePostInfo(UpdateInfoRequest) returns (Response) {}
+    rpc DeletePost(Request) returns (Response) {}
+    rpc GetPost(Request) returns (Post) {}
+    rpc CreateComment(CreateCommentRequest) returns (Response) {}
+    rpc DeleteComment(Request) returns (Response) {}
+    rpc CreateLike(LikeRequest) returns (Response) {}
+}
+
+message LikeRequest {
+    uint32 user_id = 1;
+    uint32 type_id = 2;
+    uint32 target_id = 3;
+}
+
+message CreateCommentRequest {
+    uint32 post_id = 1;
+    uint32 type_id = 2;
+    uint32 father_id = 3;
+    string content = 4;
+    uint32 creator_id = 5;
+}
+
+message CommentInfo {
+    uint32 id = 1;
+    uint32 type_id = 2;
+    string content = 3;
+    uint32 father_id = 4;
+    string create_time = 5;
+    uint32 creator_id = 6;
+    string creator_name = 7;
+    string creator_avatar = 8;
+}
+
+message Request {
+    uint32 id = 1;
 }
 
 message UpdateInfoRequest {
@@ -16,7 +50,7 @@ message UpdateInfoRequest {
     string category = 5;
 }
 
-message CreateRequest {
+message CreatePostRequest {
     uint32 user_id = 1;
     string content = 2;
     uint32 type_id = 3;
@@ -38,9 +72,15 @@ message ListResponse {
 }
 
 message Post {
-    string content = 1;
+    uint32 id = 1;
     string title = 2;
     string time = 3;
     string category = 4;
     uint32 creator_id = 5;
+    string creator_name = 6;
+    string content = 7;
+    string creator_avatar = 8;
+    uint32 comment_num = 9;
+    uint32 like_num = 10;
+    repeated CommentInfo comments = 11;
 }

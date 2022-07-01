@@ -5,12 +5,12 @@ import (
 	"forum/pkg/constvar"
 
 	"forum-user/dao"
-	"forum-user/errno"
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
 	"forum-user/util"
 	logger "forum/log"
 	e "forum/pkg/err"
+	errno "forum/pkg/err"
 	"forum/pkg/token"
 )
 

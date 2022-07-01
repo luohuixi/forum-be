@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 	"forum-chat/dao"
-	errno "forum-chat/errno"
 	pb "forum-chat/proto"
 	logger "forum/log"
 	e "forum/pkg/err"
+	errno "forum/pkg/err"
 	"time"
 )
 

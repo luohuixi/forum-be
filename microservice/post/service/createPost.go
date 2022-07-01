@@ -3,15 +3,15 @@ package service
 import (
 	"context"
 	"forum-post/dao"
-	errno "forum-post/errno"
 	pb "forum-post/proto"
 	logger "forum/log"
 	e "forum/pkg/err"
+	errno "forum/pkg/err"
 	"time"
 )
 
-func (s *PostService) Create(ctx context.Context, req *pb.CreateRequest, resp *pb.Response) error {
-	logger.Info("PostService Create")
+func (s *PostService) CreatePost(ctx context.Context, req *pb.CreatePostRequest, resp *pb.Response) error {
+	logger.Info("PostService CreatePost")
 
 	data := &dao.PostModel{
 		Type:         uint8(req.TypeId),
@@ -24,7 +24,7 @@ func (s *PostService) Create(ctx context.Context, req *pb.CreateRequest, resp *p
 		LastEditTime: time.Now().Format("2006-01-02 15:04:05"),
 	}
 
-	err := s.Dao.Create(data)
+	err := s.Dao.CreatePost(data)
 
 	if err != nil {
 		return e.ServerErr(errno.ErrDatabase, err.Error())

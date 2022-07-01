@@ -17,7 +17,6 @@ require (
 	github.com/micro/go-plugins/wrapper/trace/opentracing v0.0.0-20200119172437-4fe21aa238fd
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/smartystreets/goconvey v1.7.2
-	github.com/spf13/viper v1.11.0
-	golang.org/x/net v0.0.0-20220421235706-1d1ef9303861
-	google.golang.org/grpc v1.46.0 // indirect
+	github.com/spf13/viper v1.12.0
+	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
 )

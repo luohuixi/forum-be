@@ -22,7 +22,8 @@ require (
 	github.com/casbin/casbin/v2 v2.47.2
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/gorilla/websocket v1.4.1
+	github.com/googollee/go-socket.io v1.6.2
+	github.com/gorilla/websocket v1.4.2
 	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-plugins/registry/kubernetes v0.0.0-20200119172437-4fe21aa238fd
 	github.com/micro/go-plugins/wrapper/trace/opentracing v0.0.0-20200119172437-4fe21aa238fd

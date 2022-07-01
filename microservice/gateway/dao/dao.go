@@ -32,6 +32,11 @@ func Init() {
 		return
 	}
 
+	// 黑名单过期数据定时清理
+	// go service.TidyBlacklist()
+	// 同步黑名单数据
+	// service.SynchronizeBlacklistToRedis()
+
 	// init redis
 	model.RedisDB.Init()
 

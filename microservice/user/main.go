@@ -51,6 +51,7 @@ func main() {
 	srv.Init()
 
 	dao.Init()
+
 	// Register handler
 	pb.RegisterUserServiceHandler(srv.Server(), s.New(dao.GetDao()))
 

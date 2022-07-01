@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
-	errno "forum-user/errno"
 	pb "forum-user/proto"
 	logger "forum/log"
 	e "forum/pkg/err"
+	errno "forum/pkg/err"
 )
 
 // GetProfile ... 获取用户个人信息

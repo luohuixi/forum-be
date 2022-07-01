@@ -6,12 +6,12 @@ import (
 	"net/http"
 	"time"
 
-	"forum-gateway/config"
 	"forum-gateway/dao"
 	"forum-gateway/log"
 	"forum-gateway/router"
 	"forum-gateway/router/middleware"
 	"forum-gateway/service"
+	"forum/config"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
@@ -50,7 +50,7 @@ func main() {
 	pflag.Parse()
 
 	// init config
-	if err := config.Init(*cfg); err != nil {
+	if err := config.Init(*cfg, "GATEWAY"); err != nil {
 		panic(err)
 	}
 
@@ -58,11 +58,6 @@ func main() {
 	defer log.SyncLogger()
 
 	dao.Init()
-
-	// 黑名单过期数据定时清理
-	// go service.TidyBlacklist()
-	// 同步黑名单数据
-	// service.SynchronizeBlacklistToRedis()
 
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))

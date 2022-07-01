@@ -47,7 +47,7 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 	}
 
 	// 发送请求
-	_, err = service.PostClient.UpdateInfo(context.Background(), req)
+	_, err = service.PostClient.UpdatePostInfo(context.Background(), req)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return

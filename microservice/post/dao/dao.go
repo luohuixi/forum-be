@@ -17,14 +17,30 @@ type Dao struct {
 	DB    *gorm.DB
 	Redis *redis.Client
 	CB    *casbin.Enforcer
+	Map   map[uint8]string // TypeId2Name
 }
 
 // Interface dao
 type Interface interface {
-	Create(*PostModel) error
-	List(uint8) ([]*pb.Post, error)
-	UpdateInfo(*PostModel) error
-	Get(uint32) (*PostModel, error)
+	CreatePost(*PostModel) error
+	ListPost(uint8) ([]*PostInfo, error)
+	UpdatePostInfo(*PostModel) error
+	GetPost(uint32) (*PostModel, error)
+	GetPostInfo(uint32) (*PostInfo, error)
+
+	CreateComment(*CommentModel) error
+	GetComment(uint32) (*CommentModel, error)
+	UpdateCommentInfo(*CommentModel) error
+	ListCommentByPostId(uint32) ([]*pb.CommentInfo, error)
+	GetCommentNumByPostId(uint32) uint32
+
+	AddLike(uint32, Item) error
+	RemoveLike(uint32, Item) error
+	GetLikedNum(Item) (int64, error)
+	IsUserHadLike(uint32, Item) (bool, error)
+	ListUserLike(uint32) ([]*Item, error)
+
+	Enforce(...interface{}) (bool, error)
 }
 
 // Init init dao
@@ -47,8 +63,15 @@ func Init() {
 		Redis: model.RedisDB.Self,
 		CB:    model.CB.Self,
 	}
+
+	dao.Map[1] = "post"
+	dao.Map[2] = "comment"
 }
 
 func GetDao() *Dao {
 	return dao
+}
+
+func (d *Dao) Enforce(rvals ...interface{}) (bool, error) {
+	return d.CB.Enforce(rvals)
 }

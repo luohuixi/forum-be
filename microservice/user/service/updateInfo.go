@@ -3,10 +3,10 @@ package service
 import (
 	"context"
 
-	"forum-user/errno"
 	pb "forum-user/proto"
 	logger "forum/log"
 	e "forum/pkg/err"
+	errno "forum/pkg/err"
 )
 
 // UpdateInfo ... 更新用户信息

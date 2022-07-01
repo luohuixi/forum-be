@@ -19,12 +19,12 @@ func (u *UserModel) TableName() string {
 	return "users"
 }
 
-// Create ... create user
+// Create ...
 func (u *UserModel) Create() error {
 	return dao.DB.Create(u).Error
 }
 
-// Save ... save user.
+// Save ...
 func (u *UserModel) Save() error {
 	return dao.DB.Save(u).Error
 }

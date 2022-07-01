@@ -3,13 +3,13 @@ package service
 import (
 	"context"
 	"forum-user/dao"
-	"forum-user/errno"
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
 	"forum-user/util"
 	logger "forum/log"
 	"forum/pkg/constvar"
 	e "forum/pkg/err"
+	errno "forum/pkg/err"
 	"forum/pkg/token"
 )
 

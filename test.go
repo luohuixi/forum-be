@@ -1,12 +1,9 @@
 package main
 
-import (
-	"fmt"
-	"time"
-)
+import "fmt"
 
 func main() {
-	t := time.Now().YearDay()
-	fmt.Println(t)
-	fmt.Println(time.Now().Format("2006-01-02 15:04:05"))
+	var e error = nil
+	fmt.Println(e.Error())
+
 }

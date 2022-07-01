@@ -78,7 +78,7 @@ func (a *Api) List(c *gin.Context) {
 	}
 
 	// 发送请求
-	postResp, err := service.PostClient.List(context.Background(), listReq)
+	postResp, err := service.PostClient.ListPost(context.Background(), listReq)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return
