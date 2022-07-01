@@ -4,12 +4,12 @@ import (
 	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/log"
-	"forum-gateway/pkg/errno"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	pbu "forum-user/proto"
 	"forum/pkg/constvar"
+	"forum/pkg/errno"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -62,7 +62,7 @@ func (a *Api) List(c *gin.Context) {
 		}
 
 		if !ok {
-			SendBadRequest(c, errno.ErrValidation, nil, "权限不足", GetLine())
+			SendBadRequest(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
 			return
 		}
 	} else {

@@ -4,8 +4,7 @@ import (
 	"context"
 	pb "forum-chat/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 	"time"
 )
 
@@ -25,14 +24,14 @@ func (s *ChatService) GetList(ctx context.Context, req *pb.GetListRequest, resp 
 	// get message of the user from redis
 	list, err := s.Dao.GetList(req.UserId, expiration)
 	if err != nil {
-		return e.ServerErr(errno.ErrGetRedisList, err.Error())
+		return errno.ServerErr(errno.ErrGetRedisList, err.Error())
 	}
 
 	select {
 	case <-ctx.Done(): // client cancel this request
 		err := s.Dao.Rewrite(req.UserId, list)
 		if err != nil {
-			return e.ServerErr(errno.ErrRewriteRedisList, err.Error())
+			return errno.ServerErr(errno.ErrRewriteRedisList, err.Error())
 		}
 	default:
 		resp.List = list

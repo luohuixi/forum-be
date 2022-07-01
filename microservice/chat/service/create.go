@@ -5,8 +5,7 @@ import (
 	"forum-chat/dao"
 	pb "forum-chat/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 	"time"
 )
 
@@ -24,7 +23,7 @@ func (s *ChatService) Create(ctx context.Context, req *pb.CreateRequest, resp *p
 	err := s.Dao.Create(data)
 
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	return nil

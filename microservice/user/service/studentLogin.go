@@ -8,8 +8,7 @@ import (
 	"forum-user/util"
 	logger "forum/log"
 	"forum/pkg/constvar"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 	"forum/pkg/token"
 )
 
@@ -23,11 +22,11 @@ func (s *UserService) StudentLogin(ctx context.Context, req *pb.StudentLoginRequ
 	user, err := s.Dao.GetUserByStudentId(req.StudentId)
 
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 	if user == nil {
 		if err := auth.GetUserInfoFormOne(req.StudentId, req.Password); err != nil {
-			return e.ServerErr(errno.ErrRegister, err.Error())
+			return errno.ServerErr(errno.ErrRegister, err.Error())
 		}
 		info := &dao.RegisterInfo{
 			StudentId: req.StudentId,
@@ -36,12 +35,16 @@ func (s *UserService) StudentLogin(ctx context.Context, req *pb.StudentLoginRequ
 		}
 		// 用户未注册，自动注册
 		if err := s.Dao.RegisterUser(info); err != nil {
-			return e.ServerErr(errno.ErrDatabase, err.Error())
+			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 		// 注册后重新查询
 		user, err = s.Dao.GetUserByStudentId(req.StudentId)
 		if err != nil {
-			return e.ServerErr(errno.ErrDatabase, err.Error())
+			return errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
+	} else {
+		if !user.CheckPassword(req.Password) {
+			return errno.ServerErr(errno.ErrPasswordIncorrect, "密码错误！")
 		}
 	}
 
@@ -52,7 +55,7 @@ func (s *UserService) StudentLogin(ctx context.Context, req *pb.StudentLoginRequ
 		Expired: util.GetExpiredTime(),
 	})
 	if err != nil {
-		return e.ServerErr(errno.ErrAuthToken, err.Error())
+		return errno.ServerErr(errno.ErrAuthToken, err.Error())
 	}
 
 	res.Token = token

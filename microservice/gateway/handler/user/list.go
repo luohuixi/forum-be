@@ -4,10 +4,10 @@ import (
 	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/log"
-	"forum-gateway/pkg/errno"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-user/proto"
+	"forum/pkg/errno"
 	"strconv"
 
 	"github.com/gin-gonic/gin"

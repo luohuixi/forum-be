@@ -5,8 +5,7 @@ import (
 
 	pb "forum-user/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 )
 
 // UpdateInfo ... 更新用户信息
@@ -15,18 +14,18 @@ func (s *UserService) UpdateInfo(ctx context.Context, req *pb.UpdateInfoRequest,
 
 	user, err := s.Dao.GetUser(req.Id)
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	if user == nil {
-		return e.ServerErr(errno.ErrUserExisted, err.Error())
+		return errno.ServerErr(errno.ErrUserExisted, err.Error())
 	}
 
 	user.Name = req.Info.Name
 	user.Avatar = req.Info.AvatarUrl
 
 	if err := user.Save(); err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	return nil

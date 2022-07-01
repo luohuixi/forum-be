@@ -4,8 +4,7 @@ import (
 	"context"
 	pb "forum-user/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 )
 
 // GetInfo ... 获取用户信息
@@ -14,7 +13,7 @@ func (s *UserService) GetInfo(ctx context.Context, req *pb.GetInfoRequest, res *
 
 	list, err := s.Dao.GetUserByIds(req.Ids)
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	userInfos := make([]*pb.UserInfo, 0)

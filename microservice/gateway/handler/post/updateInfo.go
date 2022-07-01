@@ -4,11 +4,11 @@ import (
 	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/log"
-	"forum-gateway/pkg/errno"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/pkg/constvar"
+	"forum/pkg/errno"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -42,7 +42,7 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 	}
 
 	if !ok {
-		SendBadRequest(c, errno.ErrValidation, nil, "权限不足", GetLine())
+		SendBadRequest(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
 		return
 	}
 

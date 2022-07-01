@@ -6,8 +6,7 @@ import (
 	"forum-user/dao"
 	pb "forum-user/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 )
 
 // List ... 获取用户列表
@@ -20,7 +19,7 @@ func (s *UserService) List(ctx context.Context, req *pb.ListRequest, res *pb.Lis
 	// DB 查询
 	list, err := s.Dao.ListUser(req.Offset, req.Limit, req.LastId, filter)
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	resList := make([]*pb.User, 0)

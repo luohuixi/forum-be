@@ -8,7 +8,7 @@ import (
 	"forum-gateway/util"
 	"net/http"
 
-	"forum-gateway/pkg/errno"
+	"forum/pkg/errno"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"

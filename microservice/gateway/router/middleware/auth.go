@@ -3,7 +3,7 @@ package middleware
 import (
 	"forum-gateway/handler"
 	"forum-gateway/pkg/auth"
-	"forum-gateway/pkg/errno"
+	"forum/pkg/errno"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,7 +15,7 @@ func AuthMiddleware(limit uint32) gin.HandlerFunc {
 		// Parse the json web token.
 		ctx, err := auth.ParseRequest(c)
 		if err != nil {
-			handler.SendResponse(c, errno.ErrTokenInvalid, err.Error())
+			handler.SendResponse(c, errno.ErrAuthToken, err.Error())
 			c.Abort()
 			return
 		} else if ctx.Role&limit == 0 {

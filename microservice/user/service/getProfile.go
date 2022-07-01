@@ -4,8 +4,7 @@ import (
 	"context"
 	pb "forum-user/proto"
 	logger "forum/log"
-	e "forum/pkg/err"
-	errno "forum/pkg/err"
+	"forum/pkg/errno"
 )
 
 // GetProfile ... 获取用户个人信息
@@ -14,11 +13,11 @@ func (s *UserService) GetProfile(ctx context.Context, req *pb.GetRequest, res *p
 
 	user, err := s.Dao.GetUser(req.Id)
 	if err != nil {
-		return e.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	if user == nil {
-		return e.ServerErr(errno.ErrUserNotExisted, "")
+		return errno.ServerErr(errno.ErrUserNotExisted, "")
 
 	}
 	res.Id = user.Id

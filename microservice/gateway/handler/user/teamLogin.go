@@ -4,11 +4,10 @@ import (
 	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/log"
-	"forum-gateway/pkg/errno"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-user/proto"
-	e "forum/pkg/err"
+	"forum/pkg/errno"
 
 	errors "github.com/micro/go-micro/errors"
 
@@ -46,7 +45,7 @@ func TeamLogin(c *gin.Context) {
 
 	if err != nil {
 		parsedErr := errors.Parse(err.Error())
-		detail, errr := e.ParseDetail(parsedErr.Detail)
+		detail, errr := errno.ParseDetail(parsedErr.Detail)
 
 		finalErrno := errno.InternalServerError
 		if errr == nil {

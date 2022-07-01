@@ -3,8 +3,8 @@ package user
 import (
 	. "forum-gateway/handler"
 	"forum-gateway/log"
-	"forum-gateway/pkg/errno"
 	"forum-gateway/util"
+	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )

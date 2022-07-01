@@ -12,7 +12,7 @@ import (
 
 	"forum-gateway/handler"
 	"forum-gateway/log"
-	"forum-gateway/pkg/errno"
+	"forum/pkg/errno"
 
 	"github.com/gin-gonic/gin"
 	"github.com/willf/pad"
