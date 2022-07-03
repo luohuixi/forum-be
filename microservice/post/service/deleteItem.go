@@ -20,7 +20,7 @@ func (s *PostService) DeleteItem(ctx context.Context, req *pb.Item, resp *pb.Res
 	}
 
 	if item == nil {
-		return errno.ServerErr(errno.ErrItemNotExist, "")
+		return errno.NotFoundErr(errno.ErrItemNotFound, string(req.Id))
 	}
 
 	if err := item.Delete(); err != nil {

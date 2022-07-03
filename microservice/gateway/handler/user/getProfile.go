@@ -5,10 +5,10 @@ import (
 	. "forum-gateway/handler"
 	"strconv"
 
-	"forum-gateway/log"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-user/proto"
+	"forum/log"
 	"forum/pkg/errno"
 
 	"github.com/gin-gonic/gin"
@@ -63,7 +63,7 @@ func GetProfile(c *gin.Context) {
 
 	if err != nil {
 		// TODO: 判断错误是否是用户不存在
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 

@@ -20,7 +20,7 @@ func GetId(c *gin.Context) {
 	u4 := uuid.NewV4().String()
 
 	if err := m.SetStringInRedis("user:"+u4, userId, time.Hour*24); err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrRedis, nil, err.Error(), GetLine())
 	}
 
 	SendResponse(c, nil, &id{Id: u4})

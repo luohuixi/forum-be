@@ -13,6 +13,14 @@ func ServerErr(errno *Errno, cause string) error {
 	}
 }
 
+func NotFoundErr(errno *Errno, cause string) error {
+	return &errors.Error{
+		Code:   404,
+		Detail: cause,
+		Status: errno.Message,
+	}
+}
+
 func (e Errno) Error() string {
 	return e.Message
 }

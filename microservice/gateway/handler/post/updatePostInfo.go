@@ -3,10 +3,10 @@ package post
 import (
 	"context"
 	. "forum-gateway/handler"
-	"forum-gateway/log"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
+	"forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 
@@ -49,7 +49,7 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 	// 发送请求
 	_, err = service.PostClient.UpdatePostInfo(context.Background(), req)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 

@@ -2,9 +2,8 @@ package user
 
 import (
 	. "forum-gateway/handler"
-	"forum-gateway/log"
 	"forum-gateway/util"
-	"forum/pkg/errno"
+	"forum/log"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -26,7 +25,7 @@ func GetMyProfile(c *gin.Context) {
 	user, err := GetUserProfile(userId)
 
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 

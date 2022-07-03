@@ -2,7 +2,6 @@ package post
 
 import (
 	"context"
-	"fmt"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
 	pb "forum-post/proto"
@@ -10,14 +9,13 @@ import (
 )
 
 func (a *Api) Test(c *gin.Context) {
-	fmt.Println("123: ", 123)
-
-	_, err := service.PostClient.GetPost(context.Background(), &pb.Request{
-		Id: 1,
+	res, err := service.PostClient.GetPost(context.Background(), &pb.Request{
+		Id: 2,
 	})
 
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
+	SendResponse(c, nil, res.Id)
 }

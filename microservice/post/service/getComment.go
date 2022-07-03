@@ -6,6 +6,7 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
+	"strconv"
 )
 
 func (s *PostService) GetComment(ctx context.Context, req *pb.Request, resp *pb.CommentInfo) error {
@@ -17,7 +18,7 @@ func (s *PostService) GetComment(ctx context.Context, req *pb.Request, resp *pb.
 	}
 
 	if comment == nil {
-		return errno.ServerErr(errno.ErrItemNotExist, "")
+		return errno.NotFoundErr(errno.ErrItemNotFound, "comment-"+strconv.Itoa(int(req.Id)))
 	}
 
 	likeNum, err := s.Dao.GetLikedNum(dao.Item{

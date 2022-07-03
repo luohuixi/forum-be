@@ -2,8 +2,8 @@ package auth
 
 import (
 	"errors"
-	"forum-gateway/log"
 	"forum-gateway/service"
+	"forum/log"
 	"forum/pkg/token"
 
 	"github.com/gin-gonic/gin"

@@ -32,7 +32,7 @@ func (c *CommentModel) Save() error {
 }
 
 func (c *CommentModel) Get(id uint32) error {
-	err := dao.DB.Where("id = ? AND re = 0", id).First(c).Error
+	err := dao.DB.Model(c).Where("id = ? AND re = 0", id).First(c).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil
 	}
@@ -64,7 +64,7 @@ func (d *Dao) CreateComment(comment *CommentModel) error {
 
 func (d *Dao) ListCommentByPostId(postId uint32) ([]*pb.CommentInfo, error) {
 	var comments []*pb.CommentInfo
-	err := d.DB.Table("comments").Select("comments.id id, type_id, content, father_id, create_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = comments.creator_id").Where("post_id = ? AND re = 0", postId).Find(&comments).Error
+	err := d.DB.Table("comments").Select("comments.id id, type_id, content, father_id, create_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = comments.creator_id").Where("post_id = ? AND comments.re = 0", postId).Find(&comments).Error
 	return comments, err
 }
 
@@ -79,7 +79,7 @@ func (d *Dao) GetComment(id uint32) (*CommentModel, error) {
 
 func (d *Dao) GetCommentInfo(commentId uint32) (*CommentInfo, error) {
 	var comment CommentInfo // TODO
-	err := d.DB.Table("comments").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND re = 0", commentId).First(&comment).Error
+	err := d.DB.Table("comments").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND comments.re = 0", commentId).First(&comment).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

@@ -3,10 +3,10 @@ package user
 import (
 	"context"
 	. "forum-gateway/handler"
-	"forum-gateway/log"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-user/proto"
+	"forum/log"
 	"forum/pkg/errno"
 
 	"github.com/gin-gonic/gin"

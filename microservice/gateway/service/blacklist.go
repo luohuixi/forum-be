@@ -4,7 +4,7 @@ package service
 // import (
 // 	"time"
 //
-// 	"forum-gateway/log"
+// 	"forum/log"
 // 	"forum-gateway/model"
 // 	m "forum/model"
 //

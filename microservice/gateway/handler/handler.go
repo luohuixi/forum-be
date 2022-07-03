@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"forum-gateway/log"
 	"forum-gateway/util"
+	"forum/log"
 	"net/http"
 	"runtime"
 	"strconv"
@@ -47,7 +47,10 @@ func SendError(c *gin.Context, err error, data interface{}, cause string, source
 		zap.String("source", source))
 
 	var responseCode = http.StatusInternalServerError
-	if code > 20000 {
+
+	if code == http.StatusNotFound {
+		responseCode = http.StatusNotFound
+	} else if code > 20000 {
 		responseCode = http.StatusBadRequest
 	}
 

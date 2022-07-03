@@ -5,6 +5,7 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
+	"strconv"
 	"time"
 )
 
@@ -21,7 +22,7 @@ func (s *PostService) UpdatePostInfo(ctx context.Context, req *pb.UpdatePostInfo
 	}
 
 	if post == nil {
-		return errno.ServerErr(errno.ErrItemNotExist, "")
+		return errno.NotFoundErr(errno.ErrItemNotFound, "post-"+strconv.Itoa(int(req.Id)))
 	}
 
 	post.Title = req.Title

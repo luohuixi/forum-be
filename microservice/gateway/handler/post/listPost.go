@@ -3,11 +3,11 @@ package post
 import (
 	"context"
 	. "forum-gateway/handler"
-	"forum-gateway/log"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	pbu "forum-user/proto"
+	"forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"strconv"
@@ -80,7 +80,7 @@ func (a *Api) List(c *gin.Context) {
 	// 发送请求
 	postResp, err := service.PostClient.ListPost(context.Background(), listReq)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
@@ -94,7 +94,7 @@ func (a *Api) List(c *gin.Context) {
 	}
 	resp, err := service.UserClient.GetInfo(context.Background(), req)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 

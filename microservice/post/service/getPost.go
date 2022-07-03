@@ -6,6 +6,7 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
+	"strconv"
 )
 
 func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Post) error {
@@ -17,7 +18,7 @@ func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Pos
 	}
 
 	if post == nil {
-		return errno.ServerErr(errno.ErrItemNotExist, "")
+		return errno.NotFoundErr(errno.ErrItemNotFound, "post-"+strconv.Itoa(int(req.Id)))
 	}
 
 	comments, err := s.Dao.ListCommentByPostId(req.Id)

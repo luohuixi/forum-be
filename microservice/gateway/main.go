@@ -7,11 +7,11 @@ import (
 	"time"
 
 	"forum-gateway/dao"
-	"forum-gateway/log"
 	"forum-gateway/router"
 	"forum-gateway/router/middleware"
 	"forum-gateway/service"
 	"forum/config"
+	"forum/log"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
@@ -78,13 +78,11 @@ func main() {
 	// Ping the server to make sure the router is working.
 	go func() {
 		if err := pingServer(); err != nil {
-			log.Fatal("The router has no response, or it might took too long to start up.",
-				zap.String("reason", err.Error()))
+			log.Fatal("The router has no response, or it might took too long to start up.", zap.String("reason", err.Error()))
 		}
-		log.Info("The router has been deployed successfully.")
+		log.Info(fmt.Sprintf("The router has been deployed on %s successfully.", viper.GetString("addr")))
 	}()
 
-	log.Info(fmt.Sprintf("Start to listening the incoming requests on http address: %s", viper.GetString("addr")))
 	log.Info(http.ListenAndServe(viper.GetString("addr"), g).Error())
 }
 

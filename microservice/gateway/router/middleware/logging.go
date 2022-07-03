@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"forum-gateway/handler"
-	"forum-gateway/log"
+	"forum/log"
 	"forum/pkg/errno"
 
 	"github.com/gin-gonic/gin"

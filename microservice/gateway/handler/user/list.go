@@ -3,10 +3,10 @@ package user
 import (
 	"context"
 	. "forum-gateway/handler"
-	"forum-gateway/log"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-user/proto"
+	"forum/log"
 	"forum/pkg/errno"
 	"strconv"
 
@@ -61,7 +61,7 @@ func List(c *gin.Context) {
 	// 发送请求
 	listResp, err := service.UserClient.List(context.Background(), listReq)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 

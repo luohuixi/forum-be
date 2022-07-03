@@ -3,10 +3,10 @@ package user
 import (
 	"context"
 	. "forum-gateway/handler"
-	"forum-gateway/log"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-user/proto"
+	"forum/log"
 	"forum/pkg/errno"
 
 	"github.com/gin-gonic/gin"
@@ -38,7 +38,7 @@ func GetInfo(c *gin.Context) {
 	// 发送请求
 	getInfoResp, err := service.UserClient.GetInfo(context.Background(), getInfoReq)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 

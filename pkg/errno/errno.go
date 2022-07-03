@@ -8,6 +8,8 @@ package errno
 var (
 	OK = &Errno{Code: 0, Message: "OK"}
 
+	ErrItemNotFound = &Errno{Code: 404, Message: "Item not found"}
+
 	InternalServerError = &Errno{Code: 10001, Message: "Internal server error"}
 	ErrDatabase         = &Errno{Code: 10002, Message: "Database error"}
 	ErrGetRedisList     = &Errno{Code: 10003, Message: "Get list from Redis out of expiration time"}
@@ -37,8 +39,6 @@ var (
 	ErrPasswordIncorrect = &Errno{Code: 20102, Message: "The password was incorrect."}
 	// ErrUserExisted       = &Errno{Code: 20104, Message: "User has existed"}
 
-	// post
-	ErrItemNotExist = &Errno{Code: 20201, Message: "Item not exist"}
 )
 
 type Errno struct {

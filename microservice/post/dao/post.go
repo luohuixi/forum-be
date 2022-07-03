@@ -35,7 +35,7 @@ func (p *PostModel) Delete() error {
 }
 
 func (p *PostModel) Get(id uint32) error {
-	err := dao.DB.Where("id = ? AND re = 0", id).First(p).Error
+	err := dao.DB.Model(p).Where("id = ? AND re = 0", id).First(p).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil
 	}
@@ -61,19 +61,19 @@ func (d *Dao) CreatePost(post *PostModel) error {
 
 func (d *Dao) ListPost(typeId uint8) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where("type_id = ? AND re = 0", typeId).Find(posts).Error
+	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where("type_id = ? AND posts.re = 0", typeId).Find(posts).Error
 	return posts, err
 }
 
 func (d *Dao) ListPostByCategory(typeId uint8, category string) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where("type_id = ? AND category = ? AND re = 0", typeId, category).Find(posts).Error
+	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where("type_id = ? AND category = ? AND posts.re = 0", typeId, category).Find(posts).Error
 	return posts, err
 }
 
 func (d *Dao) GetPostInfo(postId uint32) (*PostInfo, error) {
 	var post PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND re = 0", postId).First(&post).Error
+	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND posts.re = 0", postId).First(&post).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
@@ -81,12 +81,7 @@ func (d *Dao) GetPostInfo(postId uint32) (*PostInfo, error) {
 }
 
 func (d *Dao) GetPost(id uint32) (*PostModel, error) {
-	Dao.test(Dao{})
 	item := &PostModel{}
 	err := item.Get(id)
 	return item, err
-}
-
-func (Dao) test() {
-
 }

@@ -3,10 +3,10 @@ package post
 import (
 	"context"
 	. "forum-gateway/handler"
-	"forum-gateway/log"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
+	"forum/log"
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -52,7 +52,7 @@ func (a *Api) CreateComment(c *gin.Context) {
 	// 发送请求
 	_, err := service.PostClient.CreateComment(context.Background(), createReq)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
