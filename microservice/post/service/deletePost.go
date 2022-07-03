@@ -10,13 +10,17 @@ import (
 func (s *PostService) DeletePost(ctx context.Context, req *pb.Request, resp *pb.Response) error {
 	logger.Info("PostService DeletePost")
 
-	comment, err := s.Dao.GetComment(req.Id)
+	post, err := s.Dao.GetPost(req.Id)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	comment.Re = true
-	if err := s.Dao.UpdateCommentInfo(comment); err != nil {
+	if post.Re {
+		return errno.ServerErr(errno.ErrBadRequest, "this post had been deleted")
+	}
+
+	post.Re = true
+	if err := post.Save(); err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 

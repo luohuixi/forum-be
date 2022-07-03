@@ -13,7 +13,7 @@ func (s *PostService) CreatePost(ctx context.Context, req *pb.CreatePostRequest,
 	logger.Info("PostService CreatePost")
 
 	data := &dao.PostModel{
-		Type:         uint8(req.TypeId),
+		TypeId:       uint8(req.TypeId),
 		Content:      req.Content,
 		Title:        req.Title,
 		CreateTime:   time.Now().Format("2006-01-02 15:04:05"),

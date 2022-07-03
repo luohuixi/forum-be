@@ -11,9 +11,7 @@ import (
 func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Post) error {
 	logger.Info("PostService GetPost")
 
-	// ok, err := s.Dao.Enforce(userId, typeId, constvar.Read)
 	post, err := s.Dao.GetPostInfo(req.Id)
-
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
@@ -21,6 +19,17 @@ func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Pos
 	comments, err := s.Dao.ListCommentByPostId(req.Id)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+
+	for _, comment := range comments {
+		n, err := s.Dao.GetLikedNum(dao.Item{
+			Id:     comment.Id,
+			TypeId: 2,
+		})
+		if err != nil {
+			return errno.ServerErr(errno.ErrRedis, err.Error())
+		}
+		comment.LikeNum = uint32(n)
 	}
 
 	likeNum, err := s.Dao.GetLikedNum(dao.Item{
@@ -31,18 +40,20 @@ func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Pos
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
 
-	resp = &pb.Post{
-		Id:            post.Id,
-		Content:       post.Content,
-		Title:         post.Title,
-		Time:          post.LastEditTime,
-		Category:      post.Category,
-		CreatorId:     post.CreatorId,
-		CreatorAvatar: post.CreatorAvatar,
-		CreatorName:   post.CreatorName,
-		Comments:      comments,
-		CommentNum:    uint32(len(comments)),
-		LikeNum:       uint32(likeNum),
+	resp.LikeNum = post.LikeNum
+	if likeNum != 0 {
+		resp.LikeNum = uint32(likeNum)
 	}
+	resp.Id = post.Id
+	resp.Content = post.Content
+	resp.Title = post.Title
+	resp.Time = post.LastEditTime
+	resp.Category = post.Category
+	resp.CreatorId = post.CreatorId
+	resp.CreatorAvatar = post.CreatorAvatar
+	resp.CreatorName = post.CreatorName
+	resp.Comments = comments
+	resp.CommentNum = uint32(len(comments))
+
 	return nil
 }

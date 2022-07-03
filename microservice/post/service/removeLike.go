@@ -12,8 +12,8 @@ func (s *PostService) RemoveLike(ctx context.Context, req *pb.LikeRequest, resp 
 	logger.Info("PostService RemoveLike")
 
 	item := dao.Item{
-		Id:     req.TargetId,
-		TypeId: uint8(req.TypeId),
+		Id:     req.Item.TargetId,
+		TypeId: uint8(req.Item.TypeId),
 	}
 
 	ok, err := s.Dao.IsUserHadLike(req.UserId, item)

@@ -4,7 +4,7 @@ import pb "forum-post/proto"
 
 type CommentModel struct {
 	Id         uint32 `json:"id"`
-	Type       uint8  `json:"type"` // 1 2
+	TypeId     uint8  `json:"type_id"` // 1 2
 	Content    string `json:"content"`
 	FatherId   uint32 `json:"father_id"`
 	CreateTime string `json:"create_time"`
@@ -33,7 +33,7 @@ func (d *Dao) CreateComment(comment *CommentModel) error {
 
 func (d *Dao) ListCommentByPostId(postId uint32) ([]*pb.CommentInfo, error) {
 	var comments []*pb.CommentInfo
-	err := d.DB.Table("comments c").Select("c.id id", "type_id", "content", "father_id", "create_time", "creator_id", "u.name creator_name", "u.avatar creator_avatar").Joins("join users u on u.id = c.creator_id").Where("post_id = ? AND re = 0", postId).Find(comments).Error
+	err := d.DB.Table("comments").Select("comments.id id, type_id, content, father_id, create_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = comments.creator_id").Where("post_id = ? AND re = 0", postId).Find(&comments).Error
 	return comments, err
 }
 
@@ -42,9 +42,9 @@ func (d *Dao) UpdateCommentInfo(comment *CommentModel) error {
 }
 
 func (d *Dao) GetComment(id uint32) (*CommentModel, error) {
-	var comment *CommentModel
-	err := d.DB.Where("id = ? AND re = 0", id).First(comment).Error
-	return comment, err
+	var comment CommentModel
+	err := d.DB.Where("id = ? AND re = 0", id).First(&comment).Error
+	return &comment, err
 }
 
 func (d *Dao) GetCommentNumByPostId(postId uint32) uint32 {

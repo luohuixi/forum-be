@@ -22,7 +22,7 @@ func (s *UserService) List(ctx context.Context, req *pb.ListRequest, res *pb.Lis
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	resList := make([]*pb.User, 0)
+	var resList []*pb.User
 
 	for _, item := range list {
 		resList = append(resList, &pb.User{

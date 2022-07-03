@@ -10,7 +10,7 @@ import (
 	"strconv"
 )
 
-func (s *PostService) ListPost(ctx context.Context, req *pb.ListRequest, resp *pb.ListResponse) error {
+func (s *PostService) ListPost(ctx context.Context, req *pb.ListPostRequest, resp *pb.ListPostResponse) error {
 	logger.Info("PostService ListPost")
 
 	id, err := strconv.Atoi(req.TypeId)
@@ -18,7 +18,12 @@ func (s *PostService) ListPost(ctx context.Context, req *pb.ListRequest, resp *p
 		return errno.ServerErr(errno.ErrBadRequest, err.Error())
 	}
 
-	posts, err := s.Dao.ListPost(uint8(id))
+	var posts []*dao.PostInfo
+	if req.Category == "" {
+		posts, err = s.Dao.ListPost(uint8(id))
+	} else {
+		posts, err = s.Dao.ListPostByCategory(uint8(id), req.Category)
+	}
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}

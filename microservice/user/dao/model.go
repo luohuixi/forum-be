@@ -9,10 +9,10 @@ type UserModel struct {
 	Name         string `json:"name" gorm:"column:name;" binding:"required"`
 	Email        string `json:"email" gorm:"column:email;default:null"`
 	Avatar       string `json:"avatar" gorm:"column:avatar;" binding:"required"`
-	Role         uint32 `json:"role" gorm:"column:role;" binding:"required"`
-	Message      uint32 `json:"message" gorm:"column:message;" binding:"required"`
-	HashPassword string `json:"hash_password" gorm:"column:hash_password;" binding:"required"`
 	StudentId    string `json:"student_id" gorm:"column:student_id;"`
+	HashPassword string `json:"hash_password" gorm:"column:hash_password;" binding:"required"`
+	Role         uint32 `json:"role" gorm:"column:role;" binding:"required"`
+	Signature    uint32 `json:"signature" gorm:"column:signature;" binding:"required"`
 }
 
 func (u *UserModel) TableName() string {

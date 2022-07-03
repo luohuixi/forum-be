@@ -12,8 +12,10 @@ import (
 func (s *PostService) CreateComment(ctx context.Context, req *pb.CreateCommentRequest, resp *pb.Response) error {
 	logger.Info("PostService CreateComment")
 
+	// check if the FatherId is valid TODO
+
 	data := &dao.CommentModel{
-		Type:       uint8(req.TypeId),
+		TypeId:     uint8(req.TypeId),
 		Content:    req.Content,
 		FatherId:   req.FatherId,
 		CreateTime: time.Now().Format("2006-01-02 15:04:05"),

@@ -24,7 +24,7 @@ type Dao struct {
 type Interface interface {
 	CreatePost(*PostModel) error
 	ListPost(uint8) ([]*PostInfo, error)
-	UpdatePostInfo(*PostModel) error
+	ListPostByCategory(uint8, string) ([]*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 

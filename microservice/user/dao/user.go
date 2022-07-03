@@ -25,7 +25,7 @@ func (d *Dao) GetUser(id uint32) (*UserModel, error) {
 
 // GetUserByIds get user by id array
 func (d *Dao) GetUserByIds(ids []uint32) ([]*UserModel, error) {
-	list := make([]*UserModel, 0)
+	var list []*UserModel
 	if err := d.DB.Where("id IN (?)", ids).Find(&list).Error; err != nil {
 		return list, err
 	}
@@ -58,7 +58,7 @@ func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*User
 		limit = constvar.DefaultLimit
 	}
 
-	list := make([]*UserModel, 0)
+	var list []*UserModel
 
 	query := d.DB.Model(&UserModel{}).Where(filter).Offset(offset).Limit(limit)
 

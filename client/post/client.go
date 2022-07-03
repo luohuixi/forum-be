@@ -2,9 +2,9 @@ package main
 
 import (
 	"context"
-	"forum/config"
+	"fmt"
+	pb "forum-post/proto"
 	logger "forum/log"
-	pb "forum/microservice/post/proto"
 	"forum/pkg/handler"
 	tracer "forum/pkg/tracer"
 	"github.com/micro/go-micro"
@@ -12,23 +12,16 @@ import (
 	"log"
 
 	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
-	"github.com/spf13/viper"
 )
 
 func main() {
-	// init config
-	if err := config.Init("", "FORUM_post"); err != nil {
-		panic(err)
-	}
-
-	t, io, err := tracer.NewTracer(viper.GetString("local_name"), viper.GetString("tracing.jager"))
+	t, io, err := tracer.NewTracer("forum.service.post", "localhost:6831")
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer io.Close()
 	defer logger.SyncLogger()
 
-	// set var t to Global Tracer (opentracing single instance mode)
 	opentracing.SetGlobalTracer(t)
 
 	service := micro.NewService(micro.Name("forum.cli.post"),
@@ -41,12 +34,33 @@ func main() {
 	service.Init()
 
 	client := pb.NewPostServiceClient("forum.service.post", service.Client())
-
-	client.CreatePost(context.Background(), &pb.CreatePostRequest{
-		UserId:   0,
+	//
+	// _, err = client.CreatePost(context.Background(), &pb.CreatePostRequest{
+	// 	UserId:   2,
+	// 	Content:  "外比巴卜",
+	// 	TypeId:   1, // 默认为1
+	// 	Title:    "first post",
+	// 	Category: "学习",
+	// })
+	// _, err = client.CreateComment(context.Background(), &pb.CreateCommentRequest{
+	// 	PostId:    1,
+	// 	TypeId:    2,
+	// 	FatherId:  1,
+	// 	Content:   "first comment to comment",
+	// 	CreatorId: 2,
+	// })
+	_, err = client.UpdatePostInfo(context.Background(), &pb.UpdatePostInfoRequest{
+		Id:       1,
 		Content:  "",
-		TypeId:   0,
 		Title:    "",
-		Category: "",
+		Category: "娱乐",
 	})
+
+	post, err := client.GetPost(context.Background(), &pb.Request{Id: 1})
+
+	fmt.Println("post:", post)
+
+	if err != nil {
+		panic(err)
+	}
 }

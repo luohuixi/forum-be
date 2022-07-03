@@ -16,7 +16,7 @@ func (s *UserService) GetInfo(ctx context.Context, req *pb.GetInfoRequest, res *
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	userInfos := make([]*pb.UserInfo, 0)
+	var userInfos []*pb.UserInfo
 
 	for _, user := range list {
 		userInfos = append(userInfos, &pb.UserInfo{
