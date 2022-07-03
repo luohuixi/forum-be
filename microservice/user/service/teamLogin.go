@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"forum/pkg/constvar"
+	"forum/pkg/token"
 
 	"forum-user/dao"
 	"forum-user/pkg/auth"
@@ -10,7 +11,6 @@ import (
 	"forum-user/util"
 	logger "forum/log"
 	"forum/pkg/errno"
-	"forum/pkg/token"
 )
 
 // TeamLogin ... 登录

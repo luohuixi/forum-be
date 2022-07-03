@@ -20,9 +20,9 @@ require (
 	forum-post v0.0.0-00010101000000-000000000000
 	forum-user v0.0.0-00010101000000-000000000000
 	github.com/casbin/casbin/v2 v2.47.2
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-redis/redis v6.15.9+incompatible
-	github.com/googollee/go-socket.io v1.6.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/micro/go-micro v1.18.0
 	github.com/micro/go-plugins/registry/kubernetes v0.0.0-20200119172437-4fe21aa238fd
@@ -30,6 +30,7 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil v3.21.11+incompatible
+	github.com/smartystreets/goconvey v1.7.2
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.12.0
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2

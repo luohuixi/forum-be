@@ -6,10 +6,13 @@ service PostService {
     rpc CreatePost(CreatePostRequest) returns (Response) {}
     rpc ListPost(ListPostRequest) returns (ListPostResponse) {}
     rpc UpdatePostInfo(UpdatePostInfoRequest) returns (Response) {}
-    rpc DeletePost(Request) returns (Response) {}
     rpc GetPost(Request) returns (Post) {}
+
+    rpc GetComment(Request) returns (CommentInfo) {}
     rpc CreateComment(CreateCommentRequest) returns (Response) {}
-    rpc DeleteComment(Request) returns (Response) {}
+
+    rpc DeleteItem(Item) returns (Response) {}
+
     rpc CreateLike(LikeRequest) returns (Response) {}
     rpc RemoveLike(LikeRequest) returns (Response) {}
     rpc ListLikeByUserId(Request) returns (ListLikeResponse) {}
@@ -51,6 +54,11 @@ message CommentInfo {
 
 message Request {
     uint32 id = 1;
+}
+
+message Item {
+    uint32 id = 1;
+    uint32 type_id = 2;
 }
 
 message UpdatePostInfoRequest {

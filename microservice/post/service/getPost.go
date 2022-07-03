@@ -16,6 +16,10 @@ func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Pos
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
+	if post == nil {
+		return errno.ServerErr(errno.ErrItemNotExist, "")
+	}
+
 	comments, err := s.Dao.ListCommentByPostId(req.Id)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())

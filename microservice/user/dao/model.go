@@ -13,6 +13,7 @@ type UserModel struct {
 	HashPassword string `json:"hash_password" gorm:"column:hash_password;" binding:"required"`
 	Role         uint32 `json:"role" gorm:"column:role;" binding:"required"`
 	Signature    uint32 `json:"signature" gorm:"column:signature;" binding:"required"`
+	Re           bool   `json:"re"`
 }
 
 func (u *UserModel) TableName() string {

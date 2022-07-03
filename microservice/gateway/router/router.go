@@ -65,6 +65,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	postRouter := g.Group("api/v1/post")
 	postApi := post.New(dao.GetDao())
 	{
+		postRouter.GET("/test", postApi.Test)
 		postRouter.PUT("", postApi.UpdateInfo)
 	}
 

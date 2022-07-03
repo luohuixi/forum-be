@@ -18,7 +18,7 @@ func (s *UserService) UpdateInfo(ctx context.Context, req *pb.UpdateInfoRequest,
 	}
 
 	if user == nil {
-		return errno.ServerErr(errno.ErrUserExisted, err.Error())
+		return errno.ServerErr(errno.ErrUserNotExisted, "")
 	}
 
 	user.Name = req.Info.Name

@@ -1,12 +1,11 @@
 package handler
 
 import (
-	"runtime"
-	"strconv"
-
 	"forum-gateway/log"
 	"forum-gateway/util"
 	"net/http"
+	"runtime"
+	"strconv"
 
 	"forum/pkg/errno"
 
@@ -21,6 +20,14 @@ type Response struct {
 	Data    interface{} `json:"data"`
 } // @name Response
 
+func GetLine() string {
+	_, file, line, ok := runtime.Caller(1)
+	if !ok {
+		return "forum-gateway/handler/handler.go:26"
+	}
+	return file + ":" + strconv.Itoa(line)
+}
+
 func SendResponse(c *gin.Context, err error, data interface{}) {
 	code, message := errno.DecodeErr(err)
 	log.Info(message, zap.String("X-Request-Id", util.GetReqID(c)))
@@ -32,20 +39,6 @@ func SendResponse(c *gin.Context, err error, data interface{}) {
 	})
 }
 
-func SendBadRequest(c *gin.Context, err error, data interface{}, cause string, source string) {
-	code, message := errno.DecodeErr(err)
-	log.Error(message,
-		zap.String("X-Request-Id", util.GetReqID(c)),
-		zap.String("cause", cause),
-		zap.String("source", source))
-
-	c.JSON(http.StatusBadRequest, Response{
-		Code:    code,
-		Message: message + ": " + cause,
-		Data:    data,
-	})
-}
-
 func SendError(c *gin.Context, err error, data interface{}, cause string, source string) {
 	code, message := errno.DecodeErr(err)
 	log.Error(message,
@@ -53,17 +46,14 @@ func SendError(c *gin.Context, err error, data interface{}, cause string, source
 		zap.String("cause", cause),
 		zap.String("source", source))
 
-	c.JSON(http.StatusInternalServerError, Response{
+	var responseCode = http.StatusInternalServerError
+	if code > 20000 {
+		responseCode = http.StatusBadRequest
+	}
+
+	c.JSON(responseCode, Response{
 		Code:    code,
-		Message: message + ": " + cause,
+		Message: message + " " + cause,
 		Data:    data,
 	})
-}
-
-func GetLine() string {
-	_, file, line, ok := runtime.Caller(1)
-	if !ok {
-		return "forum-gateway/handler/handler.go:67"
-	}
-	return file + ":" + strconv.Itoa(line)
 }

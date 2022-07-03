@@ -34,3 +34,10 @@ type Post struct {
 type ListResponse struct {
 	posts *[]Post
 }
+
+type createCommentRequest struct {
+	TypeId   uint32
+	Content  string
+	FatherId uint32
+	PostId   uint32
+}

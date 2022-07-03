@@ -20,6 +20,10 @@ func (s *PostService) UpdatePostInfo(ctx context.Context, req *pb.UpdatePostInfo
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
+	if post == nil {
+		return errno.ServerErr(errno.ErrItemNotExist, "")
+	}
+
 	post.Title = req.Title
 	post.Content = req.Content
 	post.LastEditTime = time.Now().Format("2006-01-02 15:04:05")

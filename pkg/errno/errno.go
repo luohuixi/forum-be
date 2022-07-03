@@ -19,23 +19,26 @@ var (
 	ErrRemoteAccessToken = &Errno{Code: 10102, Message: "Error occurred while getting oauth access token from auth-server"}
 	ErrLocalAccessToken  = &Errno{Code: 10103, Message: "Error occurred while getting oauth access token from local"}
 	ErrGetUserInfo       = &Errno{Code: 10104, Message: "Error occurred while getting user info from oauth-server by access token"}
-	
+
 	// chat
 	ErrWebsocket = &Errno{Code: 10201, Message: "Error occurred in upgrade HTTP to websocket"}
 
 	// ---------------------------------------------------------------------------
 
-	ErrBadRequest = &Errno{Code: 20001, Message: "Request error"}
-	ErrBind       = &Errno{Code: 20002, Message: "Error occurred while binding the request body to the struct."}
-	ErrQuery      = &Errno{Code: 20003, Message: "Error occurred while getting url queries."}
-	ErrPathParam  = &Errno{Code: 20004, Message: "Error occurred while getting path param."}
-	ErrAuthToken  = &Errno{Code: 20005, Message: "Error occurred while handling the auth token"}
+	ErrBadRequest       = &Errno{Code: 20001, Message: "Request error"}
+	ErrBind             = &Errno{Code: 20002, Message: "Error occurred while binding the request body to the struct."}
+	ErrQuery            = &Errno{Code: 20003, Message: "Error occurred while getting url queries."}
+	ErrPathParam        = &Errno{Code: 20004, Message: "Error occurred while getting path param."}
+	ErrAuthToken        = &Errno{Code: 20005, Message: "Error occurred while handling the auth token"}
+	ErrPermissionDenied = &Errno{Code: 20006, Message: "Permission denied."}
 
 	// user
-	ErrPermissionDenied  = &Errno{Code: 20101, Message: "Permission denied."}
+	ErrUserNotExisted    = &Errno{Code: 20101, Message: "User not existed"}
 	ErrPasswordIncorrect = &Errno{Code: 20102, Message: "The password was incorrect."}
-	ErrUserNotExisted    = &Errno{Code: 20103, Message: "User not existed"}
-	ErrUserExisted       = &Errno{Code: 20104, Message: "User has existed"}
+	// ErrUserExisted       = &Errno{Code: 20104, Message: "User has existed"}
+
+	// post
+	ErrItemNotExist = &Errno{Code: 20201, Message: "Item not exist"}
 )
 
 type Errno struct {

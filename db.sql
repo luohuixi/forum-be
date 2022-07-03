@@ -12,6 +12,7 @@ CREATE TABLE `users`
     `hash_password` varchar(100)       DEFAULT NULL,
     `role`          int(11)     NOT NULL COMMENT '权限 0-无权限用户 1-普通学生用户 2（闲置，可能学生管理员） 3-团队成员 4-团队管理员',
     `signature`     varchar(200)       DEFAULT NULL,
+    `re`            tinyint(1)         DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
     KEY (`email`),
     UNIQUE KEY (`student_id`)
 ) ENGINE = InnoDB

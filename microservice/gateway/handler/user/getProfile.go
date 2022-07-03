@@ -55,7 +55,7 @@ func GetProfile(c *gin.Context) {
 
 	id, err = strconv.Atoi(c.Param("id"))
 	if err != nil {
-		SendBadRequest(c, errno.ErrPathParam, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
 	}
 

@@ -20,7 +20,7 @@ import (
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
-// @Param object body UpdateInfoRequest  true "update_info_request"
+// @Param object body updateInfoRequest  true "update_info_request"
 // @Success 200 {object} handler.Response
 // @Router /user [put]
 func UpdateInfo(c *gin.Context) {
@@ -28,7 +28,7 @@ func UpdateInfo(c *gin.Context) {
 
 	var req updateInfoRequest
 	if err := c.BindJSON(&req); err != nil {
-		SendBadRequest(c, errno.ErrBind, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 

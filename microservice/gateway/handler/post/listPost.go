@@ -34,19 +34,19 @@ func (a *Api) List(c *gin.Context) {
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	if err != nil {
-		SendBadRequest(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
 		return
 	}
 
 	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
 	if err != nil {
-		SendBadRequest(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
 		return
 	}
 
 	lastId, err := strconv.Atoi(c.DefaultQuery("last_id", "0"))
 	if err != nil {
-		SendBadRequest(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
 		return
 	}
 
@@ -62,7 +62,7 @@ func (a *Api) List(c *gin.Context) {
 		}
 
 		if !ok {
-			SendBadRequest(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+			SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
 			return
 		}
 	} else {
@@ -70,7 +70,7 @@ func (a *Api) List(c *gin.Context) {
 	}
 
 	// 构造请求给 list
-	listReq := &pb.ListRequest{
+	listReq := &pb.ListPostRequest{
 		LastId: uint32(lastId),
 		Offset: uint32(page * limit),
 		Limit:  uint32(limit),

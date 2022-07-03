@@ -49,18 +49,18 @@ func main() {
 	// 	Content:   "first comment to comment",
 	// 	CreatorId: 2,
 	// })
-	_, err = client.UpdatePostInfo(context.Background(), &pb.UpdatePostInfoRequest{
-		Id:       1,
-		Content:  "",
-		Title:    "",
-		Category: "娱乐",
-	})
+	// _, err = client.UpdatePostInfo(context.Background(), &pb.UpdatePostInfoRequest{
+	// 	Id:       1,
+	// 	Content:  "",
+	// 	Title:    "",
+	// 	Category: "娱乐",
+	// })
 
-	post, err := client.GetPost(context.Background(), &pb.Request{Id: 1})
+	_, err = client.GetPost(context.Background(), &pb.Request{Id: 1})
 
-	fmt.Println("post:", post)
+	// fmt.Println("post:", post)
 
 	if err != nil {
-		panic(err)
+		fmt.Println("err: ", err)
 	}
 }

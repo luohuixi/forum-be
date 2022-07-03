@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"errors"
 	pb "forum-post/proto"
 	"forum/model"
 	"github.com/casbin/casbin/v2"
@@ -22,15 +23,16 @@ type Dao struct {
 
 // Interface dao
 type Interface interface {
+	GetItem(Item) (GetDeleter, error)
+
 	CreatePost(*PostModel) error
 	ListPost(uint8) ([]*PostInfo, error)
 	ListPostByCategory(uint8, string) ([]*PostInfo, error)
-	GetPost(uint32) (*PostModel, error)
 	GetPostInfo(uint32) (*PostInfo, error)
+	GetPost(uint32) (*PostModel, error)
 
 	CreateComment(*CommentModel) error
-	GetComment(uint32) (*CommentModel, error)
-	UpdateCommentInfo(*CommentModel) error
+	GetCommentInfo(uint32) (*CommentInfo, error)
 	ListCommentByPostId(uint32) ([]*pb.CommentInfo, error)
 	GetCommentNumByPostId(uint32) uint32
 
@@ -75,4 +77,23 @@ func GetDao() *Dao {
 
 func (d *Dao) Enforce(rvals ...interface{}) (bool, error) {
 	return d.CB.Enforce(rvals)
+}
+
+type GetDeleter interface {
+	Get(uint32) error
+	Delete() error
+}
+
+func (d *Dao) GetItem(i Item) (GetDeleter, error) {
+	if i.TypeId == 1 {
+		item := &PostModel{}
+		err := item.Get(i.Id)
+		return item, err
+	} else if i.TypeId == 2 {
+		item := &CommentModel{}
+		err := item.Get(i.Id)
+		return item, err
+	} else {
+		return nil, errors.New("wrong TypeId")
+	}
 }

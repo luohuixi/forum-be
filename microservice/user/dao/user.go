@@ -16,7 +16,7 @@ type RegisterInfo struct {
 // GetUser get a single user by id
 func (d *Dao) GetUser(id uint32) (*UserModel, error) {
 	user := &UserModel{}
-	res := d.DB.Where("id = ?", id).First(user)
+	res := d.DB.Where("id = ? AND re = 0", id).First(user)
 	if res.Error == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
@@ -26,7 +26,7 @@ func (d *Dao) GetUser(id uint32) (*UserModel, error) {
 // GetUserByIds get user by id array
 func (d *Dao) GetUserByIds(ids []uint32) ([]*UserModel, error) {
 	var list []*UserModel
-	if err := d.DB.Where("id IN (?)", ids).Find(&list).Error; err != nil {
+	if err := d.DB.Where("id IN (?) AND re = 0", ids).Find(&list).Error; err != nil {
 		return list, err
 	}
 	return list, nil
@@ -35,7 +35,7 @@ func (d *Dao) GetUserByIds(ids []uint32) ([]*UserModel, error) {
 // GetUserByEmail get a user by email.
 func (d *Dao) GetUserByEmail(email string) (*UserModel, error) {
 	u := &UserModel{}
-	err := d.DB.Where("email = ?", email).First(u).Error
+	err := d.DB.Where("email = ? AND re = 0", email).First(u).Error
 	if gorm.IsRecordNotFoundError(err) {
 		return nil, nil
 	}
@@ -76,7 +76,7 @@ func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*User
 // GetUserByStudentId get a user by studentId.
 func (d *Dao) GetUserByStudentId(studentId string) (*UserModel, error) {
 	u := &UserModel{}
-	err := d.DB.Where("student_id = ?", studentId).First(u).Error
+	err := d.DB.Where("student_id = ? AND re = 0", studentId).First(u).Error
 	if gorm.IsRecordNotFoundError(err) {
 		return nil, nil
 	}
@@ -91,6 +91,7 @@ func (d *Dao) RegisterUser(info *RegisterInfo) error {
 		StudentId:    info.StudentId,
 		HashPassword: generatePasswordHash(info.Password),
 		Role:         info.Role,
+		Re:           false,
 	}
 	return user.Create()
 }

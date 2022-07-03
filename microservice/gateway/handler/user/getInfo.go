@@ -15,13 +15,12 @@ import (
 
 // GetInfo ... 获取 userInfo
 func GetInfo(c *gin.Context) {
-	log.Info("User getInfo function called.",
-		zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User getInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	// 从前端获取 Ids
 	var req getInfoRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		SendBadRequest(c, errno.ErrBind, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 

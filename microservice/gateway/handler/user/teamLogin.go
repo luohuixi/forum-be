@@ -9,8 +9,6 @@ import (
 	pb "forum-user/proto"
 	"forum/pkg/errno"
 
-	errors "github.com/micro/go-micro/errors"
-
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -25,13 +23,12 @@ import (
 // @Success 200 {object} teamLoginResponse
 // @Router /auth/login/team [post]
 func TeamLogin(c *gin.Context) {
-	log.Info("team login function called.",
-		zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("team login function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	// 从前端获取 oauth_code
 	var req teamLoginRequest
 	if err := c.Bind(&req); err != nil {
-		SendBadRequest(c, errno.ErrBind, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
@@ -44,17 +41,17 @@ func TeamLogin(c *gin.Context) {
 	loginResp, err := service.UserClient.TeamLogin(context.Background(), loginReq)
 
 	if err != nil {
-		parsedErr := errors.Parse(err.Error())
-		detail, errr := errno.ParseDetail(parsedErr.Detail)
-
-		finalErrno := errno.InternalServerError
-		if errr == nil {
-			finalErrno = &errno.Errno{
-				Code:    detail.Code,
-				Message: detail.Cause,
-			}
-		}
-		SendError(c, finalErrno, nil, err.Error(), GetLine())
+		// parsedErr := errors.Parse(err.Error())
+		// detail, errr := errno.ParseDetail(parsedErr.Detail)
+		//
+		// finalErrno := errno.InternalServerError
+		// if errr == nil {
+		// 	finalErrno = &errno.Errno{
+		// 		Code:    detail.Code,
+		// 		Message: detail.Cause,
+		// 	}
+		// }
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 

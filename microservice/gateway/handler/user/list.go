@@ -34,20 +34,20 @@ func List(c *gin.Context) {
 	// 获取 limit
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	if err != nil {
-		SendBadRequest(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
 		return
 	}
 
 	// 获取 page
 	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
 	if err != nil {
-		SendBadRequest(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
 		return
 	}
 
 	lastId, err := strconv.Atoi(c.DefaultQuery("last_id", "0"))
 	if err != nil {
-		SendBadRequest(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
 		return
 	}
 

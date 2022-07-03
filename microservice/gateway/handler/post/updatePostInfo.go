@@ -27,9 +27,9 @@ import (
 func (a *Api) UpdateInfo(c *gin.Context) {
 	log.Info("Post getInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req *pb.UpdateInfoRequest
+	var req *pb.UpdatePostInfoRequest
 	if err := c.BindJSON(req); err != nil {
-		SendBadRequest(c, errno.ErrBind, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
@@ -42,7 +42,7 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 	}
 
 	if !ok {
-		SendBadRequest(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+		SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
 		return
 	}
 
