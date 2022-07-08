@@ -19,14 +19,14 @@ import (
 // @Tags auth
 // @Accept application/json
 // @Produce application/json
-// @Param object body teamLoginRequest true "login_request"
-// @Success 200 {object} teamLoginResponse
+// @Param object body TeamLoginRequest true "login_request"
+// @Success 200 {object} TeamLoginResponse
 // @Router /auth/login/team [post]
 func TeamLogin(c *gin.Context) {
-	log.Info("team login function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User TeamLogin function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	// 从前端获取 oauth_code
-	var req teamLoginRequest
+	var req TeamLoginRequest
 	if err := c.Bind(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
@@ -56,7 +56,7 @@ func TeamLogin(c *gin.Context) {
 	}
 
 	// 构造返回 response
-	resp := teamLoginResponse{
+	resp := TeamLoginResponse{
 		Token:       loginResp.Token,
 		RedirectURL: loginResp.RedirectUrl,
 	}

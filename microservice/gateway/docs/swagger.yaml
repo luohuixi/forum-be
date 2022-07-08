@@ -6,33 +6,8 @@ definitions:
         type: integer
       list:
         items:
-          $ref: '#/definitions/User'
+          $ref: '#/definitions/user'
         type: array
-    type: object
-  LoginRequest:
-    properties:
-      oauth_code:
-        type: string
-    type: object
-  LoginResponse:
-    properties:
-      redirect_url:
-        type: string
-      token:
-        type: string
-    type: object
-  RegisterRequest:
-    properties:
-      email:
-        type: string
-      name:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - name
-    - password
     type: object
   Response:
     properties:
@@ -40,6 +15,30 @@ definitions:
         type: integer
       data: {}
       message:
+        type: string
+    type: object
+  StudentLoginRequest:
+    properties:
+      password:
+        type: string
+      student_id:
+        type: string
+    type: object
+  StudentLoginResponse:
+    properties:
+      token:
+        type: string
+    type: object
+  TeamLoginRequest:
+    properties:
+      oauth_code:
+        type: string
+    type: object
+  TeamLoginResponse:
+    properties:
+      redirect_url:
+        type: string
+      token:
         type: string
     type: object
   UpdateInfoRequest:
@@ -52,29 +51,6 @@ definitions:
         type: integer
       name:
         type: string
-      real_name:
-        type: string
-      tel:
-        type: string
-    type: object
-  User:
-    properties:
-      avatar:
-        type: string
-      email:
-        type: string
-      group:
-        type: integer
-      id:
-        type: integer
-      name:
-        type: string
-      real_name:
-        type: string
-      role:
-        type: integer
-      team:
-        type: integer
     type: object
   UserProfile:
     properties:
@@ -82,70 +58,128 @@ definitions:
         type: string
       email:
         type: string
-      group:
-        type: integer
       id:
         type: integer
       name:
         type: string
-      real_name:
+      role:
+        type: integer
+    type: object
+  comment.CreateRequest:
+    properties:
+      content:
+        type: string
+      fatherId:
+        type: integer
+      postId:
+        type: integer
+      typeId:
+        type: integer
+    type: object
+  post.CreateRequest:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      title:
+        type: string
+      typeId:
+        type: integer
+    type: object
+  post.ListResponse:
+    type: object
+  post.UpdateInfoRequest:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
+  user:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      id:
+        type: integer
+      name:
         type: string
       role:
         type: integer
-      team:
-        type: integer
-      tel:
-        type: string
     type: object
-host: work.test.muxi-tech.xyz ///////
+host: work.test.muxi-tech.xyz
 info:
   contact: {}
   description: The gateway of forum
   title: forum-gateway
   version: "1.0"
 paths:
-  /auth/login:
+  /auth/login/student:
     post:
       consumes:
       - application/json
-      description: login the workbench
+      description: login the student-forum
       parameters:
       - description: login_request
         in: body
         name: object
         required: true
         schema:
-          $ref: '#/definitions/LoginRequest'
+          $ref: '#/definitions/StudentLoginRequest'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/LoginResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Response'
+            $ref: '#/definitions/StudentLoginResponse'
       summary: login api
       tags:
       - auth
-  /auth/signup:
+  /auth/login/team:
     post:
       consumes:
       - application/json
-      description: register user
+      description: login the team-forum
       parameters:
-      - description: register_request
+      - description: login_request
         in: body
         name: object
         required: true
         schema:
-          $ref: '#/definitions/RegisterRequest'
+          $ref: '#/definitions/TeamLoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/TeamLoginResponse'
+      summary: login api
+      tags:
+      - auth
+  /comment:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_comment_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/comment.CreateRequest'
       produces:
       - application/json
       responses:
@@ -153,17 +187,188 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Response'
-      summary: register api
+      summary: 创建评论 api
       tags:
-      - auth
+      - post
+  /comment/{comment_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: comment_id
+        in: path
+        name: comment_id
+        required: true
+        type: integer
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 删除评论 api
+      tags:
+      - comment
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: comment_id
+        in: path
+        name: comment_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 获取评论 api
+      tags:
+      - post
+  /post:
+    post:
+      consumes:
+      - application/json
+      description: (type_id = 1 -> 团队内(type_id暂时不用管))
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_post_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/post.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 创建帖子 api
+      tags:
+      - post
+    put:
+      consumes:
+      - application/json
+      description: 修改帖子信息
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: update_info_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/post.UpdateInfoRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: update post info api
+      tags:
+      - post
+  /post/{post_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: post_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 删除帖子 api
+      tags:
+      - post
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: post_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 获取帖子 api
+      tags:
+      - post
+  /post/list/{type_id}:
+    get:
+      consumes:
+      - application/json
+      description: 获取帖子 (type_id = 1 -> 团队内(type_id暂时均填0))
+      parameters:
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
+      - description: type_id
+        in: path
+        name: type_id
+        required: true
+        type: integer
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.ListResponse'
+      summary: list post api
+      tags:
+      - post
   /user:
     put:
       consumes:
@@ -186,14 +391,6 @@ paths:
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/Response'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Response'
-        "500":
-          description: Internal Server Error
           schema:
             $ref: '#/definitions/Response'
       summary: update info api
@@ -239,14 +436,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/ListResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Response'
       summary: get user_list api
       tags:
       - user
@@ -268,14 +457,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/UserProfile'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Response'
       summary: get my_profile api
       tags:
       - user
@@ -302,14 +483,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/UserProfile'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/Response'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/Response'
       summary: get user_profile api
       tags:
       - user
@@ -319,3 +492,7 @@ tags:
   name: user
 - description: 认证服务
   name: auth
+- description: 聊天服务
+  name: chat
+- description: 帖子服务
+  name: post

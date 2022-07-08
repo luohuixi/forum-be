@@ -7,6 +7,7 @@ import (
 
 	"forum-gateway/dao"
 	_ "forum-gateway/docs"
+	"forum-gateway/handler/comment"
 	"forum-gateway/handler/post"
 	"forum-gateway/handler/user"
 	"forum-gateway/router/middleware"
@@ -65,8 +66,19 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	postRouter := g.Group("api/v1/post")
 	postApi := post.New(dao.GetDao())
 	{
-		postRouter.GET("/test", postApi.Test)
+		postRouter.GET(":post_id", postApi.Get)
+		postRouter.POST("", postApi.Create)
+		postRouter.GET("/list", postApi.List)
+		postRouter.DELETE(":post_id", postApi.Delete)
 		postRouter.PUT("", postApi.UpdateInfo)
+	}
+
+	commentRouter := g.Group("api/v1/comment")
+	commentApi := comment.New(dao.GetDao())
+	{
+		commentRouter.GET(":comment_id", commentApi.Get)
+		commentRouter.POST("", commentApi.Create)
+		commentRouter.DELETE(":comment_id", commentApi.Delete)
 	}
 
 	// 回收站 read delete recover

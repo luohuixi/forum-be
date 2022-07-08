@@ -4,6 +4,7 @@ import (
 	"errors"
 	pb "forum-post/proto"
 	"forum/model"
+	"forum/pkg/constvar"
 	"github.com/casbin/casbin/v2"
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
@@ -67,8 +68,8 @@ func Init() {
 	}
 
 	dao.Map = make(map[uint8]string, 2)
-	dao.Map[1] = "post"
-	dao.Map[2] = "comment"
+	dao.Map[constvar.Post] = "post"
+	dao.Map[constvar.Comment] = "comment"
 }
 
 func GetDao() *Dao {
@@ -76,7 +77,8 @@ func GetDao() *Dao {
 }
 
 func (d *Dao) Enforce(rvals ...interface{}) (bool, error) {
-	return d.CB.Enforce(rvals)
+	return true, nil
+	// return d.CB.Enforce(rvals) // TODO
 }
 
 type GetDeleter interface {
@@ -85,11 +87,11 @@ type GetDeleter interface {
 }
 
 func (d *Dao) GetItem(i Item) (GetDeleter, error) {
-	if i.TypeId == 1 {
+	if i.TypeId == constvar.Post {
 		item := &PostModel{}
 		err := item.Get(i.Id)
 		return item, err
-	} else if i.TypeId == 2 {
+	} else if i.TypeId == constvar.Comment {
 		item := &CommentModel{}
 		err := item.Get(i.Id)
 		return item, err

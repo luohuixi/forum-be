@@ -35,9 +35,9 @@ type ListResponse struct {
 	posts *[]Post
 }
 
-type createCommentRequest struct {
+type CreateRequest struct {
 	TypeId   uint32
 	Content  string
-	FatherId uint32
-	PostId   uint32
+	Title    string `json:"title,omitempty"`
+	Category string `json:"category,omitempty"`
 }

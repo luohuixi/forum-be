@@ -18,19 +18,19 @@ import (
 
 // List ... 获取帖子
 // @Summary list post api
-// @Description 获取帖子 (type = 1 -> 团队内)
+// @Description 获取帖子 (type_id = 1 -> 团队内(type_id暂时均填0))
 // @Tags post
 // @Accept application/json
 // @Produce application/json
 // @Param limit query int false "limit"
 // @Param page query int false "page"
 // @Param last_id query int false "last_id"
+// @Param type_id path int true "type_id"
 // @Param Authorization header string true "token 用户令牌"
-// @Param object body ListRequest  true "list_request"
-// @Success 200 {object} handler.ListResponse
-// @Router /post/{type_id} [get]
+// @Success 200 {object} post.ListResponse
+// @Router /post/list/{type_id} [get]
 func (a *Api) List(c *gin.Context) {
-	log.Info("Post list function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Post List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	if err != nil {
@@ -50,7 +50,7 @@ func (a *Api) List(c *gin.Context) {
 		return
 	}
 
-	typeId := c.Param("typeId")
+	typeId := c.Param("type_id")
 
 	userId := c.MustGet("userId").(uint32)
 
@@ -69,7 +69,6 @@ func (a *Api) List(c *gin.Context) {
 		typeId = "0"
 	}
 
-	// 构造请求给 list
 	listReq := &pb.ListPostRequest{
 		LastId: uint32(lastId),
 		Offset: uint32(page * limit),

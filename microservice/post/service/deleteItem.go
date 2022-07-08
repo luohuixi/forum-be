@@ -6,6 +6,7 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
+	"strconv"
 )
 
 func (s *PostService) DeleteItem(ctx context.Context, req *pb.Item, resp *pb.Response) error {
@@ -20,7 +21,7 @@ func (s *PostService) DeleteItem(ctx context.Context, req *pb.Item, resp *pb.Res
 	}
 
 	if item == nil {
-		return errno.NotFoundErr(errno.ErrItemNotFound, string(req.Id))
+		return errno.NotFoundErr(errno.ErrItemNotFound, strconv.Itoa(int(req.Id)))
 	}
 
 	if err := item.Delete(); err != nil {

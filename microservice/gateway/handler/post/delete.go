@@ -9,33 +9,33 @@ import (
 	"forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"strconv"
 )
 
-// UpdateInfo ... 修改帖子信息
-// @Summary update post info api
-// @Description 修改帖子信息
+// Delete ... 删除帖子
+// @Summary 删除帖子 api
+// @Description
 // @Tags post
 // @Accept application/json
 // @Produce application/json
+// @Param post_id path int true "post_id"
 // @Param Authorization header string true "token 用户令牌"
-// @Param object body UpdateInfoRequest  true "update_info_request"
 // @Success 200 {object} handler.Response
-// @Router /post [put]
-func (a *Api) UpdateInfo(c *gin.Context) {
-	log.Info("Post getInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+// @Router /post/{post_id} [delete]
+func (a *Api) Delete(c *gin.Context) {
+	log.Info("Post Delete function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req *pb.UpdatePostInfoRequest
-	if err := c.BindJSON(req); err != nil {
-		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
+	userId := c.MustGet("userId").(uint32)
+
+	id, err := strconv.Atoi(c.Param("post_id"))
+	if err != nil {
+		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
 	}
 
-	req.UserId = c.MustGet("userId").(uint32)
-
-	ok, err := a.Dao.Enforce(req.UserId, req.Id, constvar.Write)
+	ok, err := a.Dao.Enforce(userId, "type_id", constvar.Write)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return
@@ -46,8 +46,13 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 		return
 	}
 
+	deleteReq := &pb.Item{
+		Id:     uint32(id),
+		TypeId: constvar.Post,
+	}
+
 	// 发送请求
-	_, err = service.PostClient.UpdatePostInfo(context.Background(), req)
+	_, err = service.PostClient.DeleteItem(context.Background(), deleteReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

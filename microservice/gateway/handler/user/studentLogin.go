@@ -19,13 +19,13 @@ import (
 // @Tags auth
 // @Accept application/json
 // @Produce application/json
-// @Param object body studentLoginRequest true "login_request"
-// @Success 200 {object} LoginResponse
+// @Param object body StudentLoginRequest true "login_request"
+// @Success 200 {object} StudentLoginResponse
 // @Router /auth/login/student [post]
 func StudentLogin(c *gin.Context) {
-	log.Info("student login function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User StudentLogin function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req studentLoginRequest
+	var req StudentLoginRequest
 	if err := c.Bind(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
@@ -46,7 +46,7 @@ func StudentLogin(c *gin.Context) {
 	}
 
 	// 构造返回 response
-	resp := studentLoginResponse{
+	resp := StudentLoginResponse{
 		Token: loginResp.Token,
 	}
 

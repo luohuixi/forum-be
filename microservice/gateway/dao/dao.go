@@ -20,10 +20,6 @@ type Dao struct {
 // Interface dao
 type Interface interface {
 	Enforce(...interface{}) (bool, error)
-	// Create(*PostModel) error
-	// List(uint8) ([]*pb.Post, error)
-	// UpdateInfo(*PostModel) error
-	// Get(uint32) (*PostModel, error)
 }
 
 // Init init dao
