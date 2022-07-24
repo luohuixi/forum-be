@@ -27,10 +27,10 @@ type Interface interface {
 	GetItem(Item) (GetDeleter, error)
 
 	CreatePost(*PostModel) error
-	ListPost(uint8) ([]*PostInfo, error)
-	ListPostByCategory(uint8, string) ([]*PostInfo, error)
+	ListPost(*PostModel) ([]*PostInfo, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
+	IsUserFavoritePost(uint32, uint32) (bool, error)
 
 	CreateComment(*CommentModel) error
 	GetCommentInfo(uint32) (*CommentInfo, error)

@@ -15,7 +15,7 @@ service PostService {
 
     rpc CreateLike(LikeRequest) returns (Response) {}
     rpc RemoveLike(LikeRequest) returns (Response) {}
-    rpc ListLikeByUserId(Request) returns (ListLikeResponse) {}
+    rpc ListLikeByUserId(UserIdRequest) returns (ListLikeResponse) {}
 }
 
 message ListLikeResponse {
@@ -50,10 +50,16 @@ message CommentInfo {
     string creator_name = 7;
     string creator_avatar = 8;
     uint32 like_num = 9;
+    bool is_liked = 10;
 }
 
 message Request {
     uint32 id = 1;
+    uint32 user_id = 2;
+}
+
+message UserIdRequest {
+    uint32 user_id = 1;
 }
 
 message Item {
@@ -85,6 +91,7 @@ message ListPostRequest {
     uint32 limit = 3;
     string type_id = 4;
     string category = 5;
+    uint32 user_id = 6;
 }
 
 message ListPostResponse {
@@ -102,5 +109,7 @@ message Post {
     string creator_avatar = 8;
     uint32 comment_num = 9;
     uint32 like_num = 10;
-    repeated CommentInfo comments = 11;
+    bool is_liked = 11;
+    bool is_favorite = 12;
+    repeated CommentInfo comments = 13;
 }

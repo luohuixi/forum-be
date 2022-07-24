@@ -51,8 +51,7 @@ func (a *Api) Delete(c *gin.Context) {
 		TypeId: constvar.Post,
 	}
 
-	// 发送请求
-	_, err = service.PostClient.DeleteItem(context.Background(), deleteReq)
+	_, err = service.PostClient.DeleteItem(context.TODO(), deleteReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

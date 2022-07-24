@@ -20,7 +20,7 @@ import (
 // @Accept application/json
 // @Produce application/json
 // @Param post_id path int true "post_id"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Post
 // @Router /post/{post_id} [get]
 func (a *Api) Get(c *gin.Context) {
 	log.Info("Post Get function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -31,12 +31,14 @@ func (a *Api) Get(c *gin.Context) {
 		return
 	}
 
+	userId := c.MustGet("userId").(uint32)
+
 	getReq := &pb.Request{
-		Id: uint32(id),
+		UserId: userId,
+		Id:     uint32(id),
 	}
 
-	// 发送请求
-	res, err := service.PostClient.GetPost(context.Background(), getReq)
+	res, err := service.PostClient.GetPost(context.TODO(), getReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

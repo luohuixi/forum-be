@@ -37,8 +37,7 @@ func StudentLogin(c *gin.Context) {
 		Password:  req.Password,
 	}
 
-	// 发送请求
-	loginResp, err := service.UserClient.StudentLogin(context.Background(), loginReq)
+	loginResp, err := service.UserClient.StudentLogin(context.TODO(), loginReq)
 
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())

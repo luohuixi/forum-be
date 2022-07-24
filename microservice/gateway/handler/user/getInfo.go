@@ -30,13 +30,13 @@ func GetInfo(c *gin.Context) {
 	}
 
 	// 构造请求给 getInfo
-	var getInfoReq = &pb.GetInfoRequest{}
-	for _, id := range req.Ids {
-		getInfoReq.Ids = append(getInfoReq.Ids, id)
+	getInfoReq := &pb.GetInfoRequest{}
+	getInfoReq.Ids = make([]uint32, len(req.Ids))
+	for i, id := range req.Ids {
+		getInfoReq.Ids[i] = id
 	}
 
-	// 发送请求
-	getInfoResp, err := service.UserClient.GetInfo(context.Background(), getInfoReq)
+	getInfoResp, err := service.UserClient.GetInfo(context.TODO(), getInfoReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

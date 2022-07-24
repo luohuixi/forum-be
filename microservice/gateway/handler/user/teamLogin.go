@@ -37,8 +37,7 @@ func TeamLogin(c *gin.Context) {
 		OauthCode: req.OauthCode,
 	}
 
-	// 发送请求
-	loginResp, err := service.UserClient.TeamLogin(context.Background(), loginReq)
+	loginResp, err := service.UserClient.TeamLogin(context.TODO(), loginReq)
 
 	if err != nil {
 		// parsedErr := errors.Parse(err.Error())

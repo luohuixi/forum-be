@@ -29,6 +29,8 @@ type Post struct {
 	CreatorId     uint32 `json:"creator_id"`
 	CreatorName   string `json:"creator_name,omitempty"`
 	CreatorAvatar string `json:"creator_avatar"`
+	IsLiked       bool   `json:"is_liked"`
+	IsFavorite    bool   `json:"is_favorite"`
 }
 
 type ListResponse struct {
@@ -36,8 +38,8 @@ type ListResponse struct {
 }
 
 type CreateRequest struct {
-	TypeId   uint32
-	Content  string
+	TypeId   uint32 `json:"type_id"`
+	Content  string `json:"content"`
 	Title    string `json:"title,omitempty"`
 	Category string `json:"category,omitempty"`
 }

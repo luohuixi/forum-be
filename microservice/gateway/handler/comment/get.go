@@ -16,11 +16,11 @@ import (
 // Get ... 获取评论
 // @Summary 获取评论 api
 // @Description
-// @Tags post
+// @Tags comment
 // @Accept application/json
 // @Produce application/json
 // @Param comment_id path int true "comment_id"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Comment
 // @Router /comment/{comment_id} [get]
 func (a *Api) Get(c *gin.Context) {
 	log.Info("Comment Get function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -31,12 +31,14 @@ func (a *Api) Get(c *gin.Context) {
 		return
 	}
 
+	userId := c.MustGet("userId").(uint32)
+
 	getReq := &pb.Request{
-		Id: uint32(id),
+		UserId: userId,
+		Id:     uint32(id),
 	}
 
-	// 发送请求
-	res, err := service.PostClient.GetComment(context.Background(), getReq)
+	res, err := service.PostClient.GetComment(context.TODO(), getReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

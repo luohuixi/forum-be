@@ -27,7 +27,7 @@ import (
 // @Param last_id query int false "last_id"
 // @Param type_id path int true "type_id"
 // @Param Authorization header string true "token 用户令牌"
-// @Success 200 {object} post.ListResponse
+// @Success 200 {object} ListResponse
 // @Router /post/list/{type_id} [get]
 func (a *Api) List(c *gin.Context) {
 	log.Info("Post List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -74,10 +74,10 @@ func (a *Api) List(c *gin.Context) {
 		Offset: uint32(page * limit),
 		Limit:  uint32(limit),
 		TypeId: typeId,
+		UserId: userId,
 	}
 
-	// 发送请求
-	postResp, err := service.PostClient.ListPost(context.Background(), listReq)
+	postResp, err := service.PostClient.ListPost(c, listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -91,23 +91,24 @@ func (a *Api) List(c *gin.Context) {
 	req := &pbu.GetInfoRequest{
 		Ids: ids,
 	}
-	resp, err := service.UserClient.GetInfo(context.Background(), req)
+	resp, err := service.UserClient.GetInfo(context.TODO(), req)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
-	var posts []Post
+	posts := make([]Post, len(resp.List))
 	for i, user := range resp.List {
-		posts = append(posts, Post{
+		posts[i] = Post{
 			Content:       postResp.List[i].Content,
 			Title:         postResp.List[i].Title,
 			LastEditTime:  postResp.List[i].Time,
 			Category:      postResp.List[i].Category,
 			CreatorId:     postResp.List[i].CreatorId,
+			IsLiked:       postResp.List[i].IsLiked,
 			CreatorName:   user.Name,
 			CreatorAvatar: user.AvatarUrl,
-		})
+		}
 	}
 
 	SendResponse(c, errno.OK, ListResponse{posts: &posts})

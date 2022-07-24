@@ -58,8 +58,7 @@ func List(c *gin.Context) {
 		Limit:  uint32(limit),
 	}
 
-	// 发送请求
-	listResp, err := service.UserClient.List(context.Background(), listReq)
+	listResp, err := service.UserClient.List(context.TODO(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

@@ -14,8 +14,8 @@ import (
 
 // Create ... 创建评论
 // @Summary 创建评论 api
-// @Description
-// @Tags post
+// @Description typeId: 1 -> 一级评论; 2 -> 其它级
+// @Tags comment
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
@@ -40,8 +40,7 @@ func (a *Api) Create(c *gin.Context) {
 
 	// ok, err := a.Dao.Enforce(userId, typeId, constvar.Read)
 
-	// 发送请求
-	_, err := service.PostClient.CreateComment(context.Background(), req)
+	_, err := service.PostClient.CreateComment(context.TODO(), req)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

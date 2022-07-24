@@ -1,18 +1,17 @@
 package router
 
 import (
-	"forum-gateway/handler/chat"
-	"forum-gateway/handler/sd"
-	"net/http"
-
 	"forum-gateway/dao"
 	_ "forum-gateway/docs"
+	"forum-gateway/handler"
+	"forum-gateway/handler/chat"
 	"forum-gateway/handler/comment"
 	"forum-gateway/handler/post"
+	"forum-gateway/handler/sd"
 	"forum-gateway/handler/user"
 	"forum-gateway/router/middleware"
 	"forum/pkg/constvar"
-
+	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
@@ -28,7 +27,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	g.Use(mw...)
 	// 404 Handler.
 	g.NoRoute(func(c *gin.Context) {
-		c.String(http.StatusNotFound, "The incorrect API route.")
+		handler.SendError(c, errno.ErrIncorrectAPIRoute, nil, "", "")
 	})
 
 	// swagger API doc

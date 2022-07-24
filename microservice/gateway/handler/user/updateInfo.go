@@ -44,8 +44,7 @@ func UpdateInfo(c *gin.Context) {
 		},
 	}
 
-	// 发送请求
-	_, err := service.UserClient.UpdateInfo(context.Background(), updateInfoReq)
+	_, err := service.UserClient.UpdateInfo(context.TODO(), updateInfoReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

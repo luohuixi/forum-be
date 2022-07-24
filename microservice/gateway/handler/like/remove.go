@@ -1,4 +1,4 @@
-package post
+package like
 
 import (
 	"context"
@@ -12,28 +12,33 @@ import (
 	"go.uber.org/zap"
 )
 
-// Create ... 创建帖子
-// @Summary 创建帖子 api
-// @Description (type_id = 1 -> 团队内(type_id暂时不用管))
-// @Tags post
+// Remove ... 取消点赞
+// @Summary 取消点赞 api
+// @Description TypeId: Post = 1; Comment = 2
+// @Tags like
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
-// @Param object body CreateRequest true "create_post_request"
+// @Param object body Item true "remove_like_request"
 // @Success 200 {object} handler.Response
-// @Router /post [post]
-func (a *Api) Create(c *gin.Context) {
-	log.Info("Post Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+// @Router /like [delete]
+func (a *Api) Remove(c *gin.Context) {
+	log.Info("Like Remove function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req *pb.CreatePostRequest
+	var req *pb.LikeItem
 	if err := c.BindJSON(req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
-	req.UserId = c.MustGet("userId").(uint32)
+	userId := c.MustGet("userId").(uint32)
 
-	_, err := service.PostClient.CreatePost(context.TODO(), req)
+	likeReq := &pb.LikeRequest{
+		UserId: userId,
+		Item:   req,
+	}
+
+	_, err := service.PostClient.RemoveLike(context.TODO(), likeReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

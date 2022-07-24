@@ -5,36 +5,45 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	// "github.com/micro/micro/v3/service/logger"
 	"strconv"
 )
 
-func (s *PostService) ListPost(ctx context.Context, req *pb.ListPostRequest, resp *pb.ListPostResponse) error {
+func (s *PostService) ListPost(_ context.Context, req *pb.ListPostRequest, resp *pb.ListPostResponse) error {
 	logger.Info("PostService ListPost")
 
-	id, err := strconv.Atoi(req.TypeId)
+	typeId, err := strconv.Atoi(req.TypeId)
 	if err != nil {
 		return errno.ServerErr(errno.ErrBadRequest, err.Error())
 	}
 
-	var posts []*dao.PostInfo
-	if req.Category == "" {
-		posts, err = s.Dao.ListPost(uint8(id))
-	} else {
-		posts, err = s.Dao.ListPostByCategory(uint8(id), req.Category)
+	filter := &dao.PostModel{TypeId: uint8(typeId)}
+
+	if req.Category != "" {
+		filter.Category = req.Category
 	}
+	// TODO: limit offset
+	posts, err := s.Dao.ListPost(filter)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	for _, post := range posts {
+	resp.List = make([]*pb.Post, len(posts))
+	for i, post := range posts {
 		commentNum := s.Dao.GetCommentNumByPostId(post.Id)
 
-		likeNum, err := s.Dao.GetLikedNum(dao.Item{
+		item := dao.Item{
 			Id:     post.Id,
-			TypeId: 1,
-		})
+			TypeId: constvar.Post,
+		}
+
+		isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
+		if err != nil {
+			return errno.ServerErr(errno.ErrRedis, err.Error())
+		}
+
+		likeNum, err := s.Dao.GetLikedNum(item)
 		if err != nil {
 			return errno.ServerErr(errno.ErrRedis, err.Error())
 		}
@@ -45,19 +54,19 @@ func (s *PostService) ListPost(ctx context.Context, req *pb.ListPostRequest, res
 			content = post.Content[:200]
 		}
 
-		postInfo := &pb.Post{
+		resp.List[i] = &pb.Post{
 			Id:            post.Id,
 			Title:         post.Title,
 			Time:          post.LastEditTime,
 			Category:      post.Category,
 			CreatorId:     post.CreatorId,
 			CreatorName:   post.CreatorName,
-			Content:       content,
 			CreatorAvatar: post.CreatorAvatar,
+			Content:       content,
 			CommentNum:    commentNum,
 			LikeNum:       uint32(likeNum),
+			IsLiked:       isLiked,
 		}
-		resp.List = append(resp.List, postInfo)
 	}
 
 	return nil

@@ -5,11 +5,12 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"strconv"
 )
 
-func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Post) error {
+func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post) error {
 	logger.Info("PostService GetPost")
 
 	post, err := s.Dao.GetPostInfo(req.Id)
@@ -27,25 +28,47 @@ func (s *PostService) GetPost(ctx context.Context, req *pb.Request, resp *pb.Pos
 	}
 
 	for _, comment := range comments {
-		n, err := s.Dao.GetLikedNum(dao.Item{
+		item := dao.Item{
 			Id:     comment.Id,
-			TypeId: 2,
-		})
+			TypeId: constvar.Comment,
+		}
+
+		n, err := s.Dao.GetLikedNum(item)
 		if err != nil {
 			return errno.ServerErr(errno.ErrRedis, err.Error())
 		}
 		comment.LikeNum = uint32(n)
+
+		isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
+		if err != nil {
+			return errno.ServerErr(errno.ErrRedis, err.Error())
+		}
+		comment.IsLiked = isLiked
 	}
 
-	likeNum, err := s.Dao.GetLikedNum(dao.Item{
+	item := dao.Item{
 		Id:     req.Id,
-		TypeId: 1,
-	})
+		TypeId: constvar.Post,
+	}
+
+	likeNum, err := s.Dao.GetLikedNum(item)
 	if err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
-
 	resp.LikeNum = post.LikeNum
+
+	isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
+	if err != nil {
+		return errno.ServerErr(errno.ErrRedis, err.Error())
+	}
+	resp.IsLiked = isLiked
+
+	isFavorite, err := s.Dao.IsUserFavoritePost(req.UserId, req.Id)
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+	resp.IsFavorite = isFavorite
+
 	if likeNum != 0 {
 		resp.LikeNum = uint32(likeNum)
 	}

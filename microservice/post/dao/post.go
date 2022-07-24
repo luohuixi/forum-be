@@ -59,15 +59,9 @@ func (d *Dao) CreatePost(post *PostModel) error {
 	return post.Create()
 }
 
-func (d *Dao) ListPost(typeId uint8) ([]*PostInfo, error) {
+func (d *Dao) ListPost(filter *PostModel) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where("type_id = ? AND posts.re = 0", typeId).Find(posts).Error
-	return posts, err
-}
-
-func (d *Dao) ListPostByCategory(typeId uint8, category string) ([]*PostInfo, error) {
-	var posts []*PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where("type_id = ? AND category = ? AND posts.re = 0", typeId, category).Find(posts).Error
+	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0").Find(&posts).Error
 	return posts, err
 }
 
@@ -84,4 +78,9 @@ func (d *Dao) GetPost(id uint32) (*PostModel, error) {
 	item := &PostModel{}
 	err := item.Get(id)
 	return item, err
+}
+
+func (d *Dao) IsUserFavoritePost(userId uint32, id uint32) (bool, error) {
+	// TODO
+	return false, nil
 }

@@ -35,30 +35,33 @@ func main() {
 
 	client := pb.NewPostServiceClient("forum.service.post", service.Client())
 	//
-	// _, err = client.CreatePost(context.Background(), &pb.CreatePostRequest{
+	// _, err = client.CreatePost(context.TODO(), &pb.CreatePostRequest{
 	// 	UserId:   2,
 	// 	Content:  "外比巴卜",
 	// 	TypeId:   1, // 默认为1
 	// 	Title:    "first post",
 	// 	Category: "学习",
 	// })
-	// _, err = client.CreateComment(context.Background(), &pb.CreateCommentRequest{
+	// _, err = client.CreateComment(context.TODO(), &pb.CreateCommentRequest{
 	// 	PostId:    1,
 	// 	TypeId:    2,
 	// 	FatherId:  1,
 	// 	Content:   "first comment to comment",
 	// 	CreatorId: 2,
 	// })
-	// _, err = client.UpdatePostInfo(context.Background(), &pb.UpdatePostInfoRequest{
+	// _, err = client.UpdatePostInfo(context.TODO(), &pb.UpdatePostInfoRequest{
 	// 	Id:       1,
 	// 	Content:  "",
 	// 	Title:    "",
 	// 	Category: "娱乐",
 	// })
 
-	_, err = client.GetPost(context.Background(), &pb.Request{Id: 1})
+	post, err := client.ListPost(context.TODO(), &pb.ListPostRequest{
+		TypeId:   "1",
+		Category: "娱乐",
+	})
 
-	// fmt.Println("post:", post)
+	fmt.Println("post:", post.List[0].Category)
 
 	if err != nil {
 		fmt.Println("err: ", err)

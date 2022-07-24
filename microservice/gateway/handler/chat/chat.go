@@ -97,7 +97,7 @@ func (c *Client) Read() {
 		}
 
 		if _, err := service.ChatClient.Create(context.Background(), createReq); err != nil {
-			fmt.Println(err)
+			log.Error(err.Error())
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 			break
 		}
