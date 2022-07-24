@@ -8,7 +8,7 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) RemoveLike(ctx context.Context, req *pb.LikeRequest, resp *pb.Response) error {
+func (s *PostService) RemoveLike(_ context.Context, req *pb.LikeRequest, _ *pb.Response) error {
 	logger.Info("PostService RemoveLike")
 
 	item := dao.Item{

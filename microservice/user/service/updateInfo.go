@@ -9,7 +9,7 @@ import (
 )
 
 // UpdateInfo ... 更新用户信息
-func (s *UserService) UpdateInfo(ctx context.Context, req *pb.UpdateInfoRequest, res *pb.Response) error {
+func (s *UserService) UpdateInfo(_ context.Context, req *pb.UpdateInfoRequest, _ *pb.Response) error {
 	logger.Info("UserService UpdateInfo")
 
 	user, err := s.Dao.GetUser(req.Id)

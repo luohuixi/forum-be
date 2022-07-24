@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (s *PostService) DeleteItem(ctx context.Context, req *pb.Item, resp *pb.Response) error {
+func (s *PostService) DeleteItem(_ context.Context, req *pb.Item, _ *pb.Response) error {
 	logger.Info("PostService DeleteItem")
 
 	item, err := s.Dao.GetItem(dao.Item{

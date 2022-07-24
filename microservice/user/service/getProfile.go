@@ -8,7 +8,7 @@ import (
 )
 
 // GetProfile ... 获取用户个人信息
-func (s *UserService) GetProfile(ctx context.Context, req *pb.GetRequest, res *pb.UserProfile) error {
+func (s *UserService) GetProfile(_ context.Context, req *pb.GetRequest, res *pb.UserProfile) error {
 	logger.Info("UserService GetProfile")
 
 	user, err := s.Dao.GetUser(req.Id)

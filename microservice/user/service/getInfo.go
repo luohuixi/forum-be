@@ -8,7 +8,7 @@ import (
 )
 
 // GetInfo ... 获取用户信息
-func (s *UserService) GetInfo(ctx context.Context, req *pb.GetInfoRequest, res *pb.UserInfoResponse) error {
+func (s *UserService) GetInfo(_ context.Context, req *pb.GetInfoRequest, res *pb.UserInfoResponse) error {
 	logger.Info("UserService GetInfo")
 
 	list, err := s.Dao.GetUserByIds(req.Ids)

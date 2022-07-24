@@ -9,7 +9,7 @@ import (
 	"strconv"
 )
 
-func (s *PostService) GetComment(ctx context.Context, req *pb.Request, resp *pb.CommentInfo) error {
+func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.CommentInfo) error {
 	logger.Info("PostService GetComment")
 
 	comment, err := s.Dao.GetCommentInfo(req.Id)

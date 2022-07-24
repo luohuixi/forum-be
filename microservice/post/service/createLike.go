@@ -8,7 +8,7 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) CreateLike(ctx context.Context, req *pb.LikeRequest, resp *pb.Response) error {
+func (s *PostService) CreateLike(_ context.Context, req *pb.LikeRequest, _ *pb.Response) error {
 	logger.Info("PostService CreateLike")
 
 	item := dao.Item{

@@ -10,7 +10,7 @@ import (
 )
 
 // List ... 获取用户列表
-func (s *UserService) List(ctx context.Context, req *pb.ListRequest, res *pb.ListResponse) error {
+func (s *UserService) List(_ context.Context, req *pb.ListRequest, res *pb.ListResponse) error {
 	logger.Info("UserService List")
 
 	// 过滤条件

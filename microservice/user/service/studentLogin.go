@@ -15,7 +15,7 @@ import (
 // StudentLogin ... 登录
 // 如果无 code，则返回 oauth 的地址，让前端去请求 oauth，
 // 否则，用 code 获取 oauth 的 access token，并生成该应用的 auth token，返回给前端。
-func (s *UserService) StudentLogin(ctx context.Context, req *pb.StudentLoginRequest, res *pb.LoginResponse) error {
+func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginRequest, res *pb.LoginResponse) error {
 	logger.Info("UserService StudentLogin")
 
 	// 根据 StudentId 在 DB 查询 user
