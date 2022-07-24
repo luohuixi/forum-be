@@ -6,16 +6,16 @@ import (
 	pb "forum-chat/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
-	"time"
+	"forum/util"
 )
 
 // Create 发送消息
-func (s *ChatService) Create(ctx context.Context, req *pb.CreateRequest, resp *pb.Response) error {
+func (s *ChatService) Create(_ context.Context, req *pb.CreateRequest, _ *pb.Response) error {
 	logger.Info("CharService Create")
 
 	data := &dao.ChatData{
 		Message:  req.Message,
-		Date:     time.Now().Format("2006-01-02 15:04:05"),
+		Date:     util.GetCurrentTime(),
 		Receiver: req.TargetUserId,
 		Sender:   req.UserId,
 	}

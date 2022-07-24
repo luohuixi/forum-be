@@ -4,7 +4,8 @@ package post;
 
 service PostService {
     rpc CreatePost(CreatePostRequest) returns (Response) {}
-    rpc ListPost(ListPostRequest) returns (ListPostResponse) {}
+    rpc ListMainPost(ListMainPostRequest) returns (ListPostResponse) {}
+    rpc ListSubPost(ListSubPostRequest) returns (ListPostResponse) {}
     rpc UpdatePostInfo(UpdatePostInfoRequest) returns (Response) {}
     rpc GetPost(Request) returns (Post) {}
 
@@ -81,17 +82,29 @@ message CreatePostRequest {
     uint32 type_id = 3;
     string title = 4;
     string category = 5;
+    uint32 main_post_id = 6;
 }
 
 message Response {}
 
-message ListPostRequest {
+message ListMainPostRequest {
     uint32 last_id = 1;
     uint32 offset = 2;
     uint32 limit = 3;
-    string type_id = 4;
+    uint32 type_id = 4;
     string category = 5;
     uint32 user_id = 6;
+    bool pagination = 7;
+}
+
+message ListSubPostRequest {
+    uint32 last_id = 1;
+    uint32 offset = 2;
+    uint32 limit = 3;
+    uint32 type_id = 4;
+    uint32 main_post_id = 5;
+    uint32 user_id = 6;
+    bool pagination = 7;
 }
 
 message ListPostResponse {

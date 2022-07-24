@@ -1,6 +1,9 @@
 package dao
 
-import "github.com/jinzhu/gorm"
+import (
+	"forum/pkg/constvar"
+	"github.com/jinzhu/gorm"
+)
 
 type PostModel struct {
 	Id           uint32 `json:"id"`
@@ -13,6 +16,7 @@ type PostModel struct {
 	CreatorId    uint32 `json:"creator_id"`
 	LastEditTime string `json:"last_edit_time"`
 	LikeNum      uint32 `json:"like_num"`
+	MainPostId   uint32 `json:"main_post_id"`
 }
 
 func (p *PostModel) TableName() string {
@@ -59,9 +63,24 @@ func (d *Dao) CreatePost(post *PostModel) error {
 	return post.Create()
 }
 
-func (d *Dao) ListPost(filter *PostModel) ([]*PostInfo, error) {
+func (d *Dao) ListPost(filter *PostModel, offset, limit, lastID uint32, pagination bool) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0").Find(&posts).Error
+	query := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0")
+
+	if pagination {
+		if limit == 0 {
+			limit = constvar.DefaultLimit
+		}
+
+		query = query.Offset(offset).Limit(limit)
+
+		if lastID != 0 {
+			query = query.Where("projects.id < ?", lastID)
+		}
+	}
+
+	err := query.Scan(&posts).Error
+
 	return posts, err
 }
 

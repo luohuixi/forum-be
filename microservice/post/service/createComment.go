@@ -6,10 +6,10 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
-	"time"
+	"forum/util"
 )
 
-func (s *PostService) CreateComment(ctx context.Context, req *pb.CreateCommentRequest, resp *pb.Response) error {
+func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequest, _ *pb.Response) error {
 	logger.Info("PostService CreateComment")
 
 	// check if the FatherId is valid TODO
@@ -18,7 +18,7 @@ func (s *PostService) CreateComment(ctx context.Context, req *pb.CreateCommentRe
 		TypeId:     uint8(req.TypeId),
 		Content:    req.Content,
 		FatherId:   req.FatherId,
-		CreateTime: time.Now().Format("2006-01-02 15:04:05"),
+		CreateTime: util.GetCurrentTime(),
 		Re:         false,
 		CreatorId:  req.CreatorId,
 		PostId:     req.PostId,

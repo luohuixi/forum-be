@@ -5,11 +5,11 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
+	"forum/util"
 	"strconv"
-	"time"
 )
 
-func (s *PostService) UpdatePostInfo(ctx context.Context, req *pb.UpdatePostInfoRequest, resp *pb.Response) error {
+func (s *PostService) UpdatePostInfo(_ context.Context, req *pb.UpdatePostInfoRequest, _ *pb.Response) error {
 	logger.Info("PostService UpdatePostInfo")
 
 	if req.Title == "" || req.Content == "" {
@@ -27,7 +27,7 @@ func (s *PostService) UpdatePostInfo(ctx context.Context, req *pb.UpdatePostInfo
 
 	post.Title = req.Title
 	post.Content = req.Content
-	post.LastEditTime = time.Now().Format("2006-01-02 15:04:05")
+	post.LastEditTime = util.GetCurrentTime()
 	post.Category = req.Category
 
 	if err := post.Save(); err != nil {

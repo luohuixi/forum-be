@@ -38,8 +38,19 @@ type ListResponse struct {
 }
 
 type CreateRequest struct {
+	TypeId     uint32 `json:"type_id"`
+	Content    string `json:"content"`
+	Title      string `json:"title,omitempty"`
+	Category   string `json:"category,omitempty"`
+	MainPostId uint32 `json:"main_post_id"`
+}
+
+type ListMainPostRequest struct {
 	TypeId   uint32 `json:"type_id"`
-	Content  string `json:"content"`
-	Title    string `json:"title,omitempty"`
 	Category string `json:"category,omitempty"`
+}
+
+type ListSubPostRequest struct {
+	TypeId     uint32 `json:"type_id"`
+	MainPostId uint32 `json:"main_post_id"`
 }

@@ -6,6 +6,7 @@ import (
 	"forum-gateway/handler"
 	"forum-gateway/handler/chat"
 	"forum-gateway/handler/comment"
+	"forum-gateway/handler/like"
 	"forum-gateway/handler/post"
 	"forum-gateway/handler/sd"
 	"forum-gateway/handler/user"
@@ -65,9 +66,10 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	postRouter := g.Group("api/v1/post")
 	postApi := post.New(dao.GetDao())
 	{
-		postRouter.GET(":post_id", postApi.Get)
+		// postRouter.GET(":post_id", postApi.Get)
+		postRouter.GET("/list/:main_post_id", postApi.ListSubPost)
 		postRouter.POST("", postApi.Create)
-		postRouter.GET("/list", postApi.List)
+		postRouter.GET("/list", postApi.ListMainPost)
 		postRouter.DELETE(":post_id", postApi.Delete)
 		postRouter.PUT("", postApi.UpdateInfo)
 	}
@@ -78,6 +80,14 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		commentRouter.GET(":comment_id", commentApi.Get)
 		commentRouter.POST("", commentApi.Create)
 		commentRouter.DELETE(":comment_id", commentApi.Delete)
+	}
+
+	likeRouter := g.Group("api/v1/comment")
+	likeApi := like.New(dao.GetDao())
+	{
+		likeRouter.GET("/list", likeApi.GetUserLikeList)
+		likeRouter.POST("", likeApi.Create)
+		likeRouter.DELETE("", likeApi.Remove)
 	}
 
 	// 回收站 read delete recover

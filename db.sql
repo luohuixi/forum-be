@@ -113,8 +113,10 @@ CREATE TABLE `posts`
     `re`             tinyint(1)   NOT NULL,
     `creator_id`     int(11)      NOT NULL,
     `last_edit_time` varchar(30)  NOT NULL,
+    `main_post_id`      int(11)      NOT NULL,
     `like_num`       int(11) DEFAULT 0,
-    KEY (`category`)
+    KEY (`category`),
+    FOREIGN KEY (`main_post_id`) REFERENCES `posts` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   ROW_FORMAT = DYNAMIC;

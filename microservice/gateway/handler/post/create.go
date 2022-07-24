@@ -31,6 +31,10 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
+	if req.MainPostId != 0 {
+		req.Category = ""
+	}
+
 	req.UserId = c.MustGet("userId").(uint32)
 
 	_, err := service.PostClient.CreatePost(context.TODO(), req)

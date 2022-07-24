@@ -7,24 +7,17 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"strconv"
 )
 
-func (s *PostService) ListPost(_ context.Context, req *pb.ListPostRequest, resp *pb.ListPostResponse) error {
-	logger.Info("PostService ListPost")
+func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostRequest, resp *pb.ListPostResponse) error {
+	logger.Info("PostService ListMainPost")
 
-	typeId, err := strconv.Atoi(req.TypeId)
-	if err != nil {
-		return errno.ServerErr(errno.ErrBadRequest, err.Error())
+	filter := &dao.PostModel{
+		TypeId:   uint8(req.TypeId),
+		Category: req.Category,
 	}
 
-	filter := &dao.PostModel{TypeId: uint8(typeId)}
-
-	if req.Category != "" {
-		filter.Category = req.Category
-	}
-	// TODO: limit offset
-	posts, err := s.Dao.ListPost(filter)
+	posts, err := s.Dao.ListPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}

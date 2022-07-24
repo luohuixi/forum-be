@@ -27,7 +27,7 @@ type Interface interface {
 	GetItem(Item) (GetDeleter, error)
 
 	CreatePost(*PostModel) error
-	ListPost(*PostModel) ([]*PostInfo, error)
+	ListPost(*PostModel, uint32, uint32, uint32, bool) ([]*PostInfo, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
 	IsUserFavoritePost(uint32, uint32) (bool, error)
