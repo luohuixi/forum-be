@@ -44,13 +44,14 @@ func GetInfo(c *gin.Context) {
 
 	// 构造返回 response
 	var resp GetInfoResponse
-	for _, item := range getInfoResp.List {
-		resp.List = append(resp.List, userInfo{
+	resp.List = make([]userInfo, len(getInfoResp.List))
+	for i, item := range getInfoResp.List {
+		resp.List[i] = userInfo{
 			Id:        item.Id,
 			Name:      item.Name,
 			AvatarURL: item.AvatarUrl,
 			Email:     item.Email,
-		})
+		}
 	}
 
 	SendResponse(c, nil, resp)

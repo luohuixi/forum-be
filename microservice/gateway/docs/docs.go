@@ -93,6 +93,7 @@ var doc = `{
         },
         "/comment": {
             "post": {
+                "description": "typeId: 1 -\u003e 一级评论; 2 -\u003e 其它级",
                 "consumes": [
                     "application/json"
                 ],
@@ -100,7 +101,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "post"
+                    "comment"
                 ],
                 "summary": "创建评论 api",
                 "parameters": [
@@ -140,7 +141,7 @@ var doc = `{
                     "application/json"
                 ],
                 "tags": [
-                    "post"
+                    "comment"
                 ],
                 "summary": "获取评论 api",
                 "parameters": [
@@ -156,7 +157,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Response"
+                            "$ref": "#/definitions/comment.Comment"
                         }
                     }
                 }
@@ -193,6 +194,118 @@ var doc = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/like": {
+            "post": {
+                "description": "TypeId: Post = 1; Comment = 2",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "like"
+                ],
+                "summary": "点赞 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "create_like_request",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/like.Item"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "TypeId: Post = 1; Comment = 2",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "like"
+                ],
+                "summary": "取消点赞 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "remove_like_request",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/like.Item"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/like/list": {
+            "get": {
+                "description": "TypeId: Post = 1; Comment = 2",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "like"
+                ],
+                "summary": "获取用户点赞列表 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/like.ListResponse"
                         }
                     }
                 }
@@ -278,9 +391,9 @@ var doc = `{
                 }
             }
         },
-        "/post/list/{type_id}": {
+        "/post/list": {
             "get": {
-                "description": "获取帖子 (type_id = 1 -\u003e 团队内(type_id暂时均填0))",
+                "description": "type_id = 1 -\u003e 团队内 (type_id暂时均填0); 根据category获取主贴list",
                 "consumes": [
                     "application/json"
                 ],
@@ -290,7 +403,66 @@ var doc = `{
                 "tags": [
                     "post"
                 ],
-                "summary": "list post api",
+                "summary": "list 主贴 api",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "last_id",
+                        "name": "last_id",
+                        "in": "query"
+                    },
+                    {
+                        "description": "list_main_post_request",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/post.ListMainPostRequest"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/post.ListResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/post/list/{main_post_id}": {
+            "get": {
+                "description": "type_id = 1 -\u003e 团队内 (type_id暂时均填0); 根据 main_post_id 获取主贴的从贴list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "list 从贴 api",
                 "parameters": [
                     {
                         "type": "integer",
@@ -312,10 +484,19 @@ var doc = `{
                     },
                     {
                         "type": "integer",
-                        "description": "type_id",
-                        "name": "type_id",
+                        "description": "main_post_id",
+                        "name": "main_post_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "description": "list_sub_post_request",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/post.ListSubPostRequest"
+                        }
                     },
                     {
                         "type": "string",
@@ -360,7 +541,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Response"
+                            "$ref": "#/definitions/post.Post"
                         }
                     }
                 }
@@ -681,6 +862,41 @@ var doc = `{
                 }
             }
         },
+        "comment.Comment": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "creator_avatar": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "integer"
+                },
+                "creator_name": {
+                    "type": "string"
+                },
+                "father_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "like_num": {
+                    "type": "integer"
+                },
+                "type_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "comment.CreateRequest": {
             "type": "object",
             "properties": {
@@ -698,6 +914,20 @@ var doc = `{
                 }
             }
         },
+        "like.Item": {
+            "type": "object",
+            "properties": {
+                "target_id": {
+                    "type": "integer"
+                },
+                "type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "like.ListResponse": {
+            "type": "object"
+        },
         "post.CreateRequest": {
             "type": "object",
             "properties": {
@@ -707,16 +937,73 @@ var doc = `{
                 "content": {
                     "type": "string"
                 },
+                "main_post_id": {
+                    "type": "integer"
+                },
                 "title": {
                     "type": "string"
                 },
-                "typeId": {
+                "type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "post.ListMainPostRequest": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "type_id": {
                     "type": "integer"
                 }
             }
         },
         "post.ListResponse": {
             "type": "object"
+        },
+        "post.ListSubPostRequest": {
+            "type": "object",
+            "properties": {
+                "main_post_id": {
+                    "type": "integer"
+                },
+                "type_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "post.Post": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "creator_avatar": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "integer"
+                },
+                "creator_name": {
+                    "type": "string"
+                },
+                "is_favorite": {
+                    "type": "boolean"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "last_edit_time": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
         },
         "post.UpdateInfoRequest": {
             "type": "object",

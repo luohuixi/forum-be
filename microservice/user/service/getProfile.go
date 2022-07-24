@@ -18,8 +18,8 @@ func (s *UserService) GetProfile(_ context.Context, req *pb.GetRequest, res *pb.
 
 	if user == nil {
 		return errno.ServerErr(errno.ErrUserNotExisted, "")
-
 	}
+
 	res.Id = user.Id
 	res.Name = user.Name
 	res.Avatar = user.Avatar

@@ -16,15 +16,14 @@ func (s *UserService) GetInfo(_ context.Context, req *pb.GetInfoRequest, res *pb
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	var userInfos []*pb.UserInfo
-
-	for _, user := range list {
-		userInfos = append(userInfos, &pb.UserInfo{
+	userInfos := make([]*pb.UserInfo, len(list))
+	for i, user := range list {
+		userInfos[i] = &pb.UserInfo{
 			Id:        user.Id,
 			Name:      user.Name,
 			AvatarUrl: user.Avatar,
 			Email:     user.Email,
-		})
+		}
 	}
 
 	res.List = userInfos

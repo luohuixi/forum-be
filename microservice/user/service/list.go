@@ -22,15 +22,15 @@ func (s *UserService) List(_ context.Context, req *pb.ListRequest, res *pb.ListR
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	var resList []*pb.User
+	resList := make([]*pb.User, len(list))
 
-	for _, item := range list {
-		resList = append(resList, &pb.User{
+	for i, item := range list {
+		resList[i] = &pb.User{
 			Id:     item.Id,
 			Name:   item.Name,
 			Avatar: item.Avatar,
 			Role:   item.Role,
-		})
+		}
 	}
 
 	res.Count = uint32(len(list))
