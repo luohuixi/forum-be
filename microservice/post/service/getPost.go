@@ -22,6 +22,15 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 		return errno.NotFoundErr(errno.ErrItemNotFound, "post-"+strconv.Itoa(int(req.Id)))
 	}
 
+	resp.Id = post.Id
+	resp.Content = post.Content
+	resp.Title = post.Title
+	resp.Time = post.LastEditTime
+	resp.CategoryId = post.CategoryId
+	resp.CreatorId = post.CreatorId
+	resp.CreatorAvatar = post.CreatorAvatar
+	resp.CreatorName = post.CreatorName
+
 	comments, err := s.Dao.ListCommentByPostId(req.Id)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
@@ -45,6 +54,9 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 		}
 		comment.IsLiked = isLiked
 	}
+
+	resp.Comments = comments
+	resp.CommentNum = uint32(len(comments))
 
 	item := dao.Item{
 		Id:     req.Id,
@@ -72,16 +84,6 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 	if likeNum != 0 {
 		resp.LikeNum = uint32(likeNum)
 	}
-	resp.Id = post.Id
-	resp.Content = post.Content
-	resp.Title = post.Title
-	resp.Time = post.LastEditTime
-	resp.CategoryId = post.CategoryId
-	resp.CreatorId = post.CreatorId
-	resp.CreatorAvatar = post.CreatorAvatar
-	resp.CreatorName = post.CreatorName
-	resp.Comments = comments
-	resp.CommentNum = uint32(len(comments))
 
 	return nil
 }

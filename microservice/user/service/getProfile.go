@@ -8,7 +8,7 @@ import (
 )
 
 // GetProfile ... 获取用户个人信息
-func (s *UserService) GetProfile(_ context.Context, req *pb.GetRequest, res *pb.UserProfile) error {
+func (s *UserService) GetProfile(_ context.Context, req *pb.GetRequest, resp *pb.UserProfile) error {
 	logger.Info("UserService GetProfile")
 
 	user, err := s.Dao.GetUser(req.Id)
@@ -20,11 +20,11 @@ func (s *UserService) GetProfile(_ context.Context, req *pb.GetRequest, res *pb.
 		return errno.ServerErr(errno.ErrUserNotExisted, "")
 	}
 
-	res.Id = user.Id
-	res.Name = user.Name
-	res.Avatar = user.Avatar
-	res.Email = user.Email
-	res.Role = user.Role
+	resp.Id = user.Id
+	resp.Name = user.Name
+	resp.Avatar = user.Avatar
+	resp.Email = user.Email
+	resp.Role = user.Role
 
 	return nil
 }

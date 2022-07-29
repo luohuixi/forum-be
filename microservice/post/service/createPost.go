@@ -35,8 +35,24 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		LastEditTime: util.GetCurrentTime(),
 	}
 
-	if err := s.Dao.CreatePost(data); err != nil {
+	postId, err := s.Dao.CreatePost(data)
+	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+
+	for _, content := range req.Tags {
+		tag, err := s.Dao.GetTagByContent(content)
+		if err != nil {
+			return errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
+
+		item := dao.Post2TagModel{
+			PostId: postId,
+			TagId:  tag.Id,
+		}
+		if err := s.Dao.CreatePost2Tag(item); err != nil {
+			return errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
 	}
 
 	return nil

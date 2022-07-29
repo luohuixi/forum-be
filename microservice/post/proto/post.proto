@@ -74,6 +74,7 @@ message UpdatePostInfoRequest {
     string title = 3;
     uint32 user_id = 4;
     uint32 category_id = 5;
+    repeated string tags = 6;
 }
 
 message CreatePostRequest {
@@ -83,6 +84,7 @@ message CreatePostRequest {
     string title = 4;
     uint32 category_id = 5;
     uint32 main_post_id = 6;
+    repeated string tags = 7;
 }
 
 message Response {}
@@ -125,4 +127,5 @@ message Post {
     bool is_liked = 11;
     bool is_favorite = 12;
     repeated CommentInfo comments = 13;
+    repeated string tags = 14;
 }

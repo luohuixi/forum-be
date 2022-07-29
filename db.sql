@@ -109,14 +109,43 @@ CREATE TABLE `posts`
     `content`        text         NOT NULL,
     `title`          varchar(150) NOT NULL,
     `create_time`    varchar(30)  NOT NULL,
-    `category`       varchar(150) NOT NULL,
+    `category_id`    int(11)      NOT NULL,
     `re`             tinyint(1)   NOT NULL,
     `creator_id`     int(11)      NOT NULL,
     `last_edit_time` varchar(30)  NOT NULL,
-    `main_post_id`      int(11)      NOT NULL,
+    `main_post_id`   int(11)      NOT NULL,
     `like_num`       int(11) DEFAULT 0,
-    KEY (`category`),
+    KEY (`category_id`),
     FOREIGN KEY (`main_post_id`) REFERENCES `posts` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for tags
+-- --------------------------------------------
+DROP TABLE IF EXISTS `tags`;
+CREATE TABLE `tags`
+(
+    `id`      int(11) AUTO_INCREMENT PRIMARY KEY,
+    `content` varchar(30) NOT NULL,
+    KEY (`content`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for post2tags
+-- --------------------------------------------
+DROP TABLE IF EXISTS `post2tags`;
+CREATE TABLE `post2tags`
+(
+    `id`      int(11) AUTO_INCREMENT PRIMARY KEY,
+    `post_id` int(11) NOT NULL,
+    `tag_id`  int(11) NOT NULL,
+    KEY (`post_id`, `tag_id`),
+    FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`),
+    FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   ROW_FORMAT = DYNAMIC;

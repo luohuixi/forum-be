@@ -10,7 +10,7 @@ import (
 )
 
 // List ... 获取用户列表
-func (s *UserService) List(_ context.Context, req *pb.ListRequest, res *pb.ListResponse) error {
+func (s *UserService) List(_ context.Context, req *pb.ListRequest, resp *pb.ListResponse) error {
 	logger.Info("UserService List")
 
 	// 过滤条件
@@ -33,8 +33,8 @@ func (s *UserService) List(_ context.Context, req *pb.ListRequest, res *pb.ListR
 		}
 	}
 
-	res.Count = uint32(len(list))
-	res.List = resList
+	resp.Count = uint32(len(list))
+	resp.List = resList
 
 	return nil
 }

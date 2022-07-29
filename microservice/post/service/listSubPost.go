@@ -25,22 +25,6 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 	resp.List = make([]*pb.Post, len(posts))
 	for i, post := range posts {
 		// TODO comments etc.
-		commentNum := s.Dao.GetCommentNumByPostId(post.Id)
-
-		item := dao.Item{
-			Id:     post.Id,
-			TypeId: constvar.Post,
-		}
-
-		isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
-		if err != nil {
-			return errno.ServerErr(errno.ErrRedis, err.Error())
-		}
-
-		likeNum, err := s.Dao.GetLikedNum(item)
-		if err != nil {
-			return errno.ServerErr(errno.ErrRedis, err.Error())
-		}
 
 		// limit max len of post content
 		content := post.Content
@@ -57,10 +41,25 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 			CreatorName:   post.CreatorName,
 			CreatorAvatar: post.CreatorAvatar,
 			Content:       content,
-			CommentNum:    commentNum,
-			LikeNum:       uint32(likeNum),
-			IsLiked:       isLiked,
 		}
+
+		resp.List[i].CommentNum = s.Dao.GetCommentNumByPostId(post.Id)
+
+		item := dao.Item{
+			Id:     post.Id,
+			TypeId: constvar.Post,
+		}
+
+		resp.List[i].IsLiked, err = s.Dao.IsUserHadLike(req.UserId, item)
+		if err != nil {
+			return errno.ServerErr(errno.ErrRedis, err.Error())
+		}
+
+		likeNum, err := s.Dao.GetLikedNum(item)
+		if err != nil {
+			return errno.ServerErr(errno.ErrRedis, err.Error())
+		}
+		resp.List[i].LikeNum = uint32(likeNum)
 	}
 
 	return nil

@@ -16,11 +16,11 @@ type RegisterInfo struct {
 // GetUser get a single user by id
 func (d *Dao) GetUser(id uint32) (*UserModel, error) {
 	user := &UserModel{}
-	res := d.DB.Where("id = ? AND re = 0", id).First(user)
-	if res.Error == gorm.ErrRecordNotFound {
+	err := d.DB.Where("id = ? AND re = 0", id).First(user).Error
+	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
-	return user, res.Error
+	return user, err
 }
 
 // GetUserByIds get user by id array

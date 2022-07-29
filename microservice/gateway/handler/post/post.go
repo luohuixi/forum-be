@@ -34,7 +34,7 @@ type Post struct {
 }
 
 type ListResponse struct {
-	posts *[]Post
+	Posts []Post `json:"posts"`
 }
 
 type CreateRequest struct {

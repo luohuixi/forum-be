@@ -40,11 +40,11 @@ func (a *Api) Get(c *gin.Context) {
 		Id:     uint32(id),
 	}
 
-	res, err := service.PostClient.GetPost(context.TODO(), getReq)
+	resp, err := service.PostClient.GetPost(context.TODO(), getReq)
 	if err != nil {
-		SendError(c, err, nil, "", GetLine())
+		SendError(c, err, resp, "", GetLine())
 		return
 	}
 
-	SendResponse(c, errno.OK, res)
+	SendResponse(c, errno.OK, resp)
 }

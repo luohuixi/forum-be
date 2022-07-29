@@ -26,7 +26,7 @@ type Dao struct {
 type Interface interface {
 	GetItem(Item) (GetDeleter, error)
 
-	CreatePost(*PostModel) error
+	CreatePost(*PostModel) (uint32, error)
 	ListPost(*PostModel, uint32, uint32, uint32, bool) ([]*PostInfo, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
@@ -43,6 +43,11 @@ type Interface interface {
 	GetLikedNum(Item) (int64, error)
 	IsUserHadLike(uint32, Item) (bool, error)
 	ListUserLike(uint32) ([]*Item, error)
+
+	CreatePost2Tag(Post2TagModel) error
+	GetTagById(uint32) (*TagModel, error)
+	GetTagByContent(string) (*TagModel, error)
+	ListTagsByPostId(uint32) ([]string, error)
 
 	Enforce(...interface{}) (bool, error)
 }

@@ -59,8 +59,9 @@ type PostInfo struct {
 	LikeNum       uint32 `json:"like_num"`
 }
 
-func (d *Dao) CreatePost(post *PostModel) error {
-	return post.Create()
+func (d *Dao) CreatePost(post *PostModel) (uint32, error) {
+	err := post.Create()
+	return post.Id, err
 }
 
 func (d *Dao) ListPost(filter *PostModel, offset, limit, lastID uint32, pagination bool) ([]*PostInfo, error) {

@@ -32,7 +32,7 @@ func (a *Api) GetUserLikeList(c *gin.Context) { // TODO
 
 	resp, err := service.PostClient.ListLikeByUserId(context.TODO(), userIdReq)
 	if err != nil {
-		SendError(c, err, nil, "", GetLine())
+		SendError(c, err, resp.List, "", GetLine())
 		return
 	}
 

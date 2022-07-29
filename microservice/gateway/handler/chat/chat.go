@@ -121,14 +121,14 @@ func (c *Client) Write() {
 			cancel()
 		}()
 
-		res, err := service.ChatClient.GetList(ctx, getListRequest)
+		resp, err := service.ChatClient.GetList(ctx, getListRequest)
 		if err != nil {
 			log.Error(err.Error())
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 			return
 		}
 
-		for _, msg := range res.List {
+		for _, msg := range resp.List {
 			fmt.Println("msg", msg)
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(msg))
 		}

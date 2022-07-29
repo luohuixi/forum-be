@@ -98,15 +98,16 @@ func (a *Api) ListMainPost(c *gin.Context) {
 	getReq := &pbu.GetInfoRequest{
 		Ids: ids,
 	}
-	resp, err := service.UserClient.GetInfo(context.TODO(), getReq)
+	userResp, err := service.UserClient.GetInfo(context.TODO(), getReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
-	posts := make([]Post, len(resp.List))
-	for i, user := range resp.List {
-		posts[i] = Post{
+	resp := ListResponse{}
+	resp.Posts = make([]Post, len(userResp.List))
+	for i, user := range userResp.List {
+		resp.Posts[i] = Post{
 			Content:       postResp.List[i].Content,
 			Title:         postResp.List[i].Title,
 			LastEditTime:  postResp.List[i].Time,
@@ -118,5 +119,5 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		}
 	}
 
-	SendResponse(c, errno.OK, ListResponse{posts: &posts})
+	SendResponse(c, errno.OK, resp)
 }

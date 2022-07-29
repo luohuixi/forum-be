@@ -16,11 +16,11 @@ import (
 // TeamLogin ... 登录
 // 如果无 code，则返回 oauth 的地址，让前端去请求 oauth，
 // 否则，用 code 获取 oauth 的 access token，并生成该应用的 auth token，返回给前端。
-func (s *UserService) TeamLogin(_ context.Context, req *pb.TeamLoginRequest, res *pb.LoginResponse) error {
+func (s *UserService) TeamLogin(_ context.Context, req *pb.TeamLoginRequest, resp *pb.LoginResponse) error {
 	logger.Info("UserService TeamLogin")
 
 	if req.OauthCode == "" {
-		res.RedirectUrl = auth.OauthURL
+		resp.RedirectUrl = auth.OauthURL
 		return nil
 	}
 
@@ -74,6 +74,6 @@ func (s *UserService) TeamLogin(_ context.Context, req *pb.TeamLoginRequest, res
 		return errno.ServerErr(errno.ErrAuthToken, err.Error())
 	}
 
-	res.Token = token
+	resp.Token = token
 	return nil
 }
