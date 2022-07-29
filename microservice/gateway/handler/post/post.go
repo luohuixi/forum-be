@@ -15,17 +15,17 @@ func New(i dao.Interface) *Api {
 }
 
 type UpdateInfoRequest struct {
-	Id       uint32 `json:"id"`
-	Content  string `json:"content"`
-	Title    string `json:"title"`
-	Category string `json:"category"`
+	Id         uint32 `json:"id"`
+	Content    string `json:"content"`
+	Title      string `json:"title"`
+	CategoryId uint32 `json:"category_id"`
 }
 
 type Post struct {
 	Content       string `json:"content,omitempty"`
 	Title         string `json:"title,omitempty"`
 	LastEditTime  string `json:"last_edit_time,omitempty"`
-	Category      string `json:"category,omitempty"`
+	CategoryId    uint32 `json:"category_id,omitempty"`
 	CreatorId     uint32 `json:"creator_id"`
 	CreatorName   string `json:"creator_name,omitempty"`
 	CreatorAvatar string `json:"creator_avatar"`
@@ -41,13 +41,13 @@ type CreateRequest struct {
 	TypeId     uint32 `json:"type_id"`
 	Content    string `json:"content"`
 	Title      string `json:"title,omitempty"`
-	Category   string `json:"category,omitempty"`
+	CategoryId uint32 `json:"category_id,omitempty"`
 	MainPostId uint32 `json:"main_post_id"`
 }
 
 type ListMainPostRequest struct {
-	TypeId   uint32 `json:"type_id"`
-	Category string `json:"category,omitempty"`
+	TypeId     uint32 `json:"type_id"`
+	CategoryId uint32 `json:"category_id,omitempty"`
 }
 
 type ListSubPostRequest struct {

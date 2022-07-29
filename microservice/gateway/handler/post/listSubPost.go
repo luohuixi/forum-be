@@ -112,7 +112,7 @@ func (a *Api) ListSubPost(c *gin.Context) {
 			Content:       postResp.List[i].Content,
 			Title:         postResp.List[i].Title,
 			LastEditTime:  postResp.List[i].Time,
-			Category:      postResp.List[i].Category,
+			CategoryId:    postResp.List[i].CategoryId,
 			CreatorId:     postResp.List[i].CreatorId,
 			IsLiked:       postResp.List[i].IsLiked,
 			CreatorName:   user.Name,

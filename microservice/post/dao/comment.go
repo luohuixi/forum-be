@@ -7,7 +7,7 @@ import (
 
 type CommentModel struct {
 	Id         uint32 `json:"id"`
-	TypeId     uint8  `json:"type_id"` // 1 2
+	TypeId     uint8  `json:"type_id"` // 1 : 一级; 2 : 二级
 	Content    string `json:"content"`
 	FatherId   uint32 `json:"father_id"`
 	CreateTime string `json:"create_time"`

@@ -11,7 +11,7 @@ type PostModel struct {
 	Content      string `json:"content"`
 	Title        string `json:"title"`
 	CreateTime   string `json:"create_time"`
-	Category     string `json:"category"`
+	CategoryId   uint32 `json:"category_id"`
 	Re           bool   `json:"re"`
 	CreatorId    uint32 `json:"creator_id"`
 	LastEditTime string `json:"last_edit_time"`
@@ -50,7 +50,7 @@ type PostInfo struct {
 	Id            uint32 `json:"id"`
 	Content       string `json:"content"`
 	Title         string `json:"title"`
-	Category      string `json:"category"`
+	CategoryId    uint32 `json:"category_id"`
 	CreatorId     uint32 `json:"creator_id"`
 	LastEditTime  string `json:"last_edit_time"`
 	CreatorName   string `json:"creator_name"`
@@ -65,7 +65,7 @@ func (d *Dao) CreatePost(post *PostModel) error {
 
 func (d *Dao) ListPost(filter *PostModel, offset, limit, lastID uint32, pagination bool) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	query := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0")
+	query := d.DB.Table("posts").Select("posts.id id, title, category_id, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0")
 
 	if pagination {
 		if limit == 0 {
@@ -86,7 +86,7 @@ func (d *Dao) ListPost(filter *PostModel, offset, limit, lastID uint32, paginati
 
 func (d *Dao) GetPostInfo(postId uint32) (*PostInfo, error) {
 	var post PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND posts.re = 0", postId).First(&post).Error
+	err := d.DB.Table("posts").Select("posts.id id, title, category_id, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND posts.re = 0", postId).First(&post).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

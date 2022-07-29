@@ -14,14 +14,16 @@ import (
 )
 
 // Get ... 获取帖子
-// @Summary 获取帖子 api
-// @Description
-// @Tags post
-// @Accept application/json
-// @Produce application/json
-// @Param post_id path int true "post_id"
-// @Success 200 {object} Post
-// @Router /post/{post_id} [get]
+/*
+@Summary 获取帖子 api
+@Description
+@Tags post
+@Accept application/json
+@Produce application/json
+@Param post_id path int true "post_id"
+@Success 200 {object} Post
+@Router /post/{post_id} [get]
+*/
 func (a *Api) Get(c *gin.Context) {
 	log.Info("Post Get function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 

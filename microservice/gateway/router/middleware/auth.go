@@ -15,11 +15,11 @@ func AuthMiddleware(limit uint32) gin.HandlerFunc {
 		// Parse the json web token.
 		ctx, err := auth.ParseRequest(c)
 		if err != nil {
-			handler.SendResponse(c, errno.ErrAuthToken, err.Error())
+			handler.SendError(c, errno.ErrAuthToken, nil, err.Error(), handler.GetLine())
 			c.Abort()
 			return
 		} else if ctx.Role&limit == 0 {
-			handler.SendResponse(c, errno.ErrPermissionDenied, "")
+			handler.SendError(c, errno.ErrPermissionDenied, nil, "", handler.GetLine())
 			c.Abort()
 			return
 		}

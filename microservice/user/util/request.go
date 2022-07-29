@@ -22,7 +22,7 @@ type RequestData struct {
 	ContentType string            `json:"content_type"`
 }
 
-// Default Response
+// Response Default
 type Response struct {
 	BasicResponse
 	Data map[string]interface{}

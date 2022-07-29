@@ -32,7 +32,7 @@ func (a *Api) Create(c *gin.Context) {
 	}
 
 	if req.MainPostId != 0 {
-		req.Category = ""
+		req.CategoryId = 0
 	}
 
 	req.UserId = c.MustGet("userId").(uint32)

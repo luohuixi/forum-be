@@ -28,7 +28,7 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		Content:      req.Content,
 		Title:        req.Title,
 		CreateTime:   util.GetCurrentTime(),
-		Category:     req.Category,
+		CategoryId:   req.CategoryId,
 		MainPostId:   req.MainPostId,
 		Re:           false,
 		CreatorId:    req.UserId,

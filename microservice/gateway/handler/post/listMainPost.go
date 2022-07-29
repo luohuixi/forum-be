@@ -72,12 +72,12 @@ func (a *Api) ListMainPost(c *gin.Context) {
 	}
 
 	listReq := &pb.ListMainPostRequest{
-		UserId:   userId,
-		Category: req.Category,
-		TypeId:   req.TypeId,
-		LastId:   uint32(lastId),
-		Offset:   uint32(page * limit),
-		Limit:    uint32(limit),
+		UserId:     userId,
+		CategoryId: req.CategoryId,
+		TypeId:     req.TypeId,
+		LastId:     uint32(lastId),
+		Offset:     uint32(page * limit),
+		Limit:      uint32(limit),
 	}
 
 	if page != 0 {
@@ -110,7 +110,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 			Content:       postResp.List[i].Content,
 			Title:         postResp.List[i].Title,
 			LastEditTime:  postResp.List[i].Time,
-			Category:      postResp.List[i].Category,
+			CategoryId:    postResp.List[i].CategoryId,
 			CreatorId:     postResp.List[i].CreatorId,
 			IsLiked:       postResp.List[i].IsLiked,
 			CreatorName:   user.Name,
