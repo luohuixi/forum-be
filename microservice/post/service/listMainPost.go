@@ -7,6 +7,7 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
+	"go.uber.org/zap"
 )
 
 func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostRequest, resp *pb.ListPostResponse) error {
@@ -31,6 +32,28 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			content = post.Content[:200]
 		}
 
+		commentNum := s.Dao.GetCommentNumByPostId(post.Id)
+
+		item := dao.Item{
+			Id:     post.Id,
+			TypeId: constvar.Post,
+		}
+
+		isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
+		if err != nil {
+			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
+		}
+
+		likeNum, err := s.Dao.GetLikedNum(item)
+		if err != nil {
+			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
+		}
+
+		tags, err := s.Dao.ListTagsByPostId(post.Id)
+		if err != nil {
+			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
+		}
+
 		resp.List[i] = &pb.Post{
 			Id:            post.Id,
 			Title:         post.Title,
@@ -40,25 +63,11 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			CreatorName:   post.CreatorName,
 			CreatorAvatar: post.CreatorAvatar,
 			Content:       content,
+			CommentNum:    commentNum,
+			LikeNum:       uint32(likeNum),
+			IsLiked:       isLiked,
+			Tags:          tags,
 		}
-
-		resp.List[i].CommentNum = s.Dao.GetCommentNumByPostId(post.Id)
-
-		item := dao.Item{
-			Id:     post.Id,
-			TypeId: constvar.Post,
-		}
-
-		resp.List[i].IsLiked, err = s.Dao.IsUserHadLike(req.UserId, item)
-		if err != nil {
-			return errno.ServerErr(errno.ErrRedis, err.Error())
-		}
-
-		likeNum, err := s.Dao.GetLikedNum(item)
-		if err != nil {
-			return errno.ServerErr(errno.ErrRedis, err.Error())
-		}
-		resp.List[i].LikeNum = uint32(likeNum)
 	}
 
 	return nil

@@ -92,7 +92,7 @@ type GetDeleter interface {
 	Delete() error
 }
 
-func (d *Dao) GetItem(i Item) (GetDeleter, error) {
+func (Dao) GetItem(i Item) (GetDeleter, error) {
 	if i.TypeId == constvar.Post {
 		item := &PostModel{}
 		err := item.Get(i.Id)

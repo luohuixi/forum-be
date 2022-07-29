@@ -7,7 +7,6 @@ service PostService {
     rpc ListMainPost(ListMainPostRequest) returns (ListPostResponse) {}
     rpc ListSubPost(ListSubPostRequest) returns (ListPostResponse) {}
     rpc UpdatePostInfo(UpdatePostInfoRequest) returns (Response) {}
-    rpc GetPost(Request) returns (Post) {}
 
     rpc GetComment(Request) returns (CommentInfo) {}
     rpc CreateComment(CreateCommentRequest) returns (Response) {}

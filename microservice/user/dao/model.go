@@ -16,7 +16,7 @@ type UserModel struct {
 	Re           bool   `json:"re"`
 }
 
-func (u *UserModel) TableName() string {
+func (UserModel) TableName() string {
 	return "users"
 }
 

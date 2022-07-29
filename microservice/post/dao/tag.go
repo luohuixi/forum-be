@@ -12,7 +12,7 @@ type TagModel struct {
 	Content string
 }
 
-func (t *TagModel) TableName() string {
+func (TagModel) TableName() string {
 	return "tags"
 }
 
@@ -105,7 +105,7 @@ type Post2TagModel struct {
 	TagId  uint32
 }
 
-func (p *Post2TagModel) TableName() string {
+func (Post2TagModel) TableName() string {
 	return "post2tags"
 }
 
@@ -114,7 +114,7 @@ func (p *Post2TagModel) Create() error {
 	return dao.DB.Create(p).Error
 }
 
-func (d *Dao) CreatePost2Tag(item Post2TagModel) error {
+func (Dao) CreatePost2Tag(item Post2TagModel) error {
 	return item.Create()
 }
 

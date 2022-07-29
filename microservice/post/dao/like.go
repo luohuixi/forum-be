@@ -5,6 +5,11 @@ import (
 	"strconv"
 )
 
+type Item struct {
+	Id     uint32
+	TypeId uint8
+}
+
 func (d *Dao) AddLike(userId uint32, target Item) error {
 	id := strconv.Itoa(int(target.Id))
 
@@ -71,9 +76,4 @@ func (d *Dao) ListUserLike(userId uint32) ([]*Item, error) {
 		})
 	}
 	return list, nil
-}
-
-type Item struct {
-	Id     uint32
-	TypeId uint8
 }

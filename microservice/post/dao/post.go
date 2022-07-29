@@ -19,7 +19,7 @@ type PostModel struct {
 	MainPostId   uint32 `json:"main_post_id"`
 }
 
-func (p *PostModel) TableName() string {
+func (PostModel) TableName() string {
 	return "posts"
 }
 
@@ -59,7 +59,7 @@ type PostInfo struct {
 	LikeNum       uint32 `json:"like_num"`
 }
 
-func (d *Dao) CreatePost(post *PostModel) (uint32, error) {
+func (Dao) CreatePost(post *PostModel) (uint32, error) {
 	err := post.Create()
 	return post.Id, err
 }
@@ -94,7 +94,7 @@ func (d *Dao) GetPostInfo(postId uint32) (*PostInfo, error) {
 	return &post, err
 }
 
-func (d *Dao) GetPost(id uint32) (*PostModel, error) {
+func (Dao) GetPost(id uint32) (*PostModel, error) {
 	item := &PostModel{}
 	err := item.Get(id)
 	return item, err

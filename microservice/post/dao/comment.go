@@ -17,7 +17,7 @@ type CommentModel struct {
 	LikeNum    uint32 `json:"like_num"`
 }
 
-func (c *CommentModel) TableName() string {
+func (CommentModel) TableName() string {
 	return "comments"
 }
 
@@ -58,7 +58,7 @@ type CommentInfo struct {
 	// TODO
 }
 
-func (d *Dao) CreateComment(comment *CommentModel) error {
+func (Dao) CreateComment(comment *CommentModel) error {
 	return comment.Create()
 }
 
