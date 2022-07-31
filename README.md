@@ -1,11 +1,20 @@
 # forum-be
 木犀论坛后端仓库
 
-前端可能暑假才开工
+mysql
 
-使用mysql
+websocket: 聊天
 
-拆分成微服务，使用grpc（protobuf）通信
+拆分成微服务，使用grpc（protobuf）通信：
+- gateway
+- post
+- user
+- chat
 
-redis应用：排行榜 其他待定吧
+casbin: 鉴权
+
+redis: 点赞; 聊天; tag缓存; tag排行榜 
+
+log: zap
+
 

@@ -24,11 +24,11 @@ type Logger interface {
 
 func init() {
 	hook := lumberjack.Logger{
-		Filename:   "./logs/api_server1.log", // 日志文件路径
-		MaxSize:    128,                      // 每个日志文件保存的最大尺寸 单位：M
-		MaxBackups: 5,                        // 日志文件最多保存多少个备份
-		MaxAge:     30,                       // 文件最多保存多少天
-		Compress:   true,                     // 是否压缩
+		Filename:   "./logs/api_server.log", // 日志文件路径
+		MaxSize:    128,                     // 每个日志文件保存的最大尺寸 单位：M
+		MaxBackups: 5,                       // 日志文件最多保存多少个备份
+		MaxAge:     30,                      // 文件最多保存多少天
+		Compress:   true,                    // 是否压缩
 	}
 	encoderConfig := zapcore.EncoderConfig{
 		TimeKey:        "time",
