@@ -91,6 +91,57 @@ var doc = `{
                 }
             }
         },
+        "/chat": {
+            "get": {
+                "description": "该用户发送信息前先获取自己的uuid，并放入query(id=?)，有效期24h",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chat"
+                ],
+                "summary": "获取该用户的uuid",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/chat.Id"
+                        }
+                    }
+                }
+            }
+        },
+        "/chat/ws": {
+            "get": {
+                "description": "建立 WebSocket 连接",
+                "tags": [
+                    "chat"
+                ],
+                "summary": "WebSocket",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "uuid",
+                        "name": "id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
         "/comment": {
             "post": {
                 "description": "typeId: 1 -\u003e 一级评论; 2 -\u003e 其它级",
@@ -517,35 +568,6 @@ var doc = `{
             }
         },
         "/post/{post_id}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "post"
-                ],
-                "summary": "获取帖子 api",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "post_id",
-                        "name": "post_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/post.Post"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -862,6 +884,14 @@ var doc = `{
                 }
             }
         },
+        "chat.Id": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                }
+            }
+        },
         "comment.Comment": {
             "type": "object",
             "properties": {
@@ -931,8 +961,8 @@ var doc = `{
         "post.CreateRequest": {
             "type": "object",
             "properties": {
-                "category": {
-                    "type": "string"
+                "category_id": {
+                    "type": "integer"
                 },
                 "content": {
                     "type": "string"
@@ -951,8 +981,8 @@ var doc = `{
         "post.ListMainPostRequest": {
             "type": "object",
             "properties": {
-                "category": {
-                    "type": "string"
+                "category_id": {
+                    "type": "integer"
                 },
                 "type_id": {
                     "type": "integer"
@@ -960,7 +990,15 @@ var doc = `{
             }
         },
         "post.ListResponse": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/post.Post"
+                    }
+                }
+            }
         },
         "post.ListSubPostRequest": {
             "type": "object",
@@ -976,8 +1014,8 @@ var doc = `{
         "post.Post": {
             "type": "object",
             "properties": {
-                "category": {
-                    "type": "string"
+                "category_id": {
+                    "type": "integer"
                 },
                 "content": {
                     "type": "string"
@@ -1008,8 +1046,8 @@ var doc = `{
         "post.UpdateInfoRequest": {
             "type": "object",
             "properties": {
-                "category": {
-                    "type": "string"
+                "category_id": {
+                    "type": "integer"
                 },
                 "content": {
                     "type": "string"

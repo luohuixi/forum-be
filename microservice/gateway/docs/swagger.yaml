@@ -65,6 +65,11 @@ definitions:
       role:
         type: integer
     type: object
+  chat.Id:
+    properties:
+      id:
+        type: string
+    type: object
   comment.Comment:
     properties:
       content:
@@ -110,8 +115,8 @@ definitions:
     type: object
   post.CreateRequest:
     properties:
-      category:
-        type: string
+      category_id:
+        type: integer
       content:
         type: string
       main_post_id:
@@ -123,12 +128,17 @@ definitions:
     type: object
   post.ListMainPostRequest:
     properties:
-      category:
-        type: string
+      category_id:
+        type: integer
       type_id:
         type: integer
     type: object
   post.ListResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/post.Post'
+        type: array
     type: object
   post.ListSubPostRequest:
     properties:
@@ -139,8 +149,8 @@ definitions:
     type: object
   post.Post:
     properties:
-      category:
-        type: string
+      category_id:
+        type: integer
       content:
         type: string
       creator_avatar:
@@ -160,8 +170,8 @@ definitions:
     type: object
   post.UpdateInfoRequest:
     properties:
-      category:
-        type: string
+      category_id:
+        type: integer
       content:
         type: string
       id:
@@ -233,6 +243,40 @@ paths:
       summary: login api
       tags:
       - auth
+  /chat:
+    get:
+      consumes:
+      - application/json
+      description: 该用户发送信息前先获取自己的uuid，并放入query(id=?)，有效期24h
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chat.Id'
+      summary: 获取该用户的uuid
+      tags:
+      - chat
+  /chat/ws:
+    get:
+      description: 建立 WebSocket 连接
+      parameters:
+      - description: uuid
+        in: query
+        name: id
+        required: true
+        type: string
+      responses: {}
+      summary: WebSocket
+      tags:
+      - chat
   /comment:
     post:
       consumes:
@@ -454,25 +498,6 @@ paths:
           schema:
             $ref: '#/definitions/Response'
       summary: 删除帖子 api
-      tags:
-      - post
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: post_id
-        in: path
-        name: post_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/post.Post'
-      summary: 获取帖子 api
       tags:
       - post
   /post/list:

@@ -10,7 +10,8 @@ service ChatService {
 message CreateRequest {
     string user_id = 1;
     string target_user_id = 2;
-    string message = 3;
+    string content = 3;
+    uint32 type_id = 4;
 }
 
 message Response {}

@@ -18,7 +18,7 @@ import (
 
 func main() {
 	// init config
-	if err := config.Init("", "FORUM_post"); err != nil {
+	if err := config.Init("", "FORUM_POST"); err != nil {
 		panic(err)
 	}
 

@@ -20,84 +20,6 @@ CREATE TABLE `users`
   COLLATE = utf8mb4_unicode_ci
   ROW_FORMAT = DYNAMIC;
 
--- ----------------------------
--- Table structure for comments
--- ----------------------------
-DROP TABLE IF EXISTS `comments`;
-CREATE TABLE `comments`
-(
-    `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
-    `type_id`     tinyint(2) NOT NULL,
-    `content`     text       NOT NULL,
-    `father_id`   int(11)     DEFAULT NULL,
-    `create_time` varchar(30) DEFAULT NULL,
-    `re`          tinyint(1)  DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
-    `creator_id`  int(11)     DEFAULT NULL,
-    `post_id`     int(11)     DEFAULT NULL,
-    `like_num`    int(11)     DEFAULT 0,
-    KEY (`post_id`)
-) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4
-  COLLATE = utf8mb4_unicode_ci
-  ROW_FORMAT = DYNAMIC;
-
-
--- --------------------------------------------
--- Table structure for docs, files and folders
--- --------------------------------------------
-# DROP TABLE IF EXISTS `docs`;
-# CREATE TABLE `docs`
-# (
-#     `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
-#     `filename`    varchar(150) DEFAULT NULL,
-#     `content`     text,
-#     `re`          tinyint(1)   DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
-#     `top`         tinyint(1)   DEFAULT NULL,
-#     `create_time` varchar(30)  DEFAULT NULL,
-#     `delete_time` varchar(30)  DEFAULT NULL,
-#     `editor_id`   int(11)      DEFAULT NULL,
-#     `creator_id`  int(11)      DEFAULT NULL,
-#     `project_id`  int(11)      DEFAULT NULL COMMENT '此文档所属的项目 id',
-#     KEY `editor_id` (`editor_id`),
-#     KEY `creator_id` (`creator_id`),
-#     KEY `project_id` (`project_id`)
-# ) ENGINE = InnoDB
-#   DEFAULT CHARSET = utf8mb4
-#   ROW_FORMAT = DYNAMIC;
-
-
-# DROP TABLE IF EXISTS `files`;
-# CREATE TABLE `files`
-# (
-#     `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
-#     `url`         varchar(150) DEFAULT NULL,
-#     `filename`    varchar(150) DEFAULT NULL,
-#     `realname`    varchar(150) DEFAULT NULL,
-#     `re`          tinyint(1)   DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
-#     `top`         tinyint(1)   DEFAULT NULL,
-#     `create_time` varchar(30)  DEFAULT NULL,
-#     `delete_time` varchar(30)  DEFAULT NULL,
-#     `creator_id`  int(11)      DEFAULT NULL,
-#     `project_id`  int(11)      DEFAULT NULL COMMENT '此文件所属的项目 id',
-#     KEY `creator_id` (`creator_id`),
-#     KEY `project_id` (`project_id`)
-# ) ENGINE = InnoDB
-#   DEFAULT CHARSET = utf8mb4
-#   ROW_FORMAT = DYNAMIC;
-
--- 用户-文件关注表
--- !! user2files to attentions;
-# DROP TABLE IF EXISTS `user2files`;
-# CREATE TABLE `user2files`
-# (
-#     `id`        int(11) AUTO_INCREMENT PRIMARY KEY,
-#     `user_id`   int(11) DEFAULT NULL,
-#     `file_id`   int(11) DEFAULT NULL COMMENT '文件的 id，这里文件包括 doc 和 file',
-#     `file_kind` int(11) DEFAULT NULL COMMENT 'file 的类型，包括 doc 和 file，1-doc 2-file',
-# ) ENGINE = InnoDB
-#   DEFAULT CHARSET = utf8mb4
-#   ROW_FORMAT = DYNAMIC;
-
 -- --------------------------------------------
 -- Table structure for posts
 -- --------------------------------------------
@@ -116,9 +38,32 @@ CREATE TABLE `posts`
     `main_post_id`   int(11)      NOT NULL,
     `like_num`       int(11) DEFAULT 0,
     KEY (`category_id`),
-    FOREIGN KEY (`main_post_id`) REFERENCES `posts` (`id`)
+    FOREIGN KEY (`main_post_id`) REFERENCES `posts` (`id`),
+    FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
+  ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for comments
+-- ----------------------------
+DROP TABLE IF EXISTS `comments`;
+CREATE TABLE `comments`
+(
+    `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
+    `type_id`     tinyint(2) NOT NULL,
+    `content`     text       NOT NULL,
+    `father_id`   int(11)     DEFAULT NULL,
+    `create_time` varchar(30) DEFAULT NULL,
+    `re`          tinyint(1)  DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
+    `creator_id`  int(11)     DEFAULT NULL,
+    `post_id`     int(11)     DEFAULT NULL,
+    `like_num`    int(11)     DEFAULT 0,
+    FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`),
+    FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
   ROW_FORMAT = DYNAMIC;
 
 -- --------------------------------------------

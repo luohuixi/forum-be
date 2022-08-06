@@ -10,6 +10,7 @@ replace github.com/micro/go-micro => github.com/Lofanmi/go-micro v1.16.1-0.20210
 
 require (
 	forum v0.0.0-00010101000000-000000000000
+	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/ShiinaOrez/GoSecurity v0.0.0-20191118072239-d06064a9edd6
 	github.com/golang/protobuf v1.5.2
 	github.com/jinzhu/gorm v1.9.16
@@ -18,5 +19,6 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/smartystreets/goconvey v1.7.2
 	github.com/spf13/viper v1.12.0
+	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	golang.org/x/net v0.0.0-20220520000938-2e3eb7b945c2
 )

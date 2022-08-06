@@ -82,7 +82,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		commentRouter.DELETE(":comment_id", commentApi.Delete)
 	}
 
-	likeRouter := g.Group("api/v1/comment")
+	likeRouter := g.Group("api/v1/like")
 	likeApi := like.New(dao.GetDao())
 	{
 		likeRouter.GET("/list", likeApi.GetUserLikeList)

@@ -39,10 +39,11 @@ func Init() {
 
 // ChatData 发送到redis里面的数据
 type ChatData struct {
-	Message  string `json:"message"`
+	Content  string `json:"content"`
 	Date     string `json:"date"`
 	Receiver string `json:"-"`
 	Sender   string `json:"sender"`
+	TypeId   uint32 `json:"type_id"`
 }
 
 func GetDao() *Dao {

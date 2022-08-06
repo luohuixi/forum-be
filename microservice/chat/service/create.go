@@ -14,16 +14,17 @@ func (s *ChatService) Create(_ context.Context, req *pb.CreateRequest, _ *pb.Res
 	logger.Info("CharService Create")
 
 	data := &dao.ChatData{
-		Message:  req.Message,
+		Content:  req.Content,
 		Date:     util.GetCurrentTime(),
 		Receiver: req.TargetUserId,
 		Sender:   req.UserId,
+		TypeId:   req.TypeId,
 	}
 
 	err := s.Dao.Create(data)
 
 	if err != nil {
-		return errno.ServerErr(errno.ErrDatabase, err.Error())
+		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
 
 	return nil

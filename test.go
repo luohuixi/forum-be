@@ -1,12 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 func main() {
-	var s = "202021675"
-	fmt.Println(s[3:])
-	// +   fmt.Println(s[3:])
-	var e error = nil
-	fmt.Println(e.Error())
+	res := strings.Split("语文100010", "语文")
+	fmt.Println("----- res[0]: ", res[1], " -----")
 
 }
