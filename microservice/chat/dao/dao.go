@@ -40,7 +40,7 @@ func Init() {
 // ChatData 发送到redis里面的数据
 type ChatData struct {
 	Content  string `json:"content"`
-	Date     string `json:"date"`
+	Time     string `json:"time"`
 	Receiver string `json:"-"`
 	Sender   string `json:"sender"`
 	TypeId   uint32 `json:"type_id"`

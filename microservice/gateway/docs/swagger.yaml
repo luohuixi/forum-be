@@ -126,26 +126,12 @@ definitions:
       type_id:
         type: integer
     type: object
-  post.ListMainPostRequest:
-    properties:
-      category_id:
-        type: integer
-      type_id:
-        type: integer
-    type: object
   post.ListResponse:
     properties:
       posts:
         items:
           $ref: '#/definitions/post.Post'
         type: array
-    type: object
-  post.ListSubPostRequest:
-    properties:
-      main_post_id:
-        type: integer
-      type_id:
-        type: integer
     type: object
   post.Post:
     properties:
@@ -338,6 +324,11 @@ paths:
         name: comment_id
         required: true
         type: integer
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:
@@ -500,11 +491,12 @@ paths:
       summary: 删除帖子 api
       tags:
       - post
-  /post/list:
+  /post/list/{type_name}/{main_post_id}:
     get:
       consumes:
       - application/json
-      description: type_id = 1 -> 团队内 (type_id暂时均填0); 根据category获取主贴list
+      description: type_name = normal -> 团队内 (type_name暂时均填normal); 根据 main_post_id
+        获取主贴的从贴list
       parameters:
       - description: limit
         in: query
@@ -518,56 +510,16 @@ paths:
         in: query
         name: last_id
         type: integer
-      - description: list_main_post_request
-        in: body
-        name: object
-        required: true
-        schema:
-          $ref: '#/definitions/post.ListMainPostRequest'
-      - description: token 用户令牌
-        in: header
-        name: Authorization
+      - description: type_name
+        in: path
+        name: type_name
         required: true
         type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/post.ListResponse'
-      summary: list 主贴 api
-      tags:
-      - post
-  /post/list/{main_post_id}:
-    get:
-      consumes:
-      - application/json
-      description: type_id = 1 -> 团队内 (type_id暂时均填0); 根据 main_post_id 获取主贴的从贴list
-      parameters:
-      - description: limit
-        in: query
-        name: limit
-        type: integer
-      - description: page
-        in: query
-        name: page
-        type: integer
-      - description: last_id
-        in: query
-        name: last_id
-        type: integer
       - description: main_post_id
         in: path
         name: main_post_id
         required: true
         type: integer
-      - description: list_sub_post_request
-        in: body
-        name: object
-        required: true
-        schema:
-          $ref: '#/definitions/post.ListSubPostRequest'
       - description: token 用户令牌
         in: header
         name: Authorization
@@ -581,6 +533,49 @@ paths:
           schema:
             $ref: '#/definitions/post.ListResponse'
       summary: list 从贴 api
+      tags:
+      - post
+  /post/list/{type_name}/main/{category_id}:
+    get:
+      consumes:
+      - application/json
+      description: type_name = normal -> 团队内 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)
+      parameters:
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
+      - description: type_name
+        in: path
+        name: type_name
+        required: true
+        type: string
+      - description: category_id
+        in: path
+        name: category_id
+        required: true
+        type: integer
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.ListResponse'
+      summary: list 主贴 api
       tags:
       - post
   /user:

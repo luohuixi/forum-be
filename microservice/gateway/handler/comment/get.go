@@ -20,6 +20,7 @@ import (
 // @Accept application/json
 // @Produce application/json
 // @Param comment_id path int true "comment_id"
+// @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} Comment
 // @Router /comment/{comment_id} [get]
 func (a *Api) Get(c *gin.Context) {

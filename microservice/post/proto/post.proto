@@ -92,7 +92,7 @@ message ListMainPostRequest {
     uint32 last_id = 1;
     uint32 offset = 2;
     uint32 limit = 3;
-    uint32 type_id = 4;
+    string type_name = 4;
     uint32 category_id = 5;
     uint32 user_id = 6;
     bool pagination = 7;
@@ -102,7 +102,7 @@ message ListSubPostRequest {
     uint32 last_id = 1;
     uint32 offset = 2;
     uint32 limit = 3;
-    uint32 type_id = 4;
+    string type_name = 4;
     uint32 main_post_id = 5;
     uint32 user_id = 6;
     bool pagination = 7;

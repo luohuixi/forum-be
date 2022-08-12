@@ -202,6 +202,13 @@ var doc = `{
                         "name": "comment_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -442,9 +449,9 @@ var doc = `{
                 }
             }
         },
-        "/post/list": {
+        "/post/list/{type_name}/main/{category_id}": {
             "get": {
-                "description": "type_id = 1 -\u003e 团队内 (type_id暂时均填0); 根据category获取主贴list",
+                "description": "type_name = normal -\u003e 团队内 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)",
                 "consumes": [
                     "application/json"
                 ],
@@ -475,13 +482,18 @@ var doc = `{
                         "in": "query"
                     },
                     {
-                        "description": "list_main_post_request",
-                        "name": "object",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/post.ListMainPostRequest"
-                        }
+                        "type": "string",
+                        "description": "type_name",
+                        "name": "type_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "category_id",
+                        "name": "category_id",
+                        "in": "path",
+                        "required": true
                     },
                     {
                         "type": "string",
@@ -501,9 +513,9 @@ var doc = `{
                 }
             }
         },
-        "/post/list/{main_post_id}": {
+        "/post/list/{type_name}/{main_post_id}": {
             "get": {
-                "description": "type_id = 1 -\u003e 团队内 (type_id暂时均填0); 根据 main_post_id 获取主贴的从贴list",
+                "description": "type_name = normal -\u003e 团队内 (type_name暂时均填normal); 根据 main_post_id 获取主贴的从贴list",
                 "consumes": [
                     "application/json"
                 ],
@@ -534,20 +546,18 @@ var doc = `{
                         "in": "query"
                     },
                     {
+                        "type": "string",
+                        "description": "type_name",
+                        "name": "type_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "main_post_id",
                         "name": "main_post_id",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "description": "list_sub_post_request",
-                        "name": "object",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/post.ListSubPostRequest"
-                        }
                     },
                     {
                         "type": "string",
@@ -978,17 +988,6 @@ var doc = `{
                 }
             }
         },
-        "post.ListMainPostRequest": {
-            "type": "object",
-            "properties": {
-                "category_id": {
-                    "type": "integer"
-                },
-                "type_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "post.ListResponse": {
             "type": "object",
             "properties": {
@@ -997,17 +996,6 @@ var doc = `{
                     "items": {
                         "$ref": "#/definitions/post.Post"
                     }
-                }
-            }
-        },
-        "post.ListSubPostRequest": {
-            "type": "object",
-            "properties": {
-                "main_post_id": {
-                    "type": "integer"
-                },
-                "type_id": {
-                    "type": "integer"
                 }
             }
         },

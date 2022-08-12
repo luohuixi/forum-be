@@ -66,20 +66,19 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	postRouter := g.Group("api/v1/post")
 	postApi := post.New(dao.GetDao())
 	{
-		// postRouter.GET(":post_id", postApi.Get)
-		postRouter.GET("/list/:main_post_id", postApi.ListSubPost)
+		postRouter.GET("/list/:type_name/main/:category_id", postApi.ListMainPost)
+		postRouter.GET("/list/:type_name/:main_post_id", postApi.ListSubPost)
 		postRouter.POST("", postApi.Create)
-		postRouter.GET("/list", postApi.ListMainPost)
-		postRouter.DELETE(":post_id", postApi.Delete)
+		postRouter.DELETE("/:post_id", postApi.Delete)
 		postRouter.PUT("", postApi.UpdateInfo)
 	}
 
 	commentRouter := g.Group("api/v1/comment")
 	commentApi := comment.New(dao.GetDao())
 	{
-		commentRouter.GET(":comment_id", commentApi.Get)
+		commentRouter.GET("/:comment_id", commentApi.Get)
 		commentRouter.POST("", commentApi.Create)
-		commentRouter.DELETE(":comment_id", commentApi.Delete)
+		commentRouter.DELETE("/:comment_id", commentApi.Delete)
 	}
 
 	likeRouter := g.Group("api/v1/like")

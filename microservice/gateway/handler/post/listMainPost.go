@@ -18,23 +18,42 @@ import (
 
 // ListMainPost ... 获取主帖
 // @Summary list 主贴 api
-// @Description type_id = 1 -> 团队内 (type_id暂时均填0); 根据category获取主贴list
+// @Description type_name = normal -> 团队内 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)
 // @Tags post
 // @Accept application/json
 // @Produce application/json
 // @Param limit query int false "limit"
 // @Param page query int false "page"
 // @Param last_id query int false "last_id"
-// @Param object body ListMainPostRequest true "list_main_post_request"
+// @Param type_name path string true "type_name"
+// @Param category_id path int true "category_id"
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} ListResponse
-// @Router /post/list [get]
+// @Router /post/list/{type_name}/main/{category_id} [get]
 func (a *Api) ListMainPost(c *gin.Context) {
 	log.Info("Post ListMainPost function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req *ListMainPostRequest
-	if err := c.BindJSON(req); err != nil {
-		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
+	userId := c.MustGet("userId").(uint32)
+
+	typeName := c.Param("type_name")
+	if typeName != "normal" { // TODO
+		SendError(c, errno.ErrPathParam, nil, "type_name not legal", GetLine())
+		return
+	}
+	ok, err := a.Dao.Enforce(userId, typeName, constvar.Read)
+	if err != nil {
+		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		return
+	}
+
+	if !ok {
+		SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+		return
+	}
+
+	id, err := strconv.Atoi(c.Param("category_id"))
+	if err != nil {
+		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
 	}
 
@@ -56,32 +75,14 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	userId := c.MustGet("userId").(uint32)
-
-	if req.TypeId != 0 {
-		ok, err := a.Dao.Enforce(userId, req.TypeId, constvar.Read)
-		if err != nil {
-			SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
-			return
-		}
-
-		if !ok {
-			SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
-			return
-		}
-	}
-
 	listReq := &pb.ListMainPostRequest{
 		UserId:     userId,
-		CategoryId: req.CategoryId,
-		TypeId:     req.TypeId,
+		CategoryId: uint32(id),
+		TypeName:   typeName,
 		LastId:     uint32(lastId),
 		Offset:     uint32(page * limit),
 		Limit:      uint32(limit),
-	}
-
-	if page != 0 {
-		listReq.Pagination = true
+		Pagination: page != 0,
 	}
 
 	postResp, err := service.PostClient.ListMainPost(c, listReq)

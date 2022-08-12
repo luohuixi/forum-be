@@ -51,6 +51,5 @@ type ListMainPostRequest struct {
 }
 
 type ListSubPostRequest struct {
-	TypeId     uint32 `json:"type_id"`
-	MainPostId uint32 `json:"main_post_id"`
+	TypeId uint32 `json:"type_id"`
 }
