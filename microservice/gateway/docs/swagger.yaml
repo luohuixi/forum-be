@@ -126,17 +126,16 @@ definitions:
       type_name:
         type: string
     type: object
-  post.ListResponse:
-    properties:
-      posts:
-        items:
-          $ref: '#/definitions/post.Post'
-        type: array
-    type: object
   post.Post:
     properties:
       category_id:
         type: integer
+      comment_num:
+        type: integer
+      comments:
+        items:
+          $ref: '#/definitions/comment.Comment'
+        type: array
       content:
         type: string
       creator_avatar:
@@ -145,11 +144,19 @@ definitions:
         type: integer
       creator_name:
         type: string
+      id:
+        type: integer
       is_favorite:
         type: boolean
       is_liked:
         type: boolean
-      last_edit_time:
+      like_num:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      time:
         type: string
       title:
         type: string
@@ -418,7 +425,7 @@ paths:
     post:
       consumes:
       - application/json
-      description: type_name = normal -> 团队外 (type_name暂时均填normal)
+      description: type_name = normal -> 团队外 (type_name暂时均填normal); 主贴的main_post_id不填或为0
       parameters:
       - description: token 用户令牌
         in: header
@@ -492,51 +499,7 @@ paths:
       summary: 删除帖子 api
       tags:
       - post
-  /post/list/{type_name}/{main_post_id}:
-    get:
-      consumes:
-      - application/json
-      description: type_name = normal -> 团队外 (type_name暂时均填normal); 根据 main_post_id
-        获取主贴的从贴list
-      parameters:
-      - description: limit
-        in: query
-        name: limit
-        type: integer
-      - description: page
-        in: query
-        name: page
-        type: integer
-      - description: last_id
-        in: query
-        name: last_id
-        type: integer
-      - description: type_name
-        in: path
-        name: type_name
-        required: true
-        type: string
-      - description: main_post_id
-        in: path
-        name: main_post_id
-        required: true
-        type: integer
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/post.ListResponse'
-      summary: list 从贴 api
-      tags:
-      - post
-  /post/list/{type_name}/main/{category_id}:
+  /post/list/{type_name}/{category_id}:
     get:
       consumes:
       - application/json
@@ -575,7 +538,9 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/post.ListResponse'
+            items:
+              $ref: '#/definitions/post.Post'
+            type: array
       summary: list 主贴 api
       tags:
       - post

@@ -62,4 +62,6 @@ func (c *Casbin) Init() {
 			viper.GetString("db.addr"),
 			viper.GetString("db.name")),
 	}
+
+	// TODO
 }

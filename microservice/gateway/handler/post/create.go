@@ -14,7 +14,7 @@ import (
 
 // Create ... 创建帖子
 // @Summary 创建帖子 api
-// @Description type_name = normal -> 团队外 (type_name暂时均填normal)
+// @Description type_name = normal -> 团队外 (type_name暂时均填normal); 主贴的main_post_id不填或为0
 // @Tags post
 // @Accept application/json
 // @Produce application/json

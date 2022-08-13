@@ -44,6 +44,11 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
 		}
 
+		isFavorite, err := s.Dao.IsUserFavoritePost(req.UserId, post.Id)
+		if err != nil {
+			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
+		}
+
 		likeNum, err := s.Dao.GetLikedNum(item)
 		if err != nil {
 			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
@@ -66,6 +71,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			CommentNum:    commentNum,
 			LikeNum:       uint32(likeNum),
 			IsLiked:       isLiked,
+			IsFavorite:    isFavorite,
 			Tags:          tags,
 		}
 	}

@@ -55,7 +55,6 @@ type CommentInfo struct {
 	CreatorName   string `json:"creator_name"`
 	CreatorAvatar string `json:"creator_avatar"`
 	LikeNum       uint32 `json:"like_num"`
-	// TODO
 }
 
 func (Dao) CreateComment(comment *CommentModel) error {
@@ -78,8 +77,8 @@ func (d *Dao) GetComment(id uint32) (*CommentModel, error) {
 }
 
 func (d *Dao) GetCommentInfo(commentId uint32) (*CommentInfo, error) {
-	var comment CommentInfo // TODO
-	err := d.DB.Table("comments").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND comments.re = 0", commentId).First(&comment).Error
+	var comment CommentInfo
+	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time, creator_id, post_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = posts.creator_id").Where("comments.id = ? AND comments.re = 0", commentId).First(&comment).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

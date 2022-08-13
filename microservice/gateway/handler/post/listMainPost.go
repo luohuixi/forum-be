@@ -1,12 +1,10 @@
 package post
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
-	pbu "forum-user/proto"
 	"forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
@@ -28,8 +26,8 @@ import (
 // @Param type_name path string true "type_name"
 // @Param category_id path int true "category_id"
 // @Param Authorization header string true "token 用户令牌"
-// @Success 200 {object} ListResponse
-// @Router /post/list/{type_name}/main/{category_id} [get]
+// @Success 200 {object} []post.Post
+// @Router /post/list/{type_name}/{category_id} [get]
 func (a *Api) ListMainPost(c *gin.Context) {
 	log.Info("Post ListMainPost function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
@@ -91,34 +89,5 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	var ids []uint32
-	for _, post := range postResp.List {
-		ids = append(ids, post.CreatorId)
-	}
-
-	getReq := &pbu.GetInfoRequest{
-		Ids: ids,
-	}
-	userResp, err := service.UserClient.GetInfo(context.TODO(), getReq)
-	if err != nil {
-		SendError(c, err, nil, "", GetLine())
-		return
-	}
-
-	resp := ListResponse{}
-	resp.Posts = make([]Post, len(userResp.List))
-	for i, user := range userResp.List {
-		resp.Posts[i] = Post{
-			Content:       postResp.List[i].Content,
-			Title:         postResp.List[i].Title,
-			LastEditTime:  postResp.List[i].Time,
-			CategoryId:    postResp.List[i].CategoryId,
-			CreatorId:     postResp.List[i].CreatorId,
-			IsLiked:       postResp.List[i].IsLiked,
-			CreatorName:   user.Name,
-			CreatorAvatar: user.AvatarUrl,
-		}
-	}
-
-	SendResponse(c, errno.OK, resp)
+	SendResponse(c, errno.OK, postResp.List)
 }

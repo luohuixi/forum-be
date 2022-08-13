@@ -411,7 +411,7 @@ var doc = `{
                 }
             },
             "post": {
-                "description": "type_name = normal -\u003e 团队外 (type_name暂时均填normal)",
+                "description": "type_name = normal -\u003e 团队外 (type_name暂时均填normal); 主贴的main_post_id不填或为0",
                 "consumes": [
                     "application/json"
                 ],
@@ -450,7 +450,7 @@ var doc = `{
                 }
             }
         },
-        "/post/list/{type_name}/main/{category_id}": {
+        "/post/list/{type_name}/{category_id}": {
             "get": {
                 "description": "type_name = normal -\u003e 团队外 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)",
                 "consumes": [
@@ -508,71 +508,10 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/post.ListResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/post/list/{type_name}/{main_post_id}": {
-            "get": {
-                "description": "type_name = normal -\u003e 团队外 (type_name暂时均填normal); 根据 main_post_id 获取主贴的从贴list",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "post"
-                ],
-                "summary": "list 从贴 api",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "limit",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "page",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "last_id",
-                        "name": "last_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "type_name",
-                        "name": "type_name",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "main_post_id",
-                        "name": "main_post_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/post.ListResponse"
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/post.Post"
+                            }
                         }
                     }
                 }
@@ -989,22 +928,20 @@ var doc = `{
                 }
             }
         },
-        "post.ListResponse": {
-            "type": "object",
-            "properties": {
-                "posts": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/post.Post"
-                    }
-                }
-            }
-        },
         "post.Post": {
             "type": "object",
             "properties": {
                 "category_id": {
                     "type": "integer"
+                },
+                "comment_num": {
+                    "type": "integer"
+                },
+                "comments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/comment.Comment"
+                    }
                 },
                 "content": {
                     "type": "string"
@@ -1018,13 +955,25 @@ var doc = `{
                 "creator_name": {
                     "type": "string"
                 },
+                "id": {
+                    "type": "integer"
+                },
                 "is_favorite": {
                     "type": "boolean"
                 },
                 "is_liked": {
                     "type": "boolean"
                 },
-                "last_edit_time": {
+                "like_num": {
+                    "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "time": {
                     "type": "string"
                 },
                 "title": {

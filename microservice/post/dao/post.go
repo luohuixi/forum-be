@@ -101,6 +101,6 @@ func (Dao) GetPost(id uint32) (*PostModel, error) {
 }
 
 func (d *Dao) IsUserFavoritePost(userId uint32, id uint32) (bool, error) {
-	// TODO
+	//TODO
 	return false, nil
 }

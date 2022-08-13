@@ -25,12 +25,9 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 
 	resp.List = make([]*pb.Post, len(posts))
 	for i, post := range posts {
-		// TODO comments etc.
-
-		// limit max len of post content
-		content := post.Content
-		if len(content) > 200 {
-			content = post.Content[:200]
+		comments, err := s.Dao.ListCommentByPostId(post.Id)
+		if err != nil {
+			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
 		}
 
 		commentNum := s.Dao.GetCommentNumByPostId(post.Id)
@@ -50,6 +47,11 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
 		}
 
+		isFavorite, err := s.Dao.IsUserFavoritePost(req.UserId, post.Id)
+		if err != nil {
+			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
+		}
+
 		tags, err := s.Dao.ListTagsByPostId(post.Id)
 		if err != nil {
 			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
@@ -63,10 +65,12 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 			CreatorId:     post.CreatorId,
 			CreatorName:   post.CreatorName,
 			CreatorAvatar: post.CreatorAvatar,
-			Content:       content,
+			Content:       post.Content,
 			CommentNum:    commentNum,
 			LikeNum:       uint32(likeNum),
 			IsLiked:       isLiked,
+			IsFavorite:    isFavorite,
+			Comments:      comments,
 			Tags:          tags,
 		}
 	}
