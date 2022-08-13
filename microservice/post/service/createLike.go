@@ -12,8 +12,8 @@ func (s *PostService) CreateLike(_ context.Context, req *pb.LikeRequest, _ *pb.R
 	logger.Info("PostService CreateLike")
 
 	item := dao.Item{
-		Id:     req.Item.TargetId,
-		TypeId: uint8(req.Item.TypeId),
+		Id:       req.Item.TargetId,
+		TypeName: req.Item.TypeName,
 	}
 
 	ok, err := s.Dao.IsUserHadLike(req.UserId, item)

@@ -5,6 +5,7 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/util"
 )
@@ -13,7 +14,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 	logger.Info("PostService CreateComment")
 
 	// check if the FatherId is valid
-	if req.TypeId == 1 {
+	if req.TypeName == constvar.FirstLevelComment {
 		post, err := s.Dao.GetPost(req.FatherId)
 		if err != nil {
 			errno.ServerErr(errno.ErrDatabase, err.Error())
@@ -21,7 +22,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		if post == nil {
 			errno.ServerErr(errno.ErrBadRequest, "the post not found")
 		}
-	} else if req.TypeId == 2 {
+	} else if req.TypeName == constvar.SecondLevelComment {
 		comment, err := s.Dao.GetComment(req.FatherId)
 		if err != nil {
 			errno.ServerErr(errno.ErrDatabase, err.Error())
@@ -30,11 +31,11 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 			errno.ServerErr(errno.ErrBadRequest, "the comment not found")
 		}
 	} else {
-		return errno.ServerErr(errno.ErrBadRequest, "TypeId should be 1 or 2")
+		return errno.ServerErr(errno.ErrBadRequest, "TypeName should be first-level or second-level")
 	}
 
 	data := &dao.CommentModel{
-		TypeId:     uint8(req.TypeId),
+		TypeName:   req.TypeName,
 		Content:    req.Content,
 		FatherId:   req.FatherId,
 		CreateTime: util.GetCurrentTime(),

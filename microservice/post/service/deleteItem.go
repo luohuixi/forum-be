@@ -13,8 +13,8 @@ func (s *PostService) DeleteItem(_ context.Context, req *pb.Item, _ *pb.Response
 	logger.Info("PostService DeleteItem")
 
 	item, err := s.Dao.GetItem(dao.Item{
-		Id:     req.Id,
-		TypeId: uint8(req.TypeId),
+		Id:       req.Id,
+		TypeName: req.TypeName,
 	})
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())

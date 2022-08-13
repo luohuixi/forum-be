@@ -35,15 +35,15 @@ func main() {
 	client := pb.NewPostServiceClient("forum.service.post", service.Client())
 
 	_, err = client.CreatePost(context.TODO(), &pb.CreatePostRequest{
-		UserId:     2,
-		Content:    "外比巴卜",
-		TypeId:     1, // 默认为1
+		UserId:  2,
+		Content: "外比巴卜",
+		// TypeId:     1, // 默认为1
 		Title:      "first post",
 		CategoryId: 2,
 	})
 	_, err = client.CreateComment(context.TODO(), &pb.CreateCommentRequest{
-		PostId:    1,
-		TypeId:    2,
+		PostId: 1,
+		// TypeId:    2,
 		FatherId:  1,
 		Content:   "first comment to comment",
 		CreatorId: 2,
@@ -56,7 +56,7 @@ func main() {
 	})
 
 	// post, err := client.ListPost(context.TODO(), &pb.ListPostRequest{
-	// 	TypeId:   "1",
+	// 	TypeName:   "1",
 	// 	Category: "娱乐",
 	// })
 	//

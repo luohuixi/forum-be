@@ -27,7 +27,7 @@ DROP TABLE IF EXISTS `posts`;
 CREATE TABLE `posts`
 (
     `id`             int(11) AUTO_INCREMENT PRIMARY KEY,
-    `type_id`        tinyint(2)   NOT NULL,
+    `type_name`      varchar(30)  NOT NULL,
     `content`        text         NOT NULL,
     `title`          varchar(150) NOT NULL,
     `create_time`    varchar(30)  NOT NULL,
@@ -51,8 +51,8 @@ DROP TABLE IF EXISTS `comments`;
 CREATE TABLE `comments`
 (
     `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
-    `type_id`     tinyint(2) NOT NULL,
-    `content`     text       NOT NULL,
+    `type_name`   varchar(30) NOT NULL,
+    `content`     text        NOT NULL,
     `father_id`   int(11)     DEFAULT NULL,
     `create_time` varchar(30) DEFAULT NULL,
     `re`          tinyint(1)  DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',

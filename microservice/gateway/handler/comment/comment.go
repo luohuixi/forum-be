@@ -15,16 +15,16 @@ func New(i dao.Interface) *Api {
 }
 
 type CreateRequest struct {
-	TypeId   uint32
-	Content  string
-	FatherId uint32
-	PostId   uint32
+	TypeName string `json:"type_name,omitempty"`
+	Content  string `json:"content,omitempty"`
+	FatherId uint32 `json:"father_id,omitempty"`
+	PostId   uint32 `json:"post_id,omitempty"`
 }
 
 type Comment struct {
 	Id            uint32 `json:"id,omitempty"`
 	Content       string `json:"content,omitempty"`
-	TypeId        uint32 `json:"type_id,omitempty"`
+	TypeName      string `json:"type_name,omitempty"`
 	FatherId      uint32 `json:"father_id,omitempty"`
 	CreateTime    string `json:"create_time,omitempty"`
 	CreatorId     uint32 `json:"creator_id,omitempty"`

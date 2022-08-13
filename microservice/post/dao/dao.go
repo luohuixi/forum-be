@@ -19,7 +19,6 @@ type Dao struct {
 	DB    *gorm.DB
 	Redis *redis.Client
 	CB    *casbin.Enforcer
-	Map   map[uint8]string // TypeId2Name
 }
 
 // Interface dao
@@ -72,10 +71,6 @@ func Init() {
 		Redis: model.RedisDB.Self,
 		CB:    model.CB.Self,
 	}
-
-	dao.Map = make(map[uint8]string, 2)
-	dao.Map[constvar.Post] = "post"
-	dao.Map[constvar.Comment] = "comment"
 }
 
 func GetDao() *Dao {
@@ -93,15 +88,15 @@ type GetDeleter interface {
 }
 
 func (Dao) GetItem(i Item) (GetDeleter, error) {
-	if i.TypeId == constvar.Post {
+	if i.TypeName == constvar.Post {
 		item := &PostModel{}
 		err := item.Get(i.Id)
 		return item, err
-	} else if i.TypeId == constvar.Comment {
+	} else if i.TypeName == constvar.Comment {
 		item := &CommentModel{}
 		err := item.Get(i.Id)
 		return item, err
 	} else {
-		return nil, errors.New("wrong TypeId")
+		return nil, errors.New("wrong TypeName")
 	}
 }

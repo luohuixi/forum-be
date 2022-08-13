@@ -24,7 +24,7 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 	}
 
 	data := &dao.PostModel{
-		TypeId:       uint8(req.TypeId),
+		TypeName:     req.TypeName,
 		Content:      req.Content,
 		Title:        req.Title,
 		CreateTime:   util.GetCurrentTime(),

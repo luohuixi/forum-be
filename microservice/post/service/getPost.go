@@ -31,7 +31,7 @@ package service
 // 	for _, comment := range comments {
 // 		item := dao.Item{
 // 			Id:     comment.Id,
-// 			TypeId: constvar.Comment,
+// 			TypeName: constvar.Comment,
 // 		}
 //
 // 		n, err := s.Dao.GetLikedNum(item)
@@ -49,7 +49,7 @@ package service
 //
 // 	item := dao.Item{
 // 		Id:     req.Id,
-// 		TypeId: constvar.Post,
+// 		TypeName: constvar.Post,
 // 	}
 //
 // 	likeNum, err := s.Dao.GetLikedNum(item)

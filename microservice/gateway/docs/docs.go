@@ -144,7 +144,7 @@ var doc = `{
         },
         "/comment": {
             "post": {
-                "description": "typeId: 1 -\u003e 一级评论; 2 -\u003e 其它级",
+                "description": "typeName: first-level -\u003e 一级评论; second-level -\u003e 其它级",
                 "consumes": [
                     "application/json"
                 ],
@@ -185,6 +185,7 @@ var doc = `{
         },
         "/comment/{comment_id}": {
             "get": {
+                "description": "typeName: first-level -\u003e 一级评论; second-level -\u003e 其它级",
                 "consumes": [
                     "application/json"
                 ],
@@ -259,7 +260,7 @@ var doc = `{
         },
         "/like": {
             "post": {
-                "description": "TypeId: Post = 1; Comment = 2",
+                "description": "TypeName: post or comment",
                 "consumes": [
                     "application/json"
                 ],
@@ -298,7 +299,7 @@ var doc = `{
                 }
             },
             "delete": {
-                "description": "TypeId: Post = 1; Comment = 2",
+                "description": "TypeName: post or comment",
                 "consumes": [
                     "application/json"
                 ],
@@ -339,7 +340,7 @@ var doc = `{
         },
         "/like/list": {
             "get": {
-                "description": "TypeId: Post = 1; Comment = 2",
+                "description": "TypeName: post or comment",
                 "consumes": [
                     "application/json"
                 ],
@@ -410,7 +411,7 @@ var doc = `{
                 }
             },
             "post": {
-                "description": "(type_id = 1 -\u003e 团队内(type_id暂时不用管))",
+                "description": "type_name = normal -\u003e 团队外 (type_name暂时均填normal)",
                 "consumes": [
                     "application/json"
                 ],
@@ -451,7 +452,7 @@ var doc = `{
         },
         "/post/list/{type_name}/main/{category_id}": {
             "get": {
-                "description": "type_name = normal -\u003e 团队内 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)",
+                "description": "type_name = normal -\u003e 团队外 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)",
                 "consumes": [
                     "application/json"
                 ],
@@ -515,7 +516,7 @@ var doc = `{
         },
         "/post/list/{type_name}/{main_post_id}": {
             "get": {
-                "description": "type_name = normal -\u003e 团队内 (type_name暂时均填normal); 根据 main_post_id 获取主贴的从贴list",
+                "description": "type_name = normal -\u003e 团队外 (type_name暂时均填normal); 根据 main_post_id 获取主贴的从贴list",
                 "consumes": [
                     "application/json"
                 ],
@@ -932,8 +933,8 @@ var doc = `{
                 "like_num": {
                     "type": "integer"
                 },
-                "type_id": {
-                    "type": "integer"
+                "type_name": {
+                    "type": "string"
                 }
             }
         },
@@ -943,14 +944,14 @@ var doc = `{
                 "content": {
                     "type": "string"
                 },
-                "fatherId": {
+                "father_id": {
                     "type": "integer"
                 },
-                "postId": {
+                "post_id": {
                     "type": "integer"
                 },
-                "typeId": {
-                    "type": "integer"
+                "type_name": {
+                    "type": "string"
                 }
             }
         },
@@ -960,8 +961,8 @@ var doc = `{
                 "target_id": {
                     "type": "integer"
                 },
-                "type_id": {
-                    "type": "integer"
+                "type_name": {
+                    "type": "string"
                 }
             }
         },
@@ -983,8 +984,8 @@ var doc = `{
                 "title": {
                     "type": "string"
                 },
-                "type_id": {
-                    "type": "integer"
+                "type_name": {
+                    "type": "string"
                 }
             }
         },

@@ -19,7 +19,7 @@ func (s *PostService) ListLikeByUserId(_ context.Context, req *pb.UserIdRequest,
 	for i, like := range likes {
 		resp.List[i] = &pb.LikeItem{
 			TargetId: like.Id,
-			TypeId:   uint32(like.TypeId),
+			TypeName: like.TypeName,
 		}
 	}
 

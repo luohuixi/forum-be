@@ -18,7 +18,7 @@ import (
 
 // ListSubPost ... 获取从帖
 // @Summary list 从贴 api
-// @Description type_name = normal -> 团队内 (type_name暂时均填normal); 根据 main_post_id 获取主贴的从贴list
+// @Description type_name = normal -> 团队外 (type_name暂时均填normal); 根据 main_post_id 获取主贴的从贴list
 // @Tags post
 // @Accept application/json
 // @Produce application/json

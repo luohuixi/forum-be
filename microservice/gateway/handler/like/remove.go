@@ -14,7 +14,7 @@ import (
 
 // Remove ... 取消点赞
 // @Summary 取消点赞 api
-// @Description TypeId: Post = 1; Comment = 2
+// @Description TypeName: post or comment
 // @Tags like
 // @Accept application/json
 // @Produce application/json

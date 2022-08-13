@@ -14,7 +14,7 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 	logger.Info("PostService ListSubPost")
 
 	filter := &dao.PostModel{
-		TypeId:     uint8(req.TypeId),
+		TypeName:   req.TypeName,
 		MainPostId: req.MainPostId,
 	}
 
@@ -36,8 +36,8 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 		commentNum := s.Dao.GetCommentNumByPostId(post.Id)
 
 		item := dao.Item{
-			Id:     post.Id,
-			TypeId: constvar.Post,
+			Id:       post.Id,
+			TypeName: constvar.Post,
 		}
 
 		isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)

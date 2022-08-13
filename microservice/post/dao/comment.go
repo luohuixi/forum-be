@@ -7,7 +7,7 @@ import (
 
 type CommentModel struct {
 	Id         uint32 `json:"id"`
-	TypeId     uint8  `json:"type_id"` // 1 : 一级; 2 : 二级
+	TypeName   string `json:"type_name"` // first-level or second-level
 	Content    string `json:"content"`
 	FatherId   uint32 `json:"father_id"`
 	CreateTime string `json:"create_time"`
@@ -46,7 +46,7 @@ func (c *CommentModel) Delete() error {
 
 type CommentInfo struct {
 	Id            uint32 `json:"id"`
-	TypeId        uint8  `json:"type_id"` // 1 2
+	TypeName      string `json:"type_name"`
 	Content       string `json:"content"`
 	FatherId      uint32 `json:"father_id"`
 	CreateTime    string `json:"create_time"`
@@ -64,7 +64,7 @@ func (Dao) CreateComment(comment *CommentModel) error {
 
 func (d *Dao) ListCommentByPostId(postId uint32) ([]*pb.CommentInfo, error) {
 	var comments []*pb.CommentInfo
-	err := d.DB.Table("comments").Select("comments.id id, type_id, content, father_id, create_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = comments.creator_id").Where("post_id = ? AND comments.re = 0", postId).Find(&comments).Error
+	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = comments.creator_id").Where("post_id = ? AND comments.re = 0", postId).Find(&comments).Error
 	return comments, err
 }
 

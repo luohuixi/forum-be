@@ -14,7 +14,7 @@ import (
 
 // Create ... 点赞
 // @Summary 点赞 api
-// @Description TypeId: Post = 1; Comment = 2
+// @Description TypeName: post or comment
 // @Tags like
 // @Accept application/json
 // @Produce application/json

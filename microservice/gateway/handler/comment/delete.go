@@ -35,7 +35,7 @@ func (a *Api) Delete(c *gin.Context) {
 		return
 	}
 
-	ok, err := a.Dao.Enforce(userId, "type_id", constvar.Write)
+	ok, err := a.Dao.Enforce(userId, "type_name", constvar.Write)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return
@@ -47,8 +47,8 @@ func (a *Api) Delete(c *gin.Context) {
 	}
 
 	deleteReq := &pb.Item{
-		Id:     uint32(id),
-		TypeId: constvar.Post,
+		Id:       uint32(id),
+		TypeName: constvar.Comment,
 	}
 
 	_, err = service.PostClient.DeleteItem(context.TODO(), deleteReq)

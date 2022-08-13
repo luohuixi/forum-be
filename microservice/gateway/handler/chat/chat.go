@@ -83,30 +83,12 @@ func (c *Client) Read() {
 		}
 
 		req.UserId = c.UserId
-		// index := strings.IndexByte(string(message), '-')
-		// if index == -1 || index == 0 {
-		// 	log.Error("index wrong")
-		// 	c.Socket.WriteMessage(websocket.TextMessage, []byte("format error, eg. 5-外比巴卜"))
-		// 	break
-		// }
-		// targetUserId := string(message)[:index]
-		// if _, err := strconv.Atoi(targetUserId); err != nil {
-		// 	log.Error(err.Error())
-		// 	c.Socket.WriteMessage(websocket.TextMessage, []byte("format error, eg. 5-外比巴卜"))
-		// 	break
-		// }
-		//
+
 		if req.TargetUserId == c.UserId {
 			log.Error("error: can't message yourself")
 			c.Socket.WriteMessage(websocket.TextMessage, []byte("error: can't message yourself"))
 			break
 		}
-		//
-		// createReq := &pb.CreateRequest{
-		// 	UserId:       c.UserId,
-		// 	TargetUserId: targetUserId,
-		// 	Content:      string(message)[index+1:],
-		// }
 
 		if _, err := service.ChatClient.Create(context.Background(), &req); err != nil {
 			log.Error(err.Error())

@@ -5,6 +5,7 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"go.uber.org/zap"
 	"strconv"
@@ -23,8 +24,8 @@ func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.Co
 	}
 
 	likeNum, err := s.Dao.GetLikedNum(dao.Item{
-		Id:     req.Id,
-		TypeId: 2,
+		Id:       req.Id,
+		TypeName: constvar.Comment,
 	})
 	if err != nil {
 		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
@@ -34,6 +35,7 @@ func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.Co
 	if likeNum != 0 {
 		resp.LikeNum = uint32(likeNum)
 	}
+	resp.TypeName = comment.TypeName
 	resp.Id = comment.Id
 	resp.Content = comment.Content
 	resp.CreateTime = comment.CreateTime

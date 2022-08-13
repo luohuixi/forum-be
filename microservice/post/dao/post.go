@@ -7,7 +7,7 @@ import (
 
 type PostModel struct {
 	Id           uint32 `json:"id"`
-	TypeId       uint8  `json:"type_id"`
+	TypeName     string `json:"type_name"`
 	Content      string `json:"content"`
 	Title        string `json:"title"`
 	CreateTime   string `json:"create_time"`

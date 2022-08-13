@@ -43,7 +43,7 @@ type ChatData struct {
 	Time     string `json:"time"`
 	Receiver string `json:"-"`
 	Sender   string `json:"sender"`
-	TypeId   uint32 `json:"type_id"`
+	TypeName string `json:"type_name"`
 }
 
 func GetDao() *Dao {

@@ -18,11 +18,15 @@ const (
 	// trashbin redis key
 	Trashbin = "trashbin"
 
-	// item.TypeId
-	Post    = 1
-	Comment = 2
+	// item.TypeName
+	Post    = "post"
+	Comment = "comment"
 
 	// casbin
 	Write = uint8(1)
 	Read  = uint8(2)
+
+	// comment
+	FirstLevelComment  = "first-level"
+	SecondLevelComment = "second-level"
 )

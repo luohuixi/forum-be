@@ -18,7 +18,7 @@ func (s *ChatService) Create(_ context.Context, req *pb.CreateRequest, _ *pb.Res
 		Time:     util.GetCurrentTime(),
 		Receiver: req.TargetUserId,
 		Sender:   req.UserId,
-		TypeId:   req.TypeId,
+		TypeName: req.TypeName,
 	}
 
 	err := s.Dao.Create(data)

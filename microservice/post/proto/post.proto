@@ -24,7 +24,7 @@ message ListLikeResponse {
 
 message LikeItem {
     uint32 target_id = 1;
-    uint32 type_id = 2;
+    string type_name = 2;
 }
 
 message LikeRequest {
@@ -34,7 +34,7 @@ message LikeRequest {
 
 message CreateCommentRequest {
     uint32 post_id = 1;
-    uint32 type_id = 2;
+    string type_name = 2;
     uint32 father_id = 3;
     string content = 4;
     uint32 creator_id = 5;
@@ -42,7 +42,7 @@ message CreateCommentRequest {
 
 message CommentInfo {
     uint32 id = 1;
-    uint32 type_id = 2;
+    string type_name = 2;
     string content = 3;
     uint32 father_id = 4;
     string create_time = 5;
@@ -64,7 +64,7 @@ message UserIdRequest {
 
 message Item {
     uint32 id = 1;
-    uint32 type_id = 2;
+    string type_name = 2;
 }
 
 message UpdatePostInfoRequest {
@@ -79,7 +79,7 @@ message UpdatePostInfoRequest {
 message CreatePostRequest {
     uint32 user_id = 1;
     string content = 2;
-    uint32 type_id = 3;
+    string type_name = 3;
     string title = 4;
     uint32 category_id = 5;
     uint32 main_post_id = 6;

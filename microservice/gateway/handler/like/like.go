@@ -16,7 +16,7 @@ func New(i dao.Interface) *Api {
 
 type Item struct {
 	TargetId uint32 `json:"target_id"`
-	TypeId   uint32 `json:"type_id"`
+	TypeName string `json:"type_name"`
 }
 
 type ListResponse struct {

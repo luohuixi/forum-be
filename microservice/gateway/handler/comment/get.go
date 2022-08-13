@@ -15,7 +15,7 @@ import (
 
 // Get ... 获取评论
 // @Summary 获取评论 api
-// @Description
+// @Description typeName: first-level -> 一级评论; second-level -> 其它级
 // @Tags comment
 // @Accept application/json
 // @Produce application/json
