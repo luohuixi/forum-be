@@ -32,7 +32,7 @@ func init() {
 // @title forum-gateway
 // @version 1.0
 // @description The gateway of forum
-// @host work.test.muxi-tech.xyz
+// @host forum.muxixyz.com
 // @BasePath /api/v1
 
 // @tag.name user

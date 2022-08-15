@@ -7,13 +7,12 @@ import (
 	"forum/config"
 	logger "forum/log"
 	"forum/pkg/handler"
-	tracer "forum/pkg/tracer"
+	"forum/pkg/tracer"
 	"github.com/micro/go-micro"
 	"github.com/opentracing/opentracing-go"
-	// "github.com/micro/protobuf/protoc-gen-go/micro"
 	"log"
 
-	// _ "github.com/micro/go-plugins/registry/kubernetes"
+	_ "github.com/micro/go-plugins/registry/kubernetes"
 
 	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
 	"github.com/spf13/viper"

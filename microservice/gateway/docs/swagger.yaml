@@ -185,7 +185,7 @@ definitions:
       role:
         type: integer
     type: object
-host: work.test.muxi-tech.xyz
+host: forum.muxixyz.com
 info:
   contact: {}
   description: The gateway of forum
@@ -497,6 +497,25 @@ paths:
           schema:
             $ref: '#/definitions/Response'
       summary: 删除帖子 api
+      tags:
+      - post
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: post_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.Post'
+      summary: 获取帖子 api
       tags:
       - post
   /post/list/{type_name}/{category_id}:

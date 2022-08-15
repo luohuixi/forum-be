@@ -12,6 +12,8 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"log"
 
+	_ "github.com/micro/go-plugins/registry/kubernetes"
+
 	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
 	"github.com/spf13/viper"
 )
