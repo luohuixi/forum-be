@@ -6,15 +6,15 @@ import (
 )
 
 type CommentModel struct {
-	Id         uint32 `json:"id"`
-	TypeName   string `json:"type_name"` // first-level or second-level
-	Content    string `json:"content"`
-	FatherId   uint32 `json:"father_id"`
-	CreateTime string `json:"create_time"`
-	Re         bool   `json:"re"`
-	CreatorId  uint32 `json:"creator_id"`
-	PostId     uint32 `json:"post_id"`
-	LikeNum    uint32 `json:"like_num"`
+	Id         uint32
+	TypeName   string // first-level or second-level
+	Content    string
+	FatherId   uint32
+	CreateTime string
+	Re         bool
+	CreatorId  uint32
+	PostId     uint32
+	LikeNum    uint32
 }
 
 func (CommentModel) TableName() string {
@@ -45,16 +45,16 @@ func (c *CommentModel) Delete() error {
 }
 
 type CommentInfo struct {
-	Id            uint32 `json:"id"`
-	TypeName      string `json:"type_name"`
-	Content       string `json:"content"`
-	FatherId      uint32 `json:"father_id"`
-	CreateTime    string `json:"create_time"`
-	CreatorId     uint32 `json:"creator_id"`
-	PostId        uint32 `json:"post_id"`
-	CreatorName   string `json:"creator_name"`
-	CreatorAvatar string `json:"creator_avatar"`
-	LikeNum       uint32 `json:"like_num"`
+	Id            uint32
+	TypeName      string
+	Content       string
+	FatherId      uint32
+	CreateTime    string
+	CreatorId     uint32
+	PostId        uint32
+	CreatorName   string
+	CreatorAvatar string
+	LikeNum       uint32
 }
 
 func (Dao) CreateComment(comment *CommentModel) error {

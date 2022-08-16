@@ -6,17 +6,17 @@ import (
 )
 
 type PostModel struct {
-	Id           uint32 `json:"id"`
-	TypeName     string `json:"type_name"`
-	Content      string `json:"content"`
-	Title        string `json:"title"`
-	CreateTime   string `json:"create_time"`
-	CategoryId   uint32 `json:"category_id"`
-	Re           bool   `json:"re"`
-	CreatorId    uint32 `json:"creator_id"`
-	LastEditTime string `json:"last_edit_time"`
-	LikeNum      uint32 `json:"like_num"`
-	MainPostId   uint32 `json:"main_post_id"`
+	Id           uint32
+	TypeName     string
+	Content      string
+	Title        string
+	CreateTime   string
+	CategoryId   uint32
+	Re           bool
+	CreatorId    uint32
+	LastEditTime string
+	LikeNum      uint32
+	MainPostId   uint32
 }
 
 func (PostModel) TableName() string {
@@ -47,16 +47,16 @@ func (p *PostModel) Get(id uint32) error {
 }
 
 type PostInfo struct {
-	Id            uint32 `json:"id"`
-	Content       string `json:"content"`
-	Title         string `json:"title"`
-	CategoryId    uint32 `json:"category_id"`
-	CreatorId     uint32 `json:"creator_id"`
-	LastEditTime  string `json:"last_edit_time"`
-	CreatorName   string `json:"creator_name"`
-	CreatorAvatar string `json:"creator_avatar"`
-	CommentNum    uint32 `json:"comment_num"`
-	LikeNum       uint32 `json:"like_num"`
+	Id            uint32
+	Content       string
+	Title         string
+	CategoryId    uint32
+	CreatorId     uint32
+	LastEditTime  string
+	CreatorName   string
+	CreatorAvatar string
+	CommentNum    uint32
+	LikeNum       uint32
 }
 
 func (Dao) CreatePost(post *PostModel) (uint32, error) {
@@ -101,6 +101,6 @@ func (Dao) GetPost(id uint32) (*PostModel, error) {
 }
 
 func (d *Dao) IsUserFavoritePost(userId uint32, id uint32) (bool, error) {
-	//TODO
+	// TODO
 	return false, nil
 }

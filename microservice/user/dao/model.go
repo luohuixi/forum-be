@@ -5,15 +5,15 @@ import (
 )
 
 type UserModel struct {
-	Id           uint32 `json:"id" gorm:"column:id;not null" binding:"required"`
-	Name         string `json:"name" gorm:"column:name;" binding:"required"`
-	Email        string `json:"email" gorm:"column:email;default:null"`
-	Avatar       string `json:"avatar" gorm:"column:avatar;" binding:"required"`
-	StudentId    string `json:"student_id" gorm:"column:student_id;"`
-	HashPassword string `json:"hash_password" gorm:"column:hash_password;" binding:"required"`
-	Role         uint32 `json:"role" gorm:"column:role;" binding:"required"`
-	Signature    uint32 `json:"signature" gorm:"column:signature;" binding:"required"`
-	Re           bool   `json:"re"`
+	Id           uint32 `gorm:"column:id;not null" binding:"required"`
+	Name         string `gorm:"column:name;" binding:"required"`
+	Email        string `gorm:"column:email;default:null"`
+	Avatar       string `gorm:"column:avatar;" binding:"required"`
+	StudentId    string `gorm:"column:student_id;"`
+	HashPassword string `gorm:"column:hash_password;" binding:"required"`
+	Role         uint32 `gorm:"column:role;" binding:"required"`
+	Signature    uint32 `gorm:"column:signature;" binding:"required"`
+	Re           bool
 }
 
 func (UserModel) TableName() string {
