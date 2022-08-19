@@ -7,6 +7,8 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -33,6 +35,17 @@ func (a *Api) Get(c *gin.Context) {
 	}
 
 	userId := c.MustGet("userId").(uint32)
+
+	ok, err := model.Enforce(userId, constvar.Comment, id, constvar.Read)
+	if err != nil {
+		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		return
+	}
+
+	if !ok {
+		SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+		return
+	}
 
 	getReq := &pb.Request{
 		UserId: userId,

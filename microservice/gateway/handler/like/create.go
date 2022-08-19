@@ -7,6 +7,8 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -25,20 +27,31 @@ import (
 func (a *Api) Create(c *gin.Context) {
 	log.Info("Like Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req *pb.LikeItem
-	if err := c.BindJSON(req); err != nil {
+	var req pb.LikeItem
+	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
 	userId := c.MustGet("userId").(uint32)
 
-	likeReq := &pb.LikeRequest{
-		UserId: userId,
-		Item:   req,
+	ok, err := model.Enforce(userId, req.TypeName, req.TargetId, constvar.Read)
+	if err != nil {
+		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		return
 	}
 
-	_, err := service.PostClient.CreateLike(context.TODO(), likeReq)
+	if !ok {
+		SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+		return
+	}
+
+	likeReq := &pb.LikeRequest{
+		UserId: userId,
+		Item:   &req,
+	}
+
+	_, err = service.PostClient.CreateLike(context.TODO(), likeReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

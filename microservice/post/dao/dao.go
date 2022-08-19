@@ -5,7 +5,6 @@ import (
 	pb "forum-post/proto"
 	"forum/model"
 	"forum/pkg/constvar"
-	"github.com/casbin/casbin/v2"
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 )
@@ -18,7 +17,6 @@ var (
 type Dao struct {
 	DB    *gorm.DB
 	Redis *redis.Client
-	CB    *casbin.Enforcer
 }
 
 // Interface dao
@@ -31,7 +29,7 @@ type Interface interface {
 	GetPost(uint32) (*PostModel, error)
 	IsUserFavoritePost(uint32, uint32) (bool, error)
 
-	CreateComment(*CommentModel) error
+	CreateComment(*CommentModel) (uint32, error)
 	GetCommentInfo(uint32) (*CommentInfo, error)
 	GetComment(uint32) (*CommentModel, error)
 	ListCommentByPostId(uint32) ([]*pb.CommentInfo, error)
@@ -47,8 +45,6 @@ type Interface interface {
 	GetTagById(uint32) (*TagModel, error)
 	GetTagByContent(string) (*TagModel, error)
 	ListTagsByPostId(uint32) ([]string, error)
-
-	Enforce(...interface{}) (bool, error)
 }
 
 // Init init dao
@@ -69,7 +65,6 @@ func Init() {
 	dao = &Dao{
 		DB:    model.DB.Self,
 		Redis: model.RedisDB.Self,
-		CB:    model.CB.Self,
 	}
 }
 

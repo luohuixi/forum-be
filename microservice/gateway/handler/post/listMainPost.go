@@ -6,6 +6,7 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"strconv"
@@ -16,7 +17,7 @@ import (
 
 // ListMainPost ... 获取主帖
 // @Summary list 主贴 api
-// @Description type_name = normal -> 团队外 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)
+// @Description type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)
 // @Tags post
 // @Accept application/json
 // @Produce application/json
@@ -34,11 +35,12 @@ func (a *Api) ListMainPost(c *gin.Context) {
 	userId := c.MustGet("userId").(uint32)
 
 	typeName := c.Param("type_name")
-	if typeName != "normal" { // TODO
+	if typeName != "normal" && typeName != "muxi" {
 		SendError(c, errno.ErrPathParam, nil, "type_name not legal", GetLine())
 		return
 	}
-	ok, err := a.Dao.Enforce(userId, typeName, constvar.Read)
+
+	ok, err := model.Enforce(userId, constvar.Post, typeName, constvar.Read)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return
@@ -49,7 +51,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	id, err := strconv.Atoi(c.Param("category_id"))
+	categoryId, err := strconv.Atoi(c.Param("category_id"))
 	if err != nil {
 		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
@@ -75,7 +77,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 
 	listReq := &pb.ListMainPostRequest{
 		UserId:     userId,
-		CategoryId: uint32(id),
+		CategoryId: uint32(categoryId),
 		TypeName:   typeName,
 		LastId:     uint32(lastId),
 		Offset:     uint32(page * limit),
@@ -89,5 +91,5 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, errno.OK, postResp.List)
+	SendResponse(c, nil, postResp.List)
 }

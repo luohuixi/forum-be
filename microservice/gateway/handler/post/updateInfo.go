@@ -7,9 +7,9 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -27,15 +27,15 @@ import (
 func (a *Api) UpdateInfo(c *gin.Context) {
 	log.Info("Post UpdateInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req *pb.UpdatePostInfoRequest
-	if err := c.BindJSON(req); err != nil {
+	var req pb.UpdatePostInfoRequest
+	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
 	req.UserId = c.MustGet("userId").(uint32)
 
-	ok, err := a.Dao.Enforce(req.UserId, req.Id, constvar.Write)
+	ok, err := model.Enforce(req.UserId, constvar.Post, req.Id, constvar.Write)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return
@@ -46,7 +46,7 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 		return
 	}
 
-	_, err = service.PostClient.UpdatePostInfo(context.TODO(), req)
+	_, err = service.PostClient.UpdatePostInfo(context.TODO(), &req)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

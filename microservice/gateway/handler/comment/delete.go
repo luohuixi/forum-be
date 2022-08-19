@@ -7,6 +7,7 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
@@ -35,7 +36,7 @@ func (a *Api) Delete(c *gin.Context) {
 		return
 	}
 
-	ok, err := a.Dao.Enforce(userId, "type_name", constvar.Write)
+	ok, err := model.Enforce(userId, constvar.Comment, id, constvar.Write)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return

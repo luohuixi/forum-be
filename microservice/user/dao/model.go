@@ -11,7 +11,7 @@ type UserModel struct {
 	Avatar       string `gorm:"column:avatar;" binding:"required"`
 	StudentId    string `gorm:"column:student_id;"`
 	HashPassword string `gorm:"column:hash_password;" binding:"required"`
-	Role         uint32 `gorm:"column:role;" binding:"required"`
+	Role         string `gorm:"column:role;" binding:"required"`
 	Signature    uint32 `gorm:"column:signature;" binding:"required"`
 	Re           bool
 }

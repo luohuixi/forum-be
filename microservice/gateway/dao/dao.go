@@ -19,7 +19,6 @@ type Dao struct {
 
 // Interface dao
 type Interface interface {
-	Enforce(...interface{}) (bool, error)
 }
 
 // Init init dao
@@ -47,9 +46,4 @@ func Init() {
 
 func GetDao() *Dao {
 	return dao
-}
-
-func (d *Dao) Enforce(rvals ...interface{}) (bool, error) {
-	return true, nil
-	// return d.CB.Enforce(rvals)
 }

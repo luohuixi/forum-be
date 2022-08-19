@@ -7,6 +7,7 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
+	"forum/util"
 	"go.uber.org/zap"
 	"strconv"
 )
@@ -34,11 +35,13 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 			TypeName: constvar.Comment,
 		}
 
-		n, err := s.Dao.GetLikedNum(item)
+		comment.CreateTime = util.FormatString(comment.CreateTime)
+
+		num, err := s.Dao.GetLikedNum(item)
 		if err != nil {
 			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
 		}
-		comment.LikeNum = uint32(n)
+		comment.LikeNum = uint32(num)
 
 		isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
 		if err != nil {
@@ -81,7 +84,7 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 	resp.Id = post.Id
 	resp.Content = post.Content
 	resp.Title = post.Title
-	resp.Time = post.LastEditTime
+	resp.Time = util.FormatString(post.LastEditTime)
 	resp.CategoryId = post.CategoryId
 	resp.CreatorId = post.CreatorId
 	resp.CreatorAvatar = post.CreatorAvatar

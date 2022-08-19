@@ -57,8 +57,9 @@ type CommentInfo struct {
 	LikeNum       uint32
 }
 
-func (Dao) CreateComment(comment *CommentModel) error {
-	return comment.Create()
+func (Dao) CreateComment(comment *CommentModel) (uint32, error) {
+	err := comment.Create()
+	return comment.Id, err
 }
 
 func (d *Dao) ListCommentByPostId(postId uint32) ([]*pb.CommentInfo, error) {

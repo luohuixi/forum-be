@@ -7,6 +7,7 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
@@ -26,8 +27,8 @@ import (
 func (a *Api) Create(c *gin.Context) {
 	log.Info("Comment Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req *pb.CreateCommentRequest
-	if err := c.BindJSON(req); err != nil {
+	var req pb.CreateCommentRequest
+	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
@@ -39,9 +40,18 @@ func (a *Api) Create(c *gin.Context) {
 
 	req.CreatorId = c.MustGet("userId").(uint32)
 
-	// ok, err := a.Dao.Enforce(userId, typeName, constvar.Read)
+	ok, err := model.Enforce(req.CreatorId, constvar.Post, req.PostId, constvar.Read)
+	if err != nil {
+		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		return
+	}
 
-	_, err := service.PostClient.CreateComment(context.TODO(), req)
+	if !ok {
+		SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+		return
+	}
+
+	_, err = service.PostClient.CreateComment(context.TODO(), &req)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

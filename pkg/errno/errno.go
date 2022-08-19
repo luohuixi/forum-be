@@ -16,6 +16,7 @@ var (
 	ErrGetRedisList     = &Errno{Code: 10003, Message: "Get list from Redis out of expiration time"}
 	ErrRewriteRedisList = &Errno{Code: 10004, Message: "rewrite list to Redis when cancel"}
 	ErrRedis            = &Errno{Code: 10005, Message: "Redis error"}
+	ErrCasbin           = &Errno{Code: 10006, Message: "Casbin error"}
 
 	// oauth
 	ErrRegister          = &Errno{Code: 10101, Message: "Error occurred while registering on auth-server"}

@@ -4,16 +4,23 @@ const (
 	DefaultLimit = 50
 
 	// 角色权限
-	Nobody     = 0 // 无权限用户
+	// Nobody     = 0 // 无权限用户
 	Normal     = 1 // 普通用户
-	TeamNormal = 3 // 团队成员
-	TeamAdmin  = 4 // 团队管理员
+	Admin      = 3 // 管理员
+	SuperAdmin = 7 // 超管
 
 	// 权限限制等级
-	AuthLevelNobody     = 0 // 无权限用户级别
+	// AuthLevelNobody     = 0 // 无权限用户级别
 	AuthLevelNormal     = 1 // 普通用户级别
 	AuthLevelAdmin      = 2 // 管理员级别
 	AuthLevelSuperAdmin = 4 // 超管级别
+
+	// user role
+	NormalRole      = "Normal"
+	NormalAdminRole = "NormalAdmin"
+	MuxiRole        = "Muxi"
+	MuxiAdminRole   = "MuxiAdmin"
+	SuperAdminRole  = "SuperAdmin"
 
 	// trashbin redis key
 	Trashbin = "trashbin"
@@ -22,9 +29,13 @@ const (
 	Post    = "post"
 	Comment = "comment"
 
+	// post type
+	NormalPost = "normal"
+	MuxiPost   = "muxi"
+
 	// casbin
-	Write = uint8(1)
-	Read  = uint8(2)
+	Write = "write"
+	Read  = "read"
 
 	// comment
 	FirstLevelComment  = "first-level"

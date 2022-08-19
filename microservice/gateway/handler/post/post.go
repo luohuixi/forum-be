@@ -40,9 +40,10 @@ type Post struct {
 }
 
 type CreateRequest struct {
-	TypeName   string `json:"type_name"`
-	Content    string `json:"content"`
-	Title      string `json:"title,omitempty"`
-	CategoryId uint32 `json:"category_id,omitempty"`
-	MainPostId uint32 `json:"main_post_id"`
+	TypeName   string   `json:"type_name"`
+	Content    string   `json:"content"`
+	Title      string   `json:"title,omitempty"`
+	CategoryId uint32   `json:"category_id,omitempty"`
+	MainPostId uint32   `json:"main_post_id"`
+	Tags       []string `json:"tags"`
 }

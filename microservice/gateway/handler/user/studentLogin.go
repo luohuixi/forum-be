@@ -26,7 +26,7 @@ func StudentLogin(c *gin.Context) {
 	log.Info("User StudentLogin function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	var req StudentLoginRequest
-	if err := c.Bind(&req); err != nil {
+	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}

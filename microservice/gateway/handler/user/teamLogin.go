@@ -27,7 +27,7 @@ func TeamLogin(c *gin.Context) {
 
 	// 从前端获取 oauth_code
 	var req TeamLoginRequest
-	if err := c.Bind(&req); err != nil {
+	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
@@ -38,18 +38,7 @@ func TeamLogin(c *gin.Context) {
 	}
 
 	loginResp, err := service.UserClient.TeamLogin(context.TODO(), loginReq)
-
 	if err != nil {
-		// parsedErr := errors.Parse(err.Error())
-		// detail, errr := errno.ParseDetail(parsedErr.Detail)
-		//
-		// finalErrno := errno.InternalServerError
-		// if errr == nil {
-		// 	finalErrno = &errno.Errno{
-		// 		Code:    detail.Code,
-		// 		Message: detail.Cause,
-		// 	}
-		// }
 		SendError(c, err, nil, "", GetLine())
 		return
 	}

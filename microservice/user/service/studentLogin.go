@@ -7,6 +7,7 @@ import (
 	pb "forum-user/proto"
 	"forum-user/util"
 	logger "forum/log"
+	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/pkg/token"
@@ -31,7 +32,7 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 		info := &dao.RegisterInfo{
 			StudentId: req.StudentId,
 			Password:  req.Password,
-			Role:      constvar.Normal,
+			Role:      constvar.NormalRole,
 		}
 		// 用户未注册，自动注册
 		if err := s.Dao.RegisterUser(info); err != nil {
@@ -42,22 +43,33 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
+
+		if err := model.AddRole("user", user.Id, constvar.NormalRole); err != nil {
+			return errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
 	} else {
 		if !user.CheckPassword(req.Password) {
 			return errno.ServerErr(errno.ErrPasswordIncorrect, "密码错误！")
 		}
 	}
 
+	role := uint32(constvar.Normal)
+	if user.Role == constvar.NormalAdminRole || user.Role == constvar.MuxiAdminRole {
+		role = constvar.Admin
+	} else if user.Role == constvar.SuperAdminRole {
+		role = constvar.SuperAdmin
+	}
+
 	// 生成 auth token
-	token, err := token.GenerateToken(&token.TokenPayload{
+	Token, err := token.GenerateToken(&token.TokenPayload{
 		Id:      user.Id,
-		Role:    user.Role,
+		Role:    role,
 		Expired: util.GetExpiredTime(),
 	})
 	if err != nil {
 		return errno.ServerErr(errno.ErrAuthToken, err.Error())
 	}
 
-	resp.Token = token
+	resp.Token = Token
 	return nil
 }

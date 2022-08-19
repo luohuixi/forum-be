@@ -10,7 +10,7 @@ type RegisterInfo struct {
 	Email     string `json:"email"`
 	StudentId string `json:"student_id"`
 	Password  string `json:"password"`
-	Role      uint32 `json:"role"`
+	Role      string `json:"role"`
 }
 
 // GetUser get a single user by id

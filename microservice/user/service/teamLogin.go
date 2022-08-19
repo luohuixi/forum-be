@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/token"
 
@@ -51,7 +52,7 @@ func (s *UserService) TeamLogin(_ context.Context, req *pb.TeamLoginRequest, res
 		info := &dao.RegisterInfo{
 			Name:  userInfo.Username,
 			Email: userInfo.Email,
-			Role:  constvar.TeamNormal,
+			Role:  constvar.MuxiRole,
 		}
 		// 用户未注册，自动注册
 		if err := s.Dao.RegisterUser(info); err != nil {
@@ -62,18 +63,29 @@ func (s *UserService) TeamLogin(_ context.Context, req *pb.TeamLoginRequest, res
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
+
+		if err := model.AddRole("user", user.Id, constvar.MuxiRole); err != nil {
+			return errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
+	}
+
+	role := uint32(constvar.Normal)
+	if user.Role == constvar.NormalAdminRole || user.Role == constvar.MuxiAdminRole {
+		role = constvar.Admin
+	} else if user.Role == constvar.SuperAdminRole {
+		role = constvar.SuperAdmin
 	}
 
 	// 生成 auth token
-	token, err := token.GenerateToken(&token.TokenPayload{
+	Token, err := token.GenerateToken(&token.TokenPayload{
 		Id:      user.Id,
-		Role:    user.Role,
+		Role:    role,
 		Expired: util.GetExpiredTime(),
 	})
 	if err != nil {
 		return errno.ServerErr(errno.ErrAuthToken, err.Error())
 	}
 
-	resp.Token = token
+	resp.Token = Token
 	return nil
 }

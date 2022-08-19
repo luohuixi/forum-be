@@ -25,8 +25,8 @@ import (
 func (a *Api) Remove(c *gin.Context) {
 	log.Info("Like Remove function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req *pb.LikeItem
-	if err := c.BindJSON(req); err != nil {
+	var req pb.LikeItem
+	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
@@ -35,7 +35,7 @@ func (a *Api) Remove(c *gin.Context) {
 
 	likeReq := &pb.LikeRequest{
 		UserId: userId,
-		Item:   req,
+		Item:   &req,
 	}
 
 	_, err := service.PostClient.RemoveLike(context.TODO(), likeReq)
