@@ -14,7 +14,7 @@ import (
 )
 
 // StudentLogin ... 学生登录
-// @Summary login api
+// @Summary student login api
 // @Description login the student-forum
 // @Tags auth
 // @Accept application/json

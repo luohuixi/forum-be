@@ -2,13 +2,10 @@ package service
 
 import (
 	"context"
-	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
-	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/util"
-	"go.uber.org/zap"
 	"strconv"
 )
 
@@ -29,56 +26,12 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	for _, comment := range comments {
-		item := dao.Item{
-			Id:       comment.Id,
-			TypeName: constvar.Comment,
-		}
+	s.processComments(req.UserId, comments)
 
-		comment.CreateTime = util.FormatString(comment.CreateTime)
+	resp.IsLiked, resp.IsFavorite, resp.LikeNum, resp.Tags, resp.CommentNum = s.getPostInfo(post.Id, req.UserId)
 
-		num, err := s.Dao.GetLikedNum(item)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
-		}
-		comment.LikeNum = uint32(num)
-
-		isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
-		}
-		comment.IsLiked = isLiked
-	}
-
-	item := dao.Item{
-		Id:       req.Id,
-		TypeName: constvar.Post,
-	}
-
-	likeNum, err := s.Dao.GetLikedNum(item)
-	if err != nil {
-		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
-	}
-	resp.LikeNum = post.LikeNum
-	if likeNum != 0 {
-		resp.LikeNum = uint32(likeNum)
-	}
-
-	isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
-	if err != nil {
-		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
-	}
-	resp.IsLiked = isLiked
-
-	isFavorite, err := s.Dao.IsUserFavoritePost(req.UserId, req.Id)
-	if err != nil {
-		logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
-	}
-	resp.IsFavorite = isFavorite
-
-	tags, err := s.Dao.ListTagsByPostId(post.Id)
-	if err != nil {
-		logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
+	if resp.LikeNum == 0 {
+		resp.LikeNum = post.LikeNum
 	}
 
 	resp.Id = post.Id
@@ -90,8 +43,6 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 	resp.CreatorAvatar = post.CreatorAvatar
 	resp.CreatorName = post.CreatorName
 	resp.Comments = comments
-	resp.CommentNum = uint32(len(comments))
-	resp.Tags = tags
 
 	return nil
 }

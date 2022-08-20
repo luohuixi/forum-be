@@ -50,7 +50,7 @@ type UserProfile struct {
 	Name   string `json:"name"`
 	Avatar string `json:"avatar"`
 	Email  string `json:"email"`
-	Role   uint32 `json:"role"`
+	Role   string `json:"role"`
 } // @name UserProfile
 
 // ListRequest 获取 userList 请求
@@ -64,7 +64,7 @@ type user struct {
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Avatar string `json:"avatar"`
-	Role   uint32 `json:"role"`
+	Role   string `json:"role"`
 } // @name user
 
 // ListResponse 获取 userList 响应

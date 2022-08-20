@@ -50,5 +50,5 @@ func UpdateInfo(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, errno.OK, nil)
+	SendResponse(c, nil, nil)
 }

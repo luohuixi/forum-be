@@ -82,18 +82,10 @@ func (c *Casbin) Init() {
 	// 	panic(err)
 	// }
 
-	ok, err = Enforce(1, constvar.Post, constvar.NormalPost, constvar.Write)
-	fmt.Println("----- ok: ", ok, " -----")
-	ok, err = Enforce(1, constvar.Post, constvar.NormalPost, constvar.Read)
-	fmt.Println("----- ok: ", ok, " -----")
-	ok, err = CB.Self.Enforce(constvar.MuxiRole, constvar.Post+":"+constvar.NormalPost, constvar.Read)
-	fmt.Println("----- ok: ", ok, " -----")
-	// ok, err = CB.Self.AddPolicies(rules)
-	// if err != nil {
-	// 	log.Error(err.Error())
-	// }
-	// like comment post
-	// TODO
+	// ok, err = Enforce(1, constvar.Post, constvar.NormalPost, constvar.Write)
+	// fmt.Println("----- ok: ", ok, " -----")
+	// ok, err = Enforce(1, constvar.Post, constvar.NormalPost, constvar.Read)
+	// fmt.Println("----- ok: ", ok, " -----")
 }
 
 func Enforce(userId uint32, typeName string, data interface{}, act string) (bool, error) {
@@ -104,6 +96,10 @@ func Enforce(userId uint32, typeName string, data interface{}, act string) (bool
 		object += data.(string)
 	case uint32:
 		object += strconv.Itoa(int(data.(uint32)))
+	case int:
+		object += strconv.Itoa(data.(int))
+	default:
+		return false, errors.New("wrong type")
 	}
 
 	return CB.Self.Enforce("user:"+strconv.Itoa(int(userId)), object, act)

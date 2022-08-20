@@ -29,6 +29,7 @@ type Client struct {
 // @Description 建立 WebSocket 连接
 // @Tags chat
 // @Param id query string true "uuid"
+// @Success 200 {string} string
 // @Router /chat/ws [get]
 func WsHandler(c *gin.Context) {
 	log.Info("Chat WsHandler function called.", zap.String("X-Request-Id", util.GetReqID(c)))

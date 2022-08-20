@@ -35,7 +35,7 @@ var doc = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "login api",
+                "summary": "student login api",
                 "parameters": [
                     {
                         "description": "login_request",
@@ -69,7 +69,7 @@ var doc = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "login api",
+                "summary": "team login api",
                 "parameters": [
                     {
                         "description": "login_request",
@@ -139,7 +139,14 @@ var doc = `{
                         "required": true
                     }
                 ],
-                "responses": {}
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
             }
         },
         "/comment": {
@@ -411,7 +418,7 @@ var doc = `{
                 }
             },
             "post": {
-                "description": "type_name = normal -\u003e 团队外 (type_name暂时均填normal); 主贴的main_post_id不填或为0",
+                "description": "type_name : normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal); 主帖的main_post_id不填或为0",
                 "consumes": [
                     "application/json"
                 ],
@@ -450,9 +457,9 @@ var doc = `{
                 }
             }
         },
-        "/post/list/{type_name}/{category_id}": {
+        "/post/list/{type_name}/sub/{main_post_id}": {
             "get": {
-                "description": "type_name = normal -\u003e 团队外 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)",
+                "description": "type_name : normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal); 根据 main_post_id 获取主帖的从帖list",
                 "consumes": [
                     "application/json"
                 ],
@@ -462,7 +469,74 @@ var doc = `{
                 "tags": [
                     "post"
                 ],
-                "summary": "list 主贴 api",
+                "summary": "list 从帖 api",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "last_id",
+                        "name": "last_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "type_name",
+                        "name": "type_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "main_post_id",
+                        "name": "main_post_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/post.Post"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/post/list/{type_name}/{category_id}": {
+            "get": {
+                "description": "type_name : normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal); 根据category获取主帖list(前端实现category的映射)",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "list 主帖 api",
                 "parameters": [
                     {
                         "type": "integer",
@@ -518,35 +592,6 @@ var doc = `{
             }
         },
         "/post/{post_id}": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "post"
-                ],
-                "summary": "获取帖子 api",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "post_id",
-                        "name": "post_id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/post.Post"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -723,7 +768,7 @@ var doc = `{
         },
         "/user/profile/{id}": {
             "get": {
-                "description": "通过 userId 获取完整 user 信息",
+                "description": "通过 userId 获取完整 user 信息（权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员）",
                 "consumes": [
                     "application/json"
                 ],
@@ -859,7 +904,7 @@ var doc = `{
                     "type": "string"
                 },
                 "role": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         },
@@ -948,6 +993,12 @@ var doc = `{
                 },
                 "main_post_id": {
                     "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "title": {
                     "type": "string"
@@ -1043,7 +1094,7 @@ var doc = `{
                     "type": "string"
                 },
                 "role": {
-                    "type": "integer"
+                    "type": "string"
                 }
             }
         }

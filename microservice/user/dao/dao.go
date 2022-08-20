@@ -35,6 +35,9 @@ func Init() {
 	// init db
 	model.DB.Init()
 
+	// init casbin
+	model.CB.Init()
+
 	dao = &Dao{
 		DB: model.DB.Self,
 	}

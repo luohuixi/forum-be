@@ -7,7 +7,6 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
-	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -36,5 +35,5 @@ func (a *Api) GetUserLikeList(c *gin.Context) { // TODO
 		return
 	}
 
-	SendResponse(c, errno.OK, resp.List)
+	SendResponse(c, nil, resp.List)
 }

@@ -16,8 +16,8 @@ import (
 )
 
 // ListMainPost ... 获取主帖
-// @Summary list 主贴 api
-// @Description type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)
+// @Summary list 主帖 api
+// @Description type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal); 根据category获取主帖list(前端实现category的映射)
 // @Tags post
 // @Accept application/json
 // @Produce application/json

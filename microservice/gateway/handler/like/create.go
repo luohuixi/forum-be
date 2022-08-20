@@ -57,5 +57,5 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, errno.OK, nil)
+	SendResponse(c, nil, nil)
 }

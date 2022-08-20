@@ -5,7 +5,6 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
-	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/util"
 	"go.uber.org/zap"
@@ -31,31 +30,12 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
 		}
 
-		commentNum := s.Dao.GetCommentNumByPostId(post.Id)
+		s.processComments(req.UserId, comments)
 
-		item := dao.Item{
-			Id:       post.Id,
-			TypeName: constvar.Post,
-		}
+		isLiked, isFavorite, likeNum, tags, commentNum := s.getPostInfo(post.Id, req.UserId)
 
-		isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
-		}
-
-		likeNum, err := s.Dao.GetLikedNum(item)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
-		}
-
-		isFavorite, err := s.Dao.IsUserFavoritePost(req.UserId, post.Id)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
-		}
-
-		tags, err := s.Dao.ListTagsByPostId(post.Id)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
+		if likeNum != 0 {
+			post.LikeNum = likeNum
 		}
 
 		resp.List[i] = &pb.Post{
@@ -67,8 +47,8 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 			CreatorName:   post.CreatorName,
 			CreatorAvatar: post.CreatorAvatar,
 			Content:       post.Content,
+			LikeNum:       post.LikeNum,
 			CommentNum:    commentNum,
-			LikeNum:       uint32(likeNum),
 			IsLiked:       isLiked,
 			IsFavorite:    isFavorite,
 			Comments:      comments,

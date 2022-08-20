@@ -63,7 +63,7 @@ definitions:
       name:
         type: string
       role:
-        type: integer
+        type: string
     type: object
   chat.Id:
     properties:
@@ -121,6 +121,10 @@ definitions:
         type: string
       main_post_id:
         type: integer
+      tags:
+        items:
+          type: string
+        type: array
       title:
         type: string
       type_name:
@@ -183,7 +187,7 @@ definitions:
       name:
         type: string
       role:
-        type: integer
+        type: string
     type: object
 host: forum.muxixyz.com
 info:
@@ -211,7 +215,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/StudentLoginResponse'
-      summary: login api
+      summary: student login api
       tags:
       - auth
   /auth/login/team:
@@ -233,7 +237,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/TeamLoginResponse'
-      summary: login api
+      summary: team login api
       tags:
       - auth
   /chat:
@@ -266,7 +270,11 @@ paths:
         name: id
         required: true
         type: string
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
       summary: WebSocket
       tags:
       - chat
@@ -425,7 +433,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: type_name = normal -> 团队外 (type_name暂时均填normal); 主贴的main_post_id不填或为0
+      description: 'type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal);
+        主帖的main_post_id不填或为0'
       parameters:
       - description: token 用户令牌
         in: header
@@ -499,30 +508,12 @@ paths:
       summary: 删除帖子 api
       tags:
       - post
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: post_id
-        in: path
-        name: post_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/post.Post'
-      summary: 获取帖子 api
-      tags:
-      - post
   /post/list/{type_name}/{category_id}:
     get:
       consumes:
       - application/json
-      description: type_name = normal -> 团队外 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)
+      description: 'type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal);
+        根据category获取主帖list(前端实现category的映射)'
       parameters:
       - description: limit
         in: query
@@ -560,7 +551,53 @@ paths:
             items:
               $ref: '#/definitions/post.Post'
             type: array
-      summary: list 主贴 api
+      summary: list 主帖 api
+      tags:
+      - post
+  /post/list/{type_name}/sub/{main_post_id}:
+    get:
+      consumes:
+      - application/json
+      description: 'type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal);
+        根据 main_post_id 获取主帖的从帖list'
+      parameters:
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
+      - description: type_name
+        in: path
+        name: type_name
+        required: true
+        type: string
+      - description: main_post_id
+        in: path
+        name: main_post_id
+        required: true
+        type: integer
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/post.Post'
+            type: array
+      summary: list 从帖 api
       tags:
       - post
   /user:
@@ -658,7 +695,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: 通过 userId 获取完整 user 信息
+      description: '通过 userId 获取完整 user 信息（权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员;
+        MuxiAdmin-团队管理员; SuperAdmin-超级管理员）'
       parameters:
       - description: user_id
         in: path

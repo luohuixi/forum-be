@@ -58,5 +58,5 @@ func (a *Api) Get(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, errno.OK, resp)
+	SendResponse(c, nil, resp)
 }
