@@ -6,7 +6,6 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
-	"forum/util"
 	"go.uber.org/zap"
 )
 
@@ -41,7 +40,7 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 		resp.List[i] = &pb.Post{
 			Id:            post.Id,
 			Title:         post.Title,
-			Time:          util.FormatString(post.LastEditTime),
+			Time:          post.LastEditTime,
 			CategoryId:    post.CategoryId,
 			CreatorId:     post.CreatorId,
 			CreatorName:   post.CreatorName,

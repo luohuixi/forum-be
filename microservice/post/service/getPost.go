@@ -5,7 +5,6 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
-	"forum/util"
 	"strconv"
 )
 
@@ -37,7 +36,7 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 	resp.Id = post.Id
 	resp.Content = post.Content
 	resp.Title = post.Title
-	resp.Time = util.FormatString(post.LastEditTime)
+	resp.Time = post.LastEditTime
 	resp.CategoryId = post.CategoryId
 	resp.CreatorId = post.CreatorId
 	resp.CreatorAvatar = post.CreatorAvatar

@@ -1,25 +1,12 @@
 package util
 
 import (
-	"fmt"
 	"strconv"
 	"time"
 )
 
 func String2Time(value string) (time.Time, error) {
 	return time.Parse(time.RFC3339, value)
-}
-
-func FormatString(s string) string {
-	if s == "" {
-		return ""
-	}
-
-	t, err := String2Time(s)
-	if err != nil {
-		fmt.Println(err)
-	}
-	return fmt.Sprintf("%s", t.Format("2006-01-02 15:04:05"))
 }
 
 func GetCurrentTime() string {
@@ -74,9 +61,4 @@ func GetTimeYear(year int) string {
 	currentTime := time.Now()
 	res := currentTime.AddDate(year, 0, 0)
 	return res.Format(time.RFC3339)
-}
-
-// GetDateStr returns formatted current time with the year, month and day.
-func GetDateStr() string {
-	return time.Now().Format("20060102")
 }

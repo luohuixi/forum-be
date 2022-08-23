@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package feed;
+
+service FeedService {
+    rpc Push(PushRequest) returns (Response) {}
+    rpc List(ListRequest) returns (ListResponse) {}
+    rpc Delete(Request) returns (Response) {}
+}
+
+message Request {
+    uint32 id = 1;
+}
+
+message PushRequest {
+    string action = 1;
+    uint32 user_id = 2;
+    Source source = 3;
+}
+
+message Response {}
+
+message ListRequest {
+    uint32 last_id = 1;
+    uint32 limit = 2;
+    uint32 offset = 3;
+    uint32 role = 4;
+//    uint32 user_id = 5;
+    uint32 user_id = 5;   // 0 代表不筛选
+    uint32 group_id = 6;  // 0 代表不筛选，1->产品，2->前端，3->后端，4->安卓，5->设计
+    bool pagination = 7;
+}
+
+message ListResponse {
+    repeated FeedItem list = 1;
+}
+
+message FeedItem {
+    uint32 id = 1;
+    string action = 2; // action：创建、编辑、删除、评论、加入
+    bool show_divider = 3; // 分隔线
+    string create_time = 4; // 时间
+    User user = 5;
+    Source source = 6;
+}
+
+message User {
+    uint32 id = 1;
+    string name = 2;
+    string avatar_url = 3;
+}
+
+// source: feed的来源.
+message Source {
+    uint32 id = 2;
+    string type_name = 1;
+    string name = 3;
+}

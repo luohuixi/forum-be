@@ -13,10 +13,8 @@ var (
 
 	InternalServerError = &Errno{Code: 10001, Message: "Internal server error"}
 	ErrDatabase         = &Errno{Code: 10002, Message: "Database error"}
-	ErrGetRedisList     = &Errno{Code: 10003, Message: "Get list from Redis out of expiration time"}
-	ErrRewriteRedisList = &Errno{Code: 10004, Message: "rewrite list to Redis when cancel"}
-	ErrRedis            = &Errno{Code: 10005, Message: "Redis error"}
-	ErrCasbin           = &Errno{Code: 10006, Message: "Casbin error"}
+	ErrRPC              = &Errno{Code: 10003, Message: "Error occurred in rpc"}
+	ErrCasbin           = &Errno{Code: 10004, Message: "Casbin error"}
 
 	// oauth
 	ErrRegister          = &Errno{Code: 10101, Message: "Error occurred while registering on auth-server"}
@@ -26,6 +24,12 @@ var (
 
 	// chat
 	ErrWebsocket = &Errno{Code: 10201, Message: "Error occurred in upgrade HTTP to websocket"}
+
+	// redis
+	ErrRedis            = &Errno{Code: 10301, Message: "Redis error"}
+	ErrGetRedisList     = &Errno{Code: 10302, Message: "Get list from Redis out of expiration time"}
+	ErrRewriteRedisList = &Errno{Code: 10303, Message: "rewrite list to Redis when cancel"}
+	ErrPublishMsg       = &Errno{Code: 10304, Message: "Error occurred while publishing message"}
 
 	// ---------------------------------------------------------------------------
 

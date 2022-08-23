@@ -38,7 +38,7 @@ func (a *Api) Delete(c *gin.Context) {
 
 	ok, err := model.Enforce(userId, constvar.Post, id, constvar.Write)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
 	}
 

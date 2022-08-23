@@ -2,7 +2,7 @@ package service
 
 import (
 	pbu "forum-user/proto"
-	handler "forum/pkg/handler"
+	"forum/pkg/handler"
 
 	micro "github.com/micro/go-micro"
 	_ "github.com/micro/go-plugins/registry/kubernetes"

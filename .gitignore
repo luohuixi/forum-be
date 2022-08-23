@@ -23,4 +23,5 @@ main
 *.sum
 .DS_Store
 config.yaml
+config_sub.yaml
 test.go

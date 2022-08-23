@@ -32,7 +32,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 			return errno.ServerErr(errno.ErrBadRequest, "the comment not found")
 		}
 	} else {
-		return errno.ServerErr(errno.ErrBadRequest, "TypeName should be first-level or second-level")
+		return errno.ServerErr(errno.ErrBadRequest, "TypeName must be "+constvar.FirstLevelComment+" or "+constvar.SecondLevelComment)
 	}
 
 	data := &dao.CommentModel{

@@ -64,7 +64,7 @@ func (Dao) CreatePost(post *PostModel) (uint32, error) {
 	return post.Id, err
 }
 
-func (d *Dao) ListPost(filter *PostModel, offset, limit, lastID uint32, pagination bool) ([]*PostInfo, error) {
+func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, pagination bool) ([]*PostInfo, error) {
 	var posts []*PostInfo
 	query := d.DB.Table("posts").Select("posts.id id, title, category_id, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0")
 
@@ -75,8 +75,8 @@ func (d *Dao) ListPost(filter *PostModel, offset, limit, lastID uint32, paginati
 
 		query = query.Offset(offset).Limit(limit)
 
-		if lastID != 0 {
-			query = query.Where("projects.id < ?", lastID)
+		if lastId != 0 {
+			query = query.Where("projects.id < ?", lastId)
 		}
 	}
 

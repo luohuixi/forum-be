@@ -6,7 +6,6 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"forum/util"
 	"go.uber.org/zap"
 )
 
@@ -23,8 +22,6 @@ func New(i dao.Interface) *PostService {
 
 func (s PostService) processComments(userId uint32, comments []*pb.CommentInfo) {
 	for _, comment := range comments {
-		comment.CreateTime = util.FormatString(comment.CreateTime)
-
 		item := dao.Item{
 			Id:       comment.Id,
 			TypeName: constvar.Comment,

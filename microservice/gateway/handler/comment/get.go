@@ -38,7 +38,7 @@ func (a *Api) Get(c *gin.Context) {
 
 	ok, err := model.Enforce(userId, constvar.Comment, id, constvar.Read)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
 	}
 

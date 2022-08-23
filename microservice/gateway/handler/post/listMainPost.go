@@ -42,7 +42,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 
 	ok, err := model.Enforce(userId, constvar.Post, typeName, constvar.Read)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
 	}
 

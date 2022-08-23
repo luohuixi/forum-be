@@ -48,7 +48,7 @@ func (a *Api) ListSubPost(c *gin.Context) {
 
 	ok, err := model.Enforce(userId, constvar.Post, mainPostId, constvar.Read)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
 	}
 

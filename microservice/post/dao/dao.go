@@ -21,7 +21,7 @@ type Dao struct {
 
 // Interface dao
 type Interface interface {
-	GetItem(Item) (GetDeleter, error)
+	DeleteItem(Item) error
 
 	CreatePost(*PostModel) (uint32, error)
 	ListPost(*PostModel, uint32, uint32, uint32, bool) ([]*PostInfo, error)
@@ -72,21 +72,20 @@ func GetDao() *Dao {
 	return dao
 }
 
-type GetDeleter interface {
-	Get(uint32) error
-	Delete() error
-}
-
-func (Dao) GetItem(i Item) (GetDeleter, error) {
+func (Dao) DeleteItem(i Item) error {
 	if i.TypeName == constvar.Post {
 		item := &PostModel{}
-		err := item.Get(i.Id)
-		return item, err
+		if err := item.Get(i.Id); err != nil {
+			return err
+		}
+		return item.Delete()
 	} else if i.TypeName == constvar.Comment {
 		item := &CommentModel{}
-		err := item.Get(i.Id)
-		return item, err
+		if err := item.Get(i.Id); err != nil {
+			return err
+		}
+		return item.Delete()
 	} else {
-		return nil, errors.New("wrong TypeName")
+		return errors.New("wrong TypeName")
 	}
 }

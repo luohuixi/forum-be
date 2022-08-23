@@ -6,25 +6,16 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
-	"strconv"
 )
 
 func (s *PostService) DeleteItem(_ context.Context, req *pb.Item, _ *pb.Response) error {
 	logger.Info("PostService DeleteItem")
 
-	item, err := s.Dao.GetItem(dao.Item{
+	err := s.Dao.DeleteItem(dao.Item{
 		Id:       req.Id,
 		TypeName: req.TypeName,
 	})
 	if err != nil {
-		return errno.ServerErr(errno.ErrDatabase, err.Error())
-	}
-
-	if item == nil {
-		return errno.NotFoundErr(errno.ErrItemNotFound, strconv.Itoa(int(req.Id)))
-	}
-
-	if err := item.Delete(); err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 

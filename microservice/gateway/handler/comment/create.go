@@ -42,7 +42,7 @@ func (a *Api) Create(c *gin.Context) {
 
 	ok, err := model.Enforce(req.CreatorId, constvar.Post, req.PostId, constvar.Read)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
 	}
 

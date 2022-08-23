@@ -4,7 +4,6 @@ import (
 	// pb "forum-post/proto"
 	"forum/model"
 	"github.com/casbin/casbin/v2"
-	"github.com/go-redis/redis"
 )
 
 var (
@@ -13,8 +12,8 @@ var (
 
 // Dao .
 type Dao struct {
-	Redis *redis.Client
-	CB    *casbin.Enforcer
+	// Redis *redis.Client
+	CB *casbin.Enforcer
 }
 
 // Interface dao
@@ -33,14 +32,14 @@ func Init() {
 	// service.SynchronizeBlacklistToRedis()
 
 	// init redis
-	model.RedisDB.Init()
+	// model.RedisDB.Init()
 
 	// init casbin
 	model.CB.Init()
 
 	dao = &Dao{
-		Redis: model.RedisDB.Self,
-		CB:    model.CB.Self,
+		// Redis: model.RedisDB.Self,
+		CB: model.CB.Self,
 	}
 }
 
