@@ -9,7 +9,7 @@ import (
 )
 
 // GetMyProfile ... 获取 myProfile
-// @Summary get my_profile api
+// @Summary get 我的 profile api
 // @Description 获取 my 完整 user 信息
 // @Tags user
 // @Accept application/json

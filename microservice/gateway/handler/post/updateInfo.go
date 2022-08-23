@@ -15,8 +15,7 @@ import (
 )
 
 // UpdateInfo ... 修改帖子信息
-// @Summary update post info api
-// @Description 修改帖子信息
+// @Summary 修改帖子信息 api
 // @Tags post
 // @Accept application/json
 // @Produce application/json

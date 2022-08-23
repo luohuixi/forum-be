@@ -8,8 +8,8 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) RemoveLike(_ context.Context, req *pb.LikeRequest, _ *pb.Response) error {
-	logger.Info("PostService RemoveLike")
+func (s *PostService) CreateOrRemoveLike(_ context.Context, req *pb.LikeRequest, _ *pb.Response) error {
+	logger.Info("PostService CreateLike")
 
 	item := dao.Item{
 		Id:       req.Item.TargetId,
@@ -20,11 +20,12 @@ func (s *PostService) RemoveLike(_ context.Context, req *pb.LikeRequest, _ *pb.R
 	if err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
-	if !ok {
-		return errno.ServerErr(errno.ErrBadRequest, "未点赞")
-	}
 
-	err = s.Dao.RemoveLike(req.UserId, item)
+	if ok {
+		err = s.Dao.RemoveLike(req.UserId, item)
+	} else {
+		err = s.Dao.AddLike(req.UserId, item)
+	}
 	if err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}

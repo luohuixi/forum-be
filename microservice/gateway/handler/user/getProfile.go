@@ -16,7 +16,7 @@ import (
 )
 
 // GetProfile ... 获取 userProfile
-// @Summary get user_profile api
+// @Summary 获取用户 profile api
 // @Description 通过 userId 获取完整 user 信息（权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员）
 // @Tags user
 // @Accept application/json

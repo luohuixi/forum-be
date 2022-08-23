@@ -15,7 +15,7 @@ import (
 )
 
 // List ... 获取 userList
-// @Summary get user_list api
+// @Summary list user api
 // @Description 通过 group 和 team 获取 user_list
 // @Tags user
 // @Accept application/json

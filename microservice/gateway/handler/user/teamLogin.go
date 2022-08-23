@@ -14,7 +14,7 @@ import (
 )
 
 // TeamLogin ... 团队登录
-// @Summary team login api
+// @Summary 团队登录 api
 // @Description login the team-forum
 // @Tags auth
 // @Accept application/json

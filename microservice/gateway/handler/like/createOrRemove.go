@@ -14,18 +14,18 @@ import (
 	"go.uber.org/zap"
 )
 
-// Create ... 点赞
-// @Summary 点赞 api
+// CreateOrRemove ... 点赞/取消点赞
+// @Summary 点赞/取消点赞 api
 // @Description TypeName: post or comment
 // @Tags like
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
-// @Param object body Item true "create_like_request"
+// @Param object body Item true "like_request"
 // @Success 200 {object} handler.Response
 // @Router /like [post]
-func (a *Api) Create(c *gin.Context) {
-	log.Info("Like Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+func (a *Api) CreateOrRemove(c *gin.Context) {
+	log.Info("Like CreateOrDelete function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	var req pb.LikeItem
 	if err := c.BindJSON(&req); err != nil {
@@ -51,7 +51,7 @@ func (a *Api) Create(c *gin.Context) {
 		Item:   &req,
 	}
 
-	_, err = service.PostClient.CreateLike(context.TODO(), likeReq)
+	_, err = service.PostClient.CreateOrRemoveLike(context.TODO(), likeReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

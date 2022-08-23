@@ -89,8 +89,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	likeApi := like.New(dao.GetDao())
 	{
 		likeRouter.GET("/list", likeApi.GetUserLikeList)
-		likeRouter.POST("", likeApi.Create)
-		likeRouter.DELETE("", likeApi.Remove)
+		likeRouter.POST("", likeApi.CreateOrRemove)
 	}
 
 	// 回收站 read delete recover

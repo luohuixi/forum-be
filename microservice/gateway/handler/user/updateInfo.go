@@ -14,8 +14,7 @@ import (
 )
 
 // UpdateInfo ... 修改用户个人信息
-// @Summary update info api
-// @Description 修改用户个人信息
+// @Summary 修改用户个人信息 api
 // @Tags user
 // @Accept application/json
 // @Produce application/json

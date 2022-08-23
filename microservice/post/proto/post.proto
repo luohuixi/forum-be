@@ -14,8 +14,7 @@ service PostService {
 
     rpc DeleteItem(Item) returns (Response) {}
 
-    rpc CreateLike(LikeRequest) returns (Response) {}
-    rpc RemoveLike(LikeRequest) returns (Response) {}
+    rpc CreateOrRemoveLike(LikeRequest) returns (Response) {}
     rpc ListLikeByUserId(UserIdRequest) returns (ListLikeResponse) {}
 }
 
