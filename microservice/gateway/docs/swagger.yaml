@@ -215,7 +215,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/StudentLoginResponse'
-      summary: student login api
+      summary: 学生登录 api
       tags:
       - auth
   /auth/login/team:
@@ -237,7 +237,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/TeamLoginResponse'
-      summary: team login api
+      summary: 团队登录 api
       tags:
       - auth
   /chat:
@@ -356,32 +356,6 @@ paths:
       tags:
       - comment
   /like:
-    delete:
-      consumes:
-      - application/json
-      description: 'TypeName: post or comment'
-      parameters:
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: remove_like_request
-        in: body
-        name: object
-        required: true
-        schema:
-          $ref: '#/definitions/like.Item'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/Response'
-      summary: 取消点赞 api
-      tags:
-      - like
     post:
       consumes:
       - application/json
@@ -392,7 +366,7 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: create_like_request
+      - description: like_request
         in: body
         name: object
         required: true
@@ -405,7 +379,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Response'
-      summary: 点赞 api
+      summary: 点赞/取消点赞 api
       tags:
       - like
   /like/list:
@@ -460,7 +434,6 @@ paths:
     put:
       consumes:
       - application/json
-      description: 修改帖子信息
       parameters:
       - description: token 用户令牌
         in: header
@@ -480,7 +453,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Response'
-      summary: update post info api
+      summary: 修改帖子信息 api
       tags:
       - post
   /post/{post_id}:
@@ -506,6 +479,25 @@ paths:
           schema:
             $ref: '#/definitions/Response'
       summary: 删除帖子 api
+      tags:
+      - post
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: post_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.Post'
+      summary: 获取帖子 api
       tags:
       - post
   /post/list/{type_name}/{category_id}:
@@ -604,7 +596,6 @@ paths:
     put:
       consumes:
       - application/json
-      description: 修改用户个人信息
       parameters:
       - description: token 用户令牌
         in: header
@@ -624,7 +615,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Response'
-      summary: update info api
+      summary: 修改用户个人信息 api
       tags:
       - user
   /user/list/{group_id}/{team_id}:
@@ -667,7 +658,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/ListResponse'
-      summary: get user_list api
+      summary: list user api
       tags:
       - user
   /user/myprofile:
@@ -688,7 +679,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/UserProfile'
-      summary: get my_profile api
+      summary: get 我的 profile api
       tags:
       - user
   /user/profile/{id}:
@@ -715,7 +706,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/UserProfile'
-      summary: get user_profile api
+      summary: 获取用户 profile api
       tags:
       - user
 swagger: "2.0"

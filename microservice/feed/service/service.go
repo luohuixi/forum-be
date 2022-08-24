@@ -41,7 +41,7 @@ func UserInit() {
 
 // getInfoFromUserService get user's name and avatar from user-service
 func getInfoFromUserService(id uint32) (string, string, error) {
-	rsp, err := UserClient.GetProfile(context.Background(), &upb.GetRequest{Id: id})
+	rsp, err := UserClient.GetProfile(context.TODO(), &upb.GetRequest{Id: id})
 	if err != nil {
 		return "", "", err
 	}

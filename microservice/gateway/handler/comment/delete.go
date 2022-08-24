@@ -17,7 +17,6 @@ import (
 
 // Delete ... 删除评论
 // @Summary 删除评论 api
-// @Description
 // @Tags comment
 // @Accept application/json
 // @Produce application/json

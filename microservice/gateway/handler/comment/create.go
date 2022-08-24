@@ -2,6 +2,7 @@ package comment
 
 import (
 	"context"
+	pbf "forum-feed/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
 	"forum-gateway/util"
@@ -38,7 +39,8 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	req.CreatorId = c.MustGet("userId").(uint32)
+	userId := c.MustGet("userId").(uint32)
+	req.CreatorId = userId
 
 	ok, err := model.Enforce(req.CreatorId, constvar.Post, req.PostId, constvar.Read)
 	if err != nil {
@@ -51,9 +53,26 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	_, err = service.PostClient.CreateComment(context.TODO(), &req)
+	resp, err := service.PostClient.CreateComment(context.TODO(), &req)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
+		return
+	}
+
+	// 向 feed 发送请求
+	pushReq := &pbf.PushRequest{
+		Action: "创建",
+		UserId: userId,
+		Source: &pbf.Source{
+			Id:       resp.Id,
+			TypeName: constvar.Comment,
+			Name:     req.Content,
+		},
+		TargetUserId: resp.TargetUserId,
+	}
+	_, err = service.FeedClient.Push(context.Background(), pushReq)
+	if err != nil {
+		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return
 	}
 

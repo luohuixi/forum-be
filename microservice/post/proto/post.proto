@@ -10,7 +10,7 @@ service PostService {
     rpc UpdatePostInfo(UpdatePostInfoRequest) returns (Response) {}
 
     rpc GetComment(Request) returns (CommentInfo) {}
-    rpc CreateComment(CreateCommentRequest) returns (Response) {}
+    rpc CreateComment(CreateCommentRequest) returns (CreateResponse) {}
 
     rpc DeleteItem(Item) returns (Response) {}
 
@@ -87,6 +87,11 @@ message CreatePostRequest {
 }
 
 message Response {}
+
+message CreateResponse {
+    uint32 id = 1;
+    uint32 target_user_id = 2;
+}
 
 message ListMainPostRequest {
     uint32 last_id = 1;

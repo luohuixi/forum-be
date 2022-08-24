@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} handler.Response
 // @Router /like [post]
 func (a *Api) CreateOrRemove(c *gin.Context) {
-	log.Info("Like CreateOrDelete function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Like CreateOrRemove function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	var req pb.LikeItem
 	if err := c.BindJSON(&req); err != nil {

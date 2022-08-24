@@ -35,7 +35,7 @@ var doc = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "student login api",
+                "summary": "学生登录 api",
                 "parameters": [
                     {
                         "description": "login_request",
@@ -69,7 +69,7 @@ var doc = `{
                 "tags": [
                     "auth"
                 ],
-                "summary": "team login api",
+                "summary": "团队登录 api",
                 "parameters": [
                     {
                         "description": "login_request",
@@ -277,7 +277,7 @@ var doc = `{
                 "tags": [
                     "like"
                 ],
-                "summary": "点赞 api",
+                "summary": "点赞/取消点赞 api",
                 "parameters": [
                     {
                         "type": "string",
@@ -287,46 +287,7 @@ var doc = `{
                         "required": true
                     },
                     {
-                        "description": "create_like_request",
-                        "name": "object",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/like.Item"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Response"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "TypeName: post or comment",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "like"
-                ],
-                "summary": "取消点赞 api",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "remove_like_request",
+                        "description": "like_request",
                         "name": "object",
                         "in": "body",
                         "required": true,
@@ -379,7 +340,6 @@ var doc = `{
         },
         "/post": {
             "put": {
-                "description": "修改帖子信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -389,7 +349,7 @@ var doc = `{
                 "tags": [
                     "post"
                 ],
-                "summary": "update post info api",
+                "summary": "修改帖子信息 api",
                 "parameters": [
                     {
                         "type": "string",
@@ -592,6 +552,35 @@ var doc = `{
             }
         },
         "/post/{post_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "获取帖子 api",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "post_id",
+                        "name": "post_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/post.Post"
+                        }
+                    }
+                }
+            },
             "delete": {
                 "consumes": [
                     "application/json"
@@ -631,7 +620,6 @@ var doc = `{
         },
         "/user": {
             "put": {
-                "description": "修改用户个人信息",
                 "consumes": [
                     "application/json"
                 ],
@@ -641,7 +629,7 @@ var doc = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "update info api",
+                "summary": "修改用户个人信息 api",
                 "parameters": [
                     {
                         "type": "string",
@@ -682,7 +670,7 @@ var doc = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "get user_list api",
+                "summary": "list user api",
                 "parameters": [
                     {
                         "type": "integer",
@@ -746,7 +734,7 @@ var doc = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "get my_profile api",
+                "summary": "get 我的 profile api",
                 "parameters": [
                     {
                         "type": "string",
@@ -778,7 +766,7 @@ var doc = `{
                 "tags": [
                     "user"
                 ],
-                "summary": "get user_profile api",
+                "summary": "获取用户 profile api",
                 "parameters": [
                     {
                         "type": "integer",

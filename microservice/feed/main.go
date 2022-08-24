@@ -11,7 +11,6 @@ import (
 	s "forum-feed/service"
 	"forum/config"
 	logger "forum/log"
-	"forum/model"
 	"forum/pkg/handler"
 	"forum/pkg/tracer"
 
@@ -59,8 +58,20 @@ func main() {
 	defer io.Close()
 	defer logger.SyncLogger()
 
+	dao.Init()
+
 	// set var t to Global Tracer (opentracing single instance mode)
 	opentracing.SetGlobalTracer(t)
+
+	if *subFg {
+		// sub-service
+
+		logger.Info("Subscribe service start...")
+		s.SubServiceRun()
+		return
+	}
+
+	// feed-service
 
 	srv := micro.NewService(
 		micro.Name(viper.GetString("local_name")),
@@ -78,26 +89,10 @@ func main() {
 	// Init will parse the command line flags.
 	srv.Init()
 
-	dao.Init()
+	pb.RegisterFeedServiceHandler(srv.Server(), s.New(dao.GetDao()))
 
-	if !*subFg {
-		// feed-service
-
-		pb.RegisterFeedServiceHandler(srv.Server(), s.New(dao.GetDao()))
-
-		// Run the server
-		if err := srv.Run(); err != nil {
-			logger.Error(err.Error())
-		}
-
-	} else {
-		// sub-service
-
-		// init redis pub/sub client
-		model.PubSubClient.Init(dao.RdbChan)
-		defer model.PubSubClient.Close()
-
-		logger.Info("Subscribe service start...")
-		s.SubServiceRun()
+	// Run the server
+	if err := srv.Run(); err != nil {
+		logger.Error(err.Error())
 	}
 }

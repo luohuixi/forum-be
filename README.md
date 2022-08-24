@@ -10,10 +10,11 @@ websocket: 聊天
 - post
 - user
 - chat
+- feed
 
 casbin: 鉴权
 
-redis: 点赞; 聊天; tag缓存; tag排行榜 
+redis: 点赞; 聊天; tag缓存; tag排行榜; 消息队列(pub-sub)
 
 log: zap
 

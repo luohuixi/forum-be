@@ -21,7 +21,6 @@ func GetTimeFromTimestamp(stamp int64) string {
 }
 
 func Time2String(t time.Time) string {
-	// https://stackoverflow.com/questions/55409774/the-result-of-time-formatting-of-rfc3339-in-go-on-linux-and-macos-are-different
 	lo, _ := time.LoadLocation("Local")
 	return t.In(lo).Format(time.RFC3339)
 }

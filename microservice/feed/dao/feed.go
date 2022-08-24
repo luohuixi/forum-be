@@ -13,6 +13,9 @@ type FeedModel struct {
 	SourceTypeName   string
 	SourceObjectName string
 	SourceObjectId   uint32
+	TargetUserId     uint32
+	TargetUserName   string
+	TargetUserAvatar string
 	CreateTime       string
 	Re               bool
 }
@@ -52,7 +55,7 @@ func (d Dao) Delete(id uint32) error {
 // }
 
 // List ...
-func (d Dao) List(filter *FeedModel, offset, limit, lastId uint32, pagination bool) ([]*FeedModel, error) {
+func (d *Dao) List(filter *FeedModel, offset, limit, lastId uint32, pagination bool) ([]*FeedModel, error) {
 	var feeds []*FeedModel
 
 	query := d.DB.Table("feeds").Select("feeds.*").Order("feeds.id desc").Where(filter).Where("re = 0")

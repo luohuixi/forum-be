@@ -42,9 +42,10 @@ func (a *Api) Create(c *gin.Context) {
 		req.CategoryId = 0
 	}
 
-	req.UserId = c.MustGet("userId").(uint32)
+	userId := c.MustGet("userId").(uint32)
+	req.UserId = userId
 
-	ok, err := model.Enforce(req.UserId, constvar.Post, req.TypeName, constvar.Read)
+	ok, err := model.Enforce(userId, constvar.Post, req.TypeName, constvar.Read)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return

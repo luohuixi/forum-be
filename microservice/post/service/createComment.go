@@ -11,7 +11,7 @@ import (
 	"forum/util"
 )
 
-func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequest, _ *pb.Response) error {
+func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequest, resp *pb.CreateResponse) error {
 	logger.Info("PostService CreateComment")
 
 	// check if the FatherId is valid
@@ -23,6 +23,9 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		if post == nil {
 			return errno.ServerErr(errno.ErrBadRequest, "the post not found")
 		}
+
+		resp.TargetUserId = post.Id
+		resp.TargetUserId = post.CreatorId
 	} else if req.TypeName == constvar.SecondLevelComment {
 		comment, err := s.Dao.GetComment(req.FatherId)
 		if err != nil {
@@ -31,6 +34,9 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		if comment == nil {
 			return errno.ServerErr(errno.ErrBadRequest, "the comment not found")
 		}
+
+		resp.TargetUserId = comment.Id
+		resp.TargetUserId = comment.CreatorId
 	} else {
 		return errno.ServerErr(errno.ErrBadRequest, "TypeName must be "+constvar.FirstLevelComment+" or "+constvar.SecondLevelComment)
 	}

@@ -27,6 +27,7 @@ func init() {
 	service.UserInit()
 	service.ChatInit()
 	service.PostInit()
+	service.FeedInit()
 }
 
 // @title forum-gateway
@@ -43,6 +44,8 @@ func init() {
 // @tag.description 聊天服务
 // @tag.name post
 // @tag.description 帖子服务
+// @tag.name feed
+// @tag.description 动态服务
 
 func main1() {
 }

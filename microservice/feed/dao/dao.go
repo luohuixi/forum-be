@@ -2,7 +2,6 @@ package dao
 
 import (
 	"forum/model"
-	m "forum/model"
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
 )
@@ -22,6 +21,8 @@ type Interface interface {
 	Create(*FeedModel) (uint32, error)
 	Delete(uint32) error
 	List(*FeedModel, uint32, uint32, uint32, bool) ([]*FeedModel, error)
+
+	PublishMsg([]byte) error
 }
 
 // Init init dao
@@ -36,8 +37,8 @@ func Init() {
 	// init redis
 	model.RedisDB.Init()
 
-	// init casbin
-	// model.CB.Init()
+	// init redis pub-sub client
+	model.PubSubClient.Init(RdbChan)
 
 	dao = &Dao{
 		DB:    model.DB.Self,
@@ -51,6 +52,6 @@ func GetDao() *Dao {
 
 const RdbChan = "sub"
 
-func PublishMsg(msg []byte) error {
-	return m.RedisDB.Self.Publish(RdbChan, msg).Err()
+func (d Dao) PublishMsg(msg []byte) error {
+	return d.Redis.Publish(RdbChan, msg).Err()
 }
