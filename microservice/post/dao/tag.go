@@ -25,7 +25,7 @@ func (d *Dao) GetTagById(id uint32) (*TagModel, error) {
 	tag := &TagModel{
 		Id: id,
 	}
-	content, err := d.getTagContentById(id)
+	content, err := d.getTagContentById(strconv.Itoa(int(id)))
 	if err != nil {
 		return tag, err
 	}
@@ -63,8 +63,8 @@ func (d *Dao) GetTagByContent(content string) (*TagModel, error) {
 	return tag, err
 }
 
-func (d *Dao) getTagContentById(id uint32) (string, error) {
-	content, err := d.Redis.Get("tag:id:" + strconv.Itoa(int(id))).Result()
+func (d *Dao) getTagContentById(id string) (string, error) {
+	content, err := d.Redis.Get("tag:id:" + id).Result()
 	if err == redis.Nil {
 		return "", nil
 	}
@@ -72,7 +72,7 @@ func (d *Dao) getTagContentById(id uint32) (string, error) {
 		return "", err
 	}
 
-	err = d.Redis.Expire("tag:id:"+strconv.Itoa(int(id)), 10*24*time.Hour).Err()
+	err = d.Redis.Expire("tag:id:"+id, 10*24*time.Hour).Err()
 	return content, err
 }
 
@@ -135,4 +135,27 @@ func (d *Dao) ListTagsByPostId(postId uint32) ([]string, error) {
 	}
 
 	return contents, nil
+}
+
+func (d *Dao) AddTagToSortedSet(tagId uint32) error {
+	d.Redis.ZIncrBy("tags", 1, strconv.Itoa(int(tagId))) // FIXME
+	return d.Redis.ZAdd("tags", redis.Z{Score: 1, Member: strconv.Itoa(int(tagId))}).Err()
+}
+
+func (d *Dao) ListPopularTags() ([]string, error) {
+	// 降序
+	ids, err := d.Redis.ZRevRange("tags", 0, 9).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	tags := make([]string, len(ids))
+	for i, id := range ids {
+		tags[i], err = d.getTagContentById(id)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return tags, nil
 }

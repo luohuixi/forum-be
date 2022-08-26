@@ -1,5 +1,39 @@
 basePath: /api/v1
 definitions:
+  FeedItem:
+    properties:
+      action:
+        type: string
+      date:
+        type: string
+      id:
+        type: integer
+      show_divider:
+        description: 分割线
+        type: boolean
+      source:
+        $ref: '#/definitions/Source'
+      time:
+        type: string
+      user:
+        $ref: '#/definitions/FeedUser'
+    type: object
+  FeedListResponse:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/FeedItem'
+        type: array
+    type: object
+  FeedUser:
+    properties:
+      avatar_url:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   ListResponse:
     properties:
       count:
@@ -15,6 +49,20 @@ definitions:
         type: integer
       data: {}
       message:
+        type: string
+    type: object
+  Source:
+    properties:
+      id:
+        type: integer
+      kind:
+        description: 类型，1 -> 团队，2 -> 项目，3 -> 文档，4 -> 文件，6 -> 进度（5 不使用）
+        type: integer
+      name:
+        type: string
+      project_id:
+        type: integer
+      project_name:
         type: string
     type: object
   StudentLoginRequest:
@@ -355,6 +403,38 @@ paths:
       summary: 获取评论 api
       tags:
       - comment
+  /feed/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/FeedListResponse'
+      summary: list 此用户的动态 api
+      tags:
+      - feed
   /like:
     post:
       consumes:
@@ -592,6 +672,29 @@ paths:
       summary: list 从帖 api
       tags:
       - post
+  /post/tags:
+    get:
+      consumes:
+      - application/json
+      description: 降序
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: list 热门tags api
+      tags:
+      - post
   /user:
     put:
       consumes:
@@ -719,3 +822,5 @@ tags:
   name: chat
 - description: 帖子服务
   name: post
+- description: 动态服务
+  name: feed

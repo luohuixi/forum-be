@@ -265,6 +265,55 @@ var doc = `{
                 }
             }
         },
+        "/feed/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "feed"
+                ],
+                "summary": "list 此用户的动态 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "last_id",
+                        "name": "last_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FeedListResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/like": {
             "post": {
                 "description": "TypeName: post or comment",
@@ -551,6 +600,41 @@ var doc = `{
                 }
             }
         },
+        "/post/tags": {
+            "get": {
+                "description": "降序",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "list 热门tags api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/post/{post_id}": {
             "get": {
                 "consumes": [
@@ -795,6 +879,58 @@ var doc = `{
         }
     },
     "definitions": {
+        "FeedItem": {
+            "type": "object",
+            "properties": {
+                "action": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "show_divider": {
+                    "description": "分割线",
+                    "type": "boolean"
+                },
+                "source": {
+                    "$ref": "#/definitions/Source"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/FeedUser"
+                }
+            }
+        },
+        "FeedListResponse": {
+            "type": "object",
+            "properties": {
+                "list": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FeedItem"
+                    }
+                }
+            }
+        },
+        "FeedUser": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                }
+            }
+        },
         "ListResponse": {
             "type": "object",
             "properties": {
@@ -817,6 +953,27 @@ var doc = `{
                 },
                 "data": {},
                 "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "Source": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "kind": {
+                    "description": "类型，1 -\u003e 团队，2 -\u003e 项目，3 -\u003e 文档，4 -\u003e 文件，6 -\u003e 进度（5 不使用）",
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "project_id": {
+                    "type": "integer"
+                },
+                "project_name": {
                     "type": "string"
                 }
             }
@@ -1103,6 +1260,10 @@ var doc = `{
         {
             "description": "帖子服务",
             "name": "post"
+        },
+        {
+            "description": "动态服务",
+            "name": "feed"
         }
     ]
 }`

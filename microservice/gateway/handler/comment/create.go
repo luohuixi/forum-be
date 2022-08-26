@@ -35,7 +35,7 @@ func (a *Api) Create(c *gin.Context) {
 	}
 
 	if req.TypeName != constvar.FirstLevelComment && req.TypeName != constvar.SecondLevelComment {
-		SendError(c, errno.ErrBadRequest, nil, "req.TypeName != constvar.FirstLevelComment && req.TypeName != constvar.SecondLevelComment", GetLine())
+		SendError(c, errno.ErrBadRequest, nil, "req.TypeName != first-level && req.TypeName != second-level", GetLine())
 		return
 	}
 

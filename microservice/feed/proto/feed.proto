@@ -28,8 +28,8 @@ message ListRequest {
     uint32 role = 4;
 //    uint32 user_id = 5;
     uint32 user_id = 5;   // 0 代表不筛选
-    uint32 group_id = 6;  // 0 代表不筛选，1->产品，2->前端，3->后端，4->安卓，5->设计
-    bool pagination = 7;
+//    uint32 group_id = 6;  // 0 代表不筛选，1->产品，2->前端，3->后端，4->安卓，5->设计
+    bool pagination = 6;
 }
 
 message ListResponse {

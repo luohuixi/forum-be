@@ -45,6 +45,9 @@ type Interface interface {
 	GetTagById(uint32) (*TagModel, error)
 	GetTagByContent(string) (*TagModel, error)
 	ListTagsByPostId(uint32) ([]string, error)
+
+	AddTagToSortedSet(uint32) error
+	ListPopularTags() ([]string, error)
 }
 
 // Init init dao

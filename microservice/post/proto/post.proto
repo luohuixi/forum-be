@@ -16,7 +16,11 @@ service PostService {
 
     rpc CreateOrRemoveLike(LikeRequest) returns (Response) {}
     rpc ListLikeByUserId(UserIdRequest) returns (ListLikeResponse) {}
+
+    rpc ListPopularTags(NullRequest) returns (Tags) {}
 }
+
+message NullRequest {}
 
 message ListLikeResponse {
     repeated LikeItem list = 1;
@@ -132,4 +136,8 @@ message Post {
     bool is_favorite = 12;
     repeated CommentInfo comments = 13;
     repeated string tags = 14;
+}
+
+message Tags {
+    repeated string tags = 1;
 }
