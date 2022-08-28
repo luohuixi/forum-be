@@ -42,6 +42,7 @@ CREATE TABLE `posts`
     FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
   ROW_FORMAT = DYNAMIC;
 
 -- ----------------------------
@@ -77,6 +78,7 @@ CREATE TABLE `tags`
     KEY (`content`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
   ROW_FORMAT = DYNAMIC;
 
 -- --------------------------------------------
@@ -93,4 +95,30 @@ CREATE TABLE `post2tags`
     FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- ----------------------------
+-- Table structure for feeds
+-- ----------------------------
+DROP TABLE IF EXISTS `feeds`;
+CREATE TABLE `feeds`
+(
+    `id`                 int(11) NOT NULL AUTO_INCREMENT,
+    `user_id`            int(11)      DEFAULT NULL,
+    `user_name`          varchar(100) DEFAULT NULL,
+    `user_avatar`        varchar(200) DEFAULT NULL,
+    `action`             varchar(20)  DEFAULT NULL COMMENT '动作，存储如 <创建>、<编辑>、<删除>、<评论>、<加入> 等常量字符串',
+    `source_type_name`   varchar(100) DEFAULT NULL COMMENT '动态的类型',
+    `source_object_name` varchar(100) DEFAULT NULL COMMENT 'object 包括  等，这里是它们的名字',
+    `source_object_id`   int(11)      DEFAULT NULL COMMENT '对象的 id',
+    `target_user_id`     int(11)      DEFAULT NULL,
+    `target_user_name`   varchar(100) DEFAULT NULL,
+    `target_user_avatar` varchar(200) DEFAULT NULL,
+    `create_time`        varchar(30)  DEFAULT NULL,
+    `re`                 tinyint(1)   DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
+    PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
   ROW_FORMAT = DYNAMIC;

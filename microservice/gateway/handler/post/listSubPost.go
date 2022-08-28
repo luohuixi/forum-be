@@ -1,6 +1,7 @@
 package post
 
 import (
+	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
 	"forum-gateway/util"
@@ -85,7 +86,7 @@ func (a *Api) ListSubPost(c *gin.Context) {
 		Pagination: page != 0,
 	}
 
-	postResp, err := service.PostClient.ListSubPost(c, listReq)
+	postResp, err := service.PostClient.ListSubPost(context.TODO(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

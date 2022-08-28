@@ -31,8 +31,6 @@ func DecodeErr(err error) (int, string) {
 	}
 
 	switch typed := err.(type) {
-	// case *Err:
-	// 	return typed.Code, typed.Message
 	case *Errno:
 		return typed.Code, typed.Message
 	case *errors.Error:

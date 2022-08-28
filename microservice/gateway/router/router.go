@@ -6,6 +6,7 @@ import (
 	"forum-gateway/handler"
 	"forum-gateway/handler/chat"
 	"forum-gateway/handler/comment"
+	"forum-gateway/handler/feed"
 	"forum-gateway/handler/like"
 	"forum-gateway/handler/post"
 	"forum-gateway/handler/sd"
@@ -73,6 +74,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		postRouter.POST("", postApi.Create)
 		postRouter.DELETE("/:post_id", postApi.Delete)
 		postRouter.PUT("", postApi.UpdateInfo)
+		postRouter.GET("/popular_tags", postApi.ListPopularTags)
 	}
 
 	commentRouter := g.Group("api/v1/comment")
@@ -92,14 +94,13 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		likeRouter.POST("", likeApi.CreateOrRemove)
 	}
 
-	// 回收站 read delete recover
-	// trashbinRouter := g.Group("api/v1/trashbin")
-	// trashbinRouter.Use(normalRequired)
-	// {
-	// 	trashbinRouter.GET("", project.GetTrashbin)
-	// 	trashbinRouter.PUT("/:id", project.UpdateTrashbin)
-	// 	trashbinRouter.DELETE("/:id", project.DeleteTrashbin)
-	// }
+	// feed
+	feedRouter := g.Group("api/v1/feed")
+	feedRouter.Use(normalRequired)
+	feedApi := feed.New(dao.GetDao())
+	{
+		feedRouter.GET("/list", feedApi.List)
+	}
 
 	// The health check handlers
 	svcd := g.Group("/sd")

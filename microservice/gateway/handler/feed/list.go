@@ -25,7 +25,7 @@ import (
 // @Param last_id query int false "last_id"
 // @Success 200 {object} FeedListResponse
 // @Router /feed/list [get]
-func List(c *gin.Context) {
+func (a *Api) List(c *gin.Context) {
 	log.Info("feed List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))

@@ -1,6 +1,7 @@
 package post
 
 import (
+	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
 	"forum-gateway/util"
@@ -18,11 +19,11 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} []string
-// @Router /post/tags [get]
+// @Router /post/popular_tags [get]
 func (a *Api) ListPopularTags(c *gin.Context) {
 	log.Info("Post ListPopularTags function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	resp, err := service.PostClient.ListPopularTags(c, &pb.NullRequest{})
+	resp, err := service.PostClient.ListPopularTags(context.TODO(), &pb.NullRequest{})
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
