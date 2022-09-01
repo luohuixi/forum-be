@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"fmt"
 	"forum/pkg/constvar"
 	"github.com/jinzhu/gorm"
 )
@@ -100,7 +101,9 @@ func (Dao) GetPost(id uint32) (*PostModel, error) {
 	return item, err
 }
 
-func (d *Dao) IsUserFavoritePost(userId uint32, id uint32) (bool, error) {
+func (d *Dao) IsUserCollectionPost(userId uint32, id uint32) (bool, error) {
+	fmt.Println("----- userId, id: ", userId, id, " -----")
+
 	// TODO
 	return false, nil
 }

@@ -30,7 +30,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			content = post.Content[:200]
 		}
 
-		isLiked, isFavorite, likeNum, tags, commentNum := s.getPostInfo(post.Id, req.UserId)
+		isLiked, isCollection, likeNum, tags, commentNum := s.getPostInfo(post.Id, req.UserId)
 
 		if likeNum != 0 {
 			post.LikeNum = likeNum
@@ -48,7 +48,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			Content:       content,
 			CommentNum:    commentNum,
 			IsLiked:       isLiked,
-			IsFavorite:    isFavorite,
+			IsCollection:  isCollection,
 			Tags:          tags,
 		}
 	}

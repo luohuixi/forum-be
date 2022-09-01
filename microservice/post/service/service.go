@@ -52,7 +52,7 @@ func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint
 		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
 	}
 
-	isFavorite, err := s.Dao.IsUserFavoritePost(userId, postId)
+	isCollection, err := s.Dao.IsUserCollectionPost(userId, postId)
 	if err != nil {
 		logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
 	}
@@ -72,5 +72,5 @@ func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint
 		logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
 	}
 
-	return isLiked, isFavorite, uint32(likeNum), tags, commentNum
+	return isLiked, isCollection, uint32(likeNum), tags, commentNum
 }

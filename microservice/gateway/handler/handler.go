@@ -47,7 +47,7 @@ func SendError(c *gin.Context, err error, data interface{}, cause string, source
 		zap.String("source", source))
 
 	var responseCode int
-	switch true {
+	switch {
 	case code == http.StatusNotFound:
 		responseCode = http.StatusNotFound
 	case code > 20000:

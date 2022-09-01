@@ -27,7 +27,7 @@ type Interface interface {
 	ListPost(*PostModel, uint32, uint32, uint32, bool) ([]*PostInfo, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
-	IsUserFavoritePost(uint32, uint32) (bool, error)
+	IsUserCollectionPost(uint32, uint32) (bool, error)
 
 	CreateComment(*CommentModel) (uint32, error)
 	GetCommentInfo(uint32) (*CommentInfo, error)

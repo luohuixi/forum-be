@@ -5,7 +5,7 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/handler"
-	tracer "forum/pkg/tracer"
+	"forum/pkg/tracer"
 	"github.com/micro/go-micro"
 	"github.com/opentracing/opentracing-go"
 	"log"
@@ -13,7 +13,7 @@ import (
 	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
 )
 
-func main() {
+func main() { // TODO
 	t, io, err := tracer.NewTracer("forum.service.post", "localhost:6831")
 	if err != nil {
 		log.Fatal(err)
@@ -55,10 +55,7 @@ func main() {
 		CategoryId: 1,
 	})
 
-	// post, err := client.ListPost(context.TODO(), &pb.ListPostRequest{
-	// 	TypeName:   "1",
-	// 	Category: "娱乐",
-	// })
+	panic(err)
 	//
 	// fmt.Println("post:", post.List[0].Category)
 	//

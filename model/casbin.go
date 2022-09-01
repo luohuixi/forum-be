@@ -71,21 +71,10 @@ func (c *Casbin) Init() {
 		{constvar.Post + ":" + constvar.NormalPost, constvar.Read},
 	}
 
-	ok, err := CB.Self.AddPermissionsForUser(constvar.MuxiRole, rules...)
-	fmt.Println("----- ok: ", ok, " -----")
+	_, err := CB.Self.AddPermissionsForUser(constvar.MuxiRole, rules...)
 	if err != nil {
 		panic(err)
 	}
-
-	// err = AddRoleForUser(1, constvar.MuxiRole)
-	// if err != nil {
-	// 	panic(err)
-	// }
-
-	// ok, err = Enforce(1, constvar.Post, constvar.NormalPost, constvar.Write)
-	// fmt.Println("----- ok: ", ok, " -----")
-	// ok, err = Enforce(1, constvar.Post, constvar.NormalPost, constvar.Read)
-	// fmt.Println("----- ok: ", ok, " -----")
 }
 
 func Enforce(userId uint32, typeName string, data interface{}, act string) (bool, error) {

@@ -34,7 +34,7 @@ type Post struct {
 	CommentNum    uint32             `json:"comment_num,omitempty"`
 	LikeNum       uint32             `json:"like_num,omitempty"`
 	IsLiked       bool               `json:"is_liked,omitempty"`
-	IsFavorite    bool               `json:"is_favorite,omitempty"`
+	IsCollection  bool               `json:"is_collection,omitempty"`
 	Comments      []*comment.Comment `json:"comments,omitempty"`
 	Tags          []string           `json:"tags,omitempty"`
 }

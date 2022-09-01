@@ -7,7 +7,7 @@ import (
 	"forum/config"
 	logger "forum/log"
 	"forum/pkg/handler"
-	tracer "forum/pkg/tracer"
+	"forum/pkg/tracer"
 	"github.com/micro/go-micro"
 	"github.com/opentracing/opentracing-go"
 	"log"

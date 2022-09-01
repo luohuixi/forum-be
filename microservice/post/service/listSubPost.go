@@ -31,7 +31,7 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 
 		s.processComments(req.UserId, comments)
 
-		isLiked, isFavorite, likeNum, tags, commentNum := s.getPostInfo(post.Id, req.UserId)
+		isLiked, isCollection, likeNum, tags, commentNum := s.getPostInfo(post.Id, req.UserId)
 
 		if likeNum != 0 {
 			post.LikeNum = likeNum
@@ -49,7 +49,7 @@ func (s *PostService) ListSubPost(_ context.Context, req *pb.ListSubPostRequest,
 			LikeNum:       post.LikeNum,
 			CommentNum:    commentNum,
 			IsLiked:       isLiked,
-			IsFavorite:    isFavorite,
+			IsCollection:  isCollection,
 			Comments:      comments,
 			Tags:          tags,
 		}
