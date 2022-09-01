@@ -53,7 +53,11 @@ func initCasbin(username, password, addr, DBName string) *casbin.Enforcer {
 		zap.L().Error("字符串加载模型失败!", zap.Error(err))
 		return nil
 	}
-	cb, _ := casbin.NewEnforcer(m, a)
+
+	cb, err := casbin.NewEnforcer(m, a)
+	if err != nil {
+		panic(err)
+	}
 
 	return cb
 }
