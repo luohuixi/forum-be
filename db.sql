@@ -31,13 +31,13 @@ CREATE TABLE `posts`
     `content`        text         NOT NULL,
     `title`          varchar(150) NOT NULL,
     `create_time`    varchar(30)  NOT NULL,
-    `category_id`    int(11)      NOT NULL,
+    `category`       varchar(30)  NOT NULL,
     `re`             tinyint(1)   NOT NULL,
     `creator_id`     int(11)      NOT NULL,
     `last_edit_time` varchar(30)  NOT NULL,
     `main_post_id`   int(11)      NOT NULL,
     `like_num`       int(11) DEFAULT 0,
-    KEY (`category_id`),
+    KEY (`category`),
     KEY (`main_post_id`),
     FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB

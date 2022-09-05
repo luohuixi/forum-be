@@ -8,7 +8,7 @@ import (
 
 	"forum-feed/dao"
 	pb "forum-feed/proto"
-	s "forum-feed/service"
+	"forum-feed/service"
 	"forum/config"
 	logger "forum/log"
 	"forum/pkg/handler"
@@ -27,7 +27,7 @@ var subFg = flag.Bool("sub", false, "use subscribe service mode")
 
 // InitRpcClient ... 记录 bug: go-micro 框架的命令行参数和 go 标准库的 flag 冲突了
 func initRpcClient() {
-	s.UserInit()
+	service.UserInit()
 }
 
 // 包含两个服务：feed服务和subscribe服务
@@ -67,7 +67,7 @@ func main() {
 		// sub-service
 
 		logger.Info("Subscribe service start...")
-		s.SubServiceRun()
+		service.SubServiceRun()
 		return
 	}
 
@@ -89,7 +89,7 @@ func main() {
 	// Init will parse the command line flags.
 	srv.Init()
 
-	pb.RegisterFeedServiceHandler(srv.Server(), s.New(dao.GetDao()))
+	pb.RegisterFeedServiceHandler(srv.Server(), service.New(dao.GetDao()))
 
 	// Run the server
 	if err := srv.Run(); err != nil {

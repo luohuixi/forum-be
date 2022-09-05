@@ -3,7 +3,7 @@ package main
 import (
 	"forum-chat/dao"
 	pb "forum-chat/proto"
-	s "forum-chat/service"
+	"forum-chat/service"
 	"forum/config"
 	logger "forum/log"
 	"forum/pkg/handler"
@@ -48,7 +48,7 @@ func main() {
 	dao.Init()
 
 	// Register handler
-	pb.RegisterChatServiceHandler(srv.Server(), s.New(dao.GetDao()))
+	pb.RegisterChatServiceHandler(srv.Server(), service.New(dao.GetDao()))
 
 	// Run the server
 	if err := srv.Run(); err != nil {

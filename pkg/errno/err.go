@@ -1,12 +1,11 @@
 package errno
 
 import (
-	errors "github.com/micro/go-micro/errors"
+	"github.com/micro/go-micro/errors"
 )
 
 func ServerErr(errno *Errno, cause string) error {
 	return &errors.Error{
-		// Id:     "",
 		Code:   int32(errno.Code),
 		Detail: cause,
 		Status: errno.Message,

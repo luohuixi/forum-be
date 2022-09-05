@@ -28,7 +28,7 @@ func (s *PostService) UpdatePostInfo(_ context.Context, req *pb.UpdatePostInfoRe
 	post.Title = req.Title
 	post.Content = req.Content
 	post.LastEditTime = util.GetCurrentTime()
-	post.CategoryId = req.CategoryId
+	post.Category = req.Category
 
 	if err := post.Save(); err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())

@@ -37,7 +37,7 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 	resp.Content = post.Content
 	resp.Title = post.Title
 	resp.Time = post.LastEditTime
-	resp.CategoryId = post.CategoryId
+	resp.Category = post.Category
 	resp.CreatorId = post.CreatorId
 	resp.CreatorAvatar = post.CreatorAvatar
 	resp.CreatorName = post.CreatorName

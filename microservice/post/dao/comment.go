@@ -7,7 +7,7 @@ import (
 
 type CommentModel struct {
 	Id         uint32
-	TypeName   string // first-level or second-level
+	TypeName   string // constvar.FirstLevelComment or constvar.SecondLevelComment
 	Content    string
 	FatherId   uint32
 	CreateTime string

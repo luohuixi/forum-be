@@ -15,6 +15,10 @@ import (
 func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _ *pb.Response) error {
 	logger.Info("PostService CreatePost")
 
+	if req.TypeName != constvar.NormalPost && req.TypeName != constvar.MuxiPost {
+		return errno.ServerErr(errno.ErrBadRequest, "type_name not legal")
+	}
+
 	if req.MainPostId != 0 {
 		post, err := s.Dao.GetPost(req.MainPostId)
 		if err != nil {
@@ -31,7 +35,7 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		Content:      req.Content,
 		Title:        req.Title,
 		CreateTime:   util.GetCurrentTime(),
-		CategoryId:   req.CategoryId,
+		Category:     req.Category,
 		MainPostId:   req.MainPostId,
 		Re:           false,
 		CreatorId:    req.UserId,

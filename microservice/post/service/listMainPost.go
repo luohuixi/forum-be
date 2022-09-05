@@ -12,8 +12,8 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 	logger.Info("PostService ListMainPost")
 
 	filter := &dao.PostModel{
-		TypeName:   req.TypeName,
-		CategoryId: req.CategoryId,
+		TypeName: req.TypeName,
+		Category: req.Category,
 	}
 
 	posts, err := s.Dao.ListPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination)
@@ -40,7 +40,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			Id:            post.Id,
 			Title:         post.Title,
 			Time:          post.LastEditTime,
-			CategoryId:    post.CategoryId,
+			Category:      post.Category,
 			CreatorId:     post.CreatorId,
 			CreatorName:   post.CreatorName,
 			CreatorAvatar: post.CreatorAvatar,

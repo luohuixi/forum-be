@@ -16,10 +16,10 @@ func New(i dao.Interface) *Api {
 }
 
 type UpdateInfoRequest struct {
-	Id         uint32 `json:"id"`
-	Content    string `json:"content"`
-	Title      string `json:"title"`
-	CategoryId uint32 `json:"category_id"`
+	Id       uint32 `json:"id"`
+	Content  string `json:"content"`
+	Title    string `json:"title"`
+	Category string `json:"category"`
 }
 
 type Post struct {
@@ -27,7 +27,7 @@ type Post struct {
 	Title         string             `json:"title,omitempty"`
 	Time          string             `json:"time,omitempty"`
 	Content       string             `json:"content,omitempty"`
-	CategoryId    uint32             `json:"category_id,omitempty"`
+	Category      string             `json:"category,omitempty"`
 	CreatorId     uint32             `json:"creator_id,omitempty"`
 	CreatorName   string             `json:"creator_name,omitempty"`
 	CreatorAvatar string             `json:"creator_avatar,omitempty"`
@@ -43,7 +43,7 @@ type CreateRequest struct {
 	TypeName   string   `json:"type_name"`
 	Content    string   `json:"content"`
 	Title      string   `json:"title,omitempty"`
-	CategoryId uint32   `json:"category_id,omitempty"`
+	Category   string   `json:"category,omitempty"`
 	MainPostId uint32   `json:"main_post_id"`
 	Tags       []string `json:"tags"`
 }

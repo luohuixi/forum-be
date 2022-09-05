@@ -4,7 +4,7 @@ import (
 	"forum-user/dao"
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
-	s "forum-user/service"
+	"forum-user/service"
 	"forum/config"
 	logger "forum/log"
 	"forum/pkg/handler"
@@ -53,7 +53,7 @@ func main() {
 	dao.Init()
 
 	// Register handler
-	pb.RegisterUserServiceHandler(srv.Server(), s.New(dao.GetDao()))
+	pb.RegisterUserServiceHandler(srv.Server(), service.New(dao.GetDao()))
 
 	// Run the server
 	if err := srv.Run(); err != nil {

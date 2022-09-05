@@ -18,7 +18,7 @@ import (
 
 // ListMainPost ... 获取主帖
 // @Summary list 主帖 api
-// @Description type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal); 根据category获取主帖list(前端实现category的映射)
+// @Description type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal); 根据category获取主帖list
 // @Tags post
 // @Accept application/json
 // @Produce application/json
@@ -26,10 +26,10 @@ import (
 // @Param page query int false "page"
 // @Param last_id query int false "last_id"
 // @Param type_name path string true "type_name"
-// @Param category_id path int true "category_id"
+// @Param category query string true "category"
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} []post.Post
-// @Router /post/list/{type_name}/{category_id} [get]
+// @Router /post/list/{type_name} [get]
 func (a *Api) ListMainPost(c *gin.Context) {
 	log.Info("Post ListMainPost function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
@@ -52,11 +52,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	categoryId, err := strconv.Atoi(c.Param("category_id"))
-	if err != nil {
-		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
-		return
-	}
+	category := c.DefaultQuery("category", "")
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	if err != nil {
@@ -78,7 +74,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 
 	listReq := &pb.ListMainPostRequest{
 		UserId:     userId,
-		CategoryId: uint32(categoryId),
+		Category:   category,
 		TypeName:   typeName,
 		LastId:     uint32(lastId),
 		Offset:     uint32(page * limit),

@@ -466,7 +466,74 @@ var doc = `{
                 }
             }
         },
-        "/post/list/{type_name}/sub/{main_post_id}": {
+        "/post/list/{type_name}": {
+            "get": {
+                "description": "type_name : normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal); 根据category获取主帖list",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "list 主帖 api",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "last_id",
+                        "name": "last_id",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "type_name",
+                        "name": "type_name",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "category",
+                        "name": "category",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/post.Post"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/post/list/{type_name}/{main_post_id}": {
             "get": {
                 "description": "type_name : normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal); 根据 main_post_id 获取主帖的从帖list",
                 "consumes": [
@@ -533,74 +600,7 @@ var doc = `{
                 }
             }
         },
-        "/post/list/{type_name}/{category_id}": {
-            "get": {
-                "description": "type_name : normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal); 根据category获取主帖list(前端实现category的映射)",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "post"
-                ],
-                "summary": "list 主帖 api",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "limit",
-                        "name": "limit",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "page",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "last_id",
-                        "name": "last_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "type_name",
-                        "name": "type_name",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "category_id",
-                        "name": "category_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/post.Post"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/post/tags": {
+        "/post/popular_tags": {
             "get": {
                 "description": "降序",
                 "consumes": [
@@ -1130,8 +1130,8 @@ var doc = `{
         "post.CreateRequest": {
             "type": "object",
             "properties": {
-                "category_id": {
-                    "type": "integer"
+                "category": {
+                    "type": "string"
                 },
                 "content": {
                     "type": "string"
@@ -1156,8 +1156,8 @@ var doc = `{
         "post.Post": {
             "type": "object",
             "properties": {
-                "category_id": {
-                    "type": "integer"
+                "category": {
+                    "type": "string"
                 },
                 "comment_num": {
                     "type": "integer"
@@ -1183,7 +1183,7 @@ var doc = `{
                 "id": {
                     "type": "integer"
                 },
-                "is_favorite": {
+                "is_collection": {
                     "type": "boolean"
                 },
                 "is_liked": {
@@ -1209,8 +1209,8 @@ var doc = `{
         "post.UpdateInfoRequest": {
             "type": "object",
             "properties": {
-                "category_id": {
-                    "type": "integer"
+                "category": {
+                    "type": "string"
                 },
                 "content": {
                     "type": "string"

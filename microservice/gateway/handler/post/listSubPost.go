@@ -29,7 +29,7 @@ import (
 // @Param main_post_id path int true "main_post_id"
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} []post.Post
-// @Router /post/list/{type_name}/sub/{main_post_id} [get]
+// @Router /post/list/{type_name}/{main_post_id} [get]
 func (a *Api) ListSubPost(c *gin.Context) {
 	log.Info("Post ListSubPost function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 

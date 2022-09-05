@@ -3,7 +3,7 @@ package main
 import (
 	"forum-post/dao"
 	pb "forum-post/proto"
-	s "forum-post/service"
+	"forum-post/service"
 	"forum/config"
 	logger "forum/log"
 	"forum/pkg/handler"
@@ -48,7 +48,7 @@ func main() {
 	dao.Init()
 
 	// Register handler
-	pb.RegisterPostServiceHandler(srv.Server(), s.New(dao.GetDao()))
+	pb.RegisterPostServiceHandler(srv.Server(), service.New(dao.GetDao()))
 
 	// Run the server
 	if err := srv.Run(); err != nil {
