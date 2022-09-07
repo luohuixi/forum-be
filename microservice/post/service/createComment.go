@@ -38,7 +38,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		resp.TargetUserId = comment.Id
 		resp.TargetUserId = comment.CreatorId
 	} else {
-		return errno.ServerErr(errno.ErrBadRequest, "TypeName must be "+constvar.FirstLevelComment+" or "+constvar.SecondLevelComment)
+		return errno.ServerErr(errno.ErrBadRequest, "type_name not legal")
 	}
 
 	data := &dao.CommentModel{

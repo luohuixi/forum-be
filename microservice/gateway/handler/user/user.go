@@ -7,8 +7,8 @@ type TeamLoginRequest struct {
 
 // StudentLoginRequest StudentLogin 请求
 type StudentLoginRequest struct {
-	StudentId string `json:"student_id"`
-	Password  string `json:"password"`
+	StudentId string `json:"student_id" binding:"required"`
+	Password  string `json:"password" binding:"required"`
 } // @name StudentLoginRequest
 
 // TeamLoginResponse login 请求响应

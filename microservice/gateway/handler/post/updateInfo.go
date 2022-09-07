@@ -26,15 +26,15 @@ import (
 func (a *Api) UpdateInfo(c *gin.Context) {
 	log.Info("Post UpdateInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req pb.UpdatePostInfoRequest
+	var req UpdateInfoRequest
 	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
-	req.UserId = c.MustGet("userId").(uint32)
+	userId := c.MustGet("userId").(uint32)
 
-	ok, err := model.Enforce(req.UserId, constvar.Post, req.Id, constvar.Write)
+	ok, err := model.Enforce(userId, constvar.Post, req.Id, constvar.Write)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
@@ -45,7 +45,16 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 		return
 	}
 
-	_, err = service.PostClient.UpdatePostInfo(context.TODO(), &req)
+	updateReq := pb.UpdatePostInfoRequest{
+		Id:       req.Id,
+		Content:  req.Content,
+		Title:    req.Title,
+		UserId:   userId,
+		Category: req.Category,
+		Tags:     req.Tags,
+	}
+
+	_, err = service.PostClient.UpdatePostInfo(context.TODO(), &updateReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

@@ -27,14 +27,14 @@ import (
 func (a *Api) Create(c *gin.Context) {
 	log.Info("Post Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req pb.CreatePostRequest
+	var req CreateRequest
 	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
 	if req.TypeName != constvar.NormalPost && req.TypeName != constvar.MuxiPost {
-		SendError(c, errno.ErrBadRequest, nil, "type_name not legal", GetLine())
+		SendError(c, errno.ErrBadRequest, nil, "type_name must be "+constvar.NormalPost+" or "+constvar.MuxiPost, GetLine())
 		return
 	}
 
@@ -43,7 +43,6 @@ func (a *Api) Create(c *gin.Context) {
 	}
 
 	userId := c.MustGet("userId").(uint32)
-	req.UserId = userId
 
 	ok, err := model.Enforce(userId, constvar.Post, req.TypeName, constvar.Read)
 	if err != nil {
@@ -56,7 +55,17 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	_, err = service.PostClient.CreatePost(context.TODO(), &req)
+	createReq := pb.CreatePostRequest{
+		UserId:     userId,
+		Content:    req.Content,
+		TypeName:   req.TypeName,
+		Title:      req.Title,
+		Category:   req.Category,
+		MainPostId: req.MainPostId,
+		Tags:       req.Tags,
+	}
+
+	_, err = service.PostClient.CreatePost(context.TODO(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

@@ -980,6 +980,10 @@ var doc = `{
         },
         "StudentLoginRequest": {
             "type": "object",
+            "required": [
+                "password",
+                "student_id"
+            ],
             "properties": {
                 "password": {
                     "type": "string"
@@ -1098,6 +1102,12 @@ var doc = `{
         },
         "comment.CreateRequest": {
             "type": "object",
+            "required": [
+                "content",
+                "father_id",
+                "post_id",
+                "type_name"
+            ],
             "properties": {
                 "content": {
                     "type": "string"
@@ -1115,6 +1125,10 @@ var doc = `{
         },
         "like.Item": {
             "type": "object",
+            "required": [
+                "target_id",
+                "type_name"
+            ],
             "properties": {
                 "target_id": {
                     "type": "integer"
@@ -1129,6 +1143,12 @@ var doc = `{
         },
         "post.CreateRequest": {
             "type": "object",
+            "required": [
+                "category",
+                "content",
+                "title",
+                "type_name"
+            ],
             "properties": {
                 "category": {
                     "type": "string"
@@ -1208,6 +1228,13 @@ var doc = `{
         },
         "post.UpdateInfoRequest": {
             "type": "object",
+            "required": [
+                "category",
+                "content",
+                "id",
+                "tags",
+                "title"
+            ],
             "properties": {
                 "category": {
                     "type": "string"
@@ -1217,6 +1244,12 @@ var doc = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "title": {
                     "type": "string"

@@ -36,7 +36,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 	userId := c.MustGet("userId").(uint32)
 
 	typeName := c.Param("type_name")
-	if typeName != "normal" && typeName != "muxi" {
+	if typeName != constvar.NormalPost && typeName != constvar.MuxiPost {
 		SendError(c, errno.ErrPathParam, nil, "type_name not legal", GetLine())
 		return
 	}

@@ -71,11 +71,16 @@ func (c *Casbin) Init() {
 	}
 
 	rules := [][]string{
-		{constvar.Post + ":" + constvar.MuxiPost, constvar.Read},
 		{constvar.Post + ":" + constvar.NormalPost, constvar.Read},
 	}
 
-	_, err := CB.Self.AddPermissionsForUser(constvar.MuxiRole, rules...)
+	_, err := CB.Self.AddPermissionsForUser(constvar.NormalRole, rules...)
+	if err != nil {
+		panic(err)
+	}
+
+	rules = append(rules, []string{constvar.Post + ":" + constvar.MuxiPost, constvar.Read})
+	_, err = CB.Self.AddPermissionsForUser(constvar.MuxiRole, rules...)
 	if err != nil {
 		panic(err)
 	}

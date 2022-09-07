@@ -71,6 +71,9 @@ definitions:
         type: string
       student_id:
         type: string
+    required:
+    - password
+    - student_id
     type: object
   StudentLoginResponse:
     properties:
@@ -151,6 +154,11 @@ definitions:
         type: integer
       type_name:
         type: string
+    required:
+    - content
+    - father_id
+    - post_id
+    - type_name
     type: object
   like.Item:
     properties:
@@ -158,6 +166,9 @@ definitions:
         type: integer
       type_name:
         type: string
+    required:
+    - target_id
+    - type_name
     type: object
   like.ListResponse:
     type: object
@@ -177,6 +188,11 @@ definitions:
         type: string
       type_name:
         type: string
+    required:
+    - category
+    - content
+    - title
+    - type_name
     type: object
   post.Post:
     properties:
@@ -221,8 +237,18 @@ definitions:
         type: string
       id:
         type: integer
+      tags:
+        items:
+          type: string
+        type: array
       title:
         type: string
+    required:
+    - category
+    - content
+    - id
+    - tags
+    - title
     type: object
   user:
     properties:

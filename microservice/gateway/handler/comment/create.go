@@ -28,7 +28,7 @@ import (
 func (a *Api) Create(c *gin.Context) {
 	log.Info("Comment Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req pb.CreateCommentRequest
+	var req CreateRequest
 	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
@@ -40,9 +40,8 @@ func (a *Api) Create(c *gin.Context) {
 	}
 
 	userId := c.MustGet("userId").(uint32)
-	req.CreatorId = userId
 
-	ok, err := model.Enforce(req.CreatorId, constvar.Post, req.PostId, constvar.Read)
+	ok, err := model.Enforce(userId, constvar.Post, req.PostId, constvar.Read)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
@@ -53,7 +52,15 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	resp, err := service.PostClient.CreateComment(context.TODO(), &req)
+	createReq := pb.CreateCommentRequest{
+		PostId:    req.PostId,
+		TypeName:  req.TypeName,
+		FatherId:  req.FatherId,
+		Content:   req.Content,
+		CreatorId: userId,
+	}
+
+	resp, err := service.PostClient.CreateComment(context.TODO(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

@@ -13,6 +13,7 @@ CREATE TABLE `users`
     `role`          varchar(20) NOT NULL COMMENT '权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员',
     `signature`     varchar(200)       DEFAULT NULL,
     `re`            tinyint(1)         DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
+    CONSTRAINT T_type_Chk CHECK(`role`='Normal' OR `role`='NormalAdmin' OR `role`='Muxi' OR `role`='MuxiAdmin' OR `role`='SuperAdmin'),
     KEY (`email`),
     UNIQUE KEY (`student_id`)
 ) ENGINE = InnoDB
@@ -39,6 +40,7 @@ CREATE TABLE `posts`
     `like_num`       int(11) DEFAULT 0,
     KEY (`category`),
     KEY (`main_post_id`),
+    CONSTRAINT T_type_Chk CHECK(`type_name`='normal' OR `type_name`='muxi'),
     FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
