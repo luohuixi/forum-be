@@ -23,6 +23,7 @@ func (s *UserService) UpdateInfo(_ context.Context, req *pb.UpdateInfoRequest, _
 
 	user.Name = req.Info.Name
 	user.Avatar = req.Info.AvatarUrl
+	user.Signature = req.Info.Signature
 
 	if err := user.Save(); err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())

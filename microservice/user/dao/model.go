@@ -5,15 +5,15 @@ import (
 )
 
 type UserModel struct {
-	Id           uint32 `gorm:"column:id;not null" binding:"required"`
-	Name         string `gorm:"column:name;" binding:"required"`
+	Id           uint32 `gorm:"column:id;not null"`
 	Email        string `gorm:"column:email;default:null"`
-	Avatar       string `gorm:"column:avatar;" binding:"required"`
+	Name         string `gorm:"column:name;"`
+	Avatar       string `gorm:"column:avatar;"`
+	HashPassword string `gorm:"column:hash_password;"`
+	Role         string `gorm:"column:role;"`
+	Signature    string `gorm:"column:signature;"`
 	StudentId    string `gorm:"column:student_id;"`
-	HashPassword string `gorm:"column:hash_password;" binding:"required"`
-	Role         string `gorm:"column:role;" binding:"required"`
-	Signature    uint32 `gorm:"column:signature;" binding:"required"`
-	Re           bool
+	Re           bool   `gorm:"column:re;"`
 }
 
 func (UserModel) TableName() string {

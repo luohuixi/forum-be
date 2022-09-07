@@ -50,6 +50,7 @@ message UserInfo {
   string name = 2;
   string email = 3;
   string avatar_url = 4;
+  string signature = 5;
 }
 
 message UserInfoResponse {

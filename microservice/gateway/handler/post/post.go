@@ -24,20 +24,20 @@ type UpdateInfoRequest struct {
 }
 
 type Post struct {
-	Id            uint32             `json:"id,omitempty"`
-	Title         string             `json:"title,omitempty"`
-	Time          string             `json:"time,omitempty"`
-	Content       string             `json:"content,omitempty"`
-	Category      string             `json:"category,omitempty"`
-	CreatorId     uint32             `json:"creator_id,omitempty"`
-	CreatorName   string             `json:"creator_name,omitempty"`
-	CreatorAvatar string             `json:"creator_avatar,omitempty"`
-	CommentNum    uint32             `json:"comment_num,omitempty"`
-	LikeNum       uint32             `json:"like_num,omitempty"`
-	IsLiked       bool               `json:"is_liked,omitempty"`
-	IsCollection  bool               `json:"is_collection,omitempty"`
-	Comments      []*comment.Comment `json:"comments,omitempty"`
-	Tags          []string           `json:"tags,omitempty"`
+	Id            uint32             `json:"id"`
+	Title         string             `json:"title"`
+	Time          string             `json:"time"`
+	Content       string             `json:"content"`
+	Category      string             `json:"category"`
+	CreatorId     uint32             `json:"creator_id"`
+	CreatorName   string             `json:"creator_name"`
+	CreatorAvatar string             `json:"creator_avatar"`
+	CommentNum    uint32             `json:"comment_num"`
+	LikeNum       uint32             `json:"like_num"`
+	IsLiked       bool               `json:"is_liked"`
+	IsCollection  bool               `json:"is_collection"`
+	Comments      []*comment.Comment `json:"comments"`
+	Tags          []string           `json:"tags"`
 }
 
 type CreateRequest struct {

@@ -32,6 +32,7 @@ type userInfo struct {
 	Name      string `json:"name"`
 	AvatarURL string `json:"avatar_url"`
 	Email     string `json:"email"`
+	Signature string `json:"signature"`
 }
 
 // GetInfoResponse 获取 info 响应

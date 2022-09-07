@@ -1,8 +1,11 @@
 package dao
 
 import (
+	logger "forum/log"
+	"forum/pkg/errno"
 	"github.com/go-redis/redis"
 	"github.com/jinzhu/gorm"
+	"go.uber.org/zap"
 	"strconv"
 	"time"
 )
@@ -35,9 +38,15 @@ func (d *Dao) GetTagById(id uint32) (*TagModel, error) {
 	}
 
 	// 从redis缓存中未命中则在数据库找
-	err = dao.DB.Model(tag).Where("id = ?", id).First(tag).Error
+	if err := dao.DB.Model(tag).First(tag).Error; err != nil {
+		return nil, err
+	}
 
-	return tag, err
+	if err := dao.AddTag(tag.Id, tag.Content); err != nil {
+		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
+	}
+
+	return tag, nil
 }
 
 func (d *Dao) GetTagByContent(content string) (*TagModel, error) {
@@ -58,6 +67,10 @@ func (d *Dao) GetTagByContent(content string) (*TagModel, error) {
 	if err == gorm.ErrRecordNotFound {
 		// 在数据库未找到则新建
 		err = tag.Create()
+	}
+
+	if err := dao.AddTag(tag.Id, tag.Content); err != nil {
+		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
 	}
 
 	return tag, err

@@ -26,7 +26,7 @@ import (
 // @Param page query int false "page"
 // @Param last_id query int false "last_id"
 // @Param type_name path string true "type_name"
-// @Param category query string true "category"
+// @Param category query string false "category"
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} []post.Post
 // @Router /post/list/{type_name} [get]
