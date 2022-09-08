@@ -23,6 +23,7 @@ func (s *UserService) GetInfo(_ context.Context, req *pb.GetInfoRequest, resp *p
 			Name:      user.Name,
 			AvatarUrl: user.Avatar,
 			Email:     user.Email,
+			Signature: user.Signature,
 		}
 	}
 

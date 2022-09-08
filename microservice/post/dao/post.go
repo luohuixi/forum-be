@@ -17,7 +17,7 @@ type PostModel struct {
 	CreatorId    uint32
 	LastEditTime string
 	LikeNum      uint32
-	MainPostId   uint32
+	ContentType  string
 }
 
 func (PostModel) TableName() string {

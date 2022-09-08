@@ -151,7 +151,6 @@ var doc = `{
         },
         "/comment": {
             "post": {
-                "description": "typeName: first-level -\u003e 一级评论; second-level -\u003e 其它级",
                 "consumes": [
                     "application/json"
                 ],
@@ -161,7 +160,7 @@ var doc = `{
                 "tags": [
                     "comment"
                 ],
-                "summary": "创建评论 api",
+                "summary": "创建评论/从帖 api",
                 "parameters": [
                     {
                         "type": "string",
@@ -427,7 +426,6 @@ var doc = `{
                 }
             },
             "post": {
-                "description": "type_name : normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal); 主帖的main_post_id不填或为0",
                 "consumes": [
                     "application/json"
                 ],
@@ -509,75 +507,7 @@ var doc = `{
                         "type": "string",
                         "description": "category",
                         "name": "category",
-                        "in": "query",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/post.Post"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/post/list/{type_name}/{main_post_id}": {
-            "get": {
-                "description": "type_name : normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal); 根据 main_post_id 获取主帖的从帖list",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "post"
-                ],
-                "summary": "list 从帖 api",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "limit",
-                        "name": "limit",
                         "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "page",
-                        "name": "page",
-                        "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "last_id",
-                        "name": "last_id",
-                        "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "type_name",
-                        "name": "type_name",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "main_post_id",
-                        "name": "main_post_id",
-                        "in": "path",
-                        "required": true
                     },
                     {
                         "type": "string",
@@ -660,7 +590,7 @@ var doc = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/post.Post"
+                            "$ref": "#/definitions/post.GetPostResponse"
                         }
                     }
                 }
@@ -1034,6 +964,9 @@ var doc = `{
                 },
                 "name": {
                     "type": "string"
+                },
+                "signature": {
+                    "type": "string"
                 }
             }
         },
@@ -1119,6 +1052,7 @@ var doc = `{
                     "type": "integer"
                 },
                 "type_name": {
+                    "description": "sub-post -\u003e 从帖; first-level -\u003e 一级评论; second-level -\u003e 其它级",
                     "type": "string"
                 }
             }
@@ -1141,11 +1075,50 @@ var doc = `{
         "like.ListResponse": {
             "type": "object"
         },
+        "post.Comment": {
+            "type": "object",
+            "properties": {
+                "comment_num": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "creator_avatar": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "integer"
+                },
+                "creator_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "like_num": {
+                    "type": "integer"
+                },
+                "replies": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/post.info"
+                    }
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
         "post.CreateRequest": {
             "type": "object",
             "required": [
                 "category",
                 "content",
+                "content_type",
                 "title",
                 "type_name"
             ],
@@ -1156,8 +1129,9 @@ var doc = `{
                 "content": {
                     "type": "string"
                 },
-                "main_post_id": {
-                    "type": "integer"
+                "content_type": {
+                    "description": "md or rtf",
+                    "type": "string"
                 },
                 "tags": {
                     "type": "array",
@@ -1169,6 +1143,60 @@ var doc = `{
                     "type": "string"
                 },
                 "type_name": {
+                    "description": "normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal)",
+                    "type": "string"
+                }
+            }
+        },
+        "post.GetPostResponse": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "comment_num": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "creator_avatar": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "integer"
+                },
+                "creator_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_collection": {
+                    "type": "boolean"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "like_num": {
+                    "type": "integer"
+                },
+                "sub_posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/post.SubPost"
+                    }
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "time": {
+                    "type": "string"
+                },
+                "title": {
                     "type": "string"
                 }
             }
@@ -1226,6 +1254,44 @@ var doc = `{
                 }
             }
         },
+        "post.SubPost": {
+            "type": "object",
+            "properties": {
+                "comment_num": {
+                    "type": "integer"
+                },
+                "comments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/post.Comment"
+                    }
+                },
+                "content": {
+                    "type": "string"
+                },
+                "creator_avatar": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "integer"
+                },
+                "creator_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "like_num": {
+                    "type": "integer"
+                },
+                "time": {
+                    "type": "string"
+                }
+            }
+        },
         "post.UpdateInfoRequest": {
             "type": "object",
             "required": [
@@ -1252,6 +1318,38 @@ var doc = `{
                     }
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "post.info": {
+            "type": "object",
+            "properties": {
+                "comment_num": {
+                    "type": "integer"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "creator_avatar": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "integer"
+                },
+                "creator_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_liked": {
+                    "type": "boolean"
+                },
+                "like_num": {
+                    "type": "integer"
+                },
+                "time": {
                     "type": "string"
                 }
             }

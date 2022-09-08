@@ -102,6 +102,8 @@ definitions:
         type: integer
       name:
         type: string
+      signature:
+        type: string
     type: object
   UserProfile:
     properties:
@@ -153,6 +155,7 @@ definitions:
       post_id:
         type: integer
       type_name:
+        description: sub-post -> 从帖; first-level -> 一级评论; second-level -> 其它级
         type: string
     required:
     - content
@@ -172,14 +175,40 @@ definitions:
     type: object
   like.ListResponse:
     type: object
+  post.Comment:
+    properties:
+      comment_num:
+        type: integer
+      content:
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      id:
+        type: integer
+      is_liked:
+        type: boolean
+      like_num:
+        type: integer
+      replies:
+        items:
+          $ref: '#/definitions/post.info'
+        type: array
+      time:
+        type: string
+    type: object
   post.CreateRequest:
     properties:
       category:
         type: string
       content:
         type: string
-      main_post_id:
-        type: integer
+      content_type:
+        description: md or rtf
+        type: string
       tags:
         items:
           type: string
@@ -187,12 +216,49 @@ definitions:
       title:
         type: string
       type_name:
+        description: normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal)
         type: string
     required:
     - category
     - content
+    - content_type
     - title
     - type_name
+    type: object
+  post.GetPostResponse:
+    properties:
+      category:
+        type: string
+      comment_num:
+        type: integer
+      content:
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      id:
+        type: integer
+      is_collection:
+        type: boolean
+      is_liked:
+        type: boolean
+      like_num:
+        type: integer
+      sub_posts:
+        items:
+          $ref: '#/definitions/post.SubPost'
+        type: array
+      tags:
+        items:
+          type: string
+        type: array
+      time:
+        type: string
+      title:
+        type: string
     type: object
   post.Post:
     properties:
@@ -229,6 +295,31 @@ definitions:
       title:
         type: string
     type: object
+  post.SubPost:
+    properties:
+      comment_num:
+        type: integer
+      comments:
+        items:
+          $ref: '#/definitions/post.Comment'
+        type: array
+      content:
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      id:
+        type: integer
+      is_liked:
+        type: boolean
+      like_num:
+        type: integer
+      time:
+        type: string
+    type: object
   post.UpdateInfoRequest:
     properties:
       category:
@@ -249,6 +340,27 @@ definitions:
     - id
     - tags
     - title
+    type: object
+  post.info:
+    properties:
+      comment_num:
+        type: integer
+      content:
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      id:
+        type: integer
+      is_liked:
+        type: boolean
+      like_num:
+        type: integer
+      time:
+        type: string
     type: object
   user:
     properties:
@@ -356,7 +468,6 @@ paths:
     post:
       consumes:
       - application/json
-      description: 'typeName: first-level -> 一级评论; second-level -> 其它级'
       parameters:
       - description: token 用户令牌
         in: header
@@ -376,7 +487,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Response'
-      summary: 创建评论 api
+      summary: 创建评论/从帖 api
       tags:
       - comment
   /comment/{comment_id}:
@@ -513,8 +624,6 @@ paths:
     post:
       consumes:
       - application/json
-      description: 'type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal);
-        主帖的main_post_id不填或为0'
       parameters:
       - description: token 用户令牌
         in: header
@@ -602,7 +711,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/post.Post'
+            $ref: '#/definitions/post.GetPostResponse'
       summary: 获取帖子 api
       tags:
       - post
@@ -633,7 +742,6 @@ paths:
       - description: category
         in: query
         name: category
-        required: true
         type: string
       - description: token 用户令牌
         in: header
@@ -650,52 +758,6 @@ paths:
               $ref: '#/definitions/post.Post'
             type: array
       summary: list 主帖 api
-      tags:
-      - post
-  /post/list/{type_name}/{main_post_id}:
-    get:
-      consumes:
-      - application/json
-      description: 'type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal);
-        根据 main_post_id 获取主帖的从帖list'
-      parameters:
-      - description: limit
-        in: query
-        name: limit
-        type: integer
-      - description: page
-        in: query
-        name: page
-        type: integer
-      - description: last_id
-        in: query
-        name: last_id
-        type: integer
-      - description: type_name
-        in: path
-        name: type_name
-        required: true
-        type: string
-      - description: main_post_id
-        in: path
-        name: main_post_id
-        required: true
-        type: integer
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/post.Post'
-            type: array
-      summary: list 从帖 api
       tags:
       - post
   /post/popular_tags:

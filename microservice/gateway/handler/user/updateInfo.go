@@ -40,6 +40,7 @@ func UpdateInfo(c *gin.Context) {
 			Name:      req.Name,
 			AvatarUrl: req.AvatarURL,
 			Email:     req.Email,
+			Signature: req.Signature,
 		},
 	}
 

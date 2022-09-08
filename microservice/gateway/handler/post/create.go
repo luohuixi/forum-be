@@ -16,7 +16,6 @@ import (
 
 // Create ... 创建帖子
 // @Summary 创建帖子 api
-// @Description type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal); 主帖的main_post_id不填或为0
 // @Tags post
 // @Accept application/json
 // @Produce application/json
@@ -38,8 +37,9 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	if req.MainPostId != 0 {
-		req.Category = ""
+	if req.ContentType != "md" && req.ContentType != "rtf" {
+		SendError(c, errno.ErrBadRequest, nil, "content_type must be md or rtf", GetLine())
+		return
 	}
 
 	userId := c.MustGet("userId").(uint32)
@@ -56,13 +56,13 @@ func (a *Api) Create(c *gin.Context) {
 	}
 
 	createReq := pb.CreatePostRequest{
-		UserId:     userId,
-		Content:    req.Content,
-		TypeName:   req.TypeName,
-		Title:      req.Title,
-		Category:   req.Category,
-		MainPostId: req.MainPostId,
-		Tags:       req.Tags,
+		UserId:      userId,
+		Content:     req.Content,
+		TypeName:    req.TypeName,
+		Title:       req.Title,
+		Category:    req.Category,
+		ContentType: req.ContentType,
+		Tags:        req.Tags,
 	}
 
 	_, err = service.PostClient.CreatePost(context.TODO(), &createReq)

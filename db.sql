@@ -13,7 +13,8 @@ CREATE TABLE `users`
     `role`          varchar(20) NOT NULL COMMENT '权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员',
     `signature`     varchar(200)       DEFAULT NULL,
     `re`            tinyint(1)         DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
-    CONSTRAINT T_type_Chk CHECK(`role`='Normal' OR `role`='NormalAdmin' OR `role`='Muxi' OR `role`='MuxiAdmin' OR `role`='SuperAdmin'),
+    CONSTRAINT T_type_Chk CHECK (`role` = 'Normal' OR `role` = 'NormalAdmin' OR `role` = 'Muxi' OR
+                                 `role` = 'MuxiAdmin' OR `role` = 'SuperAdmin'),
     KEY (`email`),
     UNIQUE KEY (`student_id`)
 ) ENGINE = InnoDB
@@ -36,11 +37,11 @@ CREATE TABLE `posts`
     `re`             tinyint(1)   NOT NULL,
     `creator_id`     int(11)      NOT NULL,
     `last_edit_time` varchar(30)  NOT NULL,
-    `main_post_id`   int(11)      NOT NULL,
+    `content_type`   varchar(30)  NOT NULL,
     `like_num`       int(11) DEFAULT 0,
     KEY (`category`),
-    KEY (`main_post_id`),
-    CONSTRAINT T_type_Chk CHECK(`type_name`='normal' OR `type_name`='muxi'),
+    CONSTRAINT T_type_Chk CHECK (`type_name` = 'normal' OR `type_name` = 'muxi'),
+    CONSTRAINT T_content_type_Chk CHECK (`type_name` = 'md' OR `type_name` = 'rtf'),
     FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -62,6 +63,7 @@ CREATE TABLE `comments`
     `creator_id`  int(11)     DEFAULT NULL,
     `post_id`     int(11)     DEFAULT NULL,
     `like_num`    int(11)     DEFAULT 0,
+    CONSTRAINT T_type_Chk CHECK (`type_name` = 'sub-post' OR `type_name` = 'first-level' OR `type_name` = 'second-level'),
     FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`),
     FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`)
 ) ENGINE = InnoDB

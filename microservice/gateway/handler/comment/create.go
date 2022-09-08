@@ -15,9 +15,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// Create ... 创建评论
-// @Summary 创建评论 api
-// @Description typeName: first-level -> 一级评论; second-level -> 其它级
+// Create ... 创建评论/从帖
+// @Summary 创建评论/从帖 api
 // @Tags comment
 // @Accept application/json
 // @Produce application/json
@@ -34,8 +33,8 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	if req.TypeName != constvar.FirstLevelComment && req.TypeName != constvar.SecondLevelComment {
-		SendError(c, errno.ErrBadRequest, nil, "type_name must be "+constvar.FirstLevelComment+" or "+constvar.SecondLevelComment, GetLine())
+	if req.TypeName != constvar.SubPost && req.TypeName != constvar.FirstLevelComment && req.TypeName != constvar.SecondLevelComment {
+		SendError(c, errno.ErrBadRequest, nil, "type_name must be "+constvar.SubPost+" or "+constvar.FirstLevelComment+" or "+constvar.SecondLevelComment, GetLine())
 		return
 	}
 

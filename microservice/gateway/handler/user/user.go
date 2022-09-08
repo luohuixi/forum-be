@@ -47,11 +47,12 @@ type GetProfileRequest struct {
 
 // UserProfile 获取 profile 响应
 type UserProfile struct {
-	Id     uint32 `json:"id"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
-	Email  string `json:"email"`
-	Role   string `json:"role"`
+	Id        uint32 `json:"id"`
+	Name      string `json:"name"`
+	Avatar    string `json:"avatar"`
+	Email     string `json:"email"`
+	Role      string `json:"role"`
+	Signature string `json:"signature"`
 } // @name UserProfile
 
 // ListRequest 获取 userList 请求

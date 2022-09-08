@@ -33,6 +33,7 @@ const (
 	Read  = "read"
 
 	// comment
+	SubPost            = "sub-post"
 	FirstLevelComment  = "first-level"
 	SecondLevelComment = "second-level"
 )

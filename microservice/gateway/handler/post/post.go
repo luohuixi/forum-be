@@ -3,6 +3,7 @@ package post
 import (
 	"forum-gateway/dao"
 	"forum-gateway/handler/comment"
+	pb "forum-post/proto"
 )
 
 type Api struct {
@@ -41,10 +42,52 @@ type Post struct {
 }
 
 type CreateRequest struct {
-	TypeName   string   `json:"type_name" binding:"required"`
-	Content    string   `json:"content" binding:"required"`
-	Title      string   `json:"title,omitempty" binding:"required"`
-	Category   string   `json:"category,omitempty" binding:"required"`
-	MainPostId uint32   `json:"main_post_id"`
-	Tags       []string `json:"tags"`
+	TypeName    string   `json:"type_name" binding:"required"` // normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal)
+	Content     string   `json:"content" binding:"required"`
+	Title       string   `json:"title,omitempty" binding:"required"`
+	Category    string   `json:"category,omitempty" binding:"required"`
+	ContentType string   `json:"content_type" binding:"required"` // md or rtf
+	Tags        []string `json:"tags"`
+}
+
+type GetPostResponse struct {
+	info
+	Title        string     `json:"title"`
+	Category     string     `json:"category"`
+	IsCollection bool       `json:"is_collection"`
+	SubPosts     []*SubPost `json:"sub_posts"`
+	Tags         []string   `json:"tags"`
+}
+
+type SubPost struct {
+	info
+	Comments []*Comment `json:"comments"`
+}
+
+func (i *info) setInfo(comment *pb.CommentInfo) {
+	i.Id = comment.Id
+	i.IsLiked = comment.IsLiked
+	i.Content = comment.Content
+	i.Time = comment.CreateTime
+	i.LikeNum = comment.LikeNum
+	i.CreatorAvatar = comment.CreatorAvatar
+	i.CreatorName = comment.CreatorName
+	i.CreatorId = comment.CreatorId
+}
+
+type Comment struct {
+	info
+	Replies []*info `json:"replies"`
+}
+
+type info struct {
+	Id            uint32 `json:"id"`
+	Content       string `json:"content"`
+	CommentNum    uint32 `json:"comment_num"`
+	Time          string `json:"time"`
+	CreatorId     uint32 `json:"creator_id"`
+	CreatorName   string `json:"creator_name"`
+	CreatorAvatar string `json:"creator_avatar"`
+	LikeNum       uint32 `json:"like_num"`
+	IsLiked       bool   `json:"is_liked"`
 }

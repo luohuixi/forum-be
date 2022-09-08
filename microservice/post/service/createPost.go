@@ -19,26 +19,15 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		return errno.ServerErr(errno.ErrBadRequest, "type_name not legal")
 	}
 
-	if req.MainPostId != 0 {
-		post, err := s.Dao.GetPost(req.MainPostId)
-		if err != nil {
-			return errno.ServerErr(errno.ErrItemNotFound, "main_post cant find")
-		}
-
-		if post.MainPostId != 0 {
-			return errno.ServerErr(errno.ErrBadRequest, "the main_post_id is not a main_post id")
-		}
-	}
-
 	data := &dao.PostModel{
 		TypeName:     req.TypeName,
 		Content:      req.Content,
 		Title:        req.Title,
 		CreateTime:   util.GetCurrentTime(),
 		Category:     req.Category,
-		MainPostId:   req.MainPostId,
 		Re:           false,
 		CreatorId:    req.UserId,
+		ContentType:  req.ContentType,
 		LastEditTime: util.GetCurrentTime(),
 	}
 

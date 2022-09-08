@@ -25,6 +25,7 @@ func (s *UserService) GetProfile(_ context.Context, req *pb.GetRequest, resp *pb
 	resp.Avatar = user.Avatar
 	resp.Email = user.Email
 	resp.Role = user.Role
+	resp.Signature = user.Signature
 
 	return nil
 }

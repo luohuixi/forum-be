@@ -6,7 +6,7 @@ service PostService {
     rpc CreatePost(CreatePostRequest) returns (Response) {}
     rpc GetPost(Request) returns (Post) {}
     rpc ListMainPost(ListMainPostRequest) returns (ListPostResponse) {}
-    rpc ListSubPost(ListSubPostRequest) returns (ListPostResponse) {}
+//    rpc ListSubPost(ListSubPostRequest) returns (ListPostResponse) {}
     rpc UpdatePostInfo(UpdatePostInfoRequest) returns (Response) {}
 
     rpc GetComment(Request) returns (CommentInfo) {}
@@ -86,7 +86,7 @@ message CreatePostRequest {
     string type_name = 3;
     string title = 4;
     string category = 5;
-    uint32 main_post_id = 6;
+    string content_type = 6;
     repeated string tags = 7;
 }
 

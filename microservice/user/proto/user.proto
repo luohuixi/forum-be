@@ -63,6 +63,7 @@ message UserProfile {
   string role = 3;
   string avatar = 4;
   string email = 5;
+  string signature = 6;
 }
 
 message GetResponse {

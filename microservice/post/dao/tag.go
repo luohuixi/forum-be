@@ -42,7 +42,7 @@ func (d *Dao) GetTagById(id uint32) (*TagModel, error) {
 		return nil, err
 	}
 
-	if err := dao.AddTag(tag.Id, tag.Content); err != nil {
+	if err := dao.addTag(tag.Id, tag.Content); err != nil {
 		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
 	}
 
@@ -69,7 +69,7 @@ func (d *Dao) GetTagByContent(content string) (*TagModel, error) {
 		err = tag.Create()
 	}
 
-	if err := dao.AddTag(tag.Id, tag.Content); err != nil {
+	if err := dao.addTag(tag.Id, tag.Content); err != nil {
 		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
 	}
 
@@ -102,10 +102,10 @@ func (d *Dao) getTagIdByContent(content string) (int, error) {
 	return id, err
 }
 
-func (d *Dao) AddTag(id uint32, content string) error {
+func (d *Dao) addTag(id uint32, content string) error {
 	pipe := d.Redis.TxPipeline()
 
-	pipe.Set("tag:id:"+strconv.Itoa(int(id)), content, 10*24*time.Hour).Err()
+	pipe.Set("tag:id:"+strconv.Itoa(int(id)), content, 10*24*time.Hour)
 	pipe.Set("tag:content:"+content, id, 10*24*time.Hour)
 
 	_, err := pipe.Exec()

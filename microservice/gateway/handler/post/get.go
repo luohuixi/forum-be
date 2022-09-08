@@ -22,7 +22,7 @@ import (
 // @Accept application/json
 // @Produce application/json
 // @Param post_id path int true "post_id"
-// @Success 200 {object} Post
+// @Success 200 {object} GetPostResponse
 // @Router /post/{post_id} [get]
 func (a *Api) Get(c *gin.Context) {
 	log.Info("Post Get function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -51,11 +51,53 @@ func (a *Api) Get(c *gin.Context) {
 		Id:     uint32(id),
 	}
 
-	resp, err := service.PostClient.GetPost(context.TODO(), getReq)
+	getResp, err := service.PostClient.GetPost(context.TODO(), getReq)
 	if err != nil {
-		SendError(c, err, resp, "", GetLine())
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
+
+	var subPost []*SubPost
+
+	for _, comment := range getResp.Comments {
+		if comment.TypeName == constvar.SubPost {
+			subPost = append(subPost, &SubPost{
+				info: info{
+					Id:      comment.Id,
+					Content: comment.Content,
+					// CommentNum:    comment.,
+					Time:          comment.CreateTime,
+					CreatorId:     comment.CreatorId,
+					CreatorName:   comment.CreatorName,
+					CreatorAvatar: comment.CreatorAvatar,
+					LikeNum:       comment.LikeNum,
+					IsLiked:       comment.IsLiked,
+				},
+				Comments: nil,
+			})
+		}
+	}
+
+	resp := GetPostResponse{
+		info: info{
+			Id:            getResp.Id,
+			Content:       getResp.Content,
+			CommentNum:    getResp.CommentNum,
+			Time:          getResp.Time,
+			CreatorId:     getResp.CreatorId,
+			CreatorName:   getResp.CreatorName,
+			CreatorAvatar: getResp.CreatorAvatar,
+			LikeNum:       getResp.LikeNum,
+			IsLiked:       getResp.IsLiked,
+		},
+		Title:        getResp.Title,
+		Category:     getResp.Category,
+		IsCollection: getResp.IsCollection,
+		SubPosts:     subPost,
+		Tags:         getResp.Tags,
+	}
+
+	// resp.setInfo(getResp)
 
 	SendResponse(c, nil, resp)
 }
