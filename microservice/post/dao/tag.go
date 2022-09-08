@@ -4,8 +4,8 @@ import (
 	logger "forum/log"
 	"forum/pkg/errno"
 	"github.com/go-redis/redis"
-	"github.com/jinzhu/gorm"
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 	"strconv"
 	"time"
 )

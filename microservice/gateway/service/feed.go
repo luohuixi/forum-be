@@ -4,7 +4,8 @@ import (
 	pbf "forum-feed/proto"
 	"forum/pkg/handler"
 
-	micro "github.com/micro/go-micro"
+	micro "go-micro.dev/v4"
+
 	_ "github.com/micro/go-plugins/registry/kubernetes"
 	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
 	"github.com/opentracing/opentracing-go"

@@ -6,8 +6,8 @@ import (
 	"go.uber.org/zap"
 
 	"forum/log"
-	"github.com/jinzhu/gorm"
-	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 )
 
 type Database struct {
@@ -25,7 +25,7 @@ func openDB(username, password, addr, name string) *gorm.DB {
 		true,
 		"Local")
 
-	db, err := gorm.Open("mysql", config)
+	db, err := gorm.Open(sqlite.Open(config), &gorm.Config{})
 	if err != nil {
 		log.Error("Open database failed",
 			zap.String("reason", err.Error()),
@@ -33,20 +33,20 @@ func openDB(username, password, addr, name string) *gorm.DB {
 	}
 
 	// set for db connection
-	setupDB(db)
+	// setupDB(db)
 
 	return db
 }
 
-func setupDB(db *gorm.DB) {
-	db.LogMode(viper.GetBool("gormlog"))
-	db.DB().SetMaxOpenConns(20000) // 用于设置最大打开的连接数，默认值为0表示不限制.设置最大的连接数，可以避免并发太高导致连接mysql出现too many connections的错误。
-	db.DB().SetMaxIdleConns(0)     // 用于设置闲置的连接数.设置闲置的连接数则当开启的一个连接使用完成后可以放在池里等候下一次使用。
-	// 开发时打开 SQL log
-	if viper.GetString("runmode") == "debug" {
-		db.LogMode(true)
-	}
-}
+// func setupDB(db *gorm.DB) {
+// 	db.LogMode(viper.GetBool("gormlog"))
+// 	db.DB().SetMaxOpenConns(20000) // 用于设置最大打开的连接数，默认值为0表示不限制.设置最大的连接数，可以避免并发太高导致连接mysql出现too many connections的错误。
+// 	db.DB().SetMaxIdleConns(0)     // 用于设置闲置的连接数.设置闲置的连接数则当开启的一个连接使用完成后可以放在池里等候下一次使用。
+// 	// 开发时打开 SQL log
+// 	if viper.GetString("runmode") == "debug" {
+// 		db.LogMode(true)
+// 	}
+// }
 
 // InitSelfDB used for cli
 func InitSelfDB() *gorm.DB {
@@ -66,6 +66,6 @@ func (db *Database) Init() {
 	}
 }
 
-func (db *Database) Close() {
-	DB.Self.Close()
-}
+// func (db *Database) Close() {
+// 	DB.Self.
+// }

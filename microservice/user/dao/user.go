@@ -2,7 +2,7 @@ package dao
 
 import (
 	"forum/pkg/constvar"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type RegisterInfo struct {
@@ -36,7 +36,7 @@ func (d *Dao) GetUserByIds(ids []uint32) ([]*UserModel, error) {
 func (d *Dao) GetUserByEmail(email string) (*UserModel, error) {
 	u := &UserModel{}
 	err := d.DB.Where("email = ? AND re = 0", email).First(u).Error
-	if gorm.IsRecordNotFoundError(err) {
+	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
 	return u, err
@@ -60,7 +60,7 @@ func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*User
 
 	var list []*UserModel
 
-	query := d.DB.Model(&UserModel{}).Where(filter).Offset(offset).Limit(limit)
+	query := d.DB.Model(&UserModel{}).Where(filter).Offset(int(offset)).Limit(int(limit))
 
 	if lastId != 0 {
 		query = query.Where("id < ?", lastId).Order("id desc")
@@ -77,7 +77,7 @@ func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*User
 func (d *Dao) GetUserByStudentId(studentId string) (*UserModel, error) {
 	u := &UserModel{}
 	err := d.DB.Where("student_id = ? AND re = 0", studentId).First(u).Error
-	if gorm.IsRecordNotFoundError(err) {
+	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
 	return u, err

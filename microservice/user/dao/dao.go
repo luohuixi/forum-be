@@ -2,7 +2,7 @@ package dao
 
 import (
 	"forum/model"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 var (

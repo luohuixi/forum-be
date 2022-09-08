@@ -3,7 +3,7 @@ package dao
 import (
 	"fmt"
 	"forum/pkg/constvar"
-	"github.com/jinzhu/gorm"
+	"github.com/go-gorm/gorm"
 )
 
 type PostModel struct {

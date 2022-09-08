@@ -4,10 +4,10 @@ import (
 	pbu "forum-user/proto"
 	"forum/pkg/handler"
 
-	micro "github.com/micro/go-micro"
 	_ "github.com/micro/go-plugins/registry/kubernetes"
 	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
 	"github.com/opentracing/opentracing-go"
+	micro "go-micro.dev/v4"
 )
 
 var UserService micro.Service

@@ -2,7 +2,7 @@ package dao
 
 import (
 	pb "forum-post/proto"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 )
 
 type CommentModel struct {
