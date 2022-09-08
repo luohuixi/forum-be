@@ -3,7 +3,7 @@ package dao
 import (
 	"fmt"
 	"forum/pkg/constvar"
-	"github.com/go-gorm/gorm"
+	"gorm.io/gorm"
 )
 
 type PostModel struct {
@@ -74,7 +74,7 @@ func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, paginati
 			limit = constvar.DefaultLimit
 		}
 
-		query = query.Offset(offset).Limit(limit)
+		query = query.Offset(int(offset)).Limit(int(limit))
 
 		if lastId != 0 {
 			query = query.Where("posts.id < ?", lastId)

@@ -5,8 +5,8 @@ import (
 	pb "forum-post/proto"
 	"forum/model"
 	"forum/pkg/constvar"
-	"github.com/go-gorm/gorm"
 	"github.com/go-redis/redis"
+	"gorm.io/gorm"
 )
 
 var (

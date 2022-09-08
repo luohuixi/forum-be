@@ -87,7 +87,7 @@ func (d *Dao) GetCommentInfo(commentId uint32) (*CommentInfo, error) {
 }
 
 func (d *Dao) GetCommentNumByPostId(postId uint32) (uint32, error) {
-	var count uint32
+	var count int64
 	err := d.DB.Model(&CommentModel{}).Where("post_id = ? AND re = 0", postId).Count(&count).Error
-	return count, err
+	return uint32(count), err
 }
