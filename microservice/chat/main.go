@@ -8,13 +8,13 @@ import (
 	logger "forum/log"
 	"forum/pkg/handler"
 	"forum/pkg/tracer"
-	"github.com/micro/go-micro"
 	"github.com/opentracing/opentracing-go"
+	micro "go-micro.dev/v4"
 	"log"
 
-	_ "github.com/micro/go-plugins/registry/kubernetes"
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
 
-	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/spf13/viper"
 )
 
@@ -48,7 +48,9 @@ func main() {
 	dao.Init()
 
 	// Register handler
-	pb.RegisterChatServiceHandler(srv.Server(), service.New(dao.GetDao()))
+	if err := pb.RegisterChatServiceHandler(srv.Server(), service.New(dao.GetDao())); err != nil {
+		panic(err)
+	}
 
 	// Run the server
 	if err := srv.Run(); err != nil {

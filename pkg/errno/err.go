@@ -1,7 +1,7 @@
 package errno
 
 import (
-	"github.com/micro/go-micro/errors"
+	"go-micro.dev/v4/errors"
 )
 
 func ServerErr(errno *Errno, cause string) error {

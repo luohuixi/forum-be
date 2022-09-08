@@ -75,7 +75,7 @@ func (d *Dao) List(filter *FeedModel, offset, limit, lastId uint32, pagination b
 			limit = constvar.DefaultLimit
 		}
 
-		query = query.Offset(offset).Limit(limit)
+		query = query.Offset(int(offset)).Limit(int(limit))
 
 		if lastId != 0 {
 			query = query.Where("feeds.id < ?", lastId)

@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 
 	"forum/log"
-	"gorm.io/driver/sqlite"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
@@ -25,7 +25,7 @@ func openDB(username, password, addr, name string) *gorm.DB {
 		true,
 		"Local")
 
-	db, err := gorm.Open(sqlite.Open(config), &gorm.Config{})
+	db, err := gorm.Open(mysql.Open(config), &gorm.Config{})
 	if err != nil {
 		log.Error("Open database failed",
 			zap.String("reason", err.Error()),

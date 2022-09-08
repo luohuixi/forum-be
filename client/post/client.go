@@ -3,7 +3,7 @@ package main
 import (
 	"context"
 	pb "forum-post/proto"
-	"github.com/micro/go-micro"
+	micro "go-micro.dev/v4"
 )
 
 func main() { // TODO
@@ -11,7 +11,7 @@ func main() { // TODO
 
 	service.Init()
 
-	client := pb.NewPostServiceClient("forum.service.post", service.Client())
+	client := pb.NewPostService("forum.service.post", service.Client())
 
 	_, err := client.CreatePost(context.TODO(), &pb.CreatePostRequest{
 		UserId:  2,

@@ -4,12 +4,12 @@ import (
 	"context"
 	"forum-feed/dao"
 	"forum/pkg/handler"
-	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/opentracing/opentracing-go"
 
 	upb "forum-user/proto"
 
-	"github.com/micro/go-micro"
+	micro "go-micro.dev/v4"
 )
 
 // FeedService ... 动态服务
@@ -23,20 +23,19 @@ func New(i dao.Interface) *FeedService {
 	return service
 }
 
-var UserService micro.Service
-var UserClient upb.UserServiceClient
+var UserClient upb.UserService
 
 func UserInit() {
-	UserService = micro.NewService(micro.Name("forum.cli.user"),
+	service := micro.NewService(micro.Name("forum.cli.user"),
 		micro.WrapClient(
 			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
 		),
 		micro.WrapCall(handler.ClientErrorHandlerWrapper()),
 	)
 
-	UserService.Init()
+	service.Init()
 
-	UserClient = upb.NewUserServiceClient("forum.service.user", UserService.Client())
+	UserClient = upb.NewUserService("forum.service.user", service.Client())
 }
 
 // getInfoFromUserService get user's name and avatar from user-service

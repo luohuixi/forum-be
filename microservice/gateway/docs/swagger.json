@@ -973,6 +973,9 @@
                 },
                 "role": {
                     "type": "string"
+                },
+                "signature": {
+                    "type": "string"
                 }
             }
         },

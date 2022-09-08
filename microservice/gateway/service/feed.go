@@ -6,22 +6,21 @@ import (
 
 	micro "go-micro.dev/v4"
 
-	_ "github.com/micro/go-plugins/registry/kubernetes"
-	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/opentracing/opentracing-go"
 )
 
-var FeedService micro.Service
-var FeedClient pbf.FeedServiceClient
+var FeedClient pbf.FeedService
 
 func FeedInit() {
-	FeedService = micro.NewService(micro.Name("forum.cli.feed"),
+	service := micro.NewService(micro.Name("forum.cli.feed"),
 		micro.WrapClient(
 			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
 		),
 		micro.WrapCall(handler.ClientErrorHandlerWrapper()))
-	FeedService.Init()
 
-	FeedClient = pbf.NewFeedServiceClient("forum.service.feed", FeedService.Client())
+	service.Init()
 
+	FeedClient = pbf.NewFeedService("forum.service.feed", service.Client())
 }

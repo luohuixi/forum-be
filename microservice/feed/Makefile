@@ -7,7 +7,7 @@ fmt:
 vet:
 	go vet ./...
 protoc:
-	protoc --go_out=plugins=micro:. ./proto/feed.proto
+	protoc --proto_path=. --micro_out=. --go_out=. ./proto/feed.proto
 github:
 	git push origin && git push --tags origin
 gitea:

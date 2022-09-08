@@ -3,26 +3,13 @@ package main
 import (
 	"context"
 	pb "forum-feed/proto"
-	logger "forum/log"
 	"forum/pkg/handler"
-	"forum/pkg/tracer"
-	"github.com/micro/go-micro"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/opentracing/opentracing-go"
-	"log"
-
-	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
+	micro "go-micro.dev/v4"
 )
 
 func main() {
-	t, io, err := tracer.NewTracer("forum.service.feed", "localhost:6831")
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer io.Close()
-	defer logger.SyncLogger()
-
-	opentracing.SetGlobalTracer(t)
-
 	service := micro.NewService(micro.Name("forum.cli.feed"),
 		micro.WrapClient(
 			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
@@ -32,9 +19,9 @@ func main() {
 
 	service.Init()
 
-	client := pb.NewFeedServiceClient("forum.service.feed", service.Client())
+	client := pb.NewFeedService("forum.service.feed", service.Client())
 
-	_, err = client.Delete(context.TODO(), &pb.Request{
+	_, err := client.Delete(context.TODO(), &pb.Request{
 		Id: 2,
 	})
 

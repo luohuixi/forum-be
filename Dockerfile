@@ -1,4 +1,4 @@
-FROM golang:1.16
+FROM golang:1.18
 RUN mkdir /app 
 ADD . /app/
 ARG service_name

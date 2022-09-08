@@ -2,8 +2,8 @@ package main
 
 import (
 	"flag"
-	"github.com/micro/go-micro"
 	"github.com/opentracing/opentracing-go"
+	micro "go-micro.dev/v4"
 	"log"
 
 	"forum-feed/dao"
@@ -14,11 +14,11 @@ import (
 	"forum/pkg/handler"
 	"forum/pkg/tracer"
 
-	_ "github.com/micro/go-plugins/registry/kubernetes"
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
 
-	"github.com/micro/cli"
-	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/spf13/viper"
+	cli "github.com/urfave/cli/v2"
 )
 
 // 使用--sub运行subscribe服务
@@ -79,7 +79,7 @@ func main() {
 			opentracingWrapper.NewHandlerWrapper(opentracing.GlobalTracer()),
 		),
 		micro.WrapHandler(handler.ServerErrorHandlerWrapper()),
-		micro.Flags(cli.BoolFlag{
+		micro.Flags(&cli.BoolFlag{
 			Name:   "sub",
 			Usage:  "use subscribe service mode",
 			Hidden: false,
@@ -89,7 +89,9 @@ func main() {
 	// Init will parse the command line flags.
 	srv.Init()
 
-	pb.RegisterFeedServiceHandler(srv.Server(), service.New(dao.GetDao()))
+	if err := pb.RegisterFeedServiceHandler(srv.Server(), service.New(dao.GetDao())); err != nil {
+		panic(err)
+	}
 
 	// Run the server
 	if err := srv.Run(); err != nil {

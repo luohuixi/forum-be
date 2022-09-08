@@ -13,7 +13,7 @@ import (
 	"forum/config"
 	"forum/log"
 
-	_ "github.com/micro/go-plugins/registry/kubernetes"
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"

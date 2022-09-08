@@ -987,6 +987,9 @@ var doc = `{
                 },
                 "role": {
                     "type": "string"
+                },
+                "signature": {
+                    "type": "string"
                 }
             }
         },

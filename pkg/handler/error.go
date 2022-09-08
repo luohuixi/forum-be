@@ -4,11 +4,11 @@ import (
 	"context"
 	logger "forum/log"
 
-	"github.com/micro/go-micro/client"
-	errors "github.com/micro/go-micro/errors"
-	"github.com/micro/go-micro/metadata"
-	"github.com/micro/go-micro/registry"
-	"github.com/micro/go-micro/server"
+	"go-micro.dev/v4/client"
+	errors "go-micro.dev/v4/errors"
+	"go-micro.dev/v4/metadata"
+	"go-micro.dev/v4/registry"
+	"go-micro.dev/v4/server"
 	"go.uber.org/zap"
 )
 
