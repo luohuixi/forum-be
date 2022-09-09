@@ -64,7 +64,7 @@ func (Dao) CreateComment(comment *CommentModel) (uint32, error) {
 
 func (d *Dao) ListCommentByPostId(postId uint32) ([]*pb.CommentInfo, error) {
 	var comments []*pb.CommentInfo
-	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = comments.creator_id").Where("post_id = ? AND comments.re = 0", postId).Find(&comments).Error
+	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = comments.creator_id").Where("post_id = ? AND comments.re = 0", postId).Find(&comments).Error
 	return comments, err
 }
 

@@ -4,6 +4,7 @@ import (
 	"forum-gateway/dao"
 	"forum-gateway/handler/comment"
 	pb "forum-post/proto"
+	"reflect"
 )
 
 type Api struct {
@@ -64,17 +65,6 @@ type SubPost struct {
 	Comments []*Comment `json:"comments"`
 }
 
-func (i *info) setInfo(comment *pb.CommentInfo) {
-	i.Id = comment.Id
-	i.IsLiked = comment.IsLiked
-	i.Content = comment.Content
-	i.Time = comment.CreateTime
-	i.LikeNum = comment.LikeNum
-	i.CreatorAvatar = comment.CreatorAvatar
-	i.CreatorName = comment.CreatorName
-	i.CreatorId = comment.CreatorId
-}
-
 type Comment struct {
 	info
 	Replies []*info `json:"replies"`
@@ -90,4 +80,35 @@ type info struct {
 	CreatorAvatar string `json:"creator_avatar"`
 	LikeNum       uint32 `json:"like_num"`
 	IsLiked       bool   `json:"is_liked"`
+}
+
+func setInfo[T pb.CommentInfo | pb.Post](info *info, comment T) {
+	typeT := reflect.TypeOf(comment)
+	value := reflect.ValueOf(&comment).Elem()
+
+	for i := 0; i < typeT.NumField(); i++ {
+		v := value.Field(i)
+		field := typeT.Field(i)
+
+		switch field.Name {
+		case "Id":
+			info.Id = uint32(v.Uint())
+		case "Content":
+			info.Content = v.String()
+		case "CommentNum":
+			info.CommentNum = uint32(v.Uint())
+		case "IsLiked":
+			info.IsLiked = v.Bool()
+		case "CreatorName":
+			info.CreatorName = v.String()
+		case "CreatorId":
+			info.CreatorId = uint32(v.Uint())
+		case "LikeNum":
+			info.LikeNum = uint32(v.Uint())
+		case "CreatorAvatar":
+			info.CreatorAvatar = v.String()
+		case "Time", "CreateTime":
+			info.Time = v.String()
+		}
+	}
 }

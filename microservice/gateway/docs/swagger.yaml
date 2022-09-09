@@ -146,6 +146,7 @@ definitions:
       like_num:
         type: integer
       type_name:
+        description: first-level -> 一级评论; second-level -> 其它级
         type: string
     type: object
   comment.CreateRequest:
@@ -170,6 +171,7 @@ definitions:
       target_id:
         type: integer
       type_name:
+        description: post or comment
         type: string
     required:
     - target_id
@@ -520,7 +522,6 @@ paths:
     get:
       consumes:
       - application/json
-      description: 'typeName: first-level -> 一级评论; second-level -> 其它级'
       parameters:
       - description: comment_id
         in: path
@@ -578,7 +579,6 @@ paths:
     post:
       consumes:
       - application/json
-      description: 'TypeName: post or comment'
       parameters:
       - description: token 用户令牌
         in: header
@@ -605,7 +605,6 @@ paths:
     get:
       consumes:
       - application/json
-      description: 'TypeName: post or comment'
       parameters:
       - description: token 用户令牌
         in: header
@@ -707,6 +706,11 @@ paths:
         name: post_id
         required: true
         type: integer
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
       produces:
       - application/json
       responses:

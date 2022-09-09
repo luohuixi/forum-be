@@ -16,7 +16,6 @@ import (
 
 // CreateOrRemove ... 点赞/取消点赞
 // @Summary 点赞/取消点赞 api
-// @Description TypeName: post or comment
 // @Tags like
 // @Accept application/json
 // @Produce application/json

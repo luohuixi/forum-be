@@ -17,7 +17,6 @@ import (
 
 // Delete ... 删除帖子
 // @Summary 删除帖子 api
-// @Description
 // @Tags post
 // @Accept application/json
 // @Produce application/json

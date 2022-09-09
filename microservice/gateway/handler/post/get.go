@@ -17,11 +17,11 @@ import (
 
 // Get ... 获取帖子
 // @Summary 获取帖子 api
-// @Description
 // @Tags post
 // @Accept application/json
 // @Produce application/json
 // @Param post_id path int true "post_id"
+// @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} GetPostResponse
 // @Router /post/{post_id} [get]
 func (a *Api) Get(c *gin.Context) {
@@ -57,47 +57,59 @@ func (a *Api) Get(c *gin.Context) {
 		return
 	}
 
-	var subPost []*SubPost
+	var subPosts []*SubPost
+	subPostCommentsMap := make(map[uint32]*[]*Comment)
+
+	firstLevelCommentsMap := make(map[uint32]*[]*info)
 
 	for _, comment := range getResp.Comments {
 		if comment.TypeName == constvar.SubPost {
-			subPost = append(subPost, &SubPost{
-				info: info{
-					Id:      comment.Id,
-					Content: comment.Content,
-					// CommentNum:    comment.,
-					Time:          comment.CreateTime,
-					CreatorId:     comment.CreatorId,
-					CreatorName:   comment.CreatorName,
-					CreatorAvatar: comment.CreatorAvatar,
-					LikeNum:       comment.LikeNum,
-					IsLiked:       comment.IsLiked,
-				},
-				Comments: nil,
-			})
+			var subPost = new(SubPost)
+
+			subPostCommentsMap[comment.Id] = &subPost.Comments
+
+			setInfo(&subPost.info, *comment)
+
+			subPosts = append(subPosts, subPost)
+
+		}
+	}
+
+	for _, comment := range getResp.Comments {
+		if comment.TypeName == constvar.FirstLevelComment {
+			var subPostComment = new(Comment)
+
+			subPostComments := subPostCommentsMap[comment.FatherId]
+
+			firstLevelCommentsMap[comment.Id] = &subPostComment.Replies
+
+			setInfo(&subPostComment.info, *comment)
+
+			*subPostComments = append(*subPostComments, subPostComment)
+		}
+	}
+
+	for _, comment := range getResp.Comments {
+		if comment.TypeName == constvar.SecondLevelComment {
+			var commentReply = new(info)
+
+			commentsReplies := firstLevelCommentsMap[comment.FatherId]
+
+			setInfo(commentReply, *comment)
+
+			*commentsReplies = append(*commentsReplies, commentReply)
 		}
 	}
 
 	resp := GetPostResponse{
-		info: info{
-			Id:            getResp.Id,
-			Content:       getResp.Content,
-			CommentNum:    getResp.CommentNum,
-			Time:          getResp.Time,
-			CreatorId:     getResp.CreatorId,
-			CreatorName:   getResp.CreatorName,
-			CreatorAvatar: getResp.CreatorAvatar,
-			LikeNum:       getResp.LikeNum,
-			IsLiked:       getResp.IsLiked,
-		},
 		Title:        getResp.Title,
 		Category:     getResp.Category,
 		IsCollection: getResp.IsCollection,
-		SubPosts:     subPost,
+		SubPosts:     subPosts,
 		Tags:         getResp.Tags,
 	}
 
-	// resp.setInfo(getResp)
+	setInfo(&resp.info, *getResp)
 
 	SendResponse(c, nil, resp)
 }

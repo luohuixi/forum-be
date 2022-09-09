@@ -32,10 +32,10 @@ func init() {
 	service.FeedInit()
 }
 
-// @title forum-gateway
-// @version 1.0
-// @description The gateway of forum
-// @host forum.muxixyz.com
+// @Title forum-gateway
+// @Version 1.0
+// @Description The gateway of forum
+// @Host forum.muxixyz.com
 // @BasePath /api/v1
 
 // @tag.name user
@@ -49,8 +49,6 @@ func init() {
 // @tag.name feed
 // @tag.description 动态服务
 
-func main1() {
-}
 func main() {
 	pflag.Parse()
 

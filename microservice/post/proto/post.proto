@@ -51,7 +51,7 @@ message CommentInfo {
     string type_name = 2;
     string content = 3;
     uint32 father_id = 4;
-    string create_time = 5;
+    string time = 5;
     uint32 creator_id = 6;
     string creator_name = 7;
     string creator_avatar = 8;

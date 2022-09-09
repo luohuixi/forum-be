@@ -24,7 +24,7 @@ type CreateRequest struct {
 type Comment struct {
 	Id            uint32 `json:"id"`
 	Content       string `json:"content"`
-	TypeName      string `json:"type_name"`
+	TypeName      string `json:"type_name"` // first-level -> 一级评论; second-level -> 其它级
 	FatherId      uint32 `json:"father_id"`
 	CreateTime    string `json:"create_time"`
 	CreatorId     uint32 `json:"creator_id"`

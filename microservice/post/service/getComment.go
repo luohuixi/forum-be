@@ -38,7 +38,7 @@ func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.Co
 	resp.TypeName = comment.TypeName
 	resp.Id = comment.Id
 	resp.Content = comment.Content
-	resp.CreateTime = comment.CreateTime
+	resp.Time = comment.CreateTime
 	resp.CreatorId = comment.CreatorId
 	resp.CreatorAvatar = comment.CreatorAvatar
 	resp.CreatorName = comment.CreatorName

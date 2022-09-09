@@ -13,7 +13,6 @@ import (
 
 // GetUserLikeList ... 获取用户点赞列表
 // @Summary 获取用户点赞列表 api
-// @Description TypeName: post or comment
 // @Tags like
 // @Accept application/json
 // @Produce application/json
