@@ -5,6 +5,7 @@ import (
 	_ "forum-gateway/docs"
 	"forum-gateway/handler"
 	"forum-gateway/handler/chat"
+	"forum-gateway/handler/collection"
 	"forum-gateway/handler/comment"
 	"forum-gateway/handler/feed"
 	"forum-gateway/handler/like"
@@ -100,6 +101,16 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	feedApi := feed.New(dao.GetDao())
 	{
 		feedRouter.GET("/list", feedApi.List)
+	}
+
+	// collection
+	collectionRouter := g.Group("api/v1/collection")
+	collectionRouter.Use(normalRequired)
+	collectionApi := collection.New(dao.GetDao())
+	{
+		collectionRouter.GET("/list", collectionApi.List)
+		collectionRouter.POST("", collectionApi.Create)
+		collectionRouter.DELETE("/:collection_id", collectionApi.Delete)
 	}
 
 	// The health check handlers

@@ -82,6 +82,7 @@ type info struct {
 	IsLiked       bool   `json:"is_liked"`
 }
 
+// 这里用了 generics and reflect, 更一般的写法应该是用interface
 func setInfo[T pb.CommentInfo | pb.Post](info *info, comment T) {
 	typeT := reflect.TypeOf(comment)
 	value := reflect.ValueOf(&comment).Elem()

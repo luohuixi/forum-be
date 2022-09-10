@@ -115,6 +115,18 @@ func AddPolicy(userId uint32, typeName string, id uint32, act string) error {
 	return nil
 }
 
+func DeletePermission(userId uint32, typeName string, id uint32, act string) error {
+	ok, err := CB.Self.DeletePermissionForUser("user:"+strconv.Itoa(int(userId)), typeName+":"+strconv.Itoa(int(id)), act)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("delete permission not ok")
+	}
+
+	return nil
+}
+
 func AddRole(typeName string, id uint32, role string) error {
 	ok, err := CB.Self.AddRoleForUser(typeName+":"+strconv.Itoa(int(id)), role)
 	if err != nil {

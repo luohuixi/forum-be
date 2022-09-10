@@ -14,12 +14,16 @@ service PostService {
     rpc GetComment(Request) returns (CommentInfo) {}
     rpc CreateComment(CreateCommentRequest) returns (CreateResponse) {}
 
-    rpc DeleteItem(Item) returns (Response) {}
+    rpc DeleteItem(DeleteItemRequest) returns (Response) {}
 
     rpc CreateOrRemoveLike(LikeRequest) returns (Response) {}
     rpc ListLikeByUserId(UserIdRequest) returns (ListLikeResponse) {}
 
     rpc ListPopularTags(NullRequest) returns (Tags) {}
+
+    rpc CreateCollection(Request) returns(CreateResponse) {}
+    rpc DeleteCollection(Request) returns(Response) {}
+    rpc ListCollections(UserIdRequest) returns (ListCollectionsResponse) {}
 }
 
 message NullRequest {}
@@ -68,10 +72,12 @@ message UserIdRequest {
     uint32 user_id = 1;
 }
 
-message Item {
+message DeleteItemRequest {
     uint32 id = 1;
     string type_name = 2;
+    uint32 user_id = 3;
 }
+
 
 message UpdatePostInfoRequest {
     uint32 id = 1;
@@ -120,7 +126,7 @@ message ListSubPostRequest {
 }
 
 message ListPostResponse {
-    repeated Post list = 1;
+    repeated Post posts = 1;
 }
 
 message Post {
@@ -142,4 +148,24 @@ message Post {
 
 message Tags {
     repeated string tags = 1;
+}
+
+message ListCollectionsResponse {
+    repeated Collection collections = 1;
+}
+
+message Collection {
+    uint32 id = 1;
+    uint32 post_id = 2;
+    string title = 3;
+    string content = 4;
+    string time = 5;
+    uint32 creator_id = 6;
+    string creator_name = 7;
+    string creator_avatar = 8;
+    uint32 comment_num = 9;
+}
+
+message DeleteCollectionRequest {
+    uint32 id = 1;
 }

@@ -88,5 +88,5 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, nil, postResp.List)
+	SendResponse(c, nil, postResp.Posts)
 }

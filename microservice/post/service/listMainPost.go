@@ -21,7 +21,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	resp.List = make([]*pb.Post, len(posts))
+	resp.Posts = make([]*pb.Post, len(posts))
 	for i, post := range posts {
 
 		// limit max len of post content
@@ -36,7 +36,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			post.LikeNum = likeNum
 		}
 
-		resp.List[i] = &pb.Post{
+		resp.Posts[i] = &pb.Post{
 			Id:            post.Id,
 			Title:         post.Title,
 			Time:          post.LastEditTime,

@@ -32,7 +32,7 @@ package service
 //
 // 	posts = append(posts, mainPost)
 // 	posts = append(posts, subPosts...)
-// 	resp.List = make([]*pb.Post, len(posts))
+// 	resp.Posts = make([]*pb.Post, len(posts))
 // 	for i, post := range posts {
 // 		comments, err := s.Dao.ListCommentByPostId(post.Id)
 // 		if err != nil {
@@ -47,7 +47,7 @@ package service
 // 			post.LikeNum = likeNum
 // 		}
 //
-// 		resp.List[i] = &pb.Post{
+// 		resp.Posts[i] = &pb.Post{
 // 			Id:            post.Id,
 // 			Title:         post.Title,
 // 			Time:          post.LastEditTime,

@@ -1,4 +1,4 @@
-package post
+package collection
 
 import (
 	"context"
@@ -15,27 +15,27 @@ import (
 	"strconv"
 )
 
-// Delete ... 删除帖子
-// @Summary 删除帖子 api
-// @Tags post
+// Delete ... 取消收藏
+// @Summary 取消收藏 api
+// @Tags collection
 // @Accept application/json
 // @Produce application/json
-// @Param post_id path int true "post_id"
+// @Param collection_id path int true "collection_id"
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} handler.Response
-// @Router /post/{post_id} [delete]
+// @Router /collection/{collection_id} [delete]
 func (a *Api) Delete(c *gin.Context) {
-	log.Info("Post Delete function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Collection Delete function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
 
-	id, err := strconv.Atoi(c.Param("post_id"))
+	id, err := strconv.Atoi(c.Param("collection_id"))
 	if err != nil {
 		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
 	}
 
-	ok, err := model.Enforce(userId, constvar.Post, id, constvar.Write)
+	ok, err := model.Enforce(userId, constvar.Collection, id, constvar.Write)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
@@ -46,13 +46,12 @@ func (a *Api) Delete(c *gin.Context) {
 		return
 	}
 
-	deleteReq := &pb.DeleteItemRequest{
-		Id:       uint32(id),
-		TypeName: constvar.Post,
-		UserId:   userId,
+	deleteReq := &pb.Request{
+		Id:     uint32(id),
+		UserId: userId,
 	}
 
-	_, err = service.PostClient.DeleteItem(context.TODO(), deleteReq)
+	_, err = service.PostClient.DeleteCollection(context.TODO(), deleteReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

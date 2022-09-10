@@ -48,6 +48,10 @@ type Interface interface {
 
 	AddTagToSortedSet(uint32) error
 	ListPopularTags() ([]string, error)
+
+	CreateCollection(*CollectionModel) (uint32, error)
+	DeleteCollection(*CollectionModel) error
+	ListCollectionByUserId(uint32) ([]*pb.Collection, error)
 }
 
 // Init init dao

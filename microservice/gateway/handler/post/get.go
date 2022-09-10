@@ -57,6 +57,7 @@ func (a *Api) Get(c *gin.Context) {
 		return
 	}
 
+	// 三次遍历分别处理 SubPost FirstLevelComment SecondLevelComment
 	var subPosts []*SubPost
 	subPostCommentsMap := make(map[uint32]*[]*Comment)
 

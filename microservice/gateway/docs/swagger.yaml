@@ -125,6 +125,34 @@ definitions:
       id:
         type: string
     type: object
+  collection.Collection:
+    properties:
+      comment_num:
+        type: integer
+      content:
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      time:
+        type: string
+      title:
+        type: string
+    type: object
+  collection.CreateRequest:
+    properties:
+      post_id:
+        type: integer
+    required:
+    - post_id
+    type: object
   comment.Comment:
     properties:
       content:
@@ -468,6 +496,78 @@ paths:
       summary: WebSocket
       tags:
       - chat
+  /collection:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/collection.Collection'
+            type: array
+      summary: list收藏 api
+      tags:
+      - collection
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_collection_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/collection.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 收藏帖子 api
+      tags:
+      - collection
+  /collection/{collection_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: collection_id
+        in: path
+        name: collection_id
+        required: true
+        type: integer
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 取消收藏 api
+      tags:
+      - collection
   /comment:
     post:
       consumes:

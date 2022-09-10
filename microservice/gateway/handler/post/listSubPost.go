@@ -93,5 +93,5 @@ package post
 // 		return
 // 	}
 //
-// 	SendResponse(c, nil, postResp.List)
+// 	SendResponse(c, nil, postResp.Posts)
 // }

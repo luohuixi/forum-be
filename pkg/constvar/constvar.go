@@ -24,6 +24,8 @@ const (
 	Post    = "post"
 	Comment = "comment"
 
+	Collection = "collection"
+
 	// post type
 	NormalPost = "normal"
 	MuxiPost   = "muxi"

@@ -46,9 +46,10 @@ func (a *Api) Delete(c *gin.Context) {
 		return
 	}
 
-	deleteReq := &pb.Item{
+	deleteReq := &pb.DeleteItemRequest{
 		Id:       uint32(id),
 		TypeName: constvar.Comment,
+		UserId:   userId,
 	}
 
 	_, err = service.PostClient.DeleteItem(context.TODO(), deleteReq)

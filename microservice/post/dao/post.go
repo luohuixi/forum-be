@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"fmt"
 	"forum/pkg/constvar"
 	"gorm.io/gorm"
 )
@@ -99,11 +98,4 @@ func (Dao) GetPost(id uint32) (*PostModel, error) {
 	item := &PostModel{}
 	err := item.Get(id)
 	return item, err
-}
-
-func (d *Dao) IsUserCollectionPost(userId uint32, id uint32) (bool, error) {
-	fmt.Println("----- userId, id: ", userId, id, " -----")
-
-	// TODO
-	return false, nil
 }

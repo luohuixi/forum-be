@@ -15,7 +15,8 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 	logger.Info("PostService CreateComment")
 
 	// check if the FatherId is valid
-	if req.TypeName == constvar.FirstLevelComment {
+	switch req.TypeName {
+	case constvar.SubPost:
 		post, err := s.Dao.GetPost(req.FatherId)
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
@@ -26,7 +27,8 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 
 		resp.TargetUserId = post.Id
 		resp.TargetUserId = post.CreatorId
-	} else if req.TypeName == constvar.SecondLevelComment {
+
+	case constvar.FirstLevelComment, constvar.SecondLevelComment:
 		comment, err := s.Dao.GetComment(req.FatherId)
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
@@ -35,9 +37,14 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 			return errno.ServerErr(errno.ErrBadRequest, "the comment not found")
 		}
 
+		if (req.TypeName == constvar.FirstLevelComment && comment.TypeName != constvar.SubPost) || (req.TypeName == constvar.SecondLevelComment && comment.TypeName != constvar.FirstLevelComment) {
+			return errno.ServerErr(errno.ErrBadRequest, "type_name of father not legal")
+		}
+
 		resp.TargetUserId = comment.Id
 		resp.TargetUserId = comment.CreatorId
-	} else {
+
+	default:
 		return errno.ServerErr(errno.ErrBadRequest, "type_name not legal")
 	}
 
