@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	pb "forum-post/proto"
 	micro "go-micro.dev/v4"
 )
@@ -13,13 +14,16 @@ func main() { // TODO
 
 	client := pb.NewPostService("forum.service.post", service.Client())
 
-	_, err := client.CreatePost(context.TODO(), &pb.CreatePostRequest{
-		UserId:  2,
-		Content: "外比巴卜",
-		// TypeId:     1, // 默认为1
-		Title:    "first post",
-		Category: "2",
+	resp, err := client.GetPost(context.TODO(), &pb.Request{
+		Id:     3,
+		UserId: 2,
 	})
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("----- resp: ", resp.LikeNum, " -----")
+	fmt.Println("----- resp: ", resp.ContentType, " -----")
+
 	// _, err = client.CreateComment(context.TODO(), &pb.CreateCommentRequest{
 	// 	PostId: 1,
 	// 	// TypeId:    2,

@@ -142,8 +142,9 @@ message Post {
     uint32 like_num = 10;
     bool is_liked = 11;
     bool is_collection = 12;
-    repeated CommentInfo comments = 13;
-    repeated string tags = 14;
+    string content_type = 13;
+    repeated CommentInfo comments = 14;
+    repeated string tags = 15;
 }
 
 message Tags {

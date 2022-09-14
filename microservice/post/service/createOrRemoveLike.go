@@ -9,7 +9,7 @@ import (
 )
 
 func (s *PostService) CreateOrRemoveLike(_ context.Context, req *pb.LikeRequest, _ *pb.Response) error {
-	logger.Info("PostService CreateLike")
+	logger.Info("PostService CreateOrRemoveLike")
 
 	item := dao.Item{
 		Id:       req.Item.TargetId,

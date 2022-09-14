@@ -48,6 +48,8 @@ func init() {
 // @tag.description 帖子服务
 // @tag.name feed
 // @tag.description 动态服务
+// @tag.name collection
+// @tag.description 收藏服务
 
 func main() {
 	pflag.Parse()

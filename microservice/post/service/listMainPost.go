@@ -50,6 +50,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			IsLiked:       isLiked,
 			IsCollection:  isCollection,
 			Tags:          tags,
+			ContentType:   post.ContentType,
 		}
 	}
 

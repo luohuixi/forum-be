@@ -65,7 +65,3 @@ func (db *Database) Init() {
 		Self: GetSelfDB(),
 	}
 }
-
-// func (db *Database) Close() {
-// 	DB.Self.
-// }

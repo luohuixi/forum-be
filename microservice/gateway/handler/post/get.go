@@ -106,6 +106,7 @@ func (a *Api) Get(c *gin.Context) {
 		Title:        getResp.Title,
 		Category:     getResp.Category,
 		IsCollection: getResp.IsCollection,
+		ContentType:  getResp.ContentType,
 		SubPosts:     subPosts,
 		Tags:         getResp.Tags,
 	}

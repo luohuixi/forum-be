@@ -40,6 +40,7 @@ type Post struct {
 	IsCollection  bool               `json:"is_collection"`
 	Comments      []*comment.Comment `json:"comments"`
 	Tags          []string           `json:"tags"`
+	ContentType   string             `json:"content_type"` // md or rtf
 }
 
 type CreateRequest struct {
@@ -58,6 +59,7 @@ type GetPostResponse struct {
 	IsCollection bool       `json:"is_collection"`
 	SubPosts     []*SubPost `json:"sub_posts"`
 	Tags         []string   `json:"tags"`
+	ContentType  string     `json:"content_type"` // md or rtf
 }
 
 type SubPost struct {

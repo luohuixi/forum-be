@@ -265,6 +265,9 @@ definitions:
         type: integer
       content:
         type: string
+      content_type:
+        description: md or rtf
+        type: string
       creator_avatar:
         type: string
       creator_id:
@@ -303,6 +306,9 @@ definitions:
           $ref: '#/definitions/comment.Comment'
         type: array
       content:
+        type: string
+      content_type:
+        description: md or rtf
         type: string
       creator_avatar:
         type: string
@@ -1018,3 +1024,5 @@ tags:
   name: post
 - description: 动态服务
   name: feed
+- description: 收藏服务
+  name: collection

@@ -1315,6 +1315,10 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
+                "content_type": {
+                    "description": "md or rtf",
+                    "type": "string"
+                },
                 "creator_avatar": {
                     "type": "string"
                 },
@@ -1372,6 +1376,10 @@ const docTemplate = `{
                     }
                 },
                 "content": {
+                    "type": "string"
+                },
+                "content_type": {
+                    "description": "md or rtf",
                     "type": "string"
                 },
                 "creator_avatar": {
@@ -1550,6 +1558,10 @@ const docTemplate = `{
         {
             "description": "动态服务",
             "name": "feed"
+        },
+        {
+            "description": "收藏服务",
+            "name": "collection"
         }
     ]
 }`
