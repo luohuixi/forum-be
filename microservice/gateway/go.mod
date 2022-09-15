@@ -24,6 +24,7 @@ require (
 	github.com/go-micro/plugins/v4/wrapper/trace/opentracing v1.1.0
 	github.com/gorilla/websocket v1.4.2
 	github.com/opentracing/opentracing-go v1.2.0
+	github.com/qiniu/api.v7/v7 v7.8.2
 	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil/v3 v3.22.8
 	github.com/spf13/pflag v1.0.5
@@ -78,6 +79,7 @@ require (
 	github.com/golang-sql/sqlexp v0.0.0-20170517235910-f1bb20e5a188 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
+	github.com/gookit/color v1.3.6 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect

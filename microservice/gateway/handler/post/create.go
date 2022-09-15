@@ -56,13 +56,14 @@ func (a *Api) Create(c *gin.Context) {
 	}
 
 	createReq := pb.CreatePostRequest{
-		UserId:      userId,
-		Content:     req.Content,
-		TypeName:    req.TypeName,
-		Title:       req.Title,
-		Category:    req.Category,
-		ContentType: req.ContentType,
-		Tags:        req.Tags,
+		UserId:          userId,
+		Content:         req.Content,
+		TypeName:        req.TypeName,
+		Title:           req.Title,
+		Category:        req.Category,
+		ContentType:     req.ContentType,
+		Tags:            req.Tags,
+		CompiledContent: req.CompiledContent,
 	}
 
 	_, err = service.PostClient.CreatePost(context.TODO(), &createReq)

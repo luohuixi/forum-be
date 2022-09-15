@@ -70,12 +70,13 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	postApi := post.New(dao.GetDao())
 	{
 		postRouter.GET("/list/:type_name", postApi.ListMainPost)
-		// postRouter.GET("/list/:type_name/:main_post_id", postApi.ListSubPost)
+		postRouter.GET("/my/list", postApi.ListMyPost)
 		postRouter.GET("/:post_id", postApi.Get)
 		postRouter.POST("", postApi.Create)
 		postRouter.DELETE("/:post_id", postApi.Delete)
 		postRouter.PUT("", postApi.UpdateInfo)
 		postRouter.GET("/popular_tags", postApi.ListPopularTags)
+		postRouter.GET("/qiniu_token", postApi.GetQiNiuToken)
 	}
 
 	commentRouter := g.Group("api/v1/comment")

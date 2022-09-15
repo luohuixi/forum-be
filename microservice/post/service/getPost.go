@@ -35,6 +35,7 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 
 	resp.Id = post.Id
 	resp.Content = post.Content
+	resp.CompiledContent = post.CompiledContent
 	resp.Title = post.Title
 	resp.Time = post.LastEditTime
 	resp.Category = post.Category

@@ -630,6 +630,40 @@ const docTemplate = `{
                 }
             }
         },
+        "/post/my/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "list 我发布的帖子 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/post.Post"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/post/popular_tags": {
             "get": {
                 "description": "降序",
@@ -660,6 +694,37 @@ const docTemplate = `{
                             "items": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/post/qiniu_token": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "获取七牛云token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/post.QiNiuToken"
                         }
                     }
                 }
@@ -1312,6 +1377,9 @@ const docTemplate = `{
                 "comment_num": {
                     "type": "integer"
                 },
+                "compiled_content": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
                 },
@@ -1375,6 +1443,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/comment.Comment"
                     }
                 },
+                "compiled_content": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
                 },
@@ -1413,6 +1484,14 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "post.QiNiuToken": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }

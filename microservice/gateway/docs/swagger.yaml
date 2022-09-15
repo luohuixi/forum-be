@@ -263,6 +263,8 @@ definitions:
         type: string
       comment_num:
         type: integer
+      compiled_content:
+        type: string
       content:
         type: string
       content_type:
@@ -305,6 +307,8 @@ definitions:
         items:
           $ref: '#/definitions/comment.Comment'
         type: array
+      compiled_content:
+        type: string
       content:
         type: string
       content_type:
@@ -331,6 +335,11 @@ definitions:
       time:
         type: string
       title:
+        type: string
+    type: object
+  post.QiNiuToken:
+    properties:
+      token:
         type: string
     type: object
   post.SubPost:
@@ -872,6 +881,28 @@ paths:
       summary: list 主帖 api
       tags:
       - post
+  /post/my/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/post.Post'
+            type: array
+      summary: list 我发布的帖子 api
+      tags:
+      - post
   /post/popular_tags:
     get:
       consumes:
@@ -893,6 +924,26 @@ paths:
               type: string
             type: array
       summary: list 热门tags api
+      tags:
+      - post
+  /post/qiniu_token:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.QiNiuToken'
+      summary: 获取七牛云token
       tags:
       - post
   /user:

@@ -8,15 +8,14 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostRequest, resp *pb.ListPostResponse) error {
-	logger.Info("PostService ListMainPost")
+func (s *PostService) ListUserCreatedPost(_ context.Context, req *pb.Request, resp *pb.ListPostResponse) error {
+	logger.Info("PostService ListUserCreatedPost")
 
 	filter := &dao.PostModel{
-		TypeName: req.TypeName,
-		Category: req.Category,
+		CreatorId: req.UserId,
 	}
 
-	posts, err := s.Dao.ListPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination)
+	posts, err := s.Dao.ListPost(filter, 0, 0, 0, false)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
@@ -43,20 +42,17 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 		}
 
 		resp.Posts[i] = &pb.Post{
-			Id:            post.Id,
-			Title:         post.Title,
-			Time:          post.LastEditTime,
-			Category:      post.Category,
-			CreatorId:     post.CreatorId,
-			CreatorName:   post.CreatorName,
-			CreatorAvatar: post.CreatorAvatar,
-			LikeNum:       post.LikeNum,
-			Content:       content,
-			CommentNum:    commentNum,
-			IsLiked:       isLiked,
-			IsCollection:  isCollection,
-			Tags:          tags,
-			ContentType:   post.ContentType,
+			Id:           post.Id,
+			Title:        post.Title,
+			Time:         post.LastEditTime,
+			Category:     post.Category,
+			LikeNum:      post.LikeNum,
+			Content:      content,
+			CommentNum:   commentNum,
+			IsLiked:      isLiked,
+			IsCollection: isCollection,
+			Tags:         tags,
+			ContentType:  post.ContentType,
 		}
 	}
 

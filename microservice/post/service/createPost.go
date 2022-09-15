@@ -20,15 +20,16 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 	}
 
 	data := &dao.PostModel{
-		TypeName:     req.TypeName,
-		Content:      req.Content,
-		Title:        req.Title,
-		CreateTime:   util.GetCurrentTime(),
-		Category:     req.Category,
-		Re:           false,
-		CreatorId:    req.UserId,
-		ContentType:  req.ContentType,
-		LastEditTime: util.GetCurrentTime(),
+		TypeName:        req.TypeName,
+		Content:         req.Content,
+		Title:           req.Title,
+		CreateTime:      util.GetCurrentTime(),
+		Category:        req.Category,
+		Re:              false,
+		CreatorId:       req.UserId,
+		ContentType:     req.ContentType,
+		CompiledContent: req.CompiledContent,
+		LastEditTime:    util.GetCurrentTime(),
 	}
 
 	postId, err := s.Dao.CreatePost(data)

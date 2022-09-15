@@ -39,7 +39,7 @@ type PostService interface {
 	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...client.CallOption) (*Response, error)
 	GetPost(ctx context.Context, in *Request, opts ...client.CallOption) (*Post, error)
 	ListMainPost(ctx context.Context, in *ListMainPostRequest, opts ...client.CallOption) (*ListPostResponse, error)
-	//    rpc ListSubPost(ListSubPostRequest) returns (ListPostResponse) {}
+	ListUserCreatedPost(ctx context.Context, in *Request, opts ...client.CallOption) (*ListPostResponse, error)
 	UpdatePostInfo(ctx context.Context, in *UpdatePostInfoRequest, opts ...client.CallOption) (*Response, error)
 	GetComment(ctx context.Context, in *Request, opts ...client.CallOption) (*CommentInfo, error)
 	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...client.CallOption) (*CreateResponse, error)
@@ -86,6 +86,16 @@ func (c *postService) GetPost(ctx context.Context, in *Request, opts ...client.C
 
 func (c *postService) ListMainPost(ctx context.Context, in *ListMainPostRequest, opts ...client.CallOption) (*ListPostResponse, error) {
 	req := c.c.NewRequest(c.name, "PostService.ListMainPost", in)
+	out := new(ListPostResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postService) ListUserCreatedPost(ctx context.Context, in *Request, opts ...client.CallOption) (*ListPostResponse, error) {
+	req := c.c.NewRequest(c.name, "PostService.ListUserCreatedPost", in)
 	out := new(ListPostResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
@@ -200,7 +210,7 @@ type PostServiceHandler interface {
 	CreatePost(context.Context, *CreatePostRequest, *Response) error
 	GetPost(context.Context, *Request, *Post) error
 	ListMainPost(context.Context, *ListMainPostRequest, *ListPostResponse) error
-	//    rpc ListSubPost(ListSubPostRequest) returns (ListPostResponse) {}
+	ListUserCreatedPost(context.Context, *Request, *ListPostResponse) error
 	UpdatePostInfo(context.Context, *UpdatePostInfoRequest, *Response) error
 	GetComment(context.Context, *Request, *CommentInfo) error
 	CreateComment(context.Context, *CreateCommentRequest, *CreateResponse) error
@@ -218,6 +228,7 @@ func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts .
 		CreatePost(ctx context.Context, in *CreatePostRequest, out *Response) error
 		GetPost(ctx context.Context, in *Request, out *Post) error
 		ListMainPost(ctx context.Context, in *ListMainPostRequest, out *ListPostResponse) error
+		ListUserCreatedPost(ctx context.Context, in *Request, out *ListPostResponse) error
 		UpdatePostInfo(ctx context.Context, in *UpdatePostInfoRequest, out *Response) error
 		GetComment(ctx context.Context, in *Request, out *CommentInfo) error
 		CreateComment(ctx context.Context, in *CreateCommentRequest, out *CreateResponse) error
@@ -250,6 +261,10 @@ func (h *postServiceHandler) GetPost(ctx context.Context, in *Request, out *Post
 
 func (h *postServiceHandler) ListMainPost(ctx context.Context, in *ListMainPostRequest, out *ListPostResponse) error {
 	return h.PostServiceHandler.ListMainPost(ctx, in, out)
+}
+
+func (h *postServiceHandler) ListUserCreatedPost(ctx context.Context, in *Request, out *ListPostResponse) error {
+	return h.PostServiceHandler.ListUserCreatedPost(ctx, in, out)
 }
 
 func (h *postServiceHandler) UpdatePostInfo(ctx context.Context, in *UpdatePostInfoRequest, out *Response) error {

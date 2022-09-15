@@ -623,6 +623,40 @@
                 }
             }
         },
+        "/post/my/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "list 我发布的帖子 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/post.Post"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/post/popular_tags": {
             "get": {
                 "description": "降序",
@@ -653,6 +687,37 @@
                             "items": {
                                 "type": "string"
                             }
+                        }
+                    }
+                }
+            }
+        },
+        "/post/qiniu_token": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "获取七牛云token",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/post.QiNiuToken"
                         }
                     }
                 }
@@ -1305,6 +1370,9 @@
                 "comment_num": {
                     "type": "integer"
                 },
+                "compiled_content": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
                 },
@@ -1368,6 +1436,9 @@
                         "$ref": "#/definitions/comment.Comment"
                     }
                 },
+                "compiled_content": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
                 },
@@ -1406,6 +1477,14 @@
                     "type": "string"
                 },
                 "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "post.QiNiuToken": {
+            "type": "object",
+            "properties": {
+                "token": {
                     "type": "string"
                 }
             }

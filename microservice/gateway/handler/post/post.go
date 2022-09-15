@@ -26,40 +26,43 @@ type UpdateInfoRequest struct {
 }
 
 type Post struct {
-	Id            uint32             `json:"id"`
-	Title         string             `json:"title"`
-	Time          string             `json:"time"`
-	Content       string             `json:"content"`
-	Category      string             `json:"category"`
-	CreatorId     uint32             `json:"creator_id"`
-	CreatorName   string             `json:"creator_name"`
-	CreatorAvatar string             `json:"creator_avatar"`
-	CommentNum    uint32             `json:"comment_num"`
-	LikeNum       uint32             `json:"like_num"`
-	IsLiked       bool               `json:"is_liked"`
-	IsCollection  bool               `json:"is_collection"`
-	Comments      []*comment.Comment `json:"comments"`
-	Tags          []string           `json:"tags"`
-	ContentType   string             `json:"content_type"` // md or rtf
+	Id              uint32             `json:"id"`
+	Title           string             `json:"title"`
+	Time            string             `json:"time"`
+	Content         string             `json:"content"`
+	Category        string             `json:"category"`
+	CreatorId       uint32             `json:"creator_id"`
+	CreatorName     string             `json:"creator_name"`
+	CreatorAvatar   string             `json:"creator_avatar"`
+	CommentNum      uint32             `json:"comment_num"`
+	LikeNum         uint32             `json:"like_num"`
+	IsLiked         bool               `json:"is_liked"`
+	IsCollection    bool               `json:"is_collection"`
+	Comments        []*comment.Comment `json:"comments"`
+	Tags            []string           `json:"tags"`
+	ContentType     string             `json:"content_type"` // md or rtf
+	CompiledContent string             `json:"compiled_content"`
 }
 
 type CreateRequest struct {
-	TypeName    string   `json:"type_name" binding:"required"` // normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal)
-	Content     string   `json:"content" binding:"required"`
-	Title       string   `json:"title,omitempty" binding:"required"`
-	Category    string   `json:"category,omitempty" binding:"required"`
-	ContentType string   `json:"content_type" binding:"required"` // md or rtf
-	Tags        []string `json:"tags"`
+	TypeName        string   `json:"type_name" binding:"required"` // normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal)
+	Content         string   `json:"content" binding:"required"`
+	CompiledContent string   `json:"compiled_content"`
+	Title           string   `json:"title,omitempty" binding:"required"`
+	Category        string   `json:"category,omitempty" binding:"required"`
+	ContentType     string   `json:"content_type" binding:"required"` // md or rtf
+	Tags            []string `json:"tags"`
 }
 
 type GetPostResponse struct {
 	info
-	Title        string     `json:"title"`
-	Category     string     `json:"category"`
-	IsCollection bool       `json:"is_collection"`
-	SubPosts     []*SubPost `json:"sub_posts"`
-	Tags         []string   `json:"tags"`
-	ContentType  string     `json:"content_type"` // md or rtf
+	Title           string     `json:"title"`
+	Category        string     `json:"category"`
+	IsCollection    bool       `json:"is_collection"`
+	SubPosts        []*SubPost `json:"sub_posts"`
+	Tags            []string   `json:"tags"`
+	ContentType     string     `json:"content_type"` // md or rtf
+	CompiledContent string     `json:"compiled_content"`
 }
 
 type SubPost struct {
@@ -85,9 +88,9 @@ type info struct {
 }
 
 // 这里用了 generics and reflect, 更一般的写法应该是用interface
-func setInfo[T pb.CommentInfo | pb.Post](info *info, comment T) {
-	typeT := reflect.TypeOf(comment)
-	value := reflect.ValueOf(&comment).Elem()
+func setInfo[T pb.CommentInfo | pb.Post](info *info, comment *T) {
+	typeT := reflect.TypeOf(*comment)
+	value := reflect.ValueOf(comment).Elem()
 
 	for i := 0; i < typeT.NumField(); i++ {
 		v := value.Field(i)
@@ -114,4 +117,8 @@ func setInfo[T pb.CommentInfo | pb.Post](info *info, comment T) {
 			info.Time = v.String()
 		}
 	}
+}
+
+type QiNiuToken struct {
+	Token string `json:"token"`
 }

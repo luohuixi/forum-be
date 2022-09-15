@@ -69,7 +69,7 @@ func (a *Api) Get(c *gin.Context) {
 
 			subPostCommentsMap[comment.Id] = &subPost.Comments
 
-			setInfo(&subPost.info, *comment)
+			setInfo(&subPost.info, comment)
 
 			subPosts = append(subPosts, subPost)
 
@@ -84,7 +84,7 @@ func (a *Api) Get(c *gin.Context) {
 
 			firstLevelCommentsMap[comment.Id] = &subPostComment.Replies
 
-			setInfo(&subPostComment.info, *comment)
+			setInfo(&subPostComment.info, comment)
 
 			*subPostComments = append(*subPostComments, subPostComment)
 		}
@@ -96,22 +96,23 @@ func (a *Api) Get(c *gin.Context) {
 
 			commentsReplies := firstLevelCommentsMap[comment.FatherId]
 
-			setInfo(commentReply, *comment)
+			setInfo(commentReply, comment)
 
 			*commentsReplies = append(*commentsReplies, commentReply)
 		}
 	}
 
 	resp := GetPostResponse{
-		Title:        getResp.Title,
-		Category:     getResp.Category,
-		IsCollection: getResp.IsCollection,
-		ContentType:  getResp.ContentType,
-		SubPosts:     subPosts,
-		Tags:         getResp.Tags,
+		Title:           getResp.Title,
+		Category:        getResp.Category,
+		IsCollection:    getResp.IsCollection,
+		ContentType:     getResp.ContentType,
+		SubPosts:        subPosts,
+		Tags:            getResp.Tags,
+		CompiledContent: getResp.CompiledContent,
 	}
 
-	setInfo(&resp.info, *getResp)
+	setInfo(&resp.info, getResp)
 
 	SendResponse(c, nil, resp)
 }

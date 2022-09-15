@@ -6,17 +6,18 @@ import (
 )
 
 type PostModel struct {
-	Id           uint32
-	TypeName     string
-	Content      string
-	Title        string
-	CreateTime   string
-	Category     string
-	Re           bool
-	CreatorId    uint32
-	LastEditTime string
-	LikeNum      uint32
-	ContentType  string
+	Id              uint32
+	TypeName        string
+	Content         string
+	Title           string
+	CreateTime      string
+	Category        string
+	Re              bool
+	CreatorId       uint32
+	LastEditTime    string
+	LikeNum         uint32
+	ContentType     string
+	CompiledContent string
 }
 
 func (PostModel) TableName() string {
@@ -47,17 +48,18 @@ func (p *PostModel) Get(id uint32) error {
 }
 
 type PostInfo struct {
-	Id            uint32
-	Content       string
-	Title         string
-	Category      string
-	CreatorId     uint32
-	LastEditTime  string
-	CreatorName   string
-	CreatorAvatar string
-	CommentNum    uint32
-	LikeNum       uint32
-	ContentType   string
+	Id              uint32
+	Content         string
+	Title           string
+	Category        string
+	CreatorId       uint32
+	LastEditTime    string
+	CreatorName     string
+	CreatorAvatar   string
+	CommentNum      uint32
+	LikeNum         uint32
+	ContentType     string
+	CompiledContent string
 }
 
 func (Dao) CreatePost(post *PostModel) (uint32, error) {
@@ -67,7 +69,7 @@ func (Dao) CreatePost(post *PostModel) (uint32, error) {
 
 func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, pagination bool) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	query := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0").Order("posts.id desc")
+	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0").Order("posts.id desc")
 
 	if pagination {
 		if limit == 0 {
@@ -88,7 +90,7 @@ func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, paginati
 
 func (d *Dao) GetPostInfo(postId uint32) (*PostInfo, error) {
 	var post PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND posts.re = 0", postId).First(&post).Error
+	err := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND posts.re = 0", postId).First(&post).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
