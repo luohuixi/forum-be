@@ -236,6 +236,8 @@ definitions:
     properties:
       category:
         type: string
+      compiled_content:
+        type: string
       content:
         type: string
       content_type:
@@ -855,14 +857,18 @@ paths:
         in: query
         name: last_id
         type: integer
+      - description: category
+        in: query
+        name: category
+        type: string
+      - description: search_content
+        in: query
+        name: search_content
+        type: string
       - description: type_name
         in: path
         name: type_name
         required: true
-        type: string
-      - description: category
-        in: query
-        name: category
         type: string
       - description: token 用户令牌
         in: header

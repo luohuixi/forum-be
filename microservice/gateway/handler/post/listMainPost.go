@@ -25,8 +25,9 @@ import (
 // @Param limit query int false "limit"
 // @Param page query int false "page"
 // @Param last_id query int false "last_id"
-// @Param type_name path string true "type_name"
 // @Param category query string false "category"
+// @Param search_content query string false "search_content"
+// @Param type_name path string true "type_name"
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} []post.Post
 // @Router /post/list/{type_name} [get]
@@ -72,14 +73,17 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
+	searchContent := c.DefaultQuery("category", "")
+
 	listReq := &pb.ListMainPostRequest{
-		UserId:     userId,
-		Category:   category,
-		TypeName:   typeName,
-		LastId:     uint32(lastId),
-		Offset:     uint32(page * limit),
-		Limit:      uint32(limit),
-		Pagination: page != 0,
+		UserId:        userId,
+		Category:      category,
+		TypeName:      typeName,
+		LastId:        uint32(lastId),
+		Offset:        uint32(page * limit),
+		Limit:         uint32(limit),
+		Pagination:    page != 0,
+		SearchContent: searchContent,
 	}
 
 	postResp, err := service.PostClient.ListMainPost(context.TODO(), listReq)

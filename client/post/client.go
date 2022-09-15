@@ -14,15 +14,17 @@ func main() { // TODO
 
 	client := pb.NewPostService("forum.service.post", service.Client())
 
-	resp, err := client.GetPost(context.TODO(), &pb.Request{
-		Id:     3,
-		UserId: 2,
+	resp, err := client.ListMainPost(context.TODO(), &pb.ListMainPostRequest{
+		UserId:        4,
+		TypeName:      "normal",
+		SearchContent: "基础",
 	})
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println("----- resp: ", resp.LikeNum, " -----")
-	fmt.Println("----- resp: ", resp.ContentType, " -----")
+
+	fmt.Println("----- : ", resp.Posts[0].Id, " -----")
+	fmt.Println("----- : ", len(resp.Posts), " -----")
 
 	// _, err = client.CreateComment(context.TODO(), &pb.CreateCommentRequest{
 	// 	PostId: 1,
@@ -38,7 +40,6 @@ func main() { // TODO
 	// 	Category: 1,
 	// })
 
-	panic(err)
 	//
 	// fmt.Println("post:", post.List[0].Category)
 	//

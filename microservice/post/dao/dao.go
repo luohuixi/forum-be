@@ -24,7 +24,7 @@ type Interface interface {
 	DeleteItem(Item) error
 
 	CreatePost(*PostModel) (uint32, error)
-	ListPost(*PostModel, uint32, uint32, uint32, bool) ([]*PostInfo, error)
+	ListPost(*PostModel, uint32, uint32, uint32, bool, string) ([]*PostInfo, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
 	IsUserCollectionPost(uint32, uint32) (bool, error)

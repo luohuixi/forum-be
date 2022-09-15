@@ -28,21 +28,23 @@ CREATE TABLE `users`
 DROP TABLE IF EXISTS `posts`;
 CREATE TABLE `posts`
 (
-    `id`             int(11) AUTO_INCREMENT PRIMARY KEY,
-    `type_name`      varchar(30)  NOT NULL,
-    `content`        text         NOT NULL,
-    `title`          varchar(150) NOT NULL,
-    `create_time`    varchar(30)  NOT NULL,
-    `category`       varchar(30)  NOT NULL,
-    `re`             tinyint(1)   NOT NULL,
-    `creator_id`     int(11)      NOT NULL,
-    `last_edit_time` varchar(30)  NOT NULL,
-    `content_type`   varchar(30)  NOT NULL,
-    `like_num`       int(11) DEFAULT 0,
+    `id`               int(11) AUTO_INCREMENT PRIMARY KEY,
+    `type_name`        varchar(30)  NOT NULL,
+    `content`          text         NOT NULL,
+    `compiled_content` text         NOT NULL,
+    `title`            varchar(150) NOT NULL,
+    `create_time`      varchar(30)  NOT NULL,
+    `category`         varchar(30)  NOT NULL,
+    `re`               tinyint(1)   NOT NULL,
+    `creator_id`       int(11)      NOT NULL,
+    `last_edit_time`   varchar(30)  NOT NULL,
+    `content_type`     varchar(30)  NOT NULL,
+    `like_num`         int(11) DEFAULT 0,
     KEY (`category`),
     CONSTRAINT T_type_Chk CHECK (`type_name` = 'normal' OR `type_name` = 'muxi'),
     CONSTRAINT T_content_type_Chk CHECK (`type_name` = 'md' OR `type_name` = 'rtf'),
     FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
+#     FULLTEXT KEY content_title_fulltext (`content`, `title`) # MySQL 5.7.6 才支持中文全文索引
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -63,7 +65,8 @@ CREATE TABLE `comments`
     `creator_id`  int(11)     DEFAULT NULL,
     `post_id`     int(11)     DEFAULT NULL,
     `like_num`    int(11)     DEFAULT 0,
-    CONSTRAINT T_type_Chk CHECK (`type_name` = 'sub-post' OR `type_name` = 'first-level' OR `type_name` = 'second-level'),
+    CONSTRAINT T_type_Chk CHECK (`type_name` = 'sub-post' OR `type_name` = 'first-level' OR
+                                 `type_name` = 'second-level'),
     FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`),
     FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`)
 ) ENGINE = InnoDB

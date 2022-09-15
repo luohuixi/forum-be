@@ -598,16 +598,22 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "category",
+                        "name": "category",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "search_content",
+                        "name": "search_content",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "type_name",
                         "name": "type_name",
                         "in": "path",
                         "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "category",
-                        "name": "category",
-                        "in": "query"
                     },
                     {
                         "type": "string",
@@ -1344,6 +1350,9 @@ const docTemplate = `{
             ],
             "properties": {
                 "category": {
+                    "type": "string"
+                },
+                "compiled_content": {
                     "type": "string"
                 },
                 "content": {

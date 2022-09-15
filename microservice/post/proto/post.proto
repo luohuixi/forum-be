@@ -115,6 +115,7 @@ message ListMainPostRequest {
     string category = 5;
     uint32 user_id = 6;
     bool pagination = 7;
+    string search_content = 8;
 }
 
 message ListSubPostRequest {

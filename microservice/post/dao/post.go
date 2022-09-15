@@ -67,7 +67,7 @@ func (Dao) CreatePost(post *PostModel) (uint32, error) {
 	return post.Id, err
 }
 
-func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, pagination bool) ([]*PostInfo, error) {
+func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, pagination bool, searchContent string) ([]*PostInfo, error) {
 	var posts []*PostInfo
 	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0").Order("posts.id desc")
 
@@ -81,6 +81,11 @@ func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, paginati
 		if lastId != 0 {
 			query = query.Where("posts.id < ?", lastId)
 		}
+	}
+
+	if searchContent != "" {
+		// query = query.Where("MATCH (content, title) AGAINST (?)", searchContent) // MySQL 5.7.6 才支持中文全文索引
+		query = query.Where("posts.content LIKE ? OR posts.title LIKE ?", "%"+searchContent+"%", "%"+searchContent+"%")
 	}
 
 	err := query.Scan(&posts).Error

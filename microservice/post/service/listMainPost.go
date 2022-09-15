@@ -16,7 +16,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 		Category: req.Category,
 	}
 
-	posts, err := s.Dao.ListPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination)
+	posts, err := s.Dao.ListPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.SearchContent)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
@@ -33,7 +33,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 
 		// limit max len of post content
 		if len(content) > 200 {
-			content = post.Content[:200]
+			content = content[:200]
 		}
 
 		isLiked, isCollection, likeNum, tags, commentNum := s.getPostInfo(post.Id, req.UserId)

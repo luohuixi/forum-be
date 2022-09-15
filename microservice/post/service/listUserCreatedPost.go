@@ -15,7 +15,7 @@ func (s *PostService) ListUserCreatedPost(_ context.Context, req *pb.Request, re
 		CreatorId: req.UserId,
 	}
 
-	posts, err := s.Dao.ListPost(filter, 0, 0, 0, false)
+	posts, err := s.Dao.ListPost(filter, 0, 0, 0, false, "")
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
@@ -32,7 +32,7 @@ func (s *PostService) ListUserCreatedPost(_ context.Context, req *pb.Request, re
 
 		// limit max len of post content
 		if len(content) > 200 {
-			content = post.Content[:200]
+			content = content[:200]
 		}
 
 		isLiked, isCollection, likeNum, tags, commentNum := s.getPostInfo(post.Id, req.UserId)

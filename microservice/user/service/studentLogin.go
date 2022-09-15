@@ -33,6 +33,7 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 			StudentId: req.StudentId,
 			Password:  req.Password,
 			Role:      constvar.NormalRole,
+			Name:      req.StudentId,
 		}
 		// 用户未注册，自动注册
 		if err := s.Dao.RegisterUser(info); err != nil {
