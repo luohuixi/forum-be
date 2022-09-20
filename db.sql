@@ -29,16 +29,17 @@ DROP TABLE IF EXISTS `posts`;
 CREATE TABLE `posts`
 (
     `id`               int(11) AUTO_INCREMENT PRIMARY KEY,
-    `type_name`        varchar(30)  NOT NULL,
-    `content`          text         NOT NULL,
-    `compiled_content` text         NOT NULL,
-    `title`            varchar(150) NOT NULL,
-    `create_time`      varchar(30)  NOT NULL,
-    `category`         varchar(30)  NOT NULL,
-    `re`               tinyint(1)   NOT NULL,
-    `creator_id`       int(11)      NOT NULL,
-    `last_edit_time`   varchar(30)  NOT NULL,
-    `content_type`     varchar(30)  NOT NULL,
+    `type_name`        varchar(30)   NOT NULL,
+    `content`          text          NOT NULL,
+    `compiled_content` text          NOT NULL,
+    `title`            varchar(150)  NOT NULL,
+    `summary`          varchar(1000) NOT NULL,
+    `create_time`      varchar(30)   NOT NULL,
+    `category`         varchar(30)   NOT NULL,
+    `re`               tinyint(1)    NOT NULL,
+    `creator_id`       int(11)       NOT NULL,
+    `last_edit_time`   varchar(30)   NOT NULL,
+    `content_type`     varchar(30)   NOT NULL,
     `like_num`         int(11) DEFAULT 0,
     KEY (`category`),
     CONSTRAINT T_type_Chk CHECK (`type_name` = 'normal' OR `type_name` = 'muxi'),
@@ -125,6 +126,24 @@ CREATE TABLE `feeds`
     `create_time`        varchar(30)  DEFAULT NULL,
     `re`                 tinyint(1)   DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
     PRIMARY KEY (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for collections
+-- --------------------------------------------
+DROP TABLE IF EXISTS `collections`;
+CREATE TABLE `collections`
+(
+    `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
+    `post_id`     int(11) NOT NULL,
+    `user_id`     int(11) NOT NULL,
+    `create_time` varchar(30) DEFAULT NULL,
+    KEY (`user_id`),
+    FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci

@@ -86,7 +86,8 @@ message UpdatePostInfoRequest {
     uint32 user_id = 4;
     string category = 5;
     string title = 6;
-    repeated string tags = 7;
+    string summary = 7;
+    repeated string tags = 8;
 }
 
 message CreatePostRequest {
@@ -97,7 +98,8 @@ message CreatePostRequest {
     string category = 5;
     string content_type = 6;
     string compiled_content = 7;
-    repeated string tags = 8;
+    string summary = 8;
+    repeated string tags = 9;
 }
 
 message Response {}
@@ -147,8 +149,9 @@ message Post {
     bool is_collection = 12;
     string content_type = 13;
     string compiled_content = 14;
-    repeated CommentInfo comments = 15;
+    string summary = 15;
     repeated string tags = 16;
+    repeated CommentInfo comments = 17;
 }
 
 message Tags {

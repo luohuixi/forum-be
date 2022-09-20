@@ -23,18 +23,6 @@ func (s *PostService) ListUserCreatedPost(_ context.Context, req *pb.Request, re
 	resp.Posts = make([]*pb.Post, len(posts))
 	for i, post := range posts {
 
-		var content string
-		if post.ContentType == "md" {
-			content = post.CompiledContent
-		} else if post.ContentType == "rtf" {
-			content = post.Content
-		}
-
-		// limit max len of post content
-		if len(content) > 200 {
-			content = content[:200]
-		}
-
 		isLiked, isCollection, likeNum, tags, commentNum := s.getPostInfo(post.Id, req.UserId)
 
 		if likeNum != 0 {
@@ -47,12 +35,12 @@ func (s *PostService) ListUserCreatedPost(_ context.Context, req *pb.Request, re
 			Time:         post.LastEditTime,
 			Category:     post.Category,
 			LikeNum:      post.LikeNum,
-			Content:      content,
 			CommentNum:   commentNum,
 			IsLiked:      isLiked,
 			IsCollection: isCollection,
 			Tags:         tags,
 			ContentType:  post.ContentType,
+			Summary:      post.Summary,
 		}
 	}
 

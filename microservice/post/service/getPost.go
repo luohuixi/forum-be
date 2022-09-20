@@ -44,6 +44,7 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 	resp.CreatorName = post.CreatorName
 	resp.Comments = comments
 	resp.ContentType = post.ContentType
+	resp.Summary = post.Summary
 
 	return nil
 }

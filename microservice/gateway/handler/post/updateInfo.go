@@ -52,6 +52,7 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 		UserId:   userId,
 		Category: req.Category,
 		Tags:     req.Tags,
+		Summary:  req.Summary,
 	}
 
 	_, err = service.PostClient.UpdatePostInfo(context.TODO(), &updateReq)

@@ -30,6 +30,7 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		ContentType:     req.ContentType,
 		CompiledContent: req.CompiledContent,
 		LastEditTime:    util.GetCurrentTime(),
+		Summary:         req.Summary,
 	}
 
 	postId, err := s.Dao.CreatePost(data)

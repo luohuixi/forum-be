@@ -1345,6 +1345,7 @@ const docTemplate = `{
                 "category",
                 "content",
                 "content_type",
+                "summary",
                 "title",
                 "type_name"
             ],
@@ -1360,6 +1361,9 @@ const docTemplate = `{
                 },
                 "content_type": {
                     "description": "md or rtf",
+                    "type": "string"
+                },
+                "summary": {
                     "type": "string"
                 },
                 "tags": {
@@ -1423,6 +1427,9 @@ const docTemplate = `{
                         "$ref": "#/definitions/post.SubPost"
                     }
                 },
+                "summary": {
+                    "type": "string"
+                },
                 "tags": {
                     "type": "array",
                     "items": {
@@ -1452,12 +1459,6 @@ const docTemplate = `{
                         "$ref": "#/definitions/comment.Comment"
                     }
                 },
-                "compiled_content": {
-                    "type": "string"
-                },
-                "content": {
-                    "type": "string"
-                },
                 "content_type": {
                     "description": "md or rtf",
                     "type": "string"
@@ -1482,6 +1483,9 @@ const docTemplate = `{
                 },
                 "like_num": {
                     "type": "integer"
+                },
+                "summary": {
+                    "type": "string"
                 },
                 "tags": {
                     "type": "array",
@@ -1561,6 +1565,9 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "summary": {
+                    "type": "string"
                 },
                 "tags": {
                     "type": "array",

@@ -73,7 +73,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	searchContent := c.DefaultQuery("category", "")
+	searchContent := c.DefaultQuery("search_content", "")
 
 	listReq := &pb.ListMainPostRequest{
 		UserId:        userId,

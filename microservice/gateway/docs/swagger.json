@@ -1338,6 +1338,7 @@
                 "category",
                 "content",
                 "content_type",
+                "summary",
                 "title",
                 "type_name"
             ],
@@ -1353,6 +1354,9 @@
                 },
                 "content_type": {
                     "description": "md or rtf",
+                    "type": "string"
+                },
+                "summary": {
                     "type": "string"
                 },
                 "tags": {
@@ -1416,6 +1420,9 @@
                         "$ref": "#/definitions/post.SubPost"
                     }
                 },
+                "summary": {
+                    "type": "string"
+                },
                 "tags": {
                     "type": "array",
                     "items": {
@@ -1445,12 +1452,6 @@
                         "$ref": "#/definitions/comment.Comment"
                     }
                 },
-                "compiled_content": {
-                    "type": "string"
-                },
-                "content": {
-                    "type": "string"
-                },
                 "content_type": {
                     "description": "md or rtf",
                     "type": "string"
@@ -1475,6 +1476,9 @@
                 },
                 "like_num": {
                     "type": "integer"
+                },
+                "summary": {
+                    "type": "string"
                 },
                 "tags": {
                     "type": "array",
@@ -1554,6 +1558,9 @@
                 },
                 "id": {
                     "type": "integer"
+                },
+                "summary": {
+                    "type": "string"
                 },
                 "tags": {
                     "type": "array",

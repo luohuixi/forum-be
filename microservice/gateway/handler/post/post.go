@@ -22,26 +22,26 @@ type UpdateInfoRequest struct {
 	Content  string   `json:"content" binding:"required"`
 	Title    string   `json:"title" binding:"required"`
 	Category string   `json:"category" binding:"required"`
+	Summary  string   `json:"summary"`
 	Tags     []string `json:"tags" binding:"required"`
 }
 
 type Post struct {
-	Id              uint32             `json:"id"`
-	Title           string             `json:"title"`
-	Time            string             `json:"time"`
-	Content         string             `json:"content"`
-	Category        string             `json:"category"`
-	CreatorId       uint32             `json:"creator_id"`
-	CreatorName     string             `json:"creator_name"`
-	CreatorAvatar   string             `json:"creator_avatar"`
-	CommentNum      uint32             `json:"comment_num"`
-	LikeNum         uint32             `json:"like_num"`
-	IsLiked         bool               `json:"is_liked"`
-	IsCollection    bool               `json:"is_collection"`
-	Comments        []*comment.Comment `json:"comments"`
-	Tags            []string           `json:"tags"`
-	ContentType     string             `json:"content_type"` // md or rtf
-	CompiledContent string             `json:"compiled_content"`
+	Id            uint32             `json:"id"`
+	Title         string             `json:"title"`
+	Time          string             `json:"time"`
+	Category      string             `json:"category"`
+	CreatorId     uint32             `json:"creator_id"`
+	CreatorName   string             `json:"creator_name"`
+	CreatorAvatar string             `json:"creator_avatar"`
+	CommentNum    uint32             `json:"comment_num"`
+	LikeNum       uint32             `json:"like_num"`
+	IsLiked       bool               `json:"is_liked"`
+	IsCollection  bool               `json:"is_collection"`
+	Comments      []*comment.Comment `json:"comments"`
+	Tags          []string           `json:"tags"`
+	ContentType   string             `json:"content_type"` // md or rtf
+	Summary       string             `json:"summary"`
 }
 
 type CreateRequest struct {
@@ -51,6 +51,7 @@ type CreateRequest struct {
 	Title           string   `json:"title,omitempty" binding:"required"`
 	Category        string   `json:"category,omitempty" binding:"required"`
 	ContentType     string   `json:"content_type" binding:"required"` // md or rtf
+	Summary         string   `json:"summary" binding:"required"`
 	Tags            []string `json:"tags"`
 }
 
@@ -63,6 +64,7 @@ type GetPostResponse struct {
 	Tags            []string   `json:"tags"`
 	ContentType     string     `json:"content_type"` // md or rtf
 	CompiledContent string     `json:"compiled_content"`
+	Summary         string     `json:"summary"`
 }
 
 type SubPost struct {

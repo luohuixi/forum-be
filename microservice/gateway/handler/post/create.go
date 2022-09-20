@@ -64,6 +64,7 @@ func (a *Api) Create(c *gin.Context) {
 		ContentType:     req.ContentType,
 		Tags:            req.Tags,
 		CompiledContent: req.CompiledContent,
+		Summary:         req.Summary,
 	}
 
 	_, err = service.PostClient.CreatePost(context.TODO(), &createReq)

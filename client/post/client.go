@@ -15,15 +15,14 @@ func main() { // TODO
 	client := pb.NewPostService("forum.service.post", service.Client())
 
 	resp, err := client.ListMainPost(context.TODO(), &pb.ListMainPostRequest{
-		UserId:        4,
-		TypeName:      "normal",
-		SearchContent: "基础",
+		UserId:   2,
+		TypeName: "normal",
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println("----- : ", resp.Posts[0].Id, " -----")
+	fmt.Println("----- : ", resp.Posts[0].IsCollection, " -----")
 	fmt.Println("----- : ", len(resp.Posts), " -----")
 
 	// _, err = client.CreateComment(context.TODO(), &pb.CreateCommentRequest{

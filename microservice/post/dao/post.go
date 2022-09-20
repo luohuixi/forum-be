@@ -18,6 +18,7 @@ type PostModel struct {
 	LikeNum         uint32
 	ContentType     string
 	CompiledContent string
+	Summary         string
 }
 
 func (PostModel) TableName() string {
@@ -60,6 +61,7 @@ type PostInfo struct {
 	LikeNum         uint32
 	ContentType     string
 	CompiledContent string
+	Summary         string
 }
 
 func (Dao) CreatePost(post *PostModel) (uint32, error) {
@@ -69,7 +71,7 @@ func (Dao) CreatePost(post *PostModel) (uint32, error) {
 
 func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, pagination bool, searchContent string) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0").Order("posts.id desc")
+	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0").Order("posts.id desc")
 
 	if pagination {
 		if limit == 0 {
@@ -85,7 +87,7 @@ func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, paginati
 
 	if searchContent != "" {
 		// query = query.Where("MATCH (content, title) AGAINST (?)", searchContent) // MySQL 5.7.6 才支持中文全文索引
-		query = query.Where("posts.content LIKE ? OR posts.title LIKE ?", "%"+searchContent+"%", "%"+searchContent+"%")
+		query = query.Where("posts.content LIKE ? OR posts.title LIKE ? OR posts.summary LIKE ?", "%"+searchContent+"%", "%"+searchContent+"%", "%"+searchContent+"%")
 	}
 
 	err := query.Scan(&posts).Error
@@ -95,7 +97,7 @@ func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, paginati
 
 func (d *Dao) GetPostInfo(postId uint32) (*PostInfo, error) {
 	var post PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND posts.re = 0", postId).First(&post).Error
+	err := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND posts.re = 0", postId).First(&post).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
@@ -103,7 +105,7 @@ func (d *Dao) GetPostInfo(postId uint32) (*PostInfo, error) {
 }
 
 func (Dao) GetPost(id uint32) (*PostModel, error) {
-	item := &PostModel{}
+	var item PostModel
 	err := item.Get(id)
-	return item, err
+	return &item, err
 }

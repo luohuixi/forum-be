@@ -110,6 +110,7 @@ func (a *Api) Get(c *gin.Context) {
 		SubPosts:        subPosts,
 		Tags:            getResp.Tags,
 		CompiledContent: getResp.CompiledContent,
+		Summary:         getResp.Summary,
 	}
 
 	setInfo(&resp.info, getResp)
