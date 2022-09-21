@@ -1,13 +1,12 @@
 package chat
 
 import (
+	"context"
+	pb "forum-chat/proto"
 	. "forum-gateway/handler"
-	"forum/pkg/errno"
+	"forum-gateway/service"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
-	"time"
-
-	m "forum/model"
 )
 
 type Id struct {
@@ -24,12 +23,18 @@ type Id struct {
 // @Success 200 {object} Id
 // @Router /chat [get]
 func GetId(c *gin.Context) {
-	userId := c.MustGet("userId")
+	userId := c.MustGet("userId").(uint32)
 
 	u4 := uuid.NewV4().String()
 
-	if err := m.SetStringInRedis("user:"+u4, userId, time.Hour*24); err != nil {
-		SendError(c, errno.ErrRedis, nil, err.Error(), GetLine())
+	req := pb.SetUUIdRequest{
+		Uuid:   u4,
+		UserId: userId,
+	}
+
+	_, err := service.ChatClient.SetUUId(context.TODO(), &req)
+	if err != nil {
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 

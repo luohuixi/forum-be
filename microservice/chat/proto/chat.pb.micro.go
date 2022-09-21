@@ -38,6 +38,7 @@ func NewChatServiceEndpoints() []*api.Endpoint {
 type ChatService interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...client.CallOption) (*Response, error)
 	GetList(ctx context.Context, in *GetListRequest, opts ...client.CallOption) (*GetListResponse, error)
+	SetUUId(ctx context.Context, in *SetUUIdRequest, opts ...client.CallOption) (*Response, error)
 }
 
 type chatService struct {
@@ -72,17 +73,29 @@ func (c *chatService) GetList(ctx context.Context, in *GetListRequest, opts ...c
 	return out, nil
 }
 
+func (c *chatService) SetUUId(ctx context.Context, in *SetUUIdRequest, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "ChatService.SetUUId", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for ChatService service
 
 type ChatServiceHandler interface {
 	Create(context.Context, *CreateRequest, *Response) error
 	GetList(context.Context, *GetListRequest, *GetListResponse) error
+	SetUUId(context.Context, *SetUUIdRequest, *Response) error
 }
 
 func RegisterChatServiceHandler(s server.Server, hdlr ChatServiceHandler, opts ...server.HandlerOption) error {
 	type chatService interface {
 		Create(ctx context.Context, in *CreateRequest, out *Response) error
 		GetList(ctx context.Context, in *GetListRequest, out *GetListResponse) error
+		SetUUId(ctx context.Context, in *SetUUIdRequest, out *Response) error
 	}
 	type ChatService struct {
 		chatService
@@ -101,4 +114,8 @@ func (h *chatServiceHandler) Create(ctx context.Context, in *CreateRequest, out 
 
 func (h *chatServiceHandler) GetList(ctx context.Context, in *GetListRequest, out *GetListResponse) error {
 	return h.ChatServiceHandler.GetList(ctx, in, out)
+}
+
+func (h *chatServiceHandler) SetUUId(ctx context.Context, in *SetUUIdRequest, out *Response) error {
+	return h.ChatServiceHandler.SetUUId(ctx, in, out)
 }

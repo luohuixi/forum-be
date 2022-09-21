@@ -7,6 +7,12 @@ package chat;
 service ChatService {
     rpc Create(CreateRequest) returns (Response) {}
     rpc GetList(GetListRequest) returns (GetListResponse) {}
+    rpc SetUUId(SetUUIdRequest) returns (Response) {}
+}
+
+message SetUUIdRequest {
+    string uuid = 1;
+    uint32 user_id = 2;
 }
 
 message CreateRequest {
