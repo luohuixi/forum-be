@@ -19,11 +19,11 @@ service PostService {
     rpc CreateOrRemoveLike(LikeRequest) returns (Response) {}
     rpc ListLikeByUserId(UserIdRequest) returns (ListLikeResponse) {}
 
-    rpc ListPopularTags(NullRequest) returns (Tags) {}
+    rpc ListPopularTag(NullRequest) returns (Tags) {}
 
     rpc CreateCollection(Request) returns(CreateResponse) {}
     rpc DeleteCollection(Request) returns(Response) {}
-    rpc ListCollections(UserIdRequest) returns (ListCollectionsResponse) {}
+    rpc ListCollection(UserIdRequest) returns (ListCollectionsResponse) {}
 }
 
 message NullRequest {}

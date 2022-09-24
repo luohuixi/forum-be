@@ -29,11 +29,13 @@ func (s *ChatService) GetList(ctx context.Context, req *pb.GetListRequest, resp 
 
 	select {
 	case <-ctx.Done(): // client cancel this request
-		err := s.Dao.Rewrite(req.UserId, list)
-		if err != nil {
+		if err := s.Dao.Rewrite(req.UserId, list); err != nil {
 			return errno.ServerErr(errno.ErrRewriteRedisList, err.Error())
 		}
 	default:
+		if err := s.Dao.CreateHistory(req.UserId, list); err != nil {
+			return errno.ServerErr(errno.ErrCreateHistory, err.Error())
+		}
 		resp.List = list
 	}
 

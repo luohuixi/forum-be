@@ -116,6 +116,59 @@ const docTemplate = `{
                 }
             }
         },
+        "/chat/history/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chat"
+                ],
+                "summary": "获取该用户的聊天记录",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/chat.Message"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/chat/ws": {
             "get": {
                 "description": "建立 WebSocket 连接",
@@ -136,7 +189,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/chat.Message"
                         }
                     }
                 }
@@ -670,7 +723,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/post/popular_tags": {
+        "/post/popular_tag": {
             "get": {
                 "description": "降序",
                 "consumes": [
@@ -1175,6 +1228,23 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
+                    "type": "string"
+                }
+            }
+        },
+        "chat.Message": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "sender": {
+                    "type": "integer"
+                },
+                "time": {
+                    "type": "string"
+                },
+                "type_name": {
                     "type": "string"
                 }
             }

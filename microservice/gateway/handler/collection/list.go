@@ -28,7 +28,7 @@ func (a *Api) List(c *gin.Context) {
 		UserId: userId,
 	}
 
-	resp, err := service.PostClient.ListCollections(context.TODO(), listReq)
+	resp, err := service.PostClient.ListCollection(context.TODO(), listReq)
 	if err != nil {
 		SendError(c, err, resp, "", GetLine())
 		return

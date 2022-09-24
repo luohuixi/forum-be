@@ -30,6 +30,8 @@ var (
 	ErrGetRedisList     = &Errno{Code: 10302, Message: "Get list from Redis out of expiration time"}
 	ErrRewriteRedisList = &Errno{Code: 10303, Message: "rewrite list to Redis when cancel"}
 	ErrPublishMsg       = &Errno{Code: 10304, Message: "Error occurred while publishing message"}
+	ErrListHistory      = &Errno{Code: 10305, Message: "Error list histories from Redis"}
+	ErrCreateHistory    = &Errno{Code: 10306, Message: "Error create histories to Redis"}
 
 	// ---------------------------------------------------------------------------
 

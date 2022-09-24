@@ -7,7 +7,7 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) ListPopularTags(_ context.Context, _ *pb.NullRequest, resp *pb.Tags) error {
+func (s *PostService) ListPopularTag(_ context.Context, _ *pb.NullRequest, resp *pb.Tags) error {
 	logger.Info("PostService ListPopularTags")
 
 	tags, err := s.Dao.ListPopularTags()

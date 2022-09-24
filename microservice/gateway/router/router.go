@@ -62,6 +62,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	chatRouter := g.Group("api/v1/chat")
 	{
 		chatRouter.GET("", normalRequired, chat.GetId)
+		chatRouter.GET("/history/:id", normalRequired, chat.ListHistory)
 		chatRouter.GET("/ws", chat.WsHandler)
 	}
 
@@ -75,7 +76,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		postRouter.POST("", postApi.Create)
 		postRouter.DELETE("/:post_id", postApi.Delete)
 		postRouter.PUT("", postApi.UpdateInfo)
-		postRouter.GET("/popular_tags", postApi.ListPopularTags)
+		postRouter.GET("/popular_tag", postApi.ListPopularTag)
 		postRouter.GET("/qiniu_token", postApi.GetQiNiuToken)
 	}
 

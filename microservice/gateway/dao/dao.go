@@ -32,7 +32,7 @@ func Init() {
 	// service.SynchronizeBlacklistToRedis()
 
 	// init redis
-	// model.RedisDB.Init()
+	model.RedisDB.Init()
 
 	// init casbin
 	model.CB.Init()

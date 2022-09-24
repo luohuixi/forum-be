@@ -15,11 +15,12 @@ import (
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"net/http"
+	"strconv"
 	"time"
 )
 
 type Client struct {
-	UserId string
+	UserId uint32
 	Socket *websocket.Conn
 	Close  chan struct{}
 }
@@ -29,7 +30,7 @@ type Client struct {
 // @Description 建立 WebSocket 连接
 // @Tags chat
 // @Param id query string true "uuid"
-// @Success 200 {string} string
+// @Success 200 {object} Message
 // @Router /chat/ws [get]
 func WsHandler(c *gin.Context) {
 	log.Info("Chat WsHandler function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -45,15 +46,23 @@ func WsHandler(c *gin.Context) {
 	}
 
 	id := c.DefaultQuery("id", "0")
-	userId, ok, err := m.GetStringFromRedis(id)
-	if !ok {
-		log.Error("not ok")
-		conn.WriteMessage(websocket.CloseMessage, []byte("error"))
+	userId, ok, err := m.GetStringFromRedis("user:" + id)
+	if err != nil || !ok {
+		log.Error("can't get user info")
+		fmt.Println(err)
+		conn.WriteMessage(websocket.CloseMessage, []byte("can't get user info"))
+		return
+	}
+
+	uid, err := strconv.Atoi(userId)
+	if err != nil {
+		log.Error("userId can't to int", zap.String("cause", err.Error()))
+		conn.WriteMessage(websocket.CloseMessage, []byte("userId can't to int"))
 		return
 	}
 
 	client := &Client{
-		UserId: userId,
+		UserId: uint32(uid),
 		Socket: conn,
 		Close:  make(chan struct{}),
 	}
@@ -91,6 +100,12 @@ func (c *Client) Read() {
 			break
 		}
 
+		if req.TargetUserId == 0 {
+			log.Error("error: wrong target_user_id")
+			c.Socket.WriteMessage(websocket.TextMessage, []byte("error: wrong target_user_id"))
+			break
+		}
+
 		if _, err := service.ChatClient.Create(context.Background(), &req); err != nil {
 			log.Error(err.Error())
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
@@ -109,10 +124,10 @@ func (c *Client) Write() {
 		getListRequest := &pb.GetListRequest{
 			UserId: c.UserId,
 		}
+
 		ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Hour)) // set rpc expiration to 1 Hour
 		go func() {
 			<-c.Close // cancel the request when client close connect
-			fmt.Println("cancel", c.UserId)
 			cancel()
 		}()
 
@@ -124,8 +139,14 @@ func (c *Client) Write() {
 		}
 
 		for _, msg := range resp.List {
-			fmt.Println("msg", msg)
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(msg))
 		}
 	}
+}
+
+type Message struct {
+	Content  string `json:"content"`
+	Time     string `json:"time"`
+	Sender   uint32 `json:"sender"`
+	TypeName string `json:"type_name"`
 }

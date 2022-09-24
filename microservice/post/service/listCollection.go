@@ -7,7 +7,7 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) ListCollections(_ context.Context, req *pb.UserIdRequest, resp *pb.ListCollectionsResponse) error {
+func (s *PostService) ListCollection(_ context.Context, req *pb.UserIdRequest, resp *pb.ListCollectionsResponse) error {
 	logger.Info("PostService ListCollections")
 
 	collections, err := s.Dao.ListCollectionByUserId(req.UserId)

@@ -11,7 +11,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// ListPopularTags ... 获取热门tags
+// ListPopularTag ... 获取热门tags
 // @Summary list 热门tags api
 // @Description 降序
 // @Tags post
@@ -19,11 +19,11 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} []string
-// @Router /post/popular_tags [get]
-func (a *Api) ListPopularTags(c *gin.Context) {
-	log.Info("Post ListPopularTags function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+// @Router /post/popular_tag [get]
+func (a *Api) ListPopularTag(c *gin.Context) {
+	log.Info("Post ListPopularTag function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	resp, err := service.PostClient.ListPopularTags(context.TODO(), &pb.NullRequest{})
+	resp, err := service.PostClient.ListPopularTag(context.TODO(), &pb.NullRequest{})
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

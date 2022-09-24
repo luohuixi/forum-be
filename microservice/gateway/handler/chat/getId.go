@@ -5,8 +5,11 @@ import (
 	pb "forum-chat/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
+	"forum-gateway/util"
+	"forum/log"
 	"github.com/gin-gonic/gin"
 	uuid "github.com/satori/go.uuid"
+	"go.uber.org/zap"
 )
 
 type Id struct {
@@ -23,6 +26,8 @@ type Id struct {
 // @Success 200 {object} Id
 // @Router /chat [get]
 func GetId(c *gin.Context) {
+	log.Info("Chat GetId function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+
 	userId := c.MustGet("userId").(uint32)
 
 	u4 := uuid.NewV4().String()
