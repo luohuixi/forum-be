@@ -26,6 +26,7 @@ import (
 // @Param page query int false "page"
 // @Param last_id query int false "last_id"
 // @Param category query string false "category"
+// @Param filter query string false "filter"
 // @Param search_content query string false "search_content"
 // @Param type_name path string true "type_name"
 // @Param Authorization header string true "token 用户令牌"
@@ -54,6 +55,8 @@ func (a *Api) ListMainPost(c *gin.Context) {
 	}
 
 	category := c.DefaultQuery("category", "")
+
+	filter := c.DefaultQuery("filter", "")
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	if err != nil {
@@ -84,6 +87,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		Limit:         uint32(limit),
 		Pagination:    page != 0,
 		SearchContent: searchContent,
+		Filter:        filter,
 	}
 
 	postResp, err := service.PostClient.ListMainPost(context.TODO(), listReq)

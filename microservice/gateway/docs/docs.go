@@ -657,6 +657,12 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
+                        "description": "filter",
+                        "name": "filter",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
                         "description": "search_content",
                         "name": "search_content",
                         "in": "query"

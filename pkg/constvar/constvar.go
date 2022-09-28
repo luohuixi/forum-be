@@ -38,4 +38,9 @@ const (
 	SubPost            = "sub-post"
 	FirstLevelComment  = "first-level"
 	SecondLevelComment = "second-level"
+
+	// score
+	LikeScore       = 2
+	CollectionScore = 5
+	CommentScore    = 3
 )

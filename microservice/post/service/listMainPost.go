@@ -11,14 +11,25 @@ import (
 func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostRequest, resp *pb.ListPostResponse) error {
 	logger.Info("PostService ListMainPost")
 
-	filter := &dao.PostModel{
-		TypeName: req.TypeName,
-		Category: req.Category,
-	}
+	var posts []*dao.PostInfo
+	var err error
 
-	posts, err := s.Dao.ListPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.SearchContent)
-	if err != nil {
-		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	if req.Filter == "hot" {
+		posts, err = s.Dao.ListHotPost(req.TypeName, req.Category, req.Offset, req.Limit, req.Pagination)
+		if err != nil {
+			return errno.ServerErr(errno.ErrRedis, err.Error())
+		}
+	} else {
+
+		filter := &dao.PostModel{
+			TypeName: req.TypeName,
+			Category: req.Category,
+		}
+
+		posts, err = s.Dao.ListPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.SearchContent)
+		if err != nil {
+			return errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
 	}
 
 	resp.Posts = make([]*pb.Post, len(posts))

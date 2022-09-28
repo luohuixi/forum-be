@@ -25,5 +25,9 @@ func (s *PostService) DeleteCollection(_ context.Context, req *pb.Request, _ *pb
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
+	if err := s.Dao.ChangePostScore(req.Id, -constvar.CollectionScore); err != nil {
+		return errno.ServerErr(errno.ErrChangeScore, err.Error())
+	}
+
 	return nil
 }

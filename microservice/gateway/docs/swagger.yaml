@@ -912,6 +912,10 @@ paths:
         in: query
         name: category
         type: string
+      - description: filter
+        in: query
+        name: filter
+        type: string
       - description: search_content
         in: query
         name: search_content

@@ -17,7 +17,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 	// check if the FatherId is valid
 	switch req.TypeName {
 	case constvar.SubPost:
-		post, err := s.Dao.GetPost(req.FatherId)
+		post, err := s.Dao.GetPostInfo(req.FatherId)
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
@@ -69,6 +69,10 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 
 	if err := model.AddRole(constvar.Comment, commentId, constvar.Post+":"+req.TypeName); err != nil {
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
+	}
+
+	if err := s.Dao.ChangePostScore(req.PostId, constvar.CommentScore); err != nil {
+		return errno.ServerErr(errno.ErrChangeScore, err.Error())
 	}
 
 	return nil

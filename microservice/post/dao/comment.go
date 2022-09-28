@@ -32,11 +32,7 @@ func (c *CommentModel) Save() error {
 }
 
 func (c *CommentModel) Get(id uint32) error {
-	err := dao.DB.Model(c).Where("id = ? AND re = 0", id).First(c).Error
-	if err == gorm.ErrRecordNotFound {
-		return nil
-	}
-	return err
+	return dao.DB.Model(c).Where("id = ? AND re = 0", id).First(c).Error
 }
 
 func (c *CommentModel) Delete() error {

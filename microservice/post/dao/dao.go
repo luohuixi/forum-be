@@ -52,6 +52,10 @@ type Interface interface {
 	CreateCollection(*CollectionModel) (uint32, error)
 	DeleteCollection(*CollectionModel) error
 	ListCollectionByUserId(uint32) ([]*pb.Collection, error)
+
+	ChangePostScore(uint32, int) error
+	ChangePostCategory(string, string, string, uint32) error
+	ListHotPost(string, string, uint32, uint32, bool) ([]*PostInfo, error)
 }
 
 // Init init dao
@@ -79,19 +83,25 @@ func GetDao() *Dao {
 	return dao
 }
 
-func (Dao) DeleteItem(i Item) error {
+func (d Dao) DeleteItem(i Item) error {
 	if i.TypeName == constvar.Post {
 		item := &PostModel{}
 		if err := item.Get(i.Id); err != nil {
 			return err
 		}
-		return item.Delete()
+		if err := item.Delete(); err != nil {
+			return err
+		}
+		return d.Redis.ZRem("hot:"+item.Category, i.Id).Err()
 	} else if i.TypeName == constvar.Comment {
 		item := &CommentModel{}
 		if err := item.Get(i.Id); err != nil {
 			return err
 		}
-		return item.Delete()
+		if err := item.Delete(); err != nil {
+			return err
+		}
+		return d.ChangePostScore(item.PostId, -constvar.CommentScore)
 	} else {
 		return errors.New("wrong TypeName")
 	}

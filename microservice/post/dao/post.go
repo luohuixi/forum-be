@@ -3,6 +3,7 @@ package dao
 import (
 	"forum/pkg/constvar"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type PostModel struct {
@@ -41,11 +42,7 @@ func (p *PostModel) Delete() error {
 }
 
 func (p *PostModel) Get(id uint32) error {
-	err := dao.DB.Model(p).Where("id = ? AND re = 0", id).First(p).Error
-	if err == gorm.ErrRecordNotFound {
-		return nil
-	}
-	return err
+	return dao.DB.Model(p).Where("id = ? AND re = 0", id).First(p).Error
 }
 
 type PostInfo struct {
@@ -108,4 +105,67 @@ func (Dao) GetPost(id uint32) (*PostModel, error) {
 	var item PostModel
 	err := item.Get(id)
 	return &item, err
+}
+
+func (d Dao) ChangePostScore(postId uint32, score int) error {
+	post, err := d.GetPost(postId)
+	if err != nil {
+		return err
+	}
+
+	if err := d.Redis.ZIncrBy("hot:"+post.TypeName+":"+post.Category, float64(score), strconv.Itoa(int(postId))).Err(); err != nil {
+		return err
+	}
+	return d.Redis.ZIncrBy("hot:"+post.TypeName, float64(score), strconv.Itoa(int(postId))).Err()
+}
+
+func (d Dao) ChangePostCategory(typeName, newCategory, oldCategory string, postId uint32) error {
+	score, err := d.Redis.ZScore("hot"+typeName+":"+oldCategory, strconv.Itoa(int(postId))).Result()
+	if err != nil {
+		return err
+	}
+
+	if err := d.Redis.ZRem("hot"+typeName+":"+oldCategory, strconv.Itoa(int(postId))).Err(); err != nil {
+		return err
+	}
+
+	return d.Redis.ZIncrBy("hot:"+typeName+":"+newCategory, score, strconv.Itoa(int(postId))).Err()
+}
+
+func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagination bool) ([]*PostInfo, error) {
+	key := "hot:" + typeName
+	if category != "" {
+		key += ":" + category
+	}
+
+	var start int64
+	var end int64 = -1
+	if pagination {
+		if limit == 0 {
+			limit = constvar.DefaultLimit
+		}
+
+		start = int64(offset)
+		end = int64(offset + limit)
+	}
+
+	result, err := d.Redis.ZRevRange(key, start, end).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	list := make([]*PostInfo, len(result))
+	for i, r := range result {
+		data, err := strconv.Atoi(r)
+		if err != nil {
+			return nil, err
+		}
+
+		list[i], err = d.GetPostInfo(uint32(data))
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return list, nil
 }

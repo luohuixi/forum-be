@@ -33,6 +33,9 @@ var (
 	ErrListHistory      = &Errno{Code: 10305, Message: "Error list histories from Redis"}
 	ErrCreateHistory    = &Errno{Code: 10306, Message: "Error create histories to Redis"}
 
+	// post
+	ErrChangeScore = &Errno{Code: 10401, Message: "Error change post score"}
+
 	// ---------------------------------------------------------------------------
 
 	ErrBadRequest       = &Errno{Code: 20001, Message: "Request error"}

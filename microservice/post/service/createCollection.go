@@ -29,6 +29,10 @@ func (s *PostService) CreateCollection(_ context.Context, req *pb.Request, resp 
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
+	if err := s.Dao.ChangePostScore(req.Id, constvar.CollectionScore); err != nil {
+		return errno.ServerErr(errno.ErrChangeScore, err.Error())
+	}
+
 	resp.Id = collectionId
 
 	return nil
