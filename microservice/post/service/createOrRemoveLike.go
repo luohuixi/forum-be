@@ -7,6 +7,7 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
+	"go.uber.org/zap"
 )
 
 func (s *PostService) CreateOrRemoveLike(_ context.Context, req *pb.LikeRequest, _ *pb.Response) error {
@@ -30,15 +31,18 @@ func (s *PostService) CreateOrRemoveLike(_ context.Context, req *pb.LikeRequest,
 	} else {
 		err = s.Dao.AddLike(req.UserId, item)
 		score = constvar.LikeScore
+
 	}
 	if err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
 
 	if req.Item.TypeName == constvar.Post {
-		if err := s.Dao.ChangePostScore(req.Item.TargetId, score); err != nil {
-			return errno.ServerErr(errno.ErrChangeScore, err.Error())
-		}
+		go func() {
+			if err := s.Dao.ChangePostScore(req.Item.TargetId, score); err != nil {
+				logger.Error(errno.ErrChangeScore.Error(), zap.String("cause", err.Error()))
+			}
+		}()
 	}
 
 	return nil

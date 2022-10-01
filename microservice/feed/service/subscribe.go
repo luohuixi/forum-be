@@ -9,13 +9,13 @@ import (
 
 // SubServiceRun ... 写入feed数据
 func SubServiceRun() {
-	var feed = &dao.FeedModel{}
+	var feed dao.FeedModel
 
 	ch := model.PubSubClient.Self.Channel()
 	for msg := range ch {
 		logger.Info("received")
 
-		if err := json.Unmarshal([]byte(msg.Payload), feed); err != nil {
+		if err := json.Unmarshal([]byte(msg.Payload), &feed); err != nil {
 			panic(err)
 		}
 

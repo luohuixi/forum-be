@@ -9,6 +9,7 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/util"
+	"go.uber.org/zap"
 )
 
 func (s *PostService) CreateCollection(_ context.Context, req *pb.Request, resp *pb.CreateResponse) error {
@@ -29,9 +30,11 @@ func (s *PostService) CreateCollection(_ context.Context, req *pb.Request, resp 
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
-	if err := s.Dao.ChangePostScore(req.Id, constvar.CollectionScore); err != nil {
-		return errno.ServerErr(errno.ErrChangeScore, err.Error())
-	}
+	go func() {
+		if err := s.Dao.ChangePostScore(req.Id, constvar.CollectionScore); err != nil {
+			logger.Error(errno.ErrChangeScore.Error(), zap.String("cause", err.Error()))
+		}
+	}()
 
 	resp.Id = collectionId
 

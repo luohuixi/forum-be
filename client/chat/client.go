@@ -14,15 +14,12 @@ func main() {
 
 	client := pb.NewChatService("forum.service.chat", service.Client())
 
-	resp, err := client.ListHistory(context.TODO(), &pb.ListHistoryRequest{
-		Offset:     0,
-		Limit:      0,
-		UserId:     5,
-		Pagination: false,
+	resp, err := client.GetList(context.TODO(), &pb.GetListRequest{
+		UserId: 5,
 	})
 	if err != nil {
 		panic(err)
 	}
 
-	fmt.Println(resp.Histories)
+	fmt.Println(resp.List)
 }

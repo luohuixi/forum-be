@@ -60,9 +60,11 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 
-		if err := s.Dao.AddTagToSortedSet(tag.Id); err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
-		}
+		go func() {
+			if err := s.Dao.AddTagToSortedSet(tag.Id); err != nil {
+				logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
+			}
+		}()
 	}
 
 	return nil

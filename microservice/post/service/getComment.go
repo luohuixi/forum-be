@@ -28,7 +28,7 @@ func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.Co
 		TypeName: constvar.Comment,
 	})
 	if err != nil {
-		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
+		logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
 	}
 
 	resp.LikeNum = comment.LikeNum

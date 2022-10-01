@@ -14,7 +14,7 @@ websocket: 聊天
 
 casbin: 鉴权
 
-redis: 点赞; 聊天; tag缓存; tag排行榜; 消息队列(pub-sub)
+redis: 点赞; 聊天; tag缓存; tag排行榜; 消息队列(pub-sub); hot post
 
 log: zap
 

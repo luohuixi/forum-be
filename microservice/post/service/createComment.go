@@ -9,6 +9,7 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/util"
+	"go.uber.org/zap"
 )
 
 func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequest, resp *pb.CreateResponse) error {
@@ -71,9 +72,11 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
-	if err := s.Dao.ChangePostScore(req.PostId, constvar.CommentScore); err != nil {
-		return errno.ServerErr(errno.ErrChangeScore, err.Error())
-	}
+	go func() {
+		if err := s.Dao.ChangePostScore(req.PostId, constvar.CommentScore); err != nil {
+			logger.Error(errno.ErrChangeScore.Error(), zap.String("cause", err.Error()))
+		}
+	}()
 
 	return nil
 }

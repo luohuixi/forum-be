@@ -2,7 +2,6 @@ package dao
 
 import (
 	pb "forum-post/proto"
-	"gorm.io/gorm"
 )
 
 type CollectionModel struct {
@@ -41,13 +40,14 @@ func (d *Dao) ListCollectionByUserId(userId uint32) ([]*pb.Collection, error) {
 }
 
 func (d *Dao) IsUserCollectionPost(userId uint32, postId uint32) (bool, error) {
-	err := d.DB.Table("collections").Where("user_id = ? AND post_id = ?", userId, postId).First(&CollectionModel{}).Error
-	if err == gorm.ErrRecordNotFound {
-		return false, nil
-	}
-
+	var count int64
+	err := d.DB.Table("collections").Where("user_id = ? AND post_id = ?", userId, postId).Count(&count).Error
 	if err != nil {
 		return false, err
+	}
+
+	if count == 0 {
+		return false, nil
 	}
 
 	return true, nil

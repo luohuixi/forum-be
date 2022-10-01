@@ -70,7 +70,7 @@ func (d *Dao) GetTagByContent(content string) (*TagModel, error) {
 	}
 
 	if err := dao.addTag(tag.Id, tag.Content); err != nil {
-		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
+		logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
 	}
 
 	return tag, err
@@ -151,8 +151,8 @@ func (d *Dao) ListTagsByPostId(postId uint32) ([]string, error) {
 }
 
 func (d *Dao) AddTagToSortedSet(tagId uint32) error {
-	d.Redis.ZIncrBy("tags", 1, strconv.Itoa(int(tagId))) // FIXME
-	return d.Redis.ZAdd("tags", redis.Z{Score: 1, Member: strconv.Itoa(int(tagId))}).Err()
+	return d.Redis.ZIncrBy("tags", 1, strconv.Itoa(int(tagId))).Err() // FIXME test
+	// d.Redis.ZAdd("tags", redis.Z{Score: 1, Member: strconv.Itoa(int(tagId))}).Err()
 }
 
 func (d *Dao) ListPopularTags() ([]string, error) {

@@ -76,11 +76,11 @@ func (d *Dao) ListHistory(userId, otherUserId, offset, limit uint32, pagination 
 
 	histories := make([]*pb.Message, len(list))
 	for i := 0; i < len(list); i++ {
-		var msg *pb.Message
-		if err := json.Unmarshal([]byte(list[i]), msg); err != nil {
+		var msg pb.Message
+		if err := json.Unmarshal([]byte(list[i]), &msg); err != nil {
 			return nil, err
 		}
-		histories[i] = msg
+		histories[i] = &msg
 	}
 
 	return histories, nil
@@ -90,8 +90,8 @@ func (d *Dao) CreateHistory(userId uint32, list []string) error {
 	log.Info("CreateHistory")
 
 	for i := len(list); i > 0; i-- {
-		var msg *ChatData
-		if err := json.Unmarshal([]byte(list[i-1]), msg); err != nil {
+		var msg ChatData
+		if err := json.Unmarshal([]byte(list[i-1]), &msg); err != nil {
 			return err
 		}
 
