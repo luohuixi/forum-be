@@ -196,38 +196,6 @@ const docTemplate = `{
             }
         },
         "/collection": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "collection"
-                ],
-                "summary": "list收藏 api",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/collection.Collection"
-                            }
-                        }
-                    }
-                }
-            },
             "post": {
                 "consumes": [
                     "application/json"
@@ -262,6 +230,40 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/collection/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "collection"
+                ],
+                "summary": "list收藏 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/collection.Collection"
+                            }
                         }
                     }
                 }
@@ -665,6 +667,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "search_content",
                         "name": "search_content",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "tag",
+                        "name": "tag",
                         "in": "query"
                     },
                     {
@@ -1422,6 +1430,7 @@ const docTemplate = `{
                 "content",
                 "content_type",
                 "summary",
+                "tags",
                 "title",
                 "type_name"
             ],
@@ -1462,6 +1471,9 @@ const docTemplate = `{
             "properties": {
                 "category": {
                     "type": "string"
+                },
+                "collection_num": {
+                    "type": "integer"
                 },
                 "comment_num": {
                     "type": "integer"
@@ -1525,6 +1537,9 @@ const docTemplate = `{
             "properties": {
                 "category": {
                     "type": "string"
+                },
+                "collection_num": {
+                    "type": "integer"
                 },
                 "comment_num": {
                     "type": "integer"

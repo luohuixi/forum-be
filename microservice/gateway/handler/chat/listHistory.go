@@ -52,7 +52,7 @@ func ListHistory(c *gin.Context) {
 		UserId:      userId,
 		Offset:      uint32(page * limit),
 		Limit:       uint32(limit),
-		Pagination:  page != 0,
+		Pagination:  limit != 0,
 		OtherUserId: uint32(otherUserId),
 	}
 

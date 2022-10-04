@@ -55,7 +55,7 @@ func (a *Api) List(c *gin.Context) {
 		Limit:      uint32(limit),
 		Role:       role,
 		UserId:     userId,
-		Pagination: page != 0,
+		Pagination: limit != 0,
 	}
 
 	listResp, err := service.FeedClient.List(context.TODO(), listReq)

@@ -42,6 +42,7 @@ type Post struct {
 	Tags          []string           `json:"tags"`
 	ContentType   string             `json:"content_type"` // md or rtf
 	Summary       string             `json:"summary"`
+	CollectionNum uint32             `json:"collection_num"`
 }
 
 type CreateRequest struct {
@@ -52,7 +53,7 @@ type CreateRequest struct {
 	Category        string   `json:"category,omitempty" binding:"required"`
 	ContentType     string   `json:"content_type" binding:"required"` // md or rtf
 	Summary         string   `json:"summary" binding:"required"`
-	Tags            []string `json:"tags"`
+	Tags            []string `json:"tags" binding:"required"`
 }
 
 type GetPostResponse struct {
@@ -65,6 +66,7 @@ type GetPostResponse struct {
 	ContentType     string     `json:"content_type"` // md or rtf
 	CompiledContent string     `json:"compiled_content"`
 	Summary         string     `json:"summary"`
+	CollectionNum   uint32     `json:"collection_num"`
 }
 
 type SubPost struct {

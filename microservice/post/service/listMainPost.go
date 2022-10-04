@@ -26,7 +26,12 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			Category: req.Category,
 		}
 
-		posts, err = s.Dao.ListPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.SearchContent)
+		tag, err := s.Dao.GetTagByContent(req.Tag)
+		if err != nil {
+			return errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
+
+		posts, err = s.Dao.ListMainPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.SearchContent, tag.Id)
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
@@ -35,7 +40,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 	resp.Posts = make([]*pb.Post, len(posts))
 	for i, post := range posts {
 
-		isLiked, isCollection, likeNum, tags, commentNum := s.getPostInfo(post.Id, req.UserId)
+		isLiked, isCollection, likeNum, tags, commentNum, collectionNum := s.getPostInfo(post.Id, req.UserId)
 
 		if likeNum != 0 {
 			post.LikeNum = likeNum
@@ -56,6 +61,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			Tags:          tags,
 			ContentType:   post.ContentType,
 			Summary:       post.Summary,
+			CollectionNum: collectionNum,
 		}
 	}
 

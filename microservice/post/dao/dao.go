@@ -24,7 +24,8 @@ type Interface interface {
 	DeleteItem(Item) error
 
 	CreatePost(*PostModel) (uint32, error)
-	ListPost(*PostModel, uint32, uint32, uint32, bool, string) ([]*PostInfo, error)
+	ListMyPost(uint32) ([]*PostInfo, error)
+	ListMainPost(*PostModel, uint32, uint32, uint32, bool, string, uint32) ([]*PostInfo, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
 	IsUserCollectionPost(uint32, uint32) (bool, error)
@@ -51,6 +52,7 @@ type Interface interface {
 
 	CreateCollection(*CollectionModel) (uint32, error)
 	DeleteCollection(*CollectionModel) error
+	GetCollectionNumByPostId(uint32) (uint32, error)
 	ListCollectionByUserId(uint32) ([]*pb.Collection, error)
 
 	ChangePostScore(uint32, int) error

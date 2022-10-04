@@ -15,8 +15,11 @@ func main() { // TODO
 	client := pb.NewPostService("forum.service.post", service.Client())
 
 	resp, err := client.ListMainPost(context.TODO(), &pb.ListMainPostRequest{
-		UserId:   2,
-		TypeName: "normal",
+		UserId:     2,
+		TypeName:   "normal",
+		Limit:      10,
+		Offset:     0,
+		Pagination: true,
 	})
 	if err != nil {
 		panic(err)

@@ -52,3 +52,9 @@ func (d *Dao) IsUserCollectionPost(userId uint32, postId uint32) (bool, error) {
 
 	return true, nil
 }
+
+func (d *Dao) GetCollectionNumByPostId(postId uint32) (uint32, error) {
+	var count int64
+	err := d.DB.Model(&CollectionModel{}).Where("post_id = ? AND re = 0", postId).Count(&count).Error
+	return uint32(count), err
+}

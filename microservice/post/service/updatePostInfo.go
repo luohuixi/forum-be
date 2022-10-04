@@ -39,7 +39,7 @@ func (s *PostService) UpdatePostInfo(_ context.Context, req *pb.UpdatePostInfoRe
 	post.Category = req.Category
 	post.Summary = req.Summary
 
-	if err := post.Save(); err != nil {
+	if err := post.Update(); err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 

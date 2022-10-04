@@ -84,7 +84,6 @@ func (d *Dao) GetUserByStudentId(studentId string) (*UserModel, error) {
 }
 
 func (Dao) RegisterUser(info *RegisterInfo) error {
-	// 本地 user 数据库创建用户
 	user := &UserModel{
 		Name:         info.Name,
 		Email:        info.Email,

@@ -42,7 +42,7 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
-	if err := model.AddRole(constvar.Post, postId, req.TypeName); err != nil {
+	if err := model.AddResourceRole(constvar.Post, postId, req.TypeName); err != nil {
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 

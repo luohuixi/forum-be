@@ -119,6 +119,7 @@ message ListMainPostRequest {
     bool pagination = 7;
     string search_content = 8;
     string filter = 9;
+    string tag = 10;
 }
 
 message ListSubPostRequest {
@@ -151,8 +152,9 @@ message Post {
     string content_type = 13;
     string compiled_content = 14;
     string summary = 15;
-    repeated string tags = 16;
-    repeated CommentInfo comments = 17;
+    uint32 collection_num = 16;
+    repeated string tags = 17;
+    repeated CommentInfo comments = 18;
 }
 
 message Tags {

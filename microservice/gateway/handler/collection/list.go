@@ -18,7 +18,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} []collection.Collection
-// @Router /collection [get]
+// @Router /collection/list [get]
 func (a *Api) List(c *gin.Context) {
 	log.Info("Collection List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 

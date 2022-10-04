@@ -28,6 +28,7 @@ import (
 // @Param category query string false "category"
 // @Param filter query string false "filter"
 // @Param search_content query string false "search_content"
+// @Param tag query string false "tag"
 // @Param type_name path string true "type_name"
 // @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} []post.Post
@@ -78,6 +79,8 @@ func (a *Api) ListMainPost(c *gin.Context) {
 
 	searchContent := c.DefaultQuery("search_content", "")
 
+	tag := c.DefaultQuery("tag", "")
+
 	listReq := &pb.ListMainPostRequest{
 		UserId:        userId,
 		Category:      category,
@@ -85,9 +88,10 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		LastId:        uint32(lastId),
 		Offset:        uint32(page * limit),
 		Limit:         uint32(limit),
-		Pagination:    page != 0,
+		Pagination:    limit != 0,
 		SearchContent: searchContent,
 		Filter:        filter,
+		Tag:           tag,
 	}
 
 	postResp, err := service.PostClient.ListMainPost(context.TODO(), listReq)

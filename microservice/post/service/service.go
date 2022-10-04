@@ -41,7 +41,7 @@ func (s PostService) processComments(userId uint32, comments []*pb.CommentInfo) 
 	}
 }
 
-func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint32, []string, uint32) {
+func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint32, []string, uint32, uint32) {
 	item := dao.Item{
 		Id:       postId,
 		TypeName: constvar.Post,
@@ -72,5 +72,10 @@ func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint
 		logger.Error(errno.ErrDatabase.Error(), zap.String("cause", err.Error()))
 	}
 
-	return isLiked, isCollection, uint32(likeNum), tags, commentNum
+	collectionNum, err := s.Dao.GetCommentNumByPostId(postId)
+	if err != nil {
+		logger.Error(errno.ErrDatabase.Error(), zap.String("cause", err.Error()))
+	}
+
+	return isLiked, isCollection, uint32(likeNum), tags, commentNum, collectionNum
 }

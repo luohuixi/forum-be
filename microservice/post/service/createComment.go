@@ -15,16 +15,14 @@ import (
 func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequest, resp *pb.CreateResponse) error {
 	logger.Info("PostService CreateComment")
 
+	post, err := s.Dao.GetPost(req.FatherId)
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+
 	// check if the FatherId is valid
 	switch req.TypeName {
 	case constvar.SubPost:
-		post, err := s.Dao.GetPostInfo(req.FatherId)
-		if err != nil {
-			return errno.ServerErr(errno.ErrDatabase, err.Error())
-		}
-		if post == nil {
-			return errno.ServerErr(errno.ErrBadRequest, "the post not found")
-		}
 
 		resp.TargetUserId = post.Id
 		resp.TargetUserId = post.CreatorId
@@ -68,7 +66,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
-	if err := model.AddRole(constvar.Comment, commentId, constvar.Post+":"+req.TypeName); err != nil {
+	if err := model.AddResourceRole(constvar.Comment, commentId, post.TypeName); err != nil {
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 

@@ -36,6 +36,19 @@ func (p *PostModel) Save() error {
 	return dao.DB.Save(p).Error
 }
 
+func (p *PostModel) Update() error {
+	err := dao.DB.Table("posts").Where("id = ?", p.Id).Updates(map[string]interface{}{
+		"title":            p.Title,
+		"content":          p.Content,
+		"compiled_content": p.CompiledContent,
+		"last_edit_time":   p.LastEditTime,
+		"category":         p.Category,
+		"summary":          p.Summary,
+	}).Error
+
+	return err
+}
+
 func (p *PostModel) Delete() error {
 	p.Re = true
 	return p.Save()
@@ -66,7 +79,7 @@ func (Dao) CreatePost(post *PostModel) (uint32, error) {
 	return post.Id, err
 }
 
-func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, pagination bool, searchContent string) ([]*PostInfo, error) {
+func (d *Dao) ListMainPost(filter *PostModel, offset, limit, lastId uint32, pagination bool, searchContent string, tagId uint32) ([]*PostInfo, error) {
 	var posts []*PostInfo
 	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0").Order("posts.id desc")
 
@@ -82,12 +95,28 @@ func (d *Dao) ListPost(filter *PostModel, offset, limit, lastId uint32, paginati
 		}
 	}
 
+	if tagId != 0 {
+		var postIds []uint32
+		if err := d.DB.Table("post2tags").Select("post_id").Distinct("post_id").Where("tag_id = ?", tagId).Find(&postIds).Error; err != nil {
+			return nil, err
+		}
+
+		query.Where("posts.id IN ?", postIds)
+	}
+
 	if searchContent != "" {
 		// query = query.Where("MATCH (content, title) AGAINST (?)", searchContent) // MySQL 5.7.6 才支持中文全文索引
 		query = query.Where("posts.content LIKE ? OR posts.title LIKE ? OR posts.summary LIKE ?", "%"+searchContent+"%", "%"+searchContent+"%", "%"+searchContent+"%")
 	}
 
 	err := query.Scan(&posts).Error
+
+	return posts, err
+}
+
+func (d *Dao) ListMyPost(creatorId uint32) ([]*PostInfo, error) {
+	var posts []*PostInfo
+	err := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where("creator_id = ?", creatorId).Where("posts.re = 0").Order("posts.id desc").Scan(&posts).Error
 
 	return posts, err
 }

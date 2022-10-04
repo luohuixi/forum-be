@@ -12,7 +12,7 @@ type UserModel struct {
 	HashPassword string `gorm:"column:hash_password;"`
 	Role         string `gorm:"column:role;"`
 	Signature    string `gorm:"column:signature;"`
-	StudentId    string `gorm:"column:student_id;"`
+	StudentId    string `gorm:"column:student_id;default:null"`
 	Re           bool   `gorm:"column:re;"`
 }
 

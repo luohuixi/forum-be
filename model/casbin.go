@@ -29,7 +29,7 @@ func initCasbin(username, password, addr, DBName string) *casbin.Enforcer {
 	a, err := gormadapter.NewAdapter("mysql", config, true) // Your driver and data source.
 	if err != nil {
 		zap.L().Error("casbin数据库加载失败!", zap.Error(err))
-		return nil
+		panic(err)
 	}
 
 	text := `
@@ -41,17 +41,18 @@ func initCasbin(username, password, addr, DBName string) *casbin.Enforcer {
 		
 		[role_definition]
 		g = _, _
-		
+		g2 = _, _
+
 		[policy_effect]
 		e = some(where (p.eft == allow))
 		
 		[matchers]
-		m = g(r.sub,p.sub) && keyMatch2(r.obj,p.obj) && r.act == p.act
+		m = g(r.sub, p.sub) && g2(r.obj, p.obj) && r.act == p.act
 		`
 	m, err := model.NewModelFromString(text)
 	if err != nil {
 		zap.L().Error("字符串加载模型失败!", zap.Error(err))
-		return nil
+		panic(err)
 	}
 
 	cb, err := casbin.NewEnforcer(m, a)
@@ -71,7 +72,7 @@ func (c *Casbin) Init() {
 	}
 
 	rules := [][]string{
-		{constvar.Post + ":" + constvar.NormalPost, constvar.Read},
+		{constvar.NormalPost, constvar.Read},
 	}
 
 	_, err := CB.Self.AddPermissionsForUser(constvar.NormalRole, rules...)
@@ -79,11 +80,22 @@ func (c *Casbin) Init() {
 		panic(err)
 	}
 
-	rules = append(rules, []string{constvar.Post + ":" + constvar.MuxiPost, constvar.Read})
+	rules = append(rules, []string{constvar.MuxiPost, constvar.Read})
 	_, err = CB.Self.AddPermissionsForUser(constvar.MuxiRole, rules...)
 	if err != nil {
 		panic(err)
 	}
+
+	recourseRules := [][]string{
+		{constvar.Post + ":" + constvar.MuxiPost, constvar.MuxiPost},
+		{constvar.Post + ":" + constvar.NormalPost, constvar.NormalPost},
+	}
+
+	_, err = CB.Self.AddNamedGroupingPolicies("g2", recourseRules)
+	if err != nil {
+		panic(err)
+	}
+
 }
 
 func Enforce(userId uint32, typeName string, data interface{}, act string) (bool, error) {
@@ -134,6 +146,18 @@ func AddRole(typeName string, id uint32, role string) error {
 	}
 	if !ok {
 		return errors.New("add role not ok")
+	}
+
+	return nil
+}
+
+func AddResourceRole(typeName string, id uint32, role string) error {
+	ok, err := CB.Self.AddNamedGroupingPolicy("g2", typeName+":"+strconv.Itoa(int(id)), role)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("add g2 not ok")
 	}
 
 	return nil

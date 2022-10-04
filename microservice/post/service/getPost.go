@@ -27,7 +27,7 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 
 	s.processComments(req.UserId, comments)
 
-	resp.IsLiked, resp.IsCollection, resp.LikeNum, resp.Tags, resp.CommentNum = s.getPostInfo(post.Id, req.UserId)
+	resp.IsLiked, resp.IsCollection, resp.LikeNum, resp.Tags, resp.CommentNum, resp.CollectionNum = s.getPostInfo(post.Id, req.UserId)
 
 	if resp.LikeNum == 0 {
 		resp.LikeNum = post.LikeNum
