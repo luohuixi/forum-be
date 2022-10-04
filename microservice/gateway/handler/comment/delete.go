@@ -20,8 +20,8 @@ import (
 // @Tags comment
 // @Accept application/json
 // @Produce application/json
-// @Param comment_id path int true "comment_id"
 // @Param Authorization header string true "token 用户令牌"
+// @Param comment_id path int true "comment_id"
 // @Success 200 {object} handler.Response
 // @Router /comment/{comment_id} [delete]
 func (a *Api) Delete(c *gin.Context) {

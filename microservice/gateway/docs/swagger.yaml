@@ -96,10 +96,6 @@ definitions:
     properties:
       avatar_url:
         type: string
-      email:
-        type: string
-      id:
-        type: integer
       name:
         type: string
       signature:
@@ -522,6 +518,11 @@ paths:
       consumes:
       - application/json
       parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: limit
         in: query
         name: limit
@@ -535,11 +536,6 @@ paths:
         name: id
         required: true
         type: integer
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -600,16 +596,16 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: collection_id
-        in: path
-        name: collection_id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: collection_id
+        in: path
+        name: collection_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -620,7 +616,7 @@ paths:
       summary: 取消收藏 api
       tags:
       - collection
-  /collection/list:
+  /collection/list/{user_id}:
     get:
       consumes:
       - application/json
@@ -630,6 +626,11 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -673,16 +674,16 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: comment_id
-        in: path
-        name: comment_id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: comment_id
+        in: path
+        name: comment_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -697,16 +698,16 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: comment_id
-        in: path
-        name: comment_id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: comment_id
+        in: path
+        name: comment_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -775,7 +776,7 @@ paths:
       summary: 点赞/取消点赞 api
       tags:
       - like
-  /like/list:
+  /like/list/{user_id}:
     get:
       consumes:
       - application/json
@@ -785,6 +786,11 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -851,16 +857,16 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: post_id
-        in: path
-        name: post_id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: post_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -875,16 +881,16 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: post_id
-        in: path
-        name: post_id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: post_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -902,6 +908,11 @@ paths:
       description: 'type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal);
         根据category获取主帖list'
       parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: limit
         in: query
         name: limit
@@ -935,11 +946,6 @@ paths:
         name: type_name
         required: true
         type: string
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
       produces:
       - application/json
       responses:
@@ -950,28 +956,6 @@ paths:
               $ref: '#/definitions/post.Post'
             type: array
       summary: list 主帖 api
-      tags:
-      - post
-  /post/my/list:
-    get:
-      consumes:
-      - application/json
-      parameters:
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/post.Post'
-            type: array
-      summary: list 我发布的帖子 api
       tags:
       - post
   /post/popular_tag:
@@ -995,6 +979,33 @@ paths:
               type: string
             type: array
       summary: list 热门tags api
+      tags:
+      - post
+  /post/published/{user_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/post.Post'
+            type: array
+      summary: list 用户发布的帖子 api
       tags:
       - post
   /post/qiniu_token:
@@ -1049,6 +1060,11 @@ paths:
       - application/json
       description: 通过 group 和 team 获取 user_list
       parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: limit
         in: query
         name: limit
@@ -1061,11 +1077,6 @@ paths:
         in: query
         name: last_id
         type: integer
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
       - description: group_id
         in: path
         name: group_id
@@ -1114,16 +1125,16 @@ paths:
       description: '通过 userId 获取完整 user 信息（权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员;
         MuxiAdmin-团队管理员; SuperAdmin-超级管理员）'
       parameters:
-      - description: user_id
-        in: path
-        name: id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: user_id
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:

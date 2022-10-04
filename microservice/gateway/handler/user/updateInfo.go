@@ -39,7 +39,6 @@ func UpdateInfo(c *gin.Context) {
 		Info: &pb.UserInfo{
 			Name:      req.Name,
 			AvatarUrl: req.AvatarURL,
-			Email:     req.Email,
 			Signature: req.Signature,
 		},
 	}

@@ -25,7 +25,7 @@ func (s *UserService) UpdateInfo(_ context.Context, req *pb.UpdateInfoRequest, _
 	user.Avatar = req.Info.AvatarUrl
 	user.Signature = req.Info.Signature
 
-	if err := user.Save(); err != nil {
+	if err := user.Update(); err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 

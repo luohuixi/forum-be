@@ -21,8 +21,8 @@ import (
 // @Tags user
 // @Accept application/json
 // @Produce application/json
-// @Param id path int true "user_id"
 // @Param Authorization header string true "token 用户令牌"
+// @Param id path int true "user_id"
 // @Success 200 {object} UserProfile
 // @Router /user/profile/{id} [get]
 func GetProfile(c *gin.Context) {

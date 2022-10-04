@@ -20,8 +20,8 @@ import (
 // @Tags post
 // @Accept application/json
 // @Produce application/json
-// @Param post_id path int true "post_id"
 // @Param Authorization header string true "token 用户令牌"
+// @Param post_id path int true "post_id"
 // @Success 200 {object} GetPostResponse
 // @Router /post/{post_id} [get]
 func (a *Api) Get(c *gin.Context) {

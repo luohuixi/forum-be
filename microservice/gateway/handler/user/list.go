@@ -20,10 +20,10 @@ import (
 // @Tags user
 // @Accept application/json
 // @Produce application/json
+// @Param Authorization header string true "token 用户令牌"
 // @Param limit query int false "limit"
 // @Param page query int false "page"
 // @Param last_id query int false "last_id"
-// @Param Authorization header string true "token 用户令牌"
 // @Param group_id path int true "group_id"
 // @Param team_id path int true "team_id"
 // @Success 200 {object} ListResponse

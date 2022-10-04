@@ -18,10 +18,10 @@ import (
 // @Tags chat
 // @Accept application/json
 // @Produce application/json
+// @Param Authorization header string true "token 用户令牌"
 // @Param limit query int false "limit"
 // @Param page query int false "page"
 // @Param id path int true "id"
-// @Param Authorization header string true "token 用户令牌"
 // @Success 200 {object} []Message
 // @Router /chat/history/{id} [get]
 func ListHistory(c *gin.Context) {
@@ -52,7 +52,7 @@ func ListHistory(c *gin.Context) {
 		UserId:      userId,
 		Offset:      uint32(page * limit),
 		Limit:       uint32(limit),
-		Pagination:  limit != 0,
+		Pagination:  limit != 0 || page != 0,
 		OtherUserId: uint32(otherUserId),
 	}
 

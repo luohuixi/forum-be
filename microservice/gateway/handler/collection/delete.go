@@ -20,8 +20,8 @@ import (
 // @Tags collection
 // @Accept application/json
 // @Produce application/json
-// @Param collection_id path int true "collection_id"
 // @Param Authorization header string true "token 用户令牌"
+// @Param collection_id path int true "collection_id"
 // @Success 200 {object} handler.Response
 // @Router /collection/{collection_id} [delete]
 func (a *Api) Delete(c *gin.Context) {

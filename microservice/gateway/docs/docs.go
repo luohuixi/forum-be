@@ -130,6 +130,13 @@ const docTemplate = `{
                 "summary": "获取该用户的聊天记录",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "limit",
                         "name": "limit",
@@ -146,13 +153,6 @@ const docTemplate = `{
                         "description": "id",
                         "name": "id",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -235,7 +235,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/collection/list": {
+        "/collection/list/{user_id}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -253,6 +253,13 @@ const docTemplate = `{
                         "description": "token 用户令牌",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user_id",
+                        "name": "user_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -283,17 +290,17 @@ const docTemplate = `{
                 "summary": "取消收藏 api",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "collection_id",
-                        "name": "collection_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "string",
                         "description": "token 用户令牌",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "collection_id",
+                        "name": "collection_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -361,17 +368,17 @@ const docTemplate = `{
                 "summary": "获取评论 api",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "comment_id",
-                        "name": "comment_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "string",
                         "description": "token 用户令牌",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "comment_id",
+                        "name": "comment_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -397,17 +404,17 @@ const docTemplate = `{
                 "summary": "删除评论 api",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "comment_id",
-                        "name": "comment_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "string",
                         "description": "token 用户令牌",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "comment_id",
+                        "name": "comment_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -510,7 +517,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/like/list": {
+        "/like/list/{user_id}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -528,6 +535,13 @@ const docTemplate = `{
                         "description": "token 用户令牌",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user_id",
+                        "name": "user_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -634,6 +648,13 @@ const docTemplate = `{
                 "summary": "list 主帖 api",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "limit",
                         "name": "limit",
@@ -680,47 +701,6 @@ const docTemplate = `{
                         "description": "type_name",
                         "name": "type_name",
                         "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/post.Post"
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        "/post/my/list": {
-            "get": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "post"
-                ],
-                "summary": "list 我发布的帖子 api",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
                         "required": true
                     }
                 ],
@@ -772,6 +752,47 @@ const docTemplate = `{
                 }
             }
         },
+        "/post/published/{user_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "post"
+                ],
+                "summary": "list 用户发布的帖子 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user_id",
+                        "name": "user_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/post.Post"
+                            }
+                        }
+                    }
+                }
+            }
+        },
         "/post/qiniu_token": {
             "get": {
                 "consumes": [
@@ -817,17 +838,17 @@ const docTemplate = `{
                 "summary": "获取帖子 api",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "post_id",
-                        "name": "post_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "string",
                         "description": "token 用户令牌",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "post_id",
+                        "name": "post_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -853,17 +874,17 @@ const docTemplate = `{
                 "summary": "删除帖子 api",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "post_id",
-                        "name": "post_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "string",
                         "description": "token 用户令牌",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "post_id",
+                        "name": "post_id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -932,6 +953,13 @@ const docTemplate = `{
                 "summary": "list user api",
                 "parameters": [
                     {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "limit",
                         "name": "limit",
@@ -948,13 +976,6 @@ const docTemplate = `{
                         "description": "last_id",
                         "name": "last_id",
                         "in": "query"
-                    },
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
                     },
                     {
                         "type": "integer",
@@ -1028,17 +1049,17 @@ const docTemplate = `{
                 "summary": "获取用户 profile api",
                 "parameters": [
                     {
-                        "type": "integer",
-                        "description": "user_id",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
                         "type": "string",
                         "description": "token 用户令牌",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user_id",
+                        "name": "id",
+                        "in": "path",
                         "required": true
                     }
                 ],
@@ -1200,12 +1221,6 @@ const docTemplate = `{
             "properties": {
                 "avatar_url": {
                     "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
                 },
                 "name": {
                     "type": "string"

@@ -71,7 +71,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	postApi := post.New(dao.GetDao())
 	{
 		postRouter.GET("/list/:type_name", postApi.ListMainPost)
-		postRouter.GET("/my/list", postApi.ListMyPost)
+		postRouter.GET("/published/:user_id", postApi.ListUserPost)
 		postRouter.GET("/:post_id", postApi.Get)
 		postRouter.POST("", postApi.Create)
 		postRouter.DELETE("/:post_id", postApi.Delete)
@@ -93,7 +93,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	likeRouter.Use(normalRequired)
 	likeApi := like.New(dao.GetDao())
 	{
-		likeRouter.GET("/list", likeApi.GetUserLikeList)
+		likeRouter.GET("/list/:user_id", likeApi.GetUserLikeList)
 		likeRouter.POST("", likeApi.CreateOrRemove)
 	}
 
@@ -110,7 +110,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	collectionRouter.Use(normalRequired)
 	collectionApi := collection.New(dao.GetDao())
 	{
-		collectionRouter.GET("/list", collectionApi.List)
+		collectionRouter.GET("/list/:user_id", collectionApi.List)
 		collectionRouter.POST("", collectionApi.Create)
 		collectionRouter.DELETE("/:collection_id", collectionApi.Delete)
 	}

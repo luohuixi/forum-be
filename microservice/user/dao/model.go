@@ -30,6 +30,16 @@ func (u *UserModel) Save() error {
 	return dao.DB.Save(u).Error
 }
 
+func (u *UserModel) Update() error {
+	err := dao.DB.Table("users").Where("id = ?", u.Id).Updates(map[string]interface{}{
+		"name":      u.Name,
+		"avatar":    u.Avatar,
+		"signature": u.Signature,
+	}).Error
+
+	return err
+}
+
 // generatePasswordHash pwd -> hashPwd
 func generatePasswordHash(password string) string {
 	return security.GeneratePasswordHash(password)
