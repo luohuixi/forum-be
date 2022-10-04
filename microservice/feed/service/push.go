@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	upb "forum-user/proto"
 	"forum/pkg/errno"
 	"forum/util"
 
@@ -15,29 +16,22 @@ import (
 func (s *FeedService) Push(_ context.Context, req *pb.PushRequest, _ *pb.Response) error {
 	logger.Info("FeedService Push")
 
-	// get username and avatar by userId from user-service
-	userName, avatar, err := getInfoFromUserService(req.UserId)
+	getResp, err := UserClient.GetProfile(context.TODO(), &upb.GetRequest{Id: req.UserId})
 	if err != nil {
 		return errno.ServerErr(errno.ErrRPC, err.Error())
 	}
 
 	feed := &dao.FeedModel{
 		UserId:           req.UserId,
-		UserName:         userName,
-		UserAvatar:       avatar,
+		UserName:         getResp.Name,
+		UserAvatar:       getResp.Avatar,
 		Action:           req.Action,
 		SourceTypeName:   req.Source.TypeName,
 		SourceObjectName: req.Source.Name,
 		SourceObjectId:   req.Source.Id,
-		CreateTime:       util.GetCurrentTime(),
 		TargetUserId:     req.TargetUserId,
-	}
-
-	if req.TargetUserId != 0 {
-		feed.TargetUserName, feed.TargetUserAvatar, err = getInfoFromUserService(req.TargetUserId)
-		if err != nil {
-			return errno.ServerErr(errno.ErrRPC, err.Error())
-		}
+		CreateTime:       util.GetCurrentTime(),
+		TypeName:         getResp.Role,
 	}
 
 	msg, _ := json.Marshal(feed)

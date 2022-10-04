@@ -18,7 +18,6 @@ require (
 	forum-feed v0.0.0-00010101000000-000000000000
 	forum-post v0.0.0-00010101000000-000000000000
 	forum-user v0.0.0-00010101000000-000000000000
-	github.com/casbin/casbin/v2 v2.47.2
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-micro/plugins/v4/registry/kubernetes v1.1.0
 	github.com/go-micro/plugins/v4/wrapper/trace/opentracing v1.1.0
@@ -47,10 +46,14 @@ require (
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/acomagu/bufpipe v1.0.3 // indirect
 	github.com/bitly/go-simplejson v0.5.0 // indirect
+	github.com/casbin/casbin/v2 v2.54.0 // indirect
 	github.com/casbin/gorm-adapter/v3 v3.7.2 // indirect
+	github.com/casbin/redis-watcher/v2 v2.2.0 // indirect
+	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.0 // indirect
 	github.com/denisenkom/go-mssqldb v0.12.0 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
+	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect
 	github.com/emirpasic/gods v1.12.0 // indirect
 	github.com/evanphx/json-patch/v5 v5.5.0 // indirect
 	github.com/felixge/httpsnoop v1.0.1 // indirect
@@ -71,6 +74,7 @@ require (
 	github.com/go-playground/universal-translator v0.17.0 // indirect
 	github.com/go-playground/validator/v10 v10.4.1 // indirect
 	github.com/go-redis/redis v6.15.9+incompatible // indirect
+	github.com/go-redis/redis/v8 v8.11.5 // indirect
 	github.com/go-sql-driver/mysql v1.6.0 // indirect
 	github.com/gobwas/httphead v0.1.0 // indirect
 	github.com/gobwas/pool v0.2.1 // indirect

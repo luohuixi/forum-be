@@ -718,7 +718,7 @@ paths:
       summary: 获取评论 api
       tags:
       - comment
-  /feed/list:
+  /feed/list/{user_id}:
     get:
       consumes:
       - application/json
@@ -728,6 +728,11 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: integer
       - description: limit
         in: query
         name: limit
@@ -747,7 +752,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/FeedListResponse'
-      summary: list 此用户的动态 api
+      summary: list 用户的动态 api
       tags:
       - feed
   /like:
@@ -1159,3 +1164,7 @@ tags:
   name: feed
 - description: 收藏服务
   name: collection
+- description: 评论服务
+  name: comment
+- description: 点赞服务
+  name: like

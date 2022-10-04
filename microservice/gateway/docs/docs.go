@@ -428,7 +428,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/feed/list": {
+        "/feed/list/{user_id}": {
             "get": {
                 "consumes": [
                     "application/json"
@@ -439,13 +439,20 @@ const docTemplate = `{
                 "tags": [
                     "feed"
                 ],
-                "summary": "list 此用户的动态 api",
+                "summary": "list 用户的动态 api",
                 "parameters": [
                     {
                         "type": "string",
                         "description": "token 用户令牌",
                         "name": "Authorization",
                         "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user_id",
+                        "name": "user_id",
+                        "in": "path",
                         "required": true
                     },
                     {
@@ -1763,6 +1770,14 @@ const docTemplate = `{
         {
             "description": "收藏服务",
             "name": "collection"
+        },
+        {
+            "description": "评论服务",
+            "name": "comment"
+        },
+        {
+            "description": "点赞服务",
+            "name": "like"
         }
     ]
 }`

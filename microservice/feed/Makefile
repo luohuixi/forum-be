@@ -15,3 +15,6 @@ gitea:
 tag:
 	git tag release-${name}-${ver}
 push: vet tag gitea github
+
+docker:
+	docker buildx build --platform linux/amd64 -t forum ../.. --build-arg service_name=${name}

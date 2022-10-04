@@ -102,7 +102,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	feedRouter.Use(normalRequired)
 	feedApi := feed.New(dao.GetDao())
 	{
-		feedRouter.GET("/list", feedApi.List)
+		feedRouter.GET("/list/:user_id", feedApi.List)
 	}
 
 	// collection

@@ -30,6 +30,7 @@ func (a *Api) GetUserLikeList(c *gin.Context) { // TODO
 		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
 	}
+
 	userIdReq := &pb.UserIdRequest{
 		UserId: uint32(userId),
 	}

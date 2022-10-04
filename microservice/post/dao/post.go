@@ -55,7 +55,7 @@ func (p *PostModel) Delete() error {
 }
 
 func (p *PostModel) Get(id uint32) error {
-	return dao.DB.Model(p).Where("id = ? AND re = 0", id).First(p).Error
+	return dao.DB.Model(p).Where("id = ? AND re = 0", id).First(&p).Error
 }
 
 type PostInfo struct {

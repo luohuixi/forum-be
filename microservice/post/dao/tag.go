@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"errors"
 	logger "forum/log"
 	"forum/pkg/errno"
 	"github.com/go-redis/redis"
@@ -51,13 +50,14 @@ func (d *Dao) GetTagById(id uint32) (*TagModel, error) {
 }
 
 func (d *Dao) GetTagByContent(content string) (*TagModel, error) {
-	if content == "" {
-		return nil, errors.New("tag can't be null")
-	}
-
 	tag := &TagModel{
 		Content: content,
 	}
+
+	if content == "" {
+		return tag, nil
+	}
+
 	id, err := d.getTagIdByContent(content)
 	if err != nil {
 		return tag, err

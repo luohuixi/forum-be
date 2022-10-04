@@ -7,6 +7,8 @@ import (
 	"github.com/casbin/casbin/v2"
 	"github.com/casbin/casbin/v2/model"
 	gormadapter "github.com/casbin/gorm-adapter/v3"
+	watcher "github.com/casbin/redis-watcher/v2"
+	"github.com/go-redis/redis/v8"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/spf13/viper"
 	"go.uber.org/zap"
@@ -55,10 +57,46 @@ func initCasbin(username, password, addr, DBName string) *casbin.Enforcer {
 		panic(err)
 	}
 
+	// Initialize the watcher.
+	// Use the Redis host as parameter.
+	w, _ := watcher.NewWatcher(viper.GetString("redis.addr"), watcher.WatcherOptions{
+		Options: redis.Options{
+			Network:  "tcp",
+			Password: viper.GetString("redis.password"),
+		},
+		Channel: "/casbin",
+		// Only exists in test, generally be true
+		IgnoreSelf: false,
+	})
+
 	cb, err := casbin.NewEnforcer(m, a)
 	if err != nil {
 		panic(err)
 	}
+
+	// Set the watcher for the enforcer.
+	if err := cb.SetWatcher(w); err != nil {
+		panic(err)
+	}
+
+	// Set callback to local example
+	// if err := w.SetUpdateCallback(watcher.DefaultUpdateCallback(cb)); err != nil {
+	f := func(msg string) {
+		err := cb.LoadPolicy()
+		if err != nil {
+			panic(err)
+		}
+	}
+
+	if err := w.SetUpdateCallback(f); err != nil {
+		panic(err)
+	}
+
+	// Update the policy to test the effect.
+	// You should see "[casbin rules updated]" in the log.
+	// if err := cb.SavePolicy(); err != nil {
+	// 	panic(err)
+	// }
 
 	return cb
 }

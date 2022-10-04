@@ -14,8 +14,7 @@ type FeedModel struct {
 	SourceObjectName string
 	SourceObjectId   uint32
 	TargetUserId     uint32
-	TargetUserName   string
-	TargetUserAvatar string
+	TypeName         string
 	CreateTime       string
 	Re               bool
 }
@@ -62,7 +61,7 @@ func (d *Dao) List(filter *FeedModel, offset, limit, lastId uint32, pagination b
 
 	// 查找用户的feed
 	if filter.UserId != 0 {
-		query = query.Where("feeds.userid = ?", filter.UserId)
+		query = query.Where("feeds.user_id = ?", filter.UserId)
 	}
 
 	// // 组别筛选

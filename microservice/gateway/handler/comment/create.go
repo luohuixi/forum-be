@@ -67,16 +67,17 @@ func (a *Api) Create(c *gin.Context) {
 
 	// 向 feed 发送请求
 	pushReq := &pbf.PushRequest{
-		Action: "创建",
+		Action: "评论",
 		UserId: userId,
 		Source: &pbf.Source{
 			Id:       resp.Id,
 			TypeName: constvar.Comment,
-			Name:     req.Content,
+			Name:     resp.TargetContent,
 		},
 		TargetUserId: resp.TargetUserId,
+		Content:      req.Content,
 	}
-	_, err = service.FeedClient.Push(context.Background(), pushReq)
+	_, err = service.FeedClient.Push(context.TODO(), pushReq)
 	if err != nil {
 		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
 		return

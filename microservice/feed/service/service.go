@@ -1,7 +1,6 @@
 package service
 
 import (
-	"context"
 	"forum-feed/dao"
 	"forum/pkg/handler"
 	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
@@ -36,14 +35,4 @@ func UserInit() {
 	service.Init()
 
 	UserClient = upb.NewUserService("forum.service.user", service.Client())
-}
-
-// getInfoFromUserService get user's name and avatar from user-service
-func getInfoFromUserService(id uint32) (string, string, error) {
-	rsp, err := UserClient.GetProfile(context.TODO(), &upb.GetRequest{Id: id})
-	if err != nil {
-		return "", "", err
-	}
-
-	return rsp.Name, rsp.Avatar, nil
 }

@@ -50,6 +50,10 @@ func init() {
 // @tag.description 动态服务
 // @tag.name collection
 // @tag.description 收藏服务
+// @tag.name comment
+// @tag.description 评论服务
+// @tag.name like
+// @tag.description 点赞服务
 
 func main() {
 	pflag.Parse()

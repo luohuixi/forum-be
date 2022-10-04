@@ -4,6 +4,7 @@ import (
 	"context"
 	"forum-feed/dao"
 	pb "forum-feed/proto"
+	upb "forum-user/proto"
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
@@ -13,19 +14,17 @@ import (
 func (s *FeedService) List(_ context.Context, req *pb.ListRequest, res *pb.ListResponse) error {
 	logger.Info("FeedService List")
 
-	// 普通用户，只能返回有权限访问的 projects
-	if req.Role == constvar.Normal {
-		// projectIds, err = GetFilterFromProjectService(req.UserId)
-		// if err != nil {
-		// 	return errno.ServerErr(errno.ErrGetDataFromRPC, err.Error())
-		// }
+	var filter = &dao.FeedModel{
+		TargetUserId: req.UserId,
 	}
 
-	// 筛选条件
-	var filter = &dao.FeedModel{
-		UserId: req.UserId,
-		// GroupId:    req.Filter.GroupId,
-		// ProjectIds: projectIds,
+	getResp, err := UserClient.GetProfile(context.TODO(), &upb.GetRequest{Id: req.UserId})
+	if err != nil {
+		return errno.ServerErr(errno.ErrRPC, err.Error())
+	}
+
+	if getResp.Role == constvar.NormalRole {
+		filter.TypeName = constvar.NormalRole
 	}
 
 	feeds, err := s.Dao.List(filter, req.Offset, req.Limit, req.LastId, req.Pagination)
@@ -34,17 +33,12 @@ func (s *FeedService) List(_ context.Context, req *pb.ListRequest, res *pb.ListR
 	}
 
 	// 数据格式化
-	list, err := FormatListData(feeds)
-	if err != nil {
-		// return errno.ServerErr(errno.ErrFormatList, err.Error())
-	}
-
-	res.List = list
+	res.List = FormatListData(feeds)
 
 	return nil
 }
 
-func FormatListData(list []*dao.FeedModel) ([]*pb.FeedItem, error) {
+func FormatListData(list []*dao.FeedModel) []*pb.FeedItem {
 	var result []*pb.FeedItem
 	var time string
 	var sourceId uint32
@@ -86,5 +80,5 @@ func FormatListData(list []*dao.FeedModel) ([]*pb.FeedItem, error) {
 		result = append(result, data)
 	}
 
-	return result, nil
+	return result
 }

@@ -47,6 +47,10 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 	}
 
 	for _, content := range req.Tags {
+		if content == "" {
+			return errno.ServerErr(errno.ErrBadRequest, "tag content can't be null")
+		}
+
 		tag, err := s.Dao.GetTagByContent(content)
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())

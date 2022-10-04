@@ -107,6 +107,7 @@ message Response {}
 message CreateResponse {
     uint32 id = 1;
     uint32 target_user_id = 2;
+    string target_content = 3;
 }
 
 message ListMainPostRequest {

@@ -36,7 +36,14 @@ func (s *PostService) CreateCollection(_ context.Context, req *pb.Request, resp 
 		}
 	}()
 
+	post, err := s.Dao.GetPost(req.Id)
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+
 	resp.Id = collectionId
+	resp.TargetUserId = post.CreatorId
+	resp.TargetContent = post.Title
 
 	return nil
 }
