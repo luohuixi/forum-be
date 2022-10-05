@@ -25,7 +25,7 @@ type Interface interface {
 
 	CreatePost(*PostModel) (uint32, error)
 	ListMyPost(uint32) ([]*PostInfo, error)
-	ListMainPost(*PostModel, uint32, uint32, uint32, bool, string, uint32) ([]*PostInfo, error)
+	ListMainPost(*PostModel, string, uint32, uint32, uint32, bool, string, uint32) ([]*PostInfo, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
 	IsUserCollectionPost(uint32, uint32) (bool, error)
@@ -57,7 +57,7 @@ type Interface interface {
 
 	ChangePostScore(uint32, int) error
 	ChangePostCategory(string, string, string, uint32) error
-	ListHotPost(string, string, uint32, uint32, bool) ([]*PostInfo, error)
+	// ListHotPost(string, string, uint32, uint32, bool) ([]*PostInfo, error)
 }
 
 // Init init dao
@@ -94,7 +94,7 @@ func (d Dao) DeleteItem(i Item) error {
 		if err := item.Delete(); err != nil {
 			return err
 		}
-		return d.Redis.ZRem("hot:"+item.Category, i.Id).Err()
+		return d.Redis.ZRem("hot:"+item.Category, i.Id).Err() // TODO
 	} else if i.TypeName == constvar.Comment {
 		item := &CommentModel{}
 		if err := item.Get(i.Id); err != nil {

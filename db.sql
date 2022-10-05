@@ -4,15 +4,17 @@
 DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users`
 (
-    `id`            int(11) AUTO_INCREMENT PRIMARY KEY,
-    `name`          varchar(20) NOT NULL,
-    `email`         varchar(35)  DEFAULT NULL,
-    `avatar`        varchar(100) DEFAULT NULL,
-    `student_id`    char(10)     DEFAULT NULL,
-    `hash_password` varchar(100) DEFAULT NULL,
-    `role`          varchar(20) NOT NULL COMMENT '权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员',
-    `signature`     varchar(200) DEFAULT NULL,
-    `re`            tinyint(1)   DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
+    `id`                            int(11) AUTO_INCREMENT PRIMARY KEY,
+    `name`                          varchar(20) NOT NULL,
+    `email`                         varchar(35)  DEFAULT NULL,
+    `avatar`                        varchar(100) DEFAULT NULL,
+    `student_id`                    char(10)     DEFAULT NULL,
+    `hash_password`                 varchar(100) DEFAULT NULL,
+    `role`                          varchar(20) NOT NULL COMMENT '权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员',
+    `signature`                     varchar(200) DEFAULT NULL,
+    `re`                            tinyint(1)   DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
+    `is_public_collection_and_like` tinyint(1)   DEFAULT NULL,
+    `is_public_feed`                tinyint(1)   DEFAULT NULL,
     CONSTRAINT T_type_Chk CHECK (`role` = 'Normal' OR `role` = 'NormalAdmin' OR `role` = 'Muxi' OR
                                  `role` = 'MuxiAdmin' OR `role` = 'SuperAdmin'),
     KEY (`email`),
@@ -41,6 +43,7 @@ CREATE TABLE `posts`
     `last_edit_time`   varchar(30)   NOT NULL,
     `content_type`     varchar(30)   NOT NULL,
     `like_num`         int(11) DEFAULT 0,
+    `score`            int(11) DEFAULT 0,
     KEY (`category`),
     CONSTRAINT T_type_Chk CHECK (`type_name` = 'normal' OR `type_name` = 'muxi'),
     CONSTRAINT T_content_type_Chk CHECK (`type_name` = 'md' OR `type_name` = 'rtf'),
@@ -83,7 +86,7 @@ CREATE TABLE `tags`
 (
     `id`      int(11) AUTO_INCREMENT PRIMARY KEY,
     `content` varchar(30) NOT NULL,
-    KEY (`content`)
+    UNIQUE KEY (`content`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci

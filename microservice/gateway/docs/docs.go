@@ -348,7 +348,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Response"
+                            "type": "integer"
                         }
                     }
                 }
@@ -1088,7 +1088,7 @@ const docTemplate = `{
                 "action": {
                     "type": "string"
                 },
-                "date": {
+                "create_time": {
                     "type": "string"
                 },
                 "id": {
@@ -1101,11 +1101,8 @@ const docTemplate = `{
                 "source": {
                     "$ref": "#/definitions/Source"
                 },
-                "time": {
-                    "type": "string"
-                },
                 "user": {
-                    "$ref": "#/definitions/FeedUser"
+                    "$ref": "#/definitions/User"
                 }
             }
         },
@@ -1117,20 +1114,6 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/FeedItem"
                     }
-                }
-            }
-        },
-        "FeedUser": {
-            "type": "object",
-            "properties": {
-                "avatar_url": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "name": {
-                    "type": "string"
                 }
             }
         },
@@ -1164,19 +1147,13 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "type": "integer"
-                },
-                "kind": {
-                    "description": "类型，1 -\u003e 团队，2 -\u003e 项目，3 -\u003e 文档，4 -\u003e 文件，6 -\u003e 进度（5 不使用）",
+                    "description": "Kind uint32 ` + "`" + `json:\"kind\"` + "`" + ` // 类型，1 -\u003e 团队，2 -\u003e 项目，3 -\u003e 文档，4 -\u003e 文件，6 -\u003e 进度（5 不使用）",
                     "type": "integer"
                 },
                 "name": {
                     "type": "string"
                 },
-                "project_id": {
-                    "type": "integer"
-                },
-                "project_name": {
+                "type_name": {
                     "type": "string"
                 }
             }
@@ -1239,6 +1216,20 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "signature": {
+                    "type": "string"
+                }
+            }
+        },
+        "User": {
+            "type": "object",
+            "properties": {
+                "avatar_url": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
                     "type": "string"
                 }
             }

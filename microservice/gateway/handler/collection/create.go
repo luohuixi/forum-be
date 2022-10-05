@@ -62,11 +62,11 @@ func (a *Api) Create(c *gin.Context) {
 		Action: "收藏",
 		UserId: userId,
 		Source: &pbf.Source{
-			Id:       resp.Id,
-			TypeName: constvar.Collection,
-			Name:     resp.TargetContent,
+			Id:       req.PostId,
+			TypeName: resp.TypeName,
+			Name:     resp.Content,
 		},
-		TargetUserId: resp.TargetUserId,
+		TargetUserId: resp.UserId,
 		Content:      "",
 	}
 	_, err = service.FeedClient.Push(context.TODO(), pushReq)

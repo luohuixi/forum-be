@@ -15,7 +15,7 @@ func (s *FeedService) List(_ context.Context, req *pb.ListRequest, res *pb.ListR
 	logger.Info("FeedService List")
 
 	var filter = &dao.FeedModel{
-		TargetUserId: req.UserId,
+		// TypeName: constvar.MuxiRole, // TODO
 	}
 
 	getResp, err := UserClient.GetProfile(context.TODO(), &upb.GetRequest{Id: req.UserId})
@@ -27,7 +27,7 @@ func (s *FeedService) List(_ context.Context, req *pb.ListRequest, res *pb.ListR
 		filter.TypeName = constvar.NormalRole
 	}
 
-	feeds, err := s.Dao.List(filter, req.Offset, req.Limit, req.LastId, req.Pagination)
+	feeds, err := s.Dao.List(filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.UserId)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}

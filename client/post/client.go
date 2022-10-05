@@ -34,7 +34,6 @@ func main() { // TODO
 	// 	Category: 1,
 	// })
 
-	//
 	// fmt.Println("post:", post.List[0].Category)
 	//
 	// if err != nil {

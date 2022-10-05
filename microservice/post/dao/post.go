@@ -20,6 +20,7 @@ type PostModel struct {
 	ContentType     string
 	CompiledContent string
 	Summary         string
+	Score           uint32
 }
 
 func (PostModel) TableName() string {
@@ -79,9 +80,9 @@ func (Dao) CreatePost(post *PostModel) (uint32, error) {
 	return post.Id, err
 }
 
-func (d *Dao) ListMainPost(filter *PostModel, offset, limit, lastId uint32, pagination bool, searchContent string, tagId uint32) ([]*PostInfo, error) {
+func (d *Dao) ListMainPost(filter *PostModel, typeName string, offset, limit, lastId uint32, pagination bool, searchContent string, tagId uint32) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0").Order("posts.id desc")
+	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0")
 
 	if pagination {
 		if limit == 0 {
@@ -107,6 +108,12 @@ func (d *Dao) ListMainPost(filter *PostModel, offset, limit, lastId uint32, pagi
 	if searchContent != "" {
 		// query = query.Where("MATCH (content, title) AGAINST (?)", searchContent) // MySQL 5.7.6 才支持中文全文索引
 		query = query.Where("posts.content LIKE ? OR posts.title LIKE ? OR posts.summary LIKE ?", "%"+searchContent+"%", "%"+searchContent+"%", "%"+searchContent+"%")
+	}
+
+	if typeName == "hot" {
+		query = query.Order("posts.score desc")
+	} else {
+		query = query.Order("posts.id desc")
 	}
 
 	err := query.Scan(&posts).Error
@@ -142,10 +149,15 @@ func (d Dao) ChangePostScore(postId uint32, score int) error {
 		return err
 	}
 
-	if err := d.Redis.ZIncrBy("hot:"+post.TypeName+":"+post.Category, float64(score), strconv.Itoa(int(postId))).Err(); err != nil {
-		return err
-	}
-	return d.Redis.ZIncrBy("hot:"+post.TypeName, float64(score), strconv.Itoa(int(postId))).Err()
+	pipe := d.Redis.TxPipeline()
+
+	pipe.ZIncrBy("hot:"+post.TypeName+":"+post.Category, float64(score), strconv.Itoa(int(postId)))
+
+	pipe.ZIncrBy("hot:"+post.TypeName, float64(score), strconv.Itoa(int(postId)))
+
+	_, err = pipe.Exec()
+
+	return err
 }
 
 func (d Dao) ChangePostCategory(typeName, newCategory, oldCategory string, postId uint32) error {
@@ -154,11 +166,14 @@ func (d Dao) ChangePostCategory(typeName, newCategory, oldCategory string, postI
 		return err
 	}
 
-	if err := d.Redis.ZRem("hot"+typeName+":"+oldCategory, strconv.Itoa(int(postId))).Err(); err != nil {
-		return err
-	}
+	pipe := d.Redis.TxPipeline()
+	pipe.ZRem("hot"+typeName+":"+oldCategory, strconv.Itoa(int(postId)))
 
-	return d.Redis.ZIncrBy("hot:"+typeName+":"+newCategory, score, strconv.Itoa(int(postId))).Err()
+	pipe.ZIncrBy("hot:"+typeName+":"+newCategory, score, strconv.Itoa(int(postId)))
+
+	_, err = pipe.Exec()
+
+	return err
 }
 
 func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagination bool) ([]*PostInfo, error) {

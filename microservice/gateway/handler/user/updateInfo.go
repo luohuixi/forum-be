@@ -37,9 +37,11 @@ func UpdateInfo(c *gin.Context) {
 	updateInfoReq := &pb.UpdateInfoRequest{
 		Id: userId,
 		Info: &pb.UserInfo{
-			Name:      req.Name,
-			AvatarUrl: req.AvatarURL,
-			Signature: req.Signature,
+			Name:                      req.Name,
+			AvatarUrl:                 req.AvatarURL,
+			Signature:                 req.Signature,
+			IsPublicCollectionAndLike: req.IsPublicCollectionAndLike,
+			IsPublicFeed:              req.IsPublicFeed,
 		},
 	}
 

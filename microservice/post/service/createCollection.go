@@ -42,8 +42,9 @@ func (s *PostService) CreateCollection(_ context.Context, req *pb.Request, resp 
 	}
 
 	resp.Id = collectionId
-	resp.TargetUserId = post.CreatorId
-	resp.TargetContent = post.Title
+	resp.UserId = post.CreatorId
+	resp.Content = post.Title
+	resp.TypeName = post.TypeName
 
 	return nil
 }

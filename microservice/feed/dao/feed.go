@@ -54,20 +54,15 @@ func (d Dao) Delete(id uint32) error {
 // }
 
 // List ...
-func (d *Dao) List(filter *FeedModel, offset, limit, lastId uint32, pagination bool) ([]*FeedModel, error) {
+func (d *Dao) List(filter *FeedModel, offset, limit, lastId uint32, pagination bool, userId uint32) ([]*FeedModel, error) {
 	var feeds []*FeedModel
 
 	query := d.DB.Table("feeds").Select("feeds.*").Order("feeds.id desc").Where(filter).Where("re = 0")
 
 	// 查找用户的feed
-	if filter.UserId != 0 {
-		query = query.Where("feeds.user_id = ?", filter.UserId)
+	if userId != 0 {
+		query = query.Where("feeds.user_id = ? OR feeds.target_user_id = ? ", userId, userId)
 	}
-
-	// // 组别筛选
-	// if filter.GroupId != 0 {
-	// 	query = query.Where("users.group_id = ?", filter.GroupId).Joins("left join users on users.id = feeds.userid")
-	// }
 
 	if pagination {
 		if limit == 0 {

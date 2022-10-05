@@ -20,7 +20,7 @@ type Dao struct {
 type Interface interface {
 	Create(*FeedModel) (uint32, error)
 	Delete(uint32) error
-	List(*FeedModel, uint32, uint32, uint32, bool) ([]*FeedModel, error)
+	List(*FeedModel, uint32, uint32, uint32, bool, uint32) ([]*FeedModel, error)
 
 	PublishMsg([]byte) error
 }

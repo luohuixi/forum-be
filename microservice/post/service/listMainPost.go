@@ -11,30 +11,19 @@ import (
 func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostRequest, resp *pb.ListPostResponse) error {
 	logger.Info("PostService ListMainPost")
 
-	var posts []*dao.PostInfo
-	var err error
+	filter := &dao.PostModel{
+		TypeName: req.TypeName,
+		Category: req.Category,
+	}
 
-	if req.Filter == "hot" {
-		posts, err = s.Dao.ListHotPost(req.TypeName, req.Category, req.Offset, req.Limit, req.Pagination)
-		if err != nil {
-			return errno.ServerErr(errno.ErrRedis, err.Error())
-		}
-	} else {
+	tag, err := s.Dao.GetTagByContent(req.Tag)
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
 
-		filter := &dao.PostModel{
-			TypeName: req.TypeName,
-			Category: req.Category,
-		}
-
-		tag, err := s.Dao.GetTagByContent(req.Tag)
-		if err != nil {
-			return errno.ServerErr(errno.ErrDatabase, err.Error())
-		}
-
-		posts, err = s.Dao.ListMainPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.SearchContent, tag.Id)
-		if err != nil {
-			return errno.ServerErr(errno.ErrDatabase, err.Error())
-		}
+	posts, err := s.Dao.ListMainPost(filter, req.Filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.SearchContent, tag.Id)
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	resp.Posts = make([]*pb.Post, len(posts))

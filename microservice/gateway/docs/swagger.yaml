@@ -4,7 +4,7 @@ definitions:
     properties:
       action:
         type: string
-      date:
+      create_time:
         type: string
       id:
         type: integer
@@ -13,10 +13,8 @@ definitions:
         type: boolean
       source:
         $ref: '#/definitions/Source'
-      time:
-        type: string
       user:
-        $ref: '#/definitions/FeedUser'
+        $ref: '#/definitions/User'
     type: object
   FeedListResponse:
     properties:
@@ -24,15 +22,6 @@ definitions:
         items:
           $ref: '#/definitions/FeedItem'
         type: array
-    type: object
-  FeedUser:
-    properties:
-      avatar_url:
-        type: string
-      id:
-        type: integer
-      name:
-        type: string
     type: object
   ListResponse:
     properties:
@@ -54,15 +43,12 @@ definitions:
   Source:
     properties:
       id:
-        type: integer
-      kind:
-        description: 类型，1 -> 团队，2 -> 项目，3 -> 文档，4 -> 文件，6 -> 进度（5 不使用）
+        description: Kind uint32 `json:"kind"` // 类型，1 -> 团队，2 -> 项目，3 -> 文档，4 ->
+          文件，6 -> 进度（5 不使用）
         type: integer
       name:
         type: string
-      project_id:
-        type: integer
-      project_name:
+      type_name:
         type: string
     type: object
   StudentLoginRequest:
@@ -103,6 +89,15 @@ definitions:
       name:
         type: string
       signature:
+        type: string
+    type: object
+  User:
+    properties:
+      avatar_url:
+        type: string
+      id:
+        type: integer
+      name:
         type: string
     type: object
   UserProfile:
@@ -678,7 +673,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Response'
+            type: integer
       summary: 创建评论/从帖 api
       tags:
       - comment

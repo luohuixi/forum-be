@@ -2,6 +2,7 @@ package comment
 
 import (
 	"context"
+	"fmt"
 	pbf "forum-feed/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
@@ -22,7 +23,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body CreateRequest true "create_comment_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} int
 // @Router /comment [post]
 func (a *Api) Create(c *gin.Context) {
 	log.Info("Comment Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -51,6 +52,8 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
+	fmt.Println("----- userId: ", userId, ok, " -----")
+
 	createReq := pb.CreateCommentRequest{
 		PostId:    req.PostId,
 		TypeName:  req.TypeName,
@@ -70,14 +73,14 @@ func (a *Api) Create(c *gin.Context) {
 		Action: "评论",
 		UserId: userId,
 		Source: &pbf.Source{
-			Id:       resp.Id,
-			TypeName: constvar.Comment,
-			Name:     resp.TargetContent,
+			Id:       req.PostId,
+			TypeName: resp.TypeName,
+			Name:     resp.Content,
 		},
-		TargetUserId: resp.TargetUserId,
+		TargetUserId: resp.UserId,
 		Content:      req.Content,
 	}
 	_, err = service.FeedClient.Push(context.TODO(), pushReq)
 
-	SendResponse(c, err, nil)
+	SendResponse(c, err, resp.Id)
 }

@@ -24,9 +24,8 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 	switch req.TypeName {
 	case constvar.SubPost:
 
-		resp.Id = post.Id
-		resp.TargetUserId = post.CreatorId
-		resp.TargetContent = post.Title
+		resp.UserId = post.CreatorId
+		resp.Content = post.Title
 
 	case constvar.FirstLevelComment, constvar.SecondLevelComment:
 		comment, err := s.Dao.GetComment(req.FatherId)
@@ -41,9 +40,8 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 			return errno.ServerErr(errno.ErrBadRequest, "type_name of father not legal")
 		}
 
-		resp.Id = comment.Id
-		resp.TargetUserId = comment.CreatorId
-		resp.TargetContent = comment.Content
+		resp.UserId = comment.CreatorId
+		resp.Content = comment.Content
 
 	default:
 		return errno.ServerErr(errno.ErrBadRequest, "type_name not legal")
@@ -77,6 +75,9 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 			logger.Error(errno.ErrChangeScore.Error(), zap.String("cause", err.Error()))
 		}
 	}()
+
+	resp.Id = commentId
+	resp.TypeName = post.TypeName
 
 	return nil
 }
