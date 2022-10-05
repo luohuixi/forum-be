@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	pb "forum-post/proto"
 	micro "go-micro.dev/v4"
 )
@@ -14,19 +13,12 @@ func main() { // TODO
 
 	client := pb.NewPostService("forum.service.post", service.Client())
 
-	resp, err := client.ListMainPost(context.TODO(), &pb.ListMainPostRequest{
-		UserId:     2,
-		TypeName:   "normal",
-		Limit:      10,
-		Offset:     0,
-		Pagination: true,
+	_, err := client.ListCollection(context.TODO(), &pb.UserIdRequest{
+		UserId: 2,
 	})
 	if err != nil {
 		panic(err)
 	}
-
-	fmt.Println("----- : ", resp.Posts[0].IsCollection, " -----")
-	fmt.Println("----- : ", len(resp.Posts), " -----")
 
 	// _, err = client.CreateComment(context.TODO(), &pb.CreateCommentRequest{
 	// 	PostId: 1,

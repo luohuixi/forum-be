@@ -1,8 +1,11 @@
 package dao
 
 import (
+	"errors"
+	"forum/model"
 	"forum/pkg/constvar"
 	"gorm.io/gorm"
+	"strconv"
 )
 
 type RegisterInfo struct {
@@ -42,16 +45,6 @@ func (d *Dao) GetUserByEmail(email string) (*UserModel, error) {
 	return u, err
 }
 
-// GetUserByName get a user by name.
-// func GetUserByName(name string) (*UserModel, error) {
-// 	u := &UserModel{}
-// 	err := m.DB.Self.Where("name = ?", name).First(u).Error
-// 	if gorm.IsRecordNotFoundError(err) {
-// 		return nil, nil
-// 	}
-// 	return u, err
-// }
-
 // ListUser list users
 func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, error) {
 	if limit == 0 {
@@ -85,12 +78,28 @@ func (d *Dao) GetUserByStudentId(studentId string) (*UserModel, error) {
 
 func (Dao) RegisterUser(info *RegisterInfo) error {
 	user := &UserModel{
-		Name:         info.Name,
-		Email:        info.Email,
-		StudentId:    info.StudentId,
-		HashPassword: generatePasswordHash(info.Password),
-		Role:         info.Role,
-		Re:           false,
+		Name:                      info.Name,
+		Email:                     info.Email,
+		StudentId:                 info.StudentId,
+		HashPassword:              generatePasswordHash(info.Password),
+		Role:                      info.Role,
+		Re:                        false,
+		IsPublicCollectionAndLike: true,
+		IsPublicFeed:              true,
 	}
+
 	return user.Create()
+}
+
+func (Dao) AddPublicPolicy(role string, userId uint32) error {
+	ok, err := model.CB.Self.AddPolicy(role, constvar.CollectionAndLike+":"+strconv.Itoa(int(userId)), constvar.Read)
+	if err != nil || !ok {
+		return errors.New("AddPolicy CollectionAndLike fail")
+	}
+
+	ok, err = model.CB.Self.AddPolicy(role, constvar.Feed+":"+strconv.Itoa(int(userId)), constvar.Read)
+	if err != nil || !ok {
+		return errors.New("AddPolicy Feed fail")
+	}
+	return nil
 }

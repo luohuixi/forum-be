@@ -53,6 +53,8 @@ message UserInfo {
   string email = 3;
   string avatar_url = 4;
   string signature = 5;
+  bool is_public_collection_and_like = 6;
+  bool is_public_feed = 7;
 }
 
 message UserInfoResponse {
@@ -66,10 +68,8 @@ message UserProfile {
   string avatar = 4;
   string email = 5;
   string signature = 6;
-}
-
-message GetResponse {
-  User user = 1;
+  bool is_public_feed = 7;
+  bool is_public_collection_and_like = 8;
 }
 
 message ListRequest {

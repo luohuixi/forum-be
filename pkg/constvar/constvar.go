@@ -24,7 +24,9 @@ const (
 	Post    = "post"
 	Comment = "comment"
 
-	Collection = "collection"
+	Collection        = "collection"
+	CollectionAndLike = "collection-like"
+	Feed              = "feed"
 
 	// post type
 	NormalPost = "normal"

@@ -96,6 +96,10 @@ definitions:
     properties:
       avatar_url:
         type: string
+      is_public_collection_and_like:
+        type: boolean
+      is_public_feed:
+        type: boolean
       name:
         type: string
       signature:
@@ -109,6 +113,10 @@ definitions:
         type: string
       id:
         type: integer
+      is_public_collection_and_like:
+        type: boolean
+      is_public_feed:
+        type: boolean
       name:
         type: string
       role:
@@ -213,6 +221,11 @@ definitions:
     - type_name
     type: object
   like.ListResponse:
+    properties:
+      likes:
+        items:
+          $ref: '#/definitions/like.Item'
+        type: array
     type: object
   post.Comment:
     properties:

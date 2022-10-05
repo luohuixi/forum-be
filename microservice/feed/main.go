@@ -58,21 +58,19 @@ func main() {
 	defer io.Close()
 	defer logger.SyncLogger()
 
-	dao.Init()
-
 	// set var t to Global Tracer (opentracing single instance mode)
 	opentracing.SetGlobalTracer(t)
 
+	dao.Init()
+
 	if *subFg {
 		// sub-service
-
 		logger.Info("Subscribe service start...")
 		service.SubServiceRun()
 		return
 	}
 
 	// feed-service
-
 	srv := micro.NewService(
 		micro.Name(viper.GetString("local_name")),
 		micro.WrapHandler(

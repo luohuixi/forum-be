@@ -1229,6 +1229,12 @@ const docTemplate = `{
                 "avatar_url": {
                     "type": "string"
                 },
+                "is_public_collection_and_like": {
+                    "type": "boolean"
+                },
+                "is_public_feed": {
+                    "type": "boolean"
+                },
                 "name": {
                     "type": "string"
                 },
@@ -1248,6 +1254,12 @@ const docTemplate = `{
                 },
                 "id": {
                     "type": "integer"
+                },
+                "is_public_collection_and_like": {
+                    "type": "boolean"
+                },
+                "is_public_feed": {
+                    "type": "boolean"
                 },
                 "name": {
                     "type": "string"
@@ -1405,7 +1417,15 @@ const docTemplate = `{
             }
         },
         "like.ListResponse": {
-            "type": "object"
+            "type": "object",
+            "properties": {
+                "likes": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/like.Item"
+                    }
+                }
+            }
         },
         "post.Comment": {
             "type": "object",

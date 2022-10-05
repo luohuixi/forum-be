@@ -5,15 +5,17 @@ import (
 )
 
 type UserModel struct {
-	Id           uint32 `gorm:"column:id;not null"`
-	Email        string `gorm:"column:email;default:null"`
-	Name         string `gorm:"column:name;"`
-	Avatar       string `gorm:"column:avatar;"`
-	HashPassword string `gorm:"column:hash_password;"`
-	Role         string `gorm:"column:role;"`
-	Signature    string `gorm:"column:signature;"`
-	StudentId    string `gorm:"column:student_id;default:null"`
-	Re           bool   `gorm:"column:re;"`
+	Id                        uint32 `gorm:"column:id;not null"`
+	Email                     string `gorm:"column:email;default:null"`
+	Name                      string `gorm:"column:name;"`
+	Avatar                    string `gorm:"column:avatar;"`
+	HashPassword              string `gorm:"column:hash_password;"`
+	Role                      string `gorm:"column:role;"`
+	Signature                 string `gorm:"column:signature;"`
+	StudentId                 string `gorm:"column:student_id;default:null"`
+	Re                        bool   `gorm:"column:re;"`
+	IsPublicFeed              bool
+	IsPublicCollectionAndLike bool
 }
 
 func (UserModel) TableName() string {
@@ -32,9 +34,11 @@ func (u *UserModel) Save() error {
 
 func (u *UserModel) Update() error {
 	err := dao.DB.Table("users").Where("id = ?", u.Id).Updates(map[string]interface{}{
-		"name":      u.Name,
-		"avatar":    u.Avatar,
-		"signature": u.Signature,
+		"name":                          u.Name,
+		"avatar":                        u.Avatar,
+		"signature":                     u.Signature,
+		"is_public_collection_and_like": u.IsPublicCollectionAndLike,
+		"is_public_feed":                u.IsPublicFeed,
 	}).Error
 
 	return err

@@ -22,6 +22,7 @@ type Interface interface {
 	ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, error)
 	GetUserByStudentId(studentId string) (*UserModel, error)
 	RegisterUser(info *RegisterInfo) error
+	AddPublicPolicy(string, uint32) error
 }
 
 // Init init dao

@@ -47,12 +47,14 @@ type GetProfileRequest struct {
 
 // UserProfile 获取 profile 响应
 type UserProfile struct {
-	Id        uint32 `json:"id"`
-	Name      string `json:"name"`
-	Avatar    string `json:"avatar"`
-	Email     string `json:"email"`
-	Role      string `json:"role"`
-	Signature string `json:"signature"`
+	Id                        uint32 `json:"id"`
+	Name                      string `json:"name"`
+	Avatar                    string `json:"avatar"`
+	Email                     string `json:"email"`
+	Role                      string `json:"role"`
+	Signature                 string `json:"signature"`
+	IsPublicFeed              bool   `json:"is_public_feed"`
+	IsPublicCollectionAndLike bool   `json:"is_public_collection_and_like"`
 } // @name UserProfile
 
 // ListRequest 获取 userList 请求
@@ -77,7 +79,9 @@ type ListResponse struct {
 
 // UpdateInfoRequest 更新 userInfo 请求
 type UpdateInfoRequest struct {
-	Name      string `json:"name"`
-	AvatarURL string `json:"avatar_url"`
-	Signature string `json:"signature"`
+	Name                      string `json:"name"`
+	AvatarURL                 string `json:"avatar_url"`
+	Signature                 string `json:"signature"`
+	IsPublicFeed              bool   `json:"is_public_feed"`
+	IsPublicCollectionAndLike bool   `json:"is_public_collection_and_like"`
 } // @name UpdateInfoRequest

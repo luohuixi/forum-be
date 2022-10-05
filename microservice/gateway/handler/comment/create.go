@@ -78,10 +78,6 @@ func (a *Api) Create(c *gin.Context) {
 		Content:      req.Content,
 	}
 	_, err = service.FeedClient.Push(context.TODO(), pushReq)
-	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
-		return
-	}
 
-	SendResponse(c, nil, nil)
+	SendResponse(c, err, nil)
 }

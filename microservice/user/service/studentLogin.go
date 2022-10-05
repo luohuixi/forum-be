@@ -39,6 +39,11 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 		if err := s.Dao.RegisterUser(info); err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
+
+		if err := s.Dao.AddPublicPolicy(user.Role, user.Id); err != nil {
+			return errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
+
 		// 注册后重新查询
 		user, err = s.Dao.GetUserByStudentId(req.StudentId)
 		if err != nil {

@@ -55,12 +55,14 @@ func GetUserProfile(id uint32) (*UserProfile, error) {
 
 	// 构造返回 response
 	resp := &UserProfile{
-		Id:        getProfileResp.Id,
-		Name:      getProfileResp.Name,
-		Avatar:    getProfileResp.Avatar,
-		Email:     getProfileResp.Email,
-		Role:      getProfileResp.Role,
-		Signature: getProfileResp.Signature,
+		Id:                        getProfileResp.Id,
+		Name:                      getProfileResp.Name,
+		Avatar:                    getProfileResp.Avatar,
+		Email:                     getProfileResp.Email,
+		Role:                      getProfileResp.Role,
+		Signature:                 getProfileResp.Signature,
+		IsPublicCollectionAndLike: getProfileResp.IsPublicCollectionAndLike,
+		IsPublicFeed:              getProfileResp.IsPublicFeed,
 	}
 
 	return resp, nil

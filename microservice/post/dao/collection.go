@@ -35,7 +35,7 @@ func (Dao) DeleteCollection(collection *CollectionModel) error {
 
 func (d *Dao) ListCollectionByUserId(userId uint32) ([]*pb.Collection, error) {
 	var collections []*pb.Collection
-	err := d.DB.Table("collections").Select("collections.id id, post_id, title, content, create_time time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = collections.creator_id").Where("user_id = ?", userId).Find(&collections).Error
+	err := d.DB.Table("collections").Select("collections.id id, post_id, title, content, collections.create_time time, p.creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join posts p on p.id = collections.post_id").Joins("join users u on u.id = p.creator_id").Where("user_id = ?", userId).Find(&collections).Error
 	return collections, err
 }
 

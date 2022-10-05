@@ -7,6 +7,8 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -25,14 +27,30 @@ import (
 func (a *Api) List(c *gin.Context) {
 	log.Info("Collection List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	userId, err := strconv.Atoi(c.Param("user_id"))
+	targetUserId, err := strconv.Atoi(c.Param("user_id"))
 	if err != nil {
 		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
 	}
 
+	userId := c.MustGet("userId").(uint32)
+
+	if int(userId) != targetUserId {
+
+		ok, err := model.Enforce(userId, constvar.CollectionAndLike, targetUserId, constvar.Read)
+		if err != nil {
+			SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
+			return
+		}
+
+		if !ok {
+			SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+			return
+		}
+	}
+
 	listReq := &pb.UserIdRequest{
-		UserId: uint32(userId),
+		UserId: uint32(targetUserId),
 	}
 
 	resp, err := service.PostClient.ListCollection(context.TODO(), listReq)

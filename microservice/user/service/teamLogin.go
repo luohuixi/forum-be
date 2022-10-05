@@ -2,16 +2,15 @@ package service
 
 import (
 	"context"
-	"forum/model"
-	"forum/pkg/constvar"
-	"forum/pkg/token"
-
 	"forum-user/dao"
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
 	"forum-user/util"
 	logger "forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
+	"forum/pkg/token"
 )
 
 // TeamLogin ... 登录
@@ -58,6 +57,11 @@ func (s *UserService) TeamLogin(_ context.Context, req *pb.TeamLoginRequest, res
 		if err := s.Dao.RegisterUser(info); err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
+
+		if err := s.Dao.AddPublicPolicy(user.Role, user.Id); err != nil {
+			return errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
+
 		// 注册后重新查询
 		user, err = s.Dao.GetUserByEmail(userInfo.Email)
 		if err != nil {

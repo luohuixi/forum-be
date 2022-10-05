@@ -20,5 +20,5 @@ type Item struct {
 }
 
 type ListResponse struct {
-	likes *[]Item
+	Likes *[]Item `json:"likes"`
 }

@@ -7,6 +7,8 @@ import (
 	"forum-gateway/service"
 	"forum-gateway/util"
 	"forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"strconv"
 
@@ -29,10 +31,26 @@ import (
 func (a *Api) List(c *gin.Context) {
 	log.Info("feed List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	userId, err := strconv.Atoi(c.Param("user_id"))
+	targetUserId, err := strconv.Atoi(c.Param("user_id"))
 	if err != nil {
 		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
+	}
+
+	userId := c.MustGet("userId").(uint32)
+
+	if int(userId) != targetUserId {
+
+		ok, err := model.Enforce(userId, constvar.Feed, targetUserId, constvar.Read)
+		if err != nil {
+			SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
+			return
+		}
+
+		if !ok {
+			SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+			return
+		}
 	}
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
@@ -57,7 +75,7 @@ func (a *Api) List(c *gin.Context) {
 		LastId:     uint32(lastId),
 		Offset:     uint32(page * limit),
 		Limit:      uint32(limit),
-		UserId:     uint32(userId),
+		UserId:     uint32(targetUserId),
 		Pagination: limit != 0 || page != 0,
 	}
 
