@@ -21,7 +21,6 @@ type User struct {
 } // @name User
 
 type Source struct {
-	// Kind uint32 `json:"kind"` // 类型，1 -> 团队，2 -> 项目，3 -> 文档，4 -> 文件，6 -> 进度（5 不使用）
 	Id       uint32 `json:"id"`
 	Name     string `json:"name"`
 	TypeName string `json:"type_name"`

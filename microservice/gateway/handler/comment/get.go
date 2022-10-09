@@ -51,11 +51,11 @@ func (a *Api) Get(c *gin.Context) {
 		Id:     uint32(id),
 	}
 
-	resp, err := service.PostClient.GetComment(context.TODO(), getReq)
+	getResp, err := service.PostClient.GetComment(context.TODO(), getReq)
 	if err != nil {
-		SendError(c, err, resp, "", GetLine())
+		SendError(c, err, getResp, "", GetLine())
 		return
 	}
 
-	SendResponse(c, nil, resp)
+	SendMicroServiceResponse(c, nil, getResp, Comment{})
 }

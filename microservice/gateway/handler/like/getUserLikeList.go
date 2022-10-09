@@ -28,7 +28,7 @@ import (
 // @Param last_id query int false "last_id"
 // @Success 200 {object} post.PostPartInfoResponse
 // @Router /like/list/{user_id} [get]
-func (a *Api) GetUserLikeList(c *gin.Context) { // TODO
+func (a *Api) GetUserLikeList(c *gin.Context) {
 	log.Info("Like GetUserLikeList function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	targetUserId, err := strconv.Atoi(c.Param("user_id"))
@@ -79,13 +79,11 @@ func (a *Api) GetUserLikeList(c *gin.Context) { // TODO
 		Pagination: limit != 0 || page != 0,
 	}
 
-	resp, err := service.PostClient.ListLikeByUserId(context.TODO(), listReq)
+	listResp, err := service.PostClient.ListLikeByUserId(context.TODO(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
-	r := post.GetPostPartInfoResponse(resp)
-
-	SendResponse(c, nil, r)
+	SendMicroServiceResponse(c, nil, listResp, post.PostPartInfoResponse{})
 }

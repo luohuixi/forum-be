@@ -66,7 +66,5 @@ func (a *Api) ListUserPost(c *gin.Context) {
 		return
 	}
 
-	r := GetPostPartInfoResponse(postResp)
-
-	SendResponse(c, nil, r)
+	SendMicroServiceResponse(c, nil, postResp, PostPartInfoResponse{})
 }

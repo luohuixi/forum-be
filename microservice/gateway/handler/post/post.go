@@ -93,7 +93,7 @@ type info struct {
 }
 
 type PostPartInfo struct {
-	PostId        uint32   `json:"post_id"`
+	Id            uint32   `json:"id"`
 	Title         string   `json:"title"`
 	Summary       string   `json:"summary"`
 	Category      string   `json:"category"`
@@ -149,28 +149,4 @@ func setInfo[T pb.CommentInfo | pb.Post](info *info, comment *T) {
 
 type QiNiuToken struct {
 	Token string `json:"token"`
-}
-
-func GetPostPartInfoResponse(data *pb.ListPostPartInfoResponse) *PostPartInfoResponse {
-	posts := make([]*PostPartInfo, len(data.Posts))
-	for i, p := range data.Posts {
-		posts[i] = &PostPartInfo{
-			PostId:        p.PostId,
-			Title:         p.Title,
-			Summary:       p.Summary,
-			Category:      p.Category,
-			Time:          p.Time,
-			CreatorId:     p.CreatorId,
-			CreatorName:   p.CreatorName,
-			CreatorAvatar: p.CreatorAvatar,
-			CommentNum:    p.CommentNum,
-			LikeNum:       p.LikeNum,
-			Tags:          p.Tags,
-			CollectionNum: p.CollectionNum,
-		}
-	}
-
-	return &PostPartInfoResponse{
-		Posts: posts,
-	}
 }

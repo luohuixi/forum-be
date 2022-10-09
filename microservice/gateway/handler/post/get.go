@@ -126,6 +126,7 @@ func (a *Api) Get(c *gin.Context) {
 		Tags:            getResp.Tags,
 		CompiledContent: getResp.CompiledContent,
 		Summary:         getResp.Summary,
+		CollectionNum:   getResp.CollectionNum,
 	}
 
 	setInfo(&resp.info, getResp)

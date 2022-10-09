@@ -3,7 +3,6 @@ package post
 import (
 	"context"
 	. "forum-gateway/handler"
-	"forum-gateway/handler/comment"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -101,42 +100,5 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	posts := make([]*Post, len(postResp.Posts))
-	for i, post := range postResp.Posts {
-		posts[i].Comments = make([]*comment.Comment, len(post.Comments))
-		for j, c := range post.Comments {
-			posts[i].Comments[j] = &comment.Comment{
-				Id:            c.Id,
-				Content:       c.Content,
-				TypeName:      c.TypeName,
-				FatherId:      c.FatherId,
-				CreateTime:    c.Time,
-				CreatorId:     c.CreatorId,
-				CreatorName:   c.CreatorName,
-				CreatorAvatar: c.CreatorAvatar,
-				LikeNum:       c.LikeNum,
-				IsLiked:       c.IsLiked,
-			}
-		}
-
-		posts[i] = &Post{
-			Id:            post.Id,
-			Title:         post.Title,
-			Time:          post.Time,
-			Category:      post.Category,
-			CreatorId:     post.CreatorId,
-			CreatorName:   post.CreatorName,
-			CreatorAvatar: post.CreatorAvatar,
-			CommentNum:    post.CommentNum,
-			LikeNum:       post.LikeNum,
-			IsLiked:       post.IsLiked,
-			IsCollection:  post.IsCollection,
-			Tags:          post.Tags,
-			ContentType:   post.ContentType,
-			Summary:       post.Summary,
-			CollectionNum: post.CollectionNum,
-		}
-	}
-
-	SendResponse(c, nil, &ListMainPostResponse{Posts: posts})
+	SendMicroServiceResponse(c, nil, postResp, ListMainPostResponse{})
 }

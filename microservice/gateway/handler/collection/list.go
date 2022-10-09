@@ -79,13 +79,11 @@ func (a *Api) List(c *gin.Context) {
 		Pagination: limit != 0 || page != 0,
 	}
 
-	resp, err := service.PostClient.ListCollection(context.TODO(), listReq)
+	listResp, err := service.PostClient.ListCollection(context.TODO(), listReq)
 	if err != nil {
-		SendError(c, err, resp, "", GetLine())
+		SendError(c, err, listResp, "", GetLine())
 		return
 	}
 
-	r := post.GetPostPartInfoResponse(resp)
-
-	SendResponse(c, nil, r)
+	SendMicroServiceResponse(c, nil, listResp, post.PostPartInfoResponse{})
 }

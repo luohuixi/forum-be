@@ -61,5 +61,5 @@ func List(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, nil, listResp)
+	SendMicroServiceResponse(c, nil, listResp, ListResponse{})
 }

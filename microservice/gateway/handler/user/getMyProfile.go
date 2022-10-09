@@ -29,5 +29,5 @@ func GetMyProfile(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, nil, user)
+	SendMicroServiceResponse(c, nil, user, UserProfile{})
 }

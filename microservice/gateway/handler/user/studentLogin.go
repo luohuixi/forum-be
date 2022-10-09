@@ -44,10 +44,5 @@ func StudentLogin(c *gin.Context) {
 		return
 	}
 
-	// 构造返回 response
-	resp := StudentLoginResponse{
-		Token: loginResp.Token,
-	}
-
-	SendResponse(c, nil, resp)
+	SendMicroServiceResponse(c, nil, loginResp, StudentLoginResponse{})
 }

@@ -84,38 +84,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/chat": {
-            "get": {
-                "description": "该用户发送信息前先获取自己的uuid，并放入query(id=?)，有效期24h",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "chat"
-                ],
-                "summary": "获取该用户的uuid",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/chat.Id"
-                        }
-                    }
-                }
-            }
-        },
         "/chat/history/{id}": {
             "get": {
                 "consumes": [
@@ -1137,7 +1105,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "id": {
-                    "description": "Kind uint32 ` + "`" + `json:\"kind\"` + "`" + ` // 类型，1 -\u003e 团队，2 -\u003e 项目，3 -\u003e 文档，4 -\u003e 文件，6 -\u003e 进度（5 不使用）",
                     "type": "integer"
                 },
                 "name": {
@@ -1249,14 +1216,6 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "signature": {
-                    "type": "string"
-                }
-            }
-        },
-        "chat.Id": {
-            "type": "object",
-            "properties": {
-                "id": {
                     "type": "string"
                 }
             }
@@ -1593,10 +1552,10 @@ const docTemplate = `{
                 "creator_name": {
                     "type": "string"
                 },
-                "like_num": {
+                "id": {
                     "type": "integer"
                 },
-                "post_id": {
+                "like_num": {
                     "type": "integer"
                 },
                 "summary": {

@@ -85,5 +85,5 @@ func (a *Api) List(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, nil, listResp)
+	SendMicroServiceResponse(c, nil, listResp, FeedListResponse{})
 }

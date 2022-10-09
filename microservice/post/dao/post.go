@@ -192,7 +192,7 @@ func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagina
 
 func (d Dao) ListPostInfoByPostIds(postIds []uint32, offset, limit, lastId uint32, pagination bool) ([]*pb.PostPartInfo, error) {
 	var posts []*pb.PostPartInfo
-	query := d.DB.Table("posts").Select("posts.id post_id, title, category, summary, content, last_edit_time time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.re = 0").Where("posts.id IN ?", postIds).Order("posts.id desc")
+	query := d.DB.Table("posts").Select("posts.id id, title, category, summary, content, last_edit_time time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.re = 0").Where("posts.id IN ?", postIds).Order("posts.id desc")
 
 	if pagination {
 		if limit == 0 {
@@ -212,7 +212,7 @@ func (d Dao) ListPostInfoByPostIds(postIds []uint32, offset, limit, lastId uint3
 
 	for _, post := range posts {
 		likeNum, err := d.GetLikedNum(Item{
-			Id:       post.PostId,
+			Id:       post.Id,
 			TypeName: constvar.Post,
 		})
 		if err != nil {
@@ -220,17 +220,17 @@ func (d Dao) ListPostInfoByPostIds(postIds []uint32, offset, limit, lastId uint3
 		}
 		post.LikeNum = uint32(likeNum)
 
-		post.CommentNum, err = d.GetCommentNumByPostId(post.PostId)
+		post.CommentNum, err = d.GetCommentNumByPostId(post.Id)
 		if err != nil {
 			return nil, err
 		}
 
-		post.CollectionNum, err = d.GetCollectionNumByPostId(post.PostId)
+		post.CollectionNum, err = d.GetCollectionNumByPostId(post.Id)
 		if err != nil {
 			return nil, err
 		}
 
-		post.Tags, err = d.ListTagsByPostId(post.PostId)
+		post.Tags, err = d.ListTagsByPostId(post.Id)
 		if err != nil {
 			return nil, err
 		}

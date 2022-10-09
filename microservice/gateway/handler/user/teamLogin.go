@@ -43,11 +43,5 @@ func TeamLogin(c *gin.Context) {
 		return
 	}
 
-	// 构造返回 response
-	resp := TeamLoginResponse{
-		Token:       loginResp.Token,
-		RedirectURL: loginResp.RedirectUrl,
-	}
-
-	SendResponse(c, nil, resp)
+	SendMicroServiceResponse(c, nil, loginResp, TeamLoginResponse{})
 }

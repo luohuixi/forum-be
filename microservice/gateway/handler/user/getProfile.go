@@ -41,29 +41,14 @@ func GetProfile(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, nil, user)
+	SendMicroServiceResponse(c, nil, user, UserProfile{})
 }
 
-func GetUserProfile(id uint32) (*UserProfile, error) {
+func GetUserProfile(id uint32) (*pb.UserProfile, error) {
 
 	getProfileReq := &pb.GetRequest{Id: id}
 
 	getProfileResp, err := service.UserClient.GetProfile(context.TODO(), getProfileReq)
-	if err != nil {
-		return nil, err
-	}
 
-	// 构造返回 response
-	resp := &UserProfile{
-		Id:                        getProfileResp.Id,
-		Name:                      getProfileResp.Name,
-		Avatar:                    getProfileResp.Avatar,
-		Email:                     getProfileResp.Email,
-		Role:                      getProfileResp.Role,
-		Signature:                 getProfileResp.Signature,
-		IsPublicCollectionAndLike: getProfileResp.IsPublicCollectionAndLike,
-		IsPublicFeed:              getProfileResp.IsPublicFeed,
-	}
-
-	return resp, nil
+	return getProfileResp, err
 }

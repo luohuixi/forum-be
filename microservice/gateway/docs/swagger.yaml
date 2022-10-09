@@ -43,8 +43,6 @@ definitions:
   Source:
     properties:
       id:
-        description: Kind uint32 `json:"kind"` // 类型，1 -> 团队，2 -> 项目，3 -> 文档，4 ->
-          文件，6 -> 进度（5 不使用）
         type: integer
       name:
         type: string
@@ -117,11 +115,6 @@ definitions:
       role:
         type: string
       signature:
-        type: string
-    type: object
-  chat.Id:
-    properties:
-      id:
         type: string
     type: object
   chat.Message:
@@ -348,9 +341,9 @@ definitions:
         type: integer
       creator_name:
         type: string
-      like_num:
+      id:
         type: integer
-      post_id:
+      like_num:
         type: integer
       summary:
         type: string
@@ -487,27 +480,6 @@ paths:
       summary: 团队登录 api
       tags:
       - auth
-  /chat:
-    get:
-      consumes:
-      - application/json
-      description: 该用户发送信息前先获取自己的uuid，并放入query(id=?)，有效期24h
-      parameters:
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/chat.Id'
-      summary: 获取该用户的uuid
-      tags:
-      - chat
   /chat/history/{id}:
     get:
       consumes:
