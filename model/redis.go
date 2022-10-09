@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
 type Redis struct {
@@ -57,7 +56,7 @@ func OpenRedisClient() *redis.Client {
 	})
 
 	if _, err := r.Ping().Result(); err != nil {
-		log.Error("Open redis failed", zap.String("reason", err.Error()))
+		log.Error("Open redis failed", log.String(err.Error()))
 	}
 	return r
 }

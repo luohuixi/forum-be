@@ -1,6 +1,7 @@
 package dao
 
 import (
+	pb "forum-post/proto"
 	"forum/pkg/constvar"
 	"gorm.io/gorm"
 	"strconv"
@@ -121,11 +122,11 @@ func (d *Dao) ListMainPost(filter *PostModel, typeName string, offset, limit, la
 	return posts, err
 }
 
-func (d *Dao) ListMyPost(creatorId uint32) ([]*PostInfo, error) {
-	var posts []*PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where("creator_id = ?", creatorId).Where("posts.re = 0").Order("posts.id desc").Scan(&posts).Error
+func (d *Dao) ListUserCreatedPost(creatorId uint32) ([]uint32, error) {
+	var postIds []uint32
+	err := d.DB.Table("posts").Select("id").Where("creator_id = ?", creatorId).Where("re = 0").Find(&postIds).Error
 
-	return posts, err
+	return postIds, err
 }
 
 func (d *Dao) GetPostInfo(postId uint32) (*PostInfo, error) {
@@ -144,36 +145,11 @@ func (Dao) GetPost(id uint32) (*PostModel, error) {
 }
 
 func (d Dao) ChangePostScore(postId uint32, score int) error {
-	post, err := d.GetPost(postId)
-	if err != nil {
-		return err
-	}
-
-	pipe := d.Redis.TxPipeline()
-
-	pipe.ZIncrBy("hot:"+post.TypeName+":"+post.Category, float64(score), strconv.Itoa(int(postId)))
-
-	pipe.ZIncrBy("hot:"+post.TypeName, float64(score), strconv.Itoa(int(postId)))
-
-	_, err = pipe.Exec()
-
-	return err
+	return d.Redis.ZIncrBy("posts", float64(score), strconv.Itoa(int(postId))).Err()
 }
 
-func (d Dao) ChangePostCategory(typeName, newCategory, oldCategory string, postId uint32) error {
-	score, err := d.Redis.ZScore("hot"+typeName+":"+oldCategory, strconv.Itoa(int(postId))).Result()
-	if err != nil {
-		return err
-	}
-
-	pipe := d.Redis.TxPipeline()
-	pipe.ZRem("hot"+typeName+":"+oldCategory, strconv.Itoa(int(postId)))
-
-	pipe.ZIncrBy("hot:"+typeName+":"+newCategory, score, strconv.Itoa(int(postId)))
-
-	_, err = pipe.Exec()
-
-	return err
+func (d Dao) AddChangeRecord(postId uint32) error {
+	return d.Redis.SAdd("changed_posts", strconv.Itoa(int(postId))).Err()
 }
 
 func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagination bool) ([]*PostInfo, error) {
@@ -193,7 +169,7 @@ func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagina
 		end = int64(offset + limit)
 	}
 
-	result, err := d.Redis.ZRevRange(key, start, end).Result()
+	result, err := d.Redis.ZRevRange(key, start, end).Result() // 降序
 	if err != nil {
 		return nil, err
 	}
@@ -212,4 +188,112 @@ func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagina
 	}
 
 	return list, nil
+}
+
+func (d Dao) ListPostInfoByPostIds(postIds []uint32, offset, limit, lastId uint32, pagination bool) ([]*pb.PostPartInfo, error) {
+	var posts []*pb.PostPartInfo
+	query := d.DB.Table("posts").Select("posts.id post_id, title, category, summary, content, last_edit_time time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.re = 0").Where("posts.id IN ?", postIds).Order("posts.id desc")
+
+	if pagination {
+		if limit == 0 {
+			limit = constvar.DefaultLimit
+		}
+
+		query = query.Offset(int(offset)).Limit(int(limit))
+
+		if lastId != 0 {
+			query = query.Where("posts.id < ?", lastId)
+		}
+	}
+
+	if err := query.Scan(&posts).Error; err != nil {
+		return nil, err
+	}
+
+	for _, post := range posts {
+		likeNum, err := d.GetLikedNum(Item{
+			Id:       post.PostId,
+			TypeName: constvar.Post,
+		})
+		if err != nil {
+			return nil, err
+		}
+		post.LikeNum = uint32(likeNum)
+
+		post.CommentNum, err = d.GetCommentNumByPostId(post.PostId)
+		if err != nil {
+			return nil, err
+		}
+
+		post.CollectionNum, err = d.GetCollectionNumByPostId(post.PostId)
+		if err != nil {
+			return nil, err
+		}
+
+		post.Tags, err = d.ListTagsByPostId(post.PostId)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return posts, nil
+}
+
+func (d Dao) syncPostScore() error {
+	result, err := d.Redis.ZRevRangeWithScores("posts", 0, -1).Result()
+	if err != nil {
+		return err
+	}
+
+	for _, r := range result {
+		err := d.DB.Table("posts").Where("id = ?", r.Member).Update("score", r.Score).Error
+
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (d Dao) syncItemLike() error {
+	postIds, err := d.Redis.SMembers("changed_posts").Result()
+	if err != nil {
+		return err
+	}
+
+	for _, id := range postIds {
+		num, err := d.Redis.SCard("like:" + constvar.Post + "_list:" + id).Result()
+		if err != nil {
+			return err
+		}
+
+		if err := d.DB.Table("posts").Where("id = ?", id).Update("like_num", num).Error; err != nil {
+			return err
+		}
+	}
+
+	commentsIds, err := d.Redis.SMembers("changed_comments").Result()
+	if err != nil {
+		return err
+	}
+
+	for _, id := range commentsIds {
+		num, err := d.Redis.SCard("like:" + constvar.Comment + "_list:" + id).Result()
+		if err != nil {
+			return err
+		}
+
+		if err := d.DB.Table("comments").Where("id = ?", id).Update("like_num", num).Error; err != nil {
+			return err
+		}
+	}
+
+	pipe := d.Redis.TxPipeline()
+
+	pipe.SRem("changed_posts")
+	pipe.SRem("changed_comments")
+
+	_, err = pipe.Exec()
+	return err
 }

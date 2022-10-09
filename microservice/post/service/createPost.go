@@ -9,7 +9,6 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/util"
-	"go.uber.org/zap"
 )
 
 func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _ *pb.Response) error {
@@ -66,7 +65,7 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 
 		go func() {
 			if err := s.Dao.AddTagToSortedSet(tag.Id); err != nil {
-				logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
+				logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 			}
 		}()
 	}

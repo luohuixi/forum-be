@@ -24,3 +24,4 @@ main
 config.yaml
 config_sub.yaml
 test.go
+test2.go

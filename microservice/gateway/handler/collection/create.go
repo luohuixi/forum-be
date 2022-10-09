@@ -13,29 +13,30 @@ import (
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
+	"strconv"
 )
 
-// Create ... 收藏帖子
-// @Summary 收藏帖子 api
+// CreateOrRemove ... 收藏/取消收藏帖子
+// @Summary 收藏/取消收藏帖子 api
 // @Tags collection
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
-// @Param object body CreateRequest true "create_collection_request"
+// @Param post_id path int true "post_id"
 // @Success 200 {object} handler.Response
-// @Router /collection [post]
-func (a *Api) Create(c *gin.Context) {
-	log.Info("Collection Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+// @Router /collection/{post_id} [post]
+func (a *Api) CreateOrRemove(c *gin.Context) {
+	log.Info("Collection CreateOrRemove function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req CreateRequest
-	if err := c.BindJSON(&req); err != nil {
-		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
+	postId, err := strconv.Atoi(c.Param("post_id"))
+	if err != nil {
+		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
 	}
 
 	userId := c.MustGet("userId").(uint32)
 
-	ok, err := model.Enforce(userId, constvar.Post, req.PostId, constvar.Read)
+	ok, err := model.Enforce(userId, constvar.Post, postId, constvar.Read)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
@@ -48,10 +49,10 @@ func (a *Api) Create(c *gin.Context) {
 
 	createReq := pb.Request{
 		UserId: userId,
-		Id:     req.PostId,
+		Id:     uint32(postId),
 	}
 
-	resp, err := service.PostClient.CreateCollection(context.TODO(), &createReq)
+	resp, err := service.PostClient.CreateOrRemoveCollection(context.TODO(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -62,7 +63,7 @@ func (a *Api) Create(c *gin.Context) {
 		Action: "收藏",
 		UserId: userId,
 		Source: &pbf.Source{
-			Id:       req.PostId,
+			Id:       uint32(postId),
 			TypeName: resp.TypeName,
 			Name:     resp.Content,
 		},

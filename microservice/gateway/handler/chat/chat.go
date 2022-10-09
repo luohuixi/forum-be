@@ -3,19 +3,16 @@ package chat
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	pb "forum-chat/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	"forum/log"
-	m "forum/model"
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
 	"net/http"
-	"strconv"
 	"time"
 )
 
@@ -35,7 +32,10 @@ type Client struct {
 func WsHandler(c *gin.Context) {
 	log.Info("Chat WsHandler function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var upGrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
+	var upGrader = websocket.Upgrader{
+		CheckOrigin:  func(r *http.Request) bool { return true },
+		Subprotocols: []string{c.Request.Header.Get("Sec-WebSocket-Protocol")},
+	}
 
 	// Upgrade our raw HTTP connection to a websocket based one
 	conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
@@ -45,24 +45,10 @@ func WsHandler(c *gin.Context) {
 		return
 	}
 
-	id := c.DefaultQuery("id", "0")
-	userId, ok, err := m.GetStringFromRedis("user:" + id)
-	if err != nil || !ok {
-		log.Error("can't get user info")
-		fmt.Println(err)
-		conn.WriteMessage(websocket.CloseMessage, []byte("can't get user info"))
-		return
-	}
-
-	uid, err := strconv.Atoi(userId)
-	if err != nil {
-		log.Error("userId can't to int", zap.String("cause", err.Error()))
-		conn.WriteMessage(websocket.CloseMessage, []byte("userId can't to int"))
-		return
-	}
+	userId := c.MustGet("userid").(uint32)
 
 	client := &Client{
-		UserId: uint32(uid),
+		UserId: userId,
 		Socket: conn,
 		Close:  make(chan struct{}),
 	}

@@ -7,7 +7,6 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"go.uber.org/zap"
 	"strconv"
 )
 
@@ -28,7 +27,7 @@ func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.Co
 		TypeName: constvar.Comment,
 	})
 	if err != nil {
-		logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
+		logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 	}
 
 	resp.LikeNum = comment.LikeNum

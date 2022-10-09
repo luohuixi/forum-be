@@ -52,7 +52,6 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	userRouter := g.Group("api/v1/user")
 	userRouter.Use(normalRequired)
 	{
-		// userRouter.GET("/infos", user.GetInfo)
 		userRouter.GET("/profile/:id", user.GetProfile)
 		userRouter.GET("/myprofile", user.GetMyProfile)
 		userRouter.GET("/list", user.List)
@@ -60,9 +59,9 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	}
 
 	chatRouter := g.Group("api/v1/chat")
+	chatRouter.Use(normalRequired)
 	{
-		chatRouter.GET("", normalRequired, chat.GetId)
-		chatRouter.GET("/history/:id", normalRequired, chat.ListHistory)
+		chatRouter.GET("/history/:id", chat.ListHistory)
 		chatRouter.GET("/ws", chat.WsHandler)
 	}
 
@@ -111,8 +110,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	collectionApi := collection.New(dao.GetDao())
 	{
 		collectionRouter.GET("/list/:user_id", collectionApi.List)
-		collectionRouter.POST("", collectionApi.Create)
-		collectionRouter.DELETE("/:collection_id", collectionApi.Delete)
+		collectionRouter.POST("/:post_id", collectionApi.CreateOrRemove)
 	}
 
 	// The health check handlers

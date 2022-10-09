@@ -7,38 +7,20 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) ListUserCreatedPost(_ context.Context, req *pb.Request, resp *pb.ListPostResponse) error {
+func (s *PostService) ListUserCreatedPost(_ context.Context, req *pb.ListPostPartInfoRequest, resp *pb.ListPostPartInfoResponse) error {
 	logger.Info("PostService ListUserCreatedPost")
 
-	posts, err := s.Dao.ListMyPost(req.UserId)
+	postIds, err := s.Dao.ListUserCreatedPost(req.UserId)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	resp.Posts = make([]*pb.Post, len(posts))
-	for i, post := range posts {
-
-		isLiked, isCollection, likeNum, tags, commentNum, collectionNum := s.getPostInfo(post.Id, req.UserId)
-
-		if likeNum != 0 {
-			post.LikeNum = likeNum
-		}
-
-		resp.Posts[i] = &pb.Post{
-			Id:            post.Id,
-			Title:         post.Title,
-			Time:          post.LastEditTime,
-			Category:      post.Category,
-			LikeNum:       post.LikeNum,
-			CommentNum:    commentNum,
-			IsLiked:       isLiked,
-			IsCollection:  isCollection,
-			Tags:          tags,
-			ContentType:   post.ContentType,
-			Summary:       post.Summary,
-			CollectionNum: collectionNum,
-		}
+	posts, err := s.Dao.ListPostInfoByPostIds(postIds, req.Offset, req.Limit, req.LastId, req.Pagination)
+	if err != nil {
+		return errno.ServerErr(errno.ErrListPostInfoByPostIds, err.Error())
 	}
+
+	resp.Posts = posts
 
 	return nil
 }

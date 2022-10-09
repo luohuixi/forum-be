@@ -17,7 +17,7 @@ func CheckInBlacklist(token string) (bool, error) {
 	// 从 redis 中查找是否有该 token 数据，若有，则在黑名单中
 	// exist, err := m.HasExistedInRedis(token)
 	// if err != nil {
-	// log.Error("HasExistedInRedis error", zap.String("cause", err.Error()))
+	// log.Error("HasExistedInRedis error", log.String(err.Error()))
 	// return false, err
 	// }
 	// return exist, nil
@@ -61,7 +61,7 @@ func CheckInBlacklist(token string) (bool, error) {
 //
 // 	for {
 // 		if err := model.DeleteExpiredBlacklist(); err != nil {
-// 			log.Error("TidyBlacklist error", zap.String("cause", err.Error()))
+// 			log.Error("TidyBlacklist error", log.String(err.Error()))
 // 		}
 //
 // 		time.Sleep(tidyDuration)
@@ -74,7 +74,7 @@ func CheckInBlacklist(token string) (bool, error) {
 // 	// 从 MySQL 中读取所有数据
 // 	records, err := model.GetAllBlacklist()
 // 	if err != nil {
-// 		log.Error("Getting blacklist records from DB failed", zap.String("cause", err.Error()))
+// 		log.Error("Getting blacklist records from DB failed", log.String(err.Error()))
 // 		return
 // 	}
 //
@@ -87,7 +87,7 @@ func CheckInBlacklist(token string) (bool, error) {
 // 		expiration = time.Duration((record.ExpiresAt - time.Now().Unix())) * time.Second
 //
 // 		if err := m.SetStringInRedis(record.Token, 1, expiration); err != nil {
-// 			log.Error("SetStringInRedis function error", zap.String("cause", err.Error()))
+// 			log.Error("SetStringInRedis function error", log.String(err.Error()))
 // 			return
 // 		}
 // 	}

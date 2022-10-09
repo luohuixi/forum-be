@@ -8,7 +8,6 @@ import (
 	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"go.uber.org/zap"
 )
 
 func (s *PostService) DeleteCollection(_ context.Context, req *pb.Request, _ *pb.Response) error {
@@ -28,7 +27,7 @@ func (s *PostService) DeleteCollection(_ context.Context, req *pb.Request, _ *pb
 
 	go func() {
 		if err := s.Dao.ChangePostScore(req.Id, -constvar.CollectionScore); err != nil {
-			logger.Error(errno.ErrChangeScore.Error(), zap.String("cause", err.Error()))
+			logger.Error(errno.ErrChangeScore.Error(), logger.String(err.Error()))
 		}
 	}()
 

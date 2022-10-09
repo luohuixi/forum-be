@@ -26,12 +26,6 @@ func (s *PostService) UpdatePostInfo(_ context.Context, req *pb.UpdatePostInfoRe
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	if req.Category != post.Category {
-		if err := s.Dao.ChangePostCategory(post.TypeName, req.Category, post.Category, req.Id); err != nil {
-			return errno.ServerErr(errno.ErrRedis, err.Error())
-		}
-	}
-
 	post.Title = req.Title
 	post.Content = req.Content
 	post.CompiledContent = req.CompiledContent

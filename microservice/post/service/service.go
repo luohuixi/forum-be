@@ -6,7 +6,6 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"go.uber.org/zap"
 )
 
 // PostService ... 帖子服务
@@ -29,13 +28,13 @@ func (s PostService) processComments(userId uint32, comments []*pb.CommentInfo) 
 
 		num, err := s.Dao.GetLikedNum(item)
 		if err != nil {
-			logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
+			logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 		}
 		comment.LikeNum = uint32(num)
 
 		isLiked, err := s.Dao.IsUserHadLike(userId, item)
 		if err != nil {
-			logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
+			logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 		}
 		comment.IsLiked = isLiked
 	}
@@ -49,32 +48,32 @@ func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint
 
 	isLiked, err := s.Dao.IsUserHadLike(userId, item)
 	if err != nil {
-		logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
+		logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 	}
 
 	isCollection, err := s.Dao.IsUserCollectionPost(userId, postId)
 	if err != nil {
-		logger.Error(errno.ErrDatabase.Error(), zap.String("cause", err.Error()))
+		logger.Error(errno.ErrDatabase.Error(), logger.String(err.Error()))
 	}
 
 	likeNum, err := s.Dao.GetLikedNum(item)
 	if err != nil {
-		logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
+		logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 	}
 
 	tags, err := s.Dao.ListTagsByPostId(postId)
 	if err != nil {
-		logger.Error(errno.ErrDatabase.Error(), zap.String("cause", err.Error()))
+		logger.Error(errno.ErrDatabase.Error(), logger.String(err.Error()))
 	}
 
 	commentNum, err := s.Dao.GetCommentNumByPostId(postId)
 	if err != nil {
-		logger.Error(errno.ErrDatabase.Error(), zap.String("cause", err.Error()))
+		logger.Error(errno.ErrDatabase.Error(), logger.String(err.Error()))
 	}
 
-	collectionNum, err := s.Dao.GetCommentNumByPostId(postId)
+	collectionNum, err := s.Dao.GetCollectionNumByPostId(postId)
 	if err != nil {
-		logger.Error(errno.ErrDatabase.Error(), zap.String("cause", err.Error()))
+		logger.Error(errno.ErrDatabase.Error(), logger.String(err.Error()))
 	}
 
 	return isLiked, isCollection, uint32(likeNum), tags, commentNum, collectionNum

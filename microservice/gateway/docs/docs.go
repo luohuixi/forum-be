@@ -195,46 +195,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/collection": {
-            "post": {
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "collection"
-                ],
-                "summary": "收藏帖子 api",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "description": "create_collection_request",
-                        "name": "object",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/collection.CreateRequest"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/Response"
-                        }
-                    }
-                }
-            }
-        },
         "/collection/list/{user_id}": {
             "get": {
                 "consumes": [
@@ -261,23 +221,38 @@ const docTemplate = `{
                         "name": "user_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "last_id",
+                        "name": "last_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/collection.Collection"
-                            }
+                            "$ref": "#/definitions/post.PostPartInfoResponse"
                         }
                     }
                 }
             }
         },
-        "/collection/{collection_id}": {
-            "delete": {
+        "/collection/{post_id}": {
+            "post": {
                 "consumes": [
                     "application/json"
                 ],
@@ -287,7 +262,7 @@ const docTemplate = `{
                 "tags": [
                     "collection"
                 ],
-                "summary": "取消收藏 api",
+                "summary": "收藏/取消收藏帖子 api",
                 "parameters": [
                     {
                         "type": "string",
@@ -298,8 +273,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "collection_id",
-                        "name": "collection_id",
+                        "description": "post_id",
+                        "name": "post_id",
                         "in": "path",
                         "required": true
                     }
@@ -348,7 +323,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "integer"
+                            "$ref": "#/definitions/comment.Comment"
                         }
                     }
                 }
@@ -550,13 +525,31 @@ const docTemplate = `{
                         "name": "user_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "last_id",
+                        "name": "last_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/like.ListResponse"
+                            "$ref": "#/definitions/post.PostPartInfoResponse"
                         }
                     }
                 }
@@ -715,10 +708,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/post.Post"
-                            }
+                            "$ref": "#/definitions/post.ListMainPostResponse"
                         }
                     }
                 }
@@ -785,16 +775,31 @@ const docTemplate = `{
                         "name": "user_id",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "last_id",
+                        "name": "last_id",
+                        "in": "query"
                     }
                 ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/post.Post"
-                            }
+                            "$ref": "#/definitions/post.PostPartInfoResponse"
                         }
                     }
                 }
@@ -945,9 +950,8 @@ const docTemplate = `{
                 }
             }
         },
-        "/user/list/{group_id}/{team_id}": {
+        "/user/list": {
             "get": {
-                "description": "通过 group 和 team 获取 user_list",
                 "consumes": [
                     "application/json"
                 ],
@@ -983,20 +987,6 @@ const docTemplate = `{
                         "description": "last_id",
                         "name": "last_id",
                         "in": "query"
-                    },
-                    {
-                        "type": "integer",
-                        "description": "group_id",
-                        "name": "group_id",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "team_id",
-                        "name": "team_id",
-                        "in": "path",
-                        "required": true
                     }
                 ],
                 "responses": {
@@ -1288,49 +1278,6 @@ const docTemplate = `{
                 }
             }
         },
-        "collection.Collection": {
-            "type": "object",
-            "properties": {
-                "comment_num": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "creator_avatar": {
-                    "type": "string"
-                },
-                "creator_id": {
-                    "type": "integer"
-                },
-                "creator_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "post_id": {
-                    "type": "integer"
-                },
-                "time": {
-                    "type": "string"
-                },
-                "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "collection.CreateRequest": {
-            "type": "object",
-            "required": [
-                "post_id"
-            ],
-            "properties": {
-                "post_id": {
-                    "type": "integer"
-                }
-            }
-        },
         "comment.Comment": {
             "type": "object",
             "properties": {
@@ -1407,20 +1354,15 @@ const docTemplate = `{
                 }
             }
         },
-        "like.ListResponse": {
-            "type": "object",
-            "properties": {
-                "likes": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/like.Item"
-                    }
-                }
-            }
-        },
         "post.Comment": {
             "type": "object",
             "properties": {
+                "be_replied_content": {
+                    "type": "string"
+                },
+                "be_replied_id": {
+                    "type": "integer"
+                },
                 "comment_num": {
                     "type": "integer"
                 },
@@ -1444,12 +1386,6 @@ const docTemplate = `{
                 },
                 "like_num": {
                     "type": "integer"
-                },
-                "replies": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/post.info"
-                    }
                 },
                 "time": {
                     "type": "string"
@@ -1565,6 +1501,17 @@ const docTemplate = `{
                 }
             }
         },
+        "post.ListMainPostResponse": {
+            "type": "object",
+            "properties": {
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/post.Post"
+                    }
+                }
+            }
+        },
         "post.Post": {
             "type": "object",
             "properties": {
@@ -1622,6 +1569,61 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "post.PostPartInfo": {
+            "type": "object",
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "collection_num": {
+                    "type": "integer"
+                },
+                "comment_num": {
+                    "type": "integer"
+                },
+                "creator_avatar": {
+                    "type": "string"
+                },
+                "creator_id": {
+                    "type": "integer"
+                },
+                "creator_name": {
+                    "type": "string"
+                },
+                "like_num": {
+                    "type": "integer"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "summary": {
+                    "type": "string"
+                },
+                "tags": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
+                "time": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                }
+            }
+        },
+        "post.PostPartInfoResponse": {
+            "type": "object",
+            "properties": {
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/post.PostPartInfo"
+                    }
                 }
             }
         },
@@ -1700,38 +1702,6 @@ const docTemplate = `{
                     }
                 },
                 "title": {
-                    "type": "string"
-                }
-            }
-        },
-        "post.info": {
-            "type": "object",
-            "properties": {
-                "comment_num": {
-                    "type": "integer"
-                },
-                "content": {
-                    "type": "string"
-                },
-                "creator_avatar": {
-                    "type": "string"
-                },
-                "creator_id": {
-                    "type": "integer"
-                },
-                "creator_name": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "is_liked": {
-                    "type": "boolean"
-                },
-                "like_num": {
-                    "type": "integer"
-                },
-                "time": {
                     "type": "string"
                 }
             }

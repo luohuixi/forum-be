@@ -61,9 +61,11 @@ func (a *Api) Get(c *gin.Context) {
 	var subPosts []*SubPost
 	subPostCommentsMap := make(map[uint32]*[]*Comment)
 
-	firstLevelCommentsMap := make(map[uint32]*[]*info)
+	commentsMap := make(map[uint32]*pb.CommentInfo, len(getResp.Comments))
 
 	for _, comment := range getResp.Comments {
+		commentsMap[comment.Id] = comment
+
 		if comment.TypeName == constvar.SubPost {
 			var subPost = new(SubPost)
 
@@ -72,7 +74,6 @@ func (a *Api) Get(c *gin.Context) {
 			setInfo(&subPost.info, comment)
 
 			subPosts = append(subPosts, subPost)
-
 		}
 	}
 
@@ -80,25 +81,39 @@ func (a *Api) Get(c *gin.Context) {
 		if comment.TypeName == constvar.FirstLevelComment {
 			var subPostComment = new(Comment)
 
-			subPostComments := subPostCommentsMap[comment.FatherId]
+			subPostComments, ok := subPostCommentsMap[comment.FatherId]
 
-			firstLevelCommentsMap[comment.Id] = &subPostComment.Replies
+			// 没有找到父级，数据库错误
+			if !ok {
+				log.Error(errno.ErrDatabase.Error(), log.String(constvar.SubPost+":"+strconv.Itoa(int(comment.FatherId))+" not found"))
+				continue
+			}
 
 			setInfo(&subPostComment.info, comment)
 
 			*subPostComments = append(*subPostComments, subPostComment)
-		}
-	}
 
-	for _, comment := range getResp.Comments {
-		if comment.TypeName == constvar.SecondLevelComment {
-			var commentReply = new(info)
+		} else if comment.TypeName == constvar.SecondLevelComment {
 
-			commentsReplies := firstLevelCommentsMap[comment.FatherId]
+			beRepliedComment := commentsMap[comment.FatherId]
 
-			setInfo(commentReply, comment)
+			commentReply := &Comment{
+				BeRepliedId:      comment.FatherId,
+				BeRepliedContent: beRepliedComment.Content,
+			}
 
-			*commentsReplies = append(*commentsReplies, commentReply)
+			setInfo(&commentReply.info, comment)
+
+			subPostComments, ok := subPostCommentsMap[beRepliedComment.FatherId]
+
+			// 没有找到父级，数据库错误
+			if !ok {
+				log.Error(errno.ErrDatabase.Error(), log.String(constvar.SubPost+":"+strconv.Itoa(int(beRepliedComment.FatherId))+" not found"))
+				continue
+			}
+
+			*subPostComments = append(*subPostComments, commentReply)
+
 		}
 	}
 

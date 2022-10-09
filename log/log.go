@@ -86,3 +86,7 @@ func Debug(msg string, fields ...zap.Field) {
 func Error(msg string, fields ...zap.Field) {
 	logger.Error(msg, fields...)
 }
+
+func String(cause string) zap.Field {
+	return zap.String("cause", cause)
+}

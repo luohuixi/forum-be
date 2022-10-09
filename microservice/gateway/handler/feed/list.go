@@ -53,7 +53,7 @@ func (a *Api) List(c *gin.Context) {
 		}
 	}
 
-	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	if err != nil {
 		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
 		return

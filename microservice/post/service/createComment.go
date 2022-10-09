@@ -9,10 +9,9 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/util"
-	"go.uber.org/zap"
 )
 
-func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequest, resp *pb.CreateResponse) error {
+func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequest, resp *pb.CreateCommentResponse) error {
 	logger.Info("PostService CreateComment")
 
 	post, err := s.Dao.GetPost(req.PostId)
@@ -23,6 +22,8 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 	// check if the FatherId is valid
 	switch req.TypeName {
 	case constvar.SubPost:
+
+		req.FatherId = req.PostId
 
 		resp.UserId = post.CreatorId
 		resp.Content = post.Title
@@ -47,11 +48,13 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		return errno.ServerErr(errno.ErrBadRequest, "type_name not legal")
 	}
 
+	createTime := util.GetCurrentTime()
+
 	data := &dao.CommentModel{
 		TypeName:   req.TypeName,
 		Content:    req.Content,
 		FatherId:   req.FatherId,
-		CreateTime: util.GetCurrentTime(),
+		CreateTime: createTime,
 		Re:         false,
 		CreatorId:  req.CreatorId,
 		PostId:     req.PostId,
@@ -72,12 +75,20 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 
 	go func() {
 		if err := s.Dao.ChangePostScore(req.PostId, constvar.CommentScore); err != nil {
-			logger.Error(errno.ErrChangeScore.Error(), zap.String("cause", err.Error()))
+			logger.Error(errno.ErrChangeScore.Error(), logger.String(err.Error()))
 		}
 	}()
 
+	commentInfo, err := s.Dao.GetCommentInfo(commentId)
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+
 	resp.Id = commentId
 	resp.TypeName = post.TypeName
+	resp.CreateTime = createTime
+	resp.CreatorName = commentInfo.CreatorName
+	resp.CreatorAvatar = commentInfo.CreatorAvatar
 
 	return nil
 }

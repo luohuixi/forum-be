@@ -34,7 +34,10 @@ var (
 	ErrCreateHistory    = &Errno{Code: 10306, Message: "Error create histories to Redis"}
 
 	// post
-	ErrChangeScore = &Errno{Code: 10401, Message: "Error change post score"}
+	ErrChangeScore           = &Errno{Code: 10401, Message: "Error change post score"}
+	ErrSyncPostScore         = &Errno{Code: 10402, Message: "Error sync post score"}
+	ErrSyncItemLike          = &Errno{Code: 10403, Message: "Error sync item like"}
+	ErrListPostInfoByPostIds = &Errno{Code: 10404, Message: "Error list post info by post_ids"}
 
 	// ---------------------------------------------------------------------------
 

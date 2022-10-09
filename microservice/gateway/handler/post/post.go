@@ -76,7 +76,8 @@ type SubPost struct {
 
 type Comment struct {
 	info
-	Replies []*info `json:"replies"`
+	BeRepliedId      uint32 `json:"be_replied_id"`
+	BeRepliedContent string `json:"be_replied_content"`
 }
 
 type info struct {
@@ -89,6 +90,29 @@ type info struct {
 	CreatorAvatar string `json:"creator_avatar"`
 	LikeNum       uint32 `json:"like_num"`
 	IsLiked       bool   `json:"is_liked"`
+}
+
+type PostPartInfo struct {
+	PostId        uint32   `json:"post_id"`
+	Title         string   `json:"title"`
+	Summary       string   `json:"summary"`
+	Category      string   `json:"category"`
+	Time          string   `json:"time"`
+	CreatorId     uint32   `json:"creator_id"`
+	CreatorName   string   `json:"creator_name"`
+	CreatorAvatar string   `json:"creator_avatar"`
+	CommentNum    uint32   `json:"comment_num"`
+	CollectionNum uint32   `json:"collection_num"`
+	LikeNum       uint32   `json:"like_num"`
+	Tags          []string `json:"tags"`
+}
+
+type PostPartInfoResponse struct {
+	Posts []*PostPartInfo `json:"posts"`
+}
+
+type ListMainPostResponse struct {
+	Posts []*Post `json:"posts"`
 }
 
 // 这里用了 generics and reflect, 更一般的写法应该是用interface
@@ -125,4 +149,28 @@ func setInfo[T pb.CommentInfo | pb.Post](info *info, comment *T) {
 
 type QiNiuToken struct {
 	Token string `json:"token"`
+}
+
+func GetPostPartInfoResponse(data *pb.ListPostPartInfoResponse) *PostPartInfoResponse {
+	posts := make([]*PostPartInfo, len(data.Posts))
+	for i, p := range data.Posts {
+		posts[i] = &PostPartInfo{
+			PostId:        p.PostId,
+			Title:         p.Title,
+			Summary:       p.Summary,
+			Category:      p.Category,
+			Time:          p.Time,
+			CreatorId:     p.CreatorId,
+			CreatorName:   p.CreatorName,
+			CreatorAvatar: p.CreatorAvatar,
+			CommentNum:    p.CommentNum,
+			LikeNum:       p.LikeNum,
+			Tags:          p.Tags,
+			CollectionNum: p.CollectionNum,
+		}
+	}
+
+	return &PostPartInfoResponse{
+		Posts: posts,
+	}
 }

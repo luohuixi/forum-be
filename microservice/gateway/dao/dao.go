@@ -1,7 +1,6 @@
 package dao
 
 import (
-	// pb "forum-post/proto"
 	"forum/model"
 )
 

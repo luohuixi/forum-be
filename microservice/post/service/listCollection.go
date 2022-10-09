@@ -7,25 +7,20 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) ListCollection(_ context.Context, req *pb.UserIdRequest, resp *pb.ListCollectionsResponse) error {
+func (s *PostService) ListCollection(_ context.Context, req *pb.ListPostPartInfoRequest, resp *pb.ListPostPartInfoResponse) error {
 	logger.Info("PostService ListCollections")
 
-	collections, err := s.Dao.ListCollectionByUserId(req.UserId)
+	postIds, err := s.Dao.ListCollectionByUserId(req.UserId)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	for _, collection := range collections {
-
-		commentNum, err := s.Dao.GetCommentNumByPostId(collection.PostId)
-		if err != nil {
-			return errno.ServerErr(errno.ErrDatabase, err.Error())
-		}
-
-		collection.CommentNum = commentNum
+	posts, err := s.Dao.ListPostInfoByPostIds(postIds, req.Offset, req.Limit, req.LastId, req.Pagination)
+	if err != nil {
+		return errno.ServerErr(errno.ErrListPostInfoByPostIds, err.Error())
 	}
 
-	resp.Collections = collections
+	resp.Posts = posts
 
 	return nil
 }

@@ -3,6 +3,7 @@ package collection
 import (
 	"context"
 	. "forum-gateway/handler"
+	"forum-gateway/handler/post"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -22,7 +23,10 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param user_id path int true "user_id"
-// @Success 200 {object} []collection.Collection
+// @Param limit query int false "limit"
+// @Param page query int false "page"
+// @Param last_id query int false "last_id"
+// @Success 200 {object} post.PostPartInfoResponse
 // @Router /collection/list/{user_id} [get]
 func (a *Api) List(c *gin.Context) {
 	log.Info("Collection List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -49,8 +53,30 @@ func (a *Api) List(c *gin.Context) {
 		}
 	}
 
-	listReq := &pb.UserIdRequest{
-		UserId: uint32(targetUserId),
+	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
+	if err != nil {
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		return
+	}
+
+	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
+	if err != nil {
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		return
+	}
+
+	lastId, err := strconv.Atoi(c.DefaultQuery("last_id", "0"))
+	if err != nil {
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		return
+	}
+
+	listReq := &pb.ListPostPartInfoRequest{
+		UserId:     uint32(targetUserId),
+		LastId:     uint32(lastId),
+		Offset:     uint32(page * limit),
+		Limit:      uint32(limit),
+		Pagination: limit != 0 || page != 0,
 	}
 
 	resp, err := service.PostClient.ListCollection(context.TODO(), listReq)
@@ -59,5 +85,7 @@ func (a *Api) List(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, nil, resp.Collections)
+	r := post.GetPostPartInfoResponse(resp)
+
+	SendResponse(c, nil, r)
 }

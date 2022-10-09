@@ -9,7 +9,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
 var (
@@ -64,7 +63,7 @@ func ResolveToken(tokenStr string) (*TokenResolve, error) {
 	})
 
 	if err != nil {
-		log.Error("Token parsing failed because of an internal error", zap.String("cause", err.Error()))
+		log.Error("Token parsing failed because of an internal error", log.String(err.Error()))
 		return nil, err
 	}
 

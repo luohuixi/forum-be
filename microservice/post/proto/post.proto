@@ -8,29 +8,24 @@ service PostService {
     rpc CreatePost(CreatePostRequest) returns (Response) {}
     rpc GetPost(Request) returns (Post) {}
     rpc ListMainPost(ListMainPostRequest) returns (ListPostResponse) {}
-    rpc ListUserCreatedPost(Request) returns (ListPostResponse) {}
+    rpc ListUserCreatedPost(ListPostPartInfoRequest) returns (ListPostPartInfoResponse) {}
     rpc UpdatePostInfo(UpdatePostInfoRequest) returns (Response) {}
 
     rpc GetComment(Request) returns (CommentInfo) {}
-    rpc CreateComment(CreateCommentRequest) returns (CreateResponse) {}
+    rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse) {}
 
     rpc DeleteItem(DeleteItemRequest) returns (Response) {}
 
     rpc CreateOrRemoveLike(LikeRequest) returns (Response) {}
-    rpc ListLikeByUserId(UserIdRequest) returns (ListLikeResponse) {}
+    rpc ListLikeByUserId(ListPostPartInfoRequest) returns (ListPostPartInfoResponse) {}
 
     rpc ListPopularTag(NullRequest) returns (Tags) {}
 
-    rpc CreateCollection(Request) returns(CreateResponse) {}
-    rpc DeleteCollection(Request) returns(Response) {}
-    rpc ListCollection(UserIdRequest) returns (ListCollectionsResponse) {}
+    rpc CreateOrRemoveCollection(Request) returns(CreateCollectionResponse) {}
+    rpc ListCollection(ListPostPartInfoRequest) returns (ListPostPartInfoResponse) {}
 }
 
 message NullRequest {}
-
-message ListLikeResponse {
-    repeated LikeItem list = 1;
-}
 
 message LikeItem {
     uint32 target_id = 1;
@@ -68,10 +63,6 @@ message Request {
     uint32 user_id = 2;
 }
 
-message UserIdRequest {
-    uint32 user_id = 1;
-}
-
 message DeleteItemRequest {
     uint32 id = 1;
     string type_name = 2;
@@ -104,11 +95,21 @@ message CreatePostRequest {
 
 message Response {}
 
-message CreateResponse {
+message CreateCollectionResponse {
     uint32 id = 1;
     uint32 user_id = 2;
     string content = 3;
     string type_name = 4;
+}
+
+message CreateCommentResponse {
+    uint32 id = 1;
+    uint32 user_id = 2;
+    string content = 3;
+    string type_name = 4;
+    string create_time = 5;
+    string creator_name = 6;
+    string creator_avatar = 7;
 }
 
 message ListMainPostRequest {
@@ -163,20 +164,32 @@ message Tags {
     repeated string tags = 1;
 }
 
-message ListCollectionsResponse {
-    repeated Collection collections = 1;
+message ListPostPartInfoRequest {
+    uint32 last_id = 1;
+    uint32 offset = 2;
+    uint32 limit = 3;
+    uint32 id = 4;
+    uint32 user_id = 5;
+    bool pagination = 6;
 }
 
-message Collection {
-    uint32 id = 1;
-    uint32 post_id = 2;
-    string title = 3;
-    string content = 4;
+message ListPostPartInfoResponse {
+    repeated PostPartInfo posts = 1;
+}
+
+message PostPartInfo {
+    uint32 post_id = 1;
+    string title = 2;
+    string summary = 3;
+    string category = 4;
     string time = 5;
     uint32 creator_id = 6;
     string creator_name = 7;
     string creator_avatar = 8;
     uint32 comment_num = 9;
+    uint32 like_num = 10;
+    uint32 collection_num = 11;
+    repeated string tags = 12;
 }
 
 message DeleteCollectionRequest {

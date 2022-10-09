@@ -1,9 +1,5 @@
 package dao
 
-import (
-	pb "forum-post/proto"
-)
-
 type CollectionModel struct {
 	Id         uint32
 	UserId     uint32
@@ -29,14 +25,14 @@ func (Dao) CreateCollection(collection *CollectionModel) (uint32, error) {
 	return collection.Id, err
 }
 
-func (Dao) DeleteCollection(collection *CollectionModel) error {
-	return collection.Delete()
+func (d Dao) DeleteCollection(collection *CollectionModel) error {
+	return d.DB.Table("collections").Where("post_id = ? AND user_id = ?", collection.PostId, collection.UserId).Delete(collection).Error
 }
 
-func (d *Dao) ListCollectionByUserId(userId uint32) ([]*pb.Collection, error) {
-	var collections []*pb.Collection
-	err := d.DB.Table("collections").Select("collections.id id, post_id, title, content, collections.create_time time, p.creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join posts p on p.id = collections.post_id").Joins("join users u on u.id = p.creator_id").Where("user_id = ?", userId).Find(&collections).Error
-	return collections, err
+func (d *Dao) ListCollectionByUserId(userId uint32) ([]uint32, error) {
+	var postIds []uint32
+	err := d.DB.Table("collections").Select("post_id").Where("user_id = ?", userId).Find(&postIds).Error
+	return postIds, err
 }
 
 func (d *Dao) IsUserCollectionPost(userId uint32, postId uint32) (bool, error) {
@@ -55,6 +51,6 @@ func (d *Dao) IsUserCollectionPost(userId uint32, postId uint32) (bool, error) {
 
 func (d *Dao) GetCollectionNumByPostId(postId uint32) (uint32, error) {
 	var count int64
-	err := d.DB.Model(&CollectionModel{}).Where("post_id = ? AND re = 0", postId).Count(&count).Error
+	err := d.DB.Model(&CollectionModel{}).Where("post_id = ?", postId).Count(&count).Error
 	return uint32(count), err
 }

@@ -75,7 +75,7 @@ func (d *Dao) GetComment(id uint32) (*CommentModel, error) {
 
 func (d *Dao) GetCommentInfo(commentId uint32) (*CommentInfo, error) {
 	var comment CommentInfo
-	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time, creator_id, post_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = posts.creator_id").Where("comments.id = ? AND comments.re = 0", commentId).First(&comment).Error
+	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time, comments.creator_id, post_id, u.name creator_name, u.avatar creator_avatar, like_num").Joins("join users u on u.id = comments.creator_id").Where("comments.id = ? AND comments.re = 0", commentId).First(&comment).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

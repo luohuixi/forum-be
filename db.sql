@@ -146,6 +146,7 @@ CREATE TABLE `collections`
     `user_id`     int(11) NOT NULL,
     `create_time` varchar(30) DEFAULT NULL,
     KEY (`user_id`),
+    UNIQUE (`user_id`, `post_id`),
     FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`),
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB

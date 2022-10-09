@@ -39,17 +39,16 @@ type PostService interface {
 	CreatePost(ctx context.Context, in *CreatePostRequest, opts ...client.CallOption) (*Response, error)
 	GetPost(ctx context.Context, in *Request, opts ...client.CallOption) (*Post, error)
 	ListMainPost(ctx context.Context, in *ListMainPostRequest, opts ...client.CallOption) (*ListPostResponse, error)
-	ListUserCreatedPost(ctx context.Context, in *Request, opts ...client.CallOption) (*ListPostResponse, error)
+	ListUserCreatedPost(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListPostPartInfoResponse, error)
 	UpdatePostInfo(ctx context.Context, in *UpdatePostInfoRequest, opts ...client.CallOption) (*Response, error)
 	GetComment(ctx context.Context, in *Request, opts ...client.CallOption) (*CommentInfo, error)
-	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...client.CallOption) (*CreateResponse, error)
+	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...client.CallOption) (*CreateCommentResponse, error)
 	DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...client.CallOption) (*Response, error)
 	CreateOrRemoveLike(ctx context.Context, in *LikeRequest, opts ...client.CallOption) (*Response, error)
-	ListLikeByUserId(ctx context.Context, in *UserIdRequest, opts ...client.CallOption) (*ListLikeResponse, error)
+	ListLikeByUserId(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListPostPartInfoResponse, error)
 	ListPopularTag(ctx context.Context, in *NullRequest, opts ...client.CallOption) (*Tags, error)
-	CreateCollection(ctx context.Context, in *Request, opts ...client.CallOption) (*CreateResponse, error)
-	DeleteCollection(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error)
-	ListCollection(ctx context.Context, in *UserIdRequest, opts ...client.CallOption) (*ListCollectionsResponse, error)
+	CreateOrRemoveCollection(ctx context.Context, in *Request, opts ...client.CallOption) (*CreateCollectionResponse, error)
+	ListCollection(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListPostPartInfoResponse, error)
 }
 
 type postService struct {
@@ -94,9 +93,9 @@ func (c *postService) ListMainPost(ctx context.Context, in *ListMainPostRequest,
 	return out, nil
 }
 
-func (c *postService) ListUserCreatedPost(ctx context.Context, in *Request, opts ...client.CallOption) (*ListPostResponse, error) {
+func (c *postService) ListUserCreatedPost(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListPostPartInfoResponse, error) {
 	req := c.c.NewRequest(c.name, "PostService.ListUserCreatedPost", in)
-	out := new(ListPostResponse)
+	out := new(ListPostPartInfoResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -124,9 +123,9 @@ func (c *postService) GetComment(ctx context.Context, in *Request, opts ...clien
 	return out, nil
 }
 
-func (c *postService) CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...client.CallOption) (*CreateResponse, error) {
+func (c *postService) CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...client.CallOption) (*CreateCommentResponse, error) {
 	req := c.c.NewRequest(c.name, "PostService.CreateComment", in)
-	out := new(CreateResponse)
+	out := new(CreateCommentResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -154,9 +153,9 @@ func (c *postService) CreateOrRemoveLike(ctx context.Context, in *LikeRequest, o
 	return out, nil
 }
 
-func (c *postService) ListLikeByUserId(ctx context.Context, in *UserIdRequest, opts ...client.CallOption) (*ListLikeResponse, error) {
+func (c *postService) ListLikeByUserId(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListPostPartInfoResponse, error) {
 	req := c.c.NewRequest(c.name, "PostService.ListLikeByUserId", in)
-	out := new(ListLikeResponse)
+	out := new(ListPostPartInfoResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -174,9 +173,9 @@ func (c *postService) ListPopularTag(ctx context.Context, in *NullRequest, opts 
 	return out, nil
 }
 
-func (c *postService) CreateCollection(ctx context.Context, in *Request, opts ...client.CallOption) (*CreateResponse, error) {
-	req := c.c.NewRequest(c.name, "PostService.CreateCollection", in)
-	out := new(CreateResponse)
+func (c *postService) CreateOrRemoveCollection(ctx context.Context, in *Request, opts ...client.CallOption) (*CreateCollectionResponse, error) {
+	req := c.c.NewRequest(c.name, "PostService.CreateOrRemoveCollection", in)
+	out := new(CreateCollectionResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -184,19 +183,9 @@ func (c *postService) CreateCollection(ctx context.Context, in *Request, opts ..
 	return out, nil
 }
 
-func (c *postService) DeleteCollection(ctx context.Context, in *Request, opts ...client.CallOption) (*Response, error) {
-	req := c.c.NewRequest(c.name, "PostService.DeleteCollection", in)
-	out := new(Response)
-	err := c.c.Call(ctx, req, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *postService) ListCollection(ctx context.Context, in *UserIdRequest, opts ...client.CallOption) (*ListCollectionsResponse, error) {
+func (c *postService) ListCollection(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListPostPartInfoResponse, error) {
 	req := c.c.NewRequest(c.name, "PostService.ListCollection", in)
-	out := new(ListCollectionsResponse)
+	out := new(ListPostPartInfoResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -210,17 +199,16 @@ type PostServiceHandler interface {
 	CreatePost(context.Context, *CreatePostRequest, *Response) error
 	GetPost(context.Context, *Request, *Post) error
 	ListMainPost(context.Context, *ListMainPostRequest, *ListPostResponse) error
-	ListUserCreatedPost(context.Context, *Request, *ListPostResponse) error
+	ListUserCreatedPost(context.Context, *ListPostPartInfoRequest, *ListPostPartInfoResponse) error
 	UpdatePostInfo(context.Context, *UpdatePostInfoRequest, *Response) error
 	GetComment(context.Context, *Request, *CommentInfo) error
-	CreateComment(context.Context, *CreateCommentRequest, *CreateResponse) error
+	CreateComment(context.Context, *CreateCommentRequest, *CreateCommentResponse) error
 	DeleteItem(context.Context, *DeleteItemRequest, *Response) error
 	CreateOrRemoveLike(context.Context, *LikeRequest, *Response) error
-	ListLikeByUserId(context.Context, *UserIdRequest, *ListLikeResponse) error
+	ListLikeByUserId(context.Context, *ListPostPartInfoRequest, *ListPostPartInfoResponse) error
 	ListPopularTag(context.Context, *NullRequest, *Tags) error
-	CreateCollection(context.Context, *Request, *CreateResponse) error
-	DeleteCollection(context.Context, *Request, *Response) error
-	ListCollection(context.Context, *UserIdRequest, *ListCollectionsResponse) error
+	CreateOrRemoveCollection(context.Context, *Request, *CreateCollectionResponse) error
+	ListCollection(context.Context, *ListPostPartInfoRequest, *ListPostPartInfoResponse) error
 }
 
 func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts ...server.HandlerOption) error {
@@ -228,17 +216,16 @@ func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts .
 		CreatePost(ctx context.Context, in *CreatePostRequest, out *Response) error
 		GetPost(ctx context.Context, in *Request, out *Post) error
 		ListMainPost(ctx context.Context, in *ListMainPostRequest, out *ListPostResponse) error
-		ListUserCreatedPost(ctx context.Context, in *Request, out *ListPostResponse) error
+		ListUserCreatedPost(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error
 		UpdatePostInfo(ctx context.Context, in *UpdatePostInfoRequest, out *Response) error
 		GetComment(ctx context.Context, in *Request, out *CommentInfo) error
-		CreateComment(ctx context.Context, in *CreateCommentRequest, out *CreateResponse) error
+		CreateComment(ctx context.Context, in *CreateCommentRequest, out *CreateCommentResponse) error
 		DeleteItem(ctx context.Context, in *DeleteItemRequest, out *Response) error
 		CreateOrRemoveLike(ctx context.Context, in *LikeRequest, out *Response) error
-		ListLikeByUserId(ctx context.Context, in *UserIdRequest, out *ListLikeResponse) error
+		ListLikeByUserId(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error
 		ListPopularTag(ctx context.Context, in *NullRequest, out *Tags) error
-		CreateCollection(ctx context.Context, in *Request, out *CreateResponse) error
-		DeleteCollection(ctx context.Context, in *Request, out *Response) error
-		ListCollection(ctx context.Context, in *UserIdRequest, out *ListCollectionsResponse) error
+		CreateOrRemoveCollection(ctx context.Context, in *Request, out *CreateCollectionResponse) error
+		ListCollection(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error
 	}
 	type PostService struct {
 		postService
@@ -263,7 +250,7 @@ func (h *postServiceHandler) ListMainPost(ctx context.Context, in *ListMainPostR
 	return h.PostServiceHandler.ListMainPost(ctx, in, out)
 }
 
-func (h *postServiceHandler) ListUserCreatedPost(ctx context.Context, in *Request, out *ListPostResponse) error {
+func (h *postServiceHandler) ListUserCreatedPost(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error {
 	return h.PostServiceHandler.ListUserCreatedPost(ctx, in, out)
 }
 
@@ -275,7 +262,7 @@ func (h *postServiceHandler) GetComment(ctx context.Context, in *Request, out *C
 	return h.PostServiceHandler.GetComment(ctx, in, out)
 }
 
-func (h *postServiceHandler) CreateComment(ctx context.Context, in *CreateCommentRequest, out *CreateResponse) error {
+func (h *postServiceHandler) CreateComment(ctx context.Context, in *CreateCommentRequest, out *CreateCommentResponse) error {
 	return h.PostServiceHandler.CreateComment(ctx, in, out)
 }
 
@@ -287,7 +274,7 @@ func (h *postServiceHandler) CreateOrRemoveLike(ctx context.Context, in *LikeReq
 	return h.PostServiceHandler.CreateOrRemoveLike(ctx, in, out)
 }
 
-func (h *postServiceHandler) ListLikeByUserId(ctx context.Context, in *UserIdRequest, out *ListLikeResponse) error {
+func (h *postServiceHandler) ListLikeByUserId(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error {
 	return h.PostServiceHandler.ListLikeByUserId(ctx, in, out)
 }
 
@@ -295,14 +282,10 @@ func (h *postServiceHandler) ListPopularTag(ctx context.Context, in *NullRequest
 	return h.PostServiceHandler.ListPopularTag(ctx, in, out)
 }
 
-func (h *postServiceHandler) CreateCollection(ctx context.Context, in *Request, out *CreateResponse) error {
-	return h.PostServiceHandler.CreateCollection(ctx, in, out)
+func (h *postServiceHandler) CreateOrRemoveCollection(ctx context.Context, in *Request, out *CreateCollectionResponse) error {
+	return h.PostServiceHandler.CreateOrRemoveCollection(ctx, in, out)
 }
 
-func (h *postServiceHandler) DeleteCollection(ctx context.Context, in *Request, out *Response) error {
-	return h.PostServiceHandler.DeleteCollection(ctx, in, out)
-}
-
-func (h *postServiceHandler) ListCollection(ctx context.Context, in *UserIdRequest, out *ListCollectionsResponse) error {
+func (h *postServiceHandler) ListCollection(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error {
 	return h.PostServiceHandler.ListCollection(ctx, in, out)
 }

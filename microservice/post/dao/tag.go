@@ -75,7 +75,7 @@ func (d *Dao) GetTagByContent(content string) (*TagModel, error) {
 	}
 
 	if err := dao.addTag(tag.Id, tag.Content); err != nil {
-		logger.Error(errno.ErrRedis.Error(), zap.String("cause", err.Error()))
+		logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 	}
 
 	return tag, err

@@ -23,7 +23,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body CreateRequest true "create_comment_request"
-// @Success 200 {object} int
+// @Success 200 {object} Comment
 // @Router /comment [post]
 func (a *Api) Create(c *gin.Context) {
 	log.Info("Comment Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -82,5 +82,16 @@ func (a *Api) Create(c *gin.Context) {
 	}
 	_, err = service.FeedClient.Push(context.TODO(), pushReq)
 
-	SendResponse(c, err, resp.Id)
+	SendResponse(c, err, &Comment{
+		Id:            resp.Id,
+		Content:       req.Content,
+		TypeName:      req.TypeName,
+		FatherId:      req.FatherId,
+		CreateTime:    resp.CreateTime,
+		CreatorId:     userId,
+		CreatorName:   resp.CreatorName,
+		CreatorAvatar: resp.CreatorAvatar,
+		LikeNum:       0,
+		IsLiked:       false,
+	})
 }
