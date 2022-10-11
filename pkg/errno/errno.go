@@ -38,6 +38,7 @@ var (
 	ErrSyncPostScore         = &Errno{Code: 10402, Message: "Error sync post score"}
 	ErrSyncItemLike          = &Errno{Code: 10403, Message: "Error sync item like"}
 	ErrListPostInfoByPostIds = &Errno{Code: 10404, Message: "Error list post info by post_ids"}
+	ErrRepeatReport          = &Errno{Code: 10405, Message: "Error repeat report the same post"}
 
 	// ---------------------------------------------------------------------------
 

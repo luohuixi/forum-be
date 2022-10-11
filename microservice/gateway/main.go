@@ -54,6 +54,8 @@ func init() {
 // @tag.description 评论服务
 // @tag.name like
 // @tag.description 点赞服务
+// @tag.name report
+// @tag.description 举报服务
 
 func main() {
 	pflag.Parse()

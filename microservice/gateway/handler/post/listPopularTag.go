@@ -18,12 +18,19 @@ import (
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
+// @Param category query string false "category"
 // @Success 200 {object} []string
 // @Router /post/popular_tag [get]
 func (a *Api) ListPopularTag(c *gin.Context) {
 	log.Info("Post ListPopularTag function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	resp, err := service.PostClient.ListPopularTag(context.TODO(), &pb.NullRequest{})
+	category := c.DefaultQuery("category", "")
+
+	req := &pb.ListPopularTagRequest{
+		Category: category,
+	}
+
+	resp, err := service.PostClient.ListPopularTag(context.TODO(), req)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

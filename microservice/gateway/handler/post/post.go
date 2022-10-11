@@ -58,6 +58,7 @@ type CreateRequest struct {
 
 type GetPostResponse struct {
 	info
+	CommentNum      uint32     `json:"comment_num"`
 	Title           string     `json:"title"`
 	Category        string     `json:"category"`
 	IsCollection    bool       `json:"is_collection"`
@@ -71,7 +72,8 @@ type GetPostResponse struct {
 
 type SubPost struct {
 	info
-	Comments []*Comment `json:"comments"`
+	CommentNum uint32     `json:"comment_num"`
+	Comments   []*Comment `json:"comments"`
 }
 
 type Comment struct {
@@ -85,7 +87,6 @@ type Comment struct {
 type info struct {
 	Id            uint32 `json:"id"`
 	Content       string `json:"content"`
-	CommentNum    uint32 `json:"comment_num"`
 	Time          string `json:"time"`
 	CreatorId     uint32 `json:"creator_id"`
 	CreatorName   string `json:"creator_name"`
@@ -131,8 +132,6 @@ func setInfo[T pb.CommentInfo | pb.Post](info *info, comment *T) {
 			info.Id = uint32(v.Uint())
 		case "Content":
 			info.Content = v.String()
-		case "CommentNum":
-			info.CommentNum = uint32(v.Uint())
 		case "IsLiked":
 			info.IsLiked = v.Bool()
 		case "CreatorName":

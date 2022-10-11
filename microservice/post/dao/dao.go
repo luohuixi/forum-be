@@ -51,8 +51,8 @@ type Interface interface {
 	GetTagByContent(string) (*TagModel, error)
 	ListTagsByPostId(uint32) ([]string, error)
 
-	AddTagToSortedSet(uint32) error
-	ListPopularTags() ([]string, error)
+	AddTagToSortedSet(uint32, string) error
+	ListPopularTags(string) ([]string, error)
 
 	CreateCollection(*CollectionModel) (uint32, error)
 	DeleteCollection(*CollectionModel) error
@@ -61,6 +61,14 @@ type Interface interface {
 
 	ChangePostScore(uint32, int) error
 	AddChangeRecord(uint32) error
+
+	GetReport(uint32) (*ReportModel, error)
+	CreateReport(*ReportModel) error
+	ListReport(uint32, uint32, uint32, bool) ([]*pb.Report, error)
+	GetReportNumByPostId(uint32) (uint32, error)
+	ValidReport(uint32) error
+	InValidReport(uint32, uint32) error
+	IsUserHadReportPost(uint32, uint32) (bool, error)
 }
 
 // Init init dao

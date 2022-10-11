@@ -64,7 +64,7 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		}
 
 		go func() {
-			if err := s.Dao.AddTagToSortedSet(tag.Id); err != nil {
+			if err := s.Dao.AddTagToSortedSet(tag.Id, req.Category); err != nil {
 				logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 			}
 		}()

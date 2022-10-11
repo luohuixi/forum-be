@@ -132,12 +132,8 @@ definitions:
     properties:
       be_replied_content:
         type: string
-      be_replied_id:
-        type: integer
       be_replied_user_id:
         type: integer
-      be_replied_user_name:
-        type: string
       content:
         type: string
       create_time:
@@ -198,8 +194,6 @@ definitions:
         type: integer
       be_replied_user_name:
         type: string
-      comment_num:
-        type: integer
       content:
         type: string
       creator_avatar:
@@ -427,6 +421,52 @@ definitions:
     - id
     - tags
     - title
+    type: object
+  report.CreateRequest:
+    properties:
+      cause:
+        type: string
+      post_id:
+        type: integer
+      type_name:
+        type: string
+    required:
+    - cause
+    - post_id
+    - type_name
+    type: object
+  report.HandleRequest:
+    properties:
+      id:
+        type: integer
+      result:
+        description: invalid or valid
+        type: string
+    required:
+    - id
+    - result
+    type: object
+  report.ListResponse:
+    properties:
+      reports:
+        items:
+          $ref: '#/definitions/report.Report'
+        type: array
+    type: object
+  report.Report:
+    properties:
+      cause:
+        type: string
+      create_time:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      type_name:
+        type: string
+      user_id:
+        type: integer
     type: object
   user:
     properties:
@@ -947,6 +987,10 @@ paths:
         name: Authorization
         required: true
         type: string
+      - description: category
+        in: query
+        name: category
+        type: string
       produces:
       - application/json
       responses:
@@ -1016,6 +1060,89 @@ paths:
       summary: 获取七牛云token
       tags:
       - post
+  /report:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_report_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/report.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 举报帖子 api
+      tags:
+      - report
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: handle_report_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/report.HandleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 处理举报 api
+      tags:
+      - report
+  /report/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/report.ListResponse'
+      summary: list举报 api
+      tags:
+      - report
   /user:
     put:
       consumes:
@@ -1140,3 +1267,5 @@ tags:
   name: comment
 - description: 点赞服务
   name: like
+- description: 举报服务
+  name: report

@@ -155,14 +155,19 @@ func (d *Dao) ListTagsByPostId(postId uint32) ([]string, error) {
 	return contents, nil
 }
 
-func (d *Dao) AddTagToSortedSet(tagId uint32) error {
-	return d.Redis.ZIncrBy("tags", 1, strconv.Itoa(int(tagId))).Err() // FIXME test
-	// d.Redis.ZAdd("tags", redis.Z{Score: 1, Member: strconv.Itoa(int(tagId))}).Err()
+func (d *Dao) AddTagToSortedSet(tagId uint32, category string) error {
+	pipe := d.Redis.TxPipeline()
+
+	pipe.ZIncrBy("tags:", 1, strconv.Itoa(int(tagId)))
+	pipe.ZIncrBy("tags:"+category, 1, strconv.Itoa(int(tagId)))
+
+	_, err := pipe.Exec()
+	return err
 }
 
-func (d *Dao) ListPopularTags() ([]string, error) {
+func (d *Dao) ListPopularTags(category string) ([]string, error) {
 	// 降序
-	ids, err := d.Redis.ZRevRange("tags", 0, 9).Result()
+	ids, err := d.Redis.ZRevRange("tags:"+category, 0, 9).Result()
 	if err != nil {
 		return nil, err
 	}

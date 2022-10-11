@@ -46,9 +46,12 @@ type PostService interface {
 	DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...client.CallOption) (*Response, error)
 	CreateOrRemoveLike(ctx context.Context, in *LikeRequest, opts ...client.CallOption) (*Response, error)
 	ListLikeByUserId(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListPostPartInfoResponse, error)
-	ListPopularTag(ctx context.Context, in *NullRequest, opts ...client.CallOption) (*Tags, error)
+	ListPopularTag(ctx context.Context, in *ListPopularTagRequest, opts ...client.CallOption) (*Tags, error)
 	CreateOrRemoveCollection(ctx context.Context, in *Request, opts ...client.CallOption) (*CreateCollectionResponse, error)
 	ListCollection(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListPostPartInfoResponse, error)
+	CreateReport(ctx context.Context, in *CreateReportRequest, opts ...client.CallOption) (*Response, error)
+	ListReport(ctx context.Context, in *ListReportRequest, opts ...client.CallOption) (*ListReportResponse, error)
+	HandleReport(ctx context.Context, in *HandleReportRequest, opts ...client.CallOption) (*Response, error)
 }
 
 type postService struct {
@@ -163,7 +166,7 @@ func (c *postService) ListLikeByUserId(ctx context.Context, in *ListPostPartInfo
 	return out, nil
 }
 
-func (c *postService) ListPopularTag(ctx context.Context, in *NullRequest, opts ...client.CallOption) (*Tags, error) {
+func (c *postService) ListPopularTag(ctx context.Context, in *ListPopularTagRequest, opts ...client.CallOption) (*Tags, error) {
 	req := c.c.NewRequest(c.name, "PostService.ListPopularTag", in)
 	out := new(Tags)
 	err := c.c.Call(ctx, req, out, opts...)
@@ -193,6 +196,36 @@ func (c *postService) ListCollection(ctx context.Context, in *ListPostPartInfoRe
 	return out, nil
 }
 
+func (c *postService) CreateReport(ctx context.Context, in *CreateReportRequest, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "PostService.CreateReport", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postService) ListReport(ctx context.Context, in *ListReportRequest, opts ...client.CallOption) (*ListReportResponse, error) {
+	req := c.c.NewRequest(c.name, "PostService.ListReport", in)
+	out := new(ListReportResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postService) HandleReport(ctx context.Context, in *HandleReportRequest, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "PostService.HandleReport", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for PostService service
 
 type PostServiceHandler interface {
@@ -206,9 +239,12 @@ type PostServiceHandler interface {
 	DeleteItem(context.Context, *DeleteItemRequest, *Response) error
 	CreateOrRemoveLike(context.Context, *LikeRequest, *Response) error
 	ListLikeByUserId(context.Context, *ListPostPartInfoRequest, *ListPostPartInfoResponse) error
-	ListPopularTag(context.Context, *NullRequest, *Tags) error
+	ListPopularTag(context.Context, *ListPopularTagRequest, *Tags) error
 	CreateOrRemoveCollection(context.Context, *Request, *CreateCollectionResponse) error
 	ListCollection(context.Context, *ListPostPartInfoRequest, *ListPostPartInfoResponse) error
+	CreateReport(context.Context, *CreateReportRequest, *Response) error
+	ListReport(context.Context, *ListReportRequest, *ListReportResponse) error
+	HandleReport(context.Context, *HandleReportRequest, *Response) error
 }
 
 func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts ...server.HandlerOption) error {
@@ -223,9 +259,12 @@ func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts .
 		DeleteItem(ctx context.Context, in *DeleteItemRequest, out *Response) error
 		CreateOrRemoveLike(ctx context.Context, in *LikeRequest, out *Response) error
 		ListLikeByUserId(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error
-		ListPopularTag(ctx context.Context, in *NullRequest, out *Tags) error
+		ListPopularTag(ctx context.Context, in *ListPopularTagRequest, out *Tags) error
 		CreateOrRemoveCollection(ctx context.Context, in *Request, out *CreateCollectionResponse) error
 		ListCollection(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error
+		CreateReport(ctx context.Context, in *CreateReportRequest, out *Response) error
+		ListReport(ctx context.Context, in *ListReportRequest, out *ListReportResponse) error
+		HandleReport(ctx context.Context, in *HandleReportRequest, out *Response) error
 	}
 	type PostService struct {
 		postService
@@ -278,7 +317,7 @@ func (h *postServiceHandler) ListLikeByUserId(ctx context.Context, in *ListPostP
 	return h.PostServiceHandler.ListLikeByUserId(ctx, in, out)
 }
 
-func (h *postServiceHandler) ListPopularTag(ctx context.Context, in *NullRequest, out *Tags) error {
+func (h *postServiceHandler) ListPopularTag(ctx context.Context, in *ListPopularTagRequest, out *Tags) error {
 	return h.PostServiceHandler.ListPopularTag(ctx, in, out)
 }
 
@@ -288,4 +327,16 @@ func (h *postServiceHandler) CreateOrRemoveCollection(ctx context.Context, in *R
 
 func (h *postServiceHandler) ListCollection(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error {
 	return h.PostServiceHandler.ListCollection(ctx, in, out)
+}
+
+func (h *postServiceHandler) CreateReport(ctx context.Context, in *CreateReportRequest, out *Response) error {
+	return h.PostServiceHandler.CreateReport(ctx, in, out)
+}
+
+func (h *postServiceHandler) ListReport(ctx context.Context, in *ListReportRequest, out *ListReportResponse) error {
+	return h.PostServiceHandler.ListReport(ctx, in, out)
+}
+
+func (h *postServiceHandler) HandleReport(ctx context.Context, in *HandleReportRequest, out *Response) error {
+	return h.PostServiceHandler.HandleReport(ctx, in, out)
 }

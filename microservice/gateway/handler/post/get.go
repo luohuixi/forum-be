@@ -96,11 +96,11 @@ func (a *Api) Get(c *gin.Context) {
 		} else if comment.TypeName == constvar.SecondLevelComment {
 
 			beRepliedComment := commentsMap[comment.FatherId]
-
 			commentReply := &Comment{
 				BeRepliedId:       comment.FatherId,
 				BeRepliedContent:  beRepliedComment.Content,
-				BeRepliedUserName: comment.CreatorName,
+				BeRepliedUserName: beRepliedComment.CreatorName,
+				BeRepliedUserId:   beRepliedComment.CreatorId,
 			}
 
 			setInfo(&commentReply.info, comment)
@@ -118,7 +118,12 @@ func (a *Api) Get(c *gin.Context) {
 		}
 	}
 
+	for _, subPost := range subPosts {
+		subPost.CommentNum = uint32(len(subPost.Comments))
+	}
+
 	resp := GetPostResponse{
+		CommentNum:      getResp.CommentNum,
 		Title:           getResp.Title,
 		Category:        getResp.Category,
 		IsCollection:    getResp.IsCollection,

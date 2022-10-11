@@ -45,4 +45,9 @@ const (
 	LikeScore       = 2
 	CollectionScore = 5
 	CommentScore    = 3
+
+	// report
+	BanNumber     = 5
+	ValidReport   = "valid"
+	InvalidReport = "invalid"
 )

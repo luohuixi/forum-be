@@ -19,12 +19,12 @@ func (s *PostService) CreateOrRemoveLike(_ context.Context, req *pb.LikeRequest,
 		TypeName: req.Item.TypeName,
 	}
 
-	ok, err := s.Dao.IsUserHadLike(req.UserId, item)
+	isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
 	if err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
 
-	if ok {
+	if isLiked {
 		err = s.Dao.RemoveLike(req.UserId, item)
 		score = -constvar.LikeScore
 	} else {

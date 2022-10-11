@@ -702,6 +702,12 @@ const docTemplate = `{
                         "name": "Authorization",
                         "in": "header",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "category",
+                        "name": "category",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -873,6 +879,133 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/report": {
+            "put": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "report"
+                ],
+                "summary": "处理举报 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "handle_report_request",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/report.HandleRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "report"
+                ],
+                "summary": "举报帖子 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "create_report_request",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/report.CreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/report/list": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "report"
+                ],
+                "summary": "list举报 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "last_id",
+                        "name": "last_id",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/report.ListResponse"
                         }
                     }
                 }
@@ -1243,14 +1376,8 @@ const docTemplate = `{
                 "be_replied_content": {
                     "type": "string"
                 },
-                "be_replied_id": {
-                    "type": "integer"
-                },
                 "be_replied_user_id": {
                     "type": "integer"
-                },
-                "be_replied_user_name": {
-                    "type": "string"
                 },
                 "content": {
                     "type": "string"
@@ -1339,9 +1466,6 @@ const docTemplate = `{
                 },
                 "be_replied_user_name": {
                     "type": "string"
-                },
-                "comment_num": {
-                    "type": "integer"
                 },
                 "content": {
                     "type": "string"
@@ -1683,6 +1807,75 @@ const docTemplate = `{
                 }
             }
         },
+        "report.CreateRequest": {
+            "type": "object",
+            "required": [
+                "cause",
+                "post_id",
+                "type_name"
+            ],
+            "properties": {
+                "cause": {
+                    "type": "string"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "type_name": {
+                    "type": "string"
+                }
+            }
+        },
+        "report.HandleRequest": {
+            "type": "object",
+            "required": [
+                "id",
+                "result"
+            ],
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "result": {
+                    "description": "invalid or valid",
+                    "type": "string"
+                }
+            }
+        },
+        "report.ListResponse": {
+            "type": "object",
+            "properties": {
+                "reports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/report.Report"
+                    }
+                }
+            }
+        },
+        "report.Report": {
+            "type": "object",
+            "properties": {
+                "cause": {
+                    "type": "string"
+                },
+                "create_time": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "post_id": {
+                    "type": "integer"
+                },
+                "type_name": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
         "user": {
             "type": "object",
             "properties": {
@@ -1736,6 +1929,10 @@ const docTemplate = `{
         {
             "description": "点赞服务",
             "name": "like"
+        },
+        {
+            "description": "举报服务",
+            "name": "report"
         }
     ]
 }`

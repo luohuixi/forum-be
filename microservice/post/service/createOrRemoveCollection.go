@@ -21,12 +21,12 @@ func (s *PostService) CreateOrRemoveCollection(_ context.Context, req *pb.Reques
 		PostId:     req.Id,
 	}
 
-	ok, err := s.Dao.IsUserCollectionPost(req.UserId, req.Id)
+	isCollection, err := s.Dao.IsUserCollectionPost(req.UserId, req.Id)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	if ok {
+	if isCollection {
 		err = s.Dao.DeleteCollection(collection)
 
 		score = -constvar.CollectionScore

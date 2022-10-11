@@ -19,13 +19,51 @@ service PostService {
     rpc CreateOrRemoveLike(LikeRequest) returns (Response) {}
     rpc ListLikeByUserId(ListPostPartInfoRequest) returns (ListPostPartInfoResponse) {}
 
-    rpc ListPopularTag(NullRequest) returns (Tags) {}
+    rpc ListPopularTag(ListPopularTagRequest) returns (Tags) {}
 
-    rpc CreateOrRemoveCollection(Request) returns(CreateCollectionResponse) {}
+    rpc CreateOrRemoveCollection(Request) returns (CreateCollectionResponse) {}
     rpc ListCollection(ListPostPartInfoRequest) returns (ListPostPartInfoResponse) {}
+
+    rpc CreateReport(CreateReportRequest) returns (Response) {}
+    rpc ListReport(ListReportRequest) returns (ListReportResponse) {}
+    rpc HandleReport(HandleReportRequest) returns (Response) {}
 }
 
-message NullRequest {}
+message HandleReportRequest {
+    uint32 id = 1;
+    string result = 2;
+}
+
+message ListReportRequest {
+    uint32 last_id = 1;
+    uint32 offset = 2;
+    uint32 limit = 3;
+    bool pagination = 4;
+}
+
+message Report {
+    uint32 id = 1;
+    uint32 post_id = 2;
+    uint32 user_id = 3;
+    string cause = 4;
+    string type_name = 5;
+    string create_time = 6;
+}
+
+message ListReportResponse {
+    repeated Report reports = 1;
+}
+
+message CreateReportRequest {
+    uint32 user_id = 1;
+    uint32 post_id = 2;
+    string type_name = 3;
+    string cause = 4;
+}
+
+message ListPopularTagRequest {
+    string category = 1;
+}
 
 message LikeItem {
     uint32 target_id = 1;
@@ -56,6 +94,9 @@ message CommentInfo {
     string creator_avatar = 8;
     uint32 like_num = 9;
     bool is_liked = 10;
+    uint32 be_replied_user_id = 11;
+    string be_replied_user_name = 12;
+    string father_content = 13;
 }
 
 message Request {
@@ -68,7 +109,6 @@ message DeleteItemRequest {
     string type_name = 2;
     uint32 user_id = 3;
 }
-
 
 message UpdatePostInfoRequest {
     uint32 id = 1;
@@ -106,10 +146,11 @@ message CreateCommentResponse {
     uint32 id = 1;
     uint32 user_id = 2;
     string father_content = 3;
-    string type_name = 4;
+    uint32 father_user_id = 4;
     string create_time = 5;
     string creator_name = 6;
     string creator_avatar = 7;
+    string type_name = 8;
 }
 
 message ListMainPostRequest {

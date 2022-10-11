@@ -10,6 +10,7 @@ import (
 	"forum-gateway/handler/feed"
 	"forum-gateway/handler/like"
 	"forum-gateway/handler/post"
+	"forum-gateway/handler/report"
 	"forum-gateway/handler/sd"
 	"forum-gateway/handler/user"
 	"forum-gateway/router/middleware"
@@ -38,7 +39,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 
 	// 权限要求，普通用户/管理员/超管
 	normalRequired := middleware.AuthMiddleware(constvar.AuthLevelNormal)
-	// adminRequired := middleware.AuthMiddleware(constvar.AuthLevelAdmin)
+	adminRequired := middleware.AuthMiddleware(constvar.AuthLevelAdmin)
 	// superAdminRequired := middleware.AuthMiddleware(constvar.AuthLevelSuperAdmin)
 
 	// auth 模块
@@ -111,6 +112,15 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	{
 		collectionRouter.GET("/list/:user_id", collectionApi.List)
 		collectionRouter.POST("/:post_id", collectionApi.CreateOrRemove)
+	}
+
+	// report
+	reportRouter := g.Group("api/v1/report")
+	reportApi := report.New(dao.GetDao())
+	{
+		reportRouter.POST("", normalRequired, reportApi.Create)
+		reportRouter.GET("/list", adminRequired, reportApi.List)
+		reportRouter.PUT("", adminRequired, reportApi.Handle)
 	}
 
 	// The health check handlers

@@ -41,6 +41,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 			return errno.ServerErr(errno.ErrBadRequest, "type_name of father not legal")
 		}
 
+		resp.FatherUserId = comment.CreatorId
 		resp.UserId = comment.CreatorId
 		resp.FatherContent = comment.Content
 

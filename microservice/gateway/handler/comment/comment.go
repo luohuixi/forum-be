@@ -22,18 +22,16 @@ type CreateRequest struct {
 }
 
 type Comment struct {
-	Id                uint32 `json:"id"`
-	Content           string `json:"content"`
-	TypeName          string `json:"type_name"` // first-level -> 一级评论; second-level -> 其它级
-	FatherId          uint32 `json:"father_id"`
-	CreateTime        string `json:"create_time"`
-	CreatorId         uint32 `json:"creator_id"`
-	CreatorName       string `json:"creator_name"`
-	CreatorAvatar     string `json:"creator_avatar"`
-	LikeNum           uint32 `json:"like_num"`
-	IsLiked           bool   `json:"is_liked"`
-	BeRepliedId       uint32 `json:"be_replied_id"`
-	BeRepliedUserId   uint32 `json:"be_replied_user_id"`
-	BeRepliedContent  string `json:"be_replied_content"`
-	BeRepliedUserName string `json:"be_replied_user_name"`
+	Id               uint32 `json:"id"`
+	Content          string `json:"content"`
+	TypeName         string `json:"type_name"` // first-level -> 一级评论; second-level -> 其它级
+	FatherId         uint32 `json:"father_id"`
+	CreateTime       string `json:"create_time"`
+	CreatorId        uint32 `json:"creator_id"`
+	CreatorName      string `json:"creator_name"`
+	CreatorAvatar    string `json:"creator_avatar"`
+	LikeNum          uint32 `json:"like_num"`
+	IsLiked          bool   `json:"is_liked"`
+	BeRepliedUserId  uint32 `json:"be_replied_user_id"`
+	BeRepliedContent string `json:"be_replied_content"`
 }

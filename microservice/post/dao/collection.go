@@ -37,16 +37,11 @@ func (d *Dao) ListCollectionByUserId(userId uint32) ([]uint32, error) {
 
 func (d *Dao) IsUserCollectionPost(userId uint32, postId uint32) (bool, error) {
 	var count int64
-	err := d.DB.Table("collections").Where("user_id = ? AND post_id = ?", userId, postId).Count(&count).Error
-	if err != nil {
+	if err := d.DB.Table("collections").Where("user_id = ? AND post_id = ?", userId, postId).Count(&count).Error; err != nil {
 		return false, err
 	}
 
-	if count == 0 {
-		return false, nil
-	}
-
-	return true, nil
+	return count != 0, nil
 }
 
 func (d *Dao) GetCollectionNumByPostId(postId uint32) (uint32, error) {

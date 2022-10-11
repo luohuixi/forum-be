@@ -80,24 +80,22 @@ func (a *Api) Create(c *gin.Context) {
 	_, err = service.FeedClient.Push(context.TODO(), pushReq)
 
 	resp := &Comment{
-		Id:               createResp.Id,
-		Content:          req.Content,
-		TypeName:         req.TypeName,
-		FatherId:         req.FatherId,
-		CreateTime:       createResp.CreateTime,
-		CreatorId:        userId,
-		CreatorName:      createResp.CreatorName,
-		CreatorAvatar:    createResp.CreatorAvatar,
-		LikeNum:          0,
-		IsLiked:          false,
-		BeRepliedContent: createResp.FatherContent,
-		// BeRepliedUserName: createResp.BeRepliedUserName,
-		BeRepliedId: req.FatherId,
+		Id:            createResp.Id,
+		Content:       req.Content,
+		TypeName:      req.TypeName,
+		FatherId:      req.FatherId,
+		CreateTime:    createResp.CreateTime,
+		CreatorId:     userId,
+		CreatorName:   createResp.CreatorName,
+		CreatorAvatar: createResp.CreatorAvatar,
+		LikeNum:       0,
+		IsLiked:       false,
 	}
 
-	// getProfileReq := &pbu.GetRequest{Id: }
-	//
-	// getProfileResp, err := service.UserClient.GetProfile(context.TODO(), getProfileReq)
+	if req.TypeName == constvar.SecondLevelComment {
+		resp.BeRepliedContent = createResp.FatherContent
+		resp.BeRepliedUserId = createResp.FatherUserId
+	}
 
 	SendResponse(c, err, resp)
 }

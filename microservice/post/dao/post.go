@@ -22,6 +22,7 @@ type PostModel struct {
 	CompiledContent string
 	Summary         string
 	Score           uint32
+	IsReport        bool
 }
 
 func (PostModel) TableName() string {
@@ -83,7 +84,7 @@ func (Dao) CreatePost(post *PostModel) (uint32, error) {
 
 func (d *Dao) ListMainPost(filter *PostModel, typeName string, offset, limit, lastId uint32, pagination bool, searchContent string, tagId uint32) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0")
+	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0 AND posts.is_report = 0")
 
 	if pagination {
 		if limit == 0 {
@@ -108,7 +109,8 @@ func (d *Dao) ListMainPost(filter *PostModel, typeName string, offset, limit, la
 
 	if searchContent != "" {
 		// query = query.Where("MATCH (content, title) AGAINST (?)", searchContent) // MySQL 5.7.6 才支持中文全文索引
-		query = query.Where("posts.content LIKE ? OR posts.title LIKE ? OR posts.summary LIKE ?", "%"+searchContent+"%", "%"+searchContent+"%", "%"+searchContent+"%")
+		key := "%" + searchContent + "%"
+		query = query.Where("posts.content LIKE ? OR posts.title LIKE ? OR posts.summary LIKE ?", key, key, key)
 	}
 
 	if typeName == "hot" {
@@ -124,7 +126,7 @@ func (d *Dao) ListMainPost(filter *PostModel, typeName string, offset, limit, la
 
 func (d *Dao) ListUserCreatedPost(creatorId uint32) ([]uint32, error) {
 	var postIds []uint32
-	err := d.DB.Table("posts").Select("id").Where("creator_id = ?", creatorId).Where("re = 0").Find(&postIds).Error
+	err := d.DB.Table("posts").Select("id").Where("creator_id = ?", creatorId).Where("re = 0 AND ").Find(&postIds).Error
 
 	return postIds, err
 }
@@ -152,43 +154,43 @@ func (d Dao) AddChangeRecord(postId uint32) error {
 	return d.Redis.SAdd("changed_posts", strconv.Itoa(int(postId))).Err()
 }
 
-func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagination bool) ([]*PostInfo, error) {
-	key := "hot:" + typeName
-	if category != "" {
-		key += ":" + category
-	}
-
-	var start int64
-	var end int64 = -1
-	if pagination {
-		if limit == 0 {
-			limit = constvar.DefaultLimit
-		}
-
-		start = int64(offset)
-		end = int64(offset + limit)
-	}
-
-	result, err := d.Redis.ZRevRange(key, start, end).Result() // 降序
-	if err != nil {
-		return nil, err
-	}
-
-	list := make([]*PostInfo, len(result))
-	for i, r := range result {
-		data, err := strconv.Atoi(r)
-		if err != nil {
-			return nil, err
-		}
-
-		list[i], err = d.GetPostInfo(uint32(data))
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return list, nil
-}
+// func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagination bool) ([]*PostInfo, error) {
+// 	key := "hot:" + typeName
+// 	if category != "" {
+// 		key += ":" + category
+// 	}
+//
+// 	var start int64
+// 	var end int64 = -1
+// 	if pagination {
+// 		if limit == 0 {
+// 			limit = constvar.DefaultLimit
+// 		}
+//
+// 		start = int64(offset)
+// 		end = int64(offset + limit)
+// 	}
+//
+// 	result, err := d.Redis.ZRevRange(key, start, end).Result() // 降序
+// 	if err != nil {
+// 		return nil, err
+// 	}
+//
+// 	list := make([]*PostInfo, len(result))
+// 	for i, r := range result {
+// 		data, err := strconv.Atoi(r)
+// 		if err != nil {
+// 			return nil, err
+// 		}
+//
+// 		list[i], err = d.GetPostInfo(uint32(data))
+// 		if err != nil {
+// 			return nil, err
+// 		}
+// 	}
+//
+// 	return list, nil
+// }
 
 func (d Dao) ListPostInfoByPostIds(postIds []uint32, offset, limit, lastId uint32, pagination bool) ([]*pb.PostPartInfo, error) {
 	var posts []*pb.PostPartInfo
