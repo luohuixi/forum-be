@@ -1240,6 +1240,18 @@ const docTemplate = `{
         "comment.Comment": {
             "type": "object",
             "properties": {
+                "be_replied_content": {
+                    "type": "string"
+                },
+                "be_replied_id": {
+                    "type": "integer"
+                },
+                "be_replied_user_id": {
+                    "type": "integer"
+                },
+                "be_replied_user_name": {
+                    "type": "string"
+                },
                 "content": {
                     "type": "string"
                 },
@@ -1321,6 +1333,12 @@ const docTemplate = `{
                 },
                 "be_replied_id": {
                     "type": "integer"
+                },
+                "be_replied_user_id": {
+                    "type": "integer"
+                },
+                "be_replied_user_name": {
+                    "type": "string"
                 },
                 "comment_num": {
                     "type": "integer"

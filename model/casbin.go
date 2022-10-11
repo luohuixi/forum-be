@@ -76,27 +76,23 @@ func initCasbin(username, password, addr, DBName string) *casbin.Enforcer {
 
 	// Set the watcher for the enforcer.
 	if err := cb.SetWatcher(w); err != nil {
-		panic(err)
+		zap.L().Error("SetWatcher", zap.Error(err))
+		// panic(err)
 	}
 
 	// Set callback to local example
-	// if err := w.SetUpdateCallback(watcher.DefaultUpdateCallback(cb)); err != nil {
 	f := func(msg string) {
 		err := cb.LoadPolicy()
 		if err != nil {
-			panic(err)
+			zap.L().Error("LoadPolicy", zap.Error(err))
+			// panic(err)
 		}
 	}
 
 	if err := w.SetUpdateCallback(f); err != nil {
-		panic(err)
+		zap.L().Error("SetUpdateCallback", zap.Error(err))
+		// panic(err)
 	}
-
-	// Update the policy to test the effect.
-	// You should see "[casbin rules updated]" in the log.
-	// if err := cb.SavePolicy(); err != nil {
-	// 	panic(err)
-	// }
 
 	return cb
 }

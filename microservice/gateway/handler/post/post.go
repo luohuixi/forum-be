@@ -76,8 +76,10 @@ type SubPost struct {
 
 type Comment struct {
 	info
-	BeRepliedId      uint32 `json:"be_replied_id"`
-	BeRepliedContent string `json:"be_replied_content"`
+	BeRepliedId       uint32 `json:"be_replied_id"`
+	BeRepliedUserId   uint32 `json:"be_replied_user_id"`
+	BeRepliedContent  string `json:"be_replied_content"`
+	BeRepliedUserName string `json:"be_replied_user_name"`
 }
 
 type info struct {

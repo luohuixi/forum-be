@@ -105,7 +105,7 @@ message CreateCollectionResponse {
 message CreateCommentResponse {
     uint32 id = 1;
     uint32 user_id = 2;
-    string content = 3;
+    string father_content = 3;
     string type_name = 4;
     string create_time = 5;
     string creator_name = 6;

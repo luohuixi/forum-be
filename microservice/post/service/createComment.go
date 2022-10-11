@@ -26,7 +26,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		req.FatherId = req.PostId
 
 		resp.UserId = post.CreatorId
-		resp.Content = post.Title
+		resp.FatherContent = post.Title
 
 	case constvar.FirstLevelComment, constvar.SecondLevelComment:
 		comment, err := s.Dao.GetComment(req.FatherId)
@@ -42,7 +42,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		}
 
 		resp.UserId = comment.CreatorId
-		resp.Content = comment.Content
+		resp.FatherContent = comment.Content
 
 	default:
 		return errno.ServerErr(errno.ErrBadRequest, "type_name not legal")

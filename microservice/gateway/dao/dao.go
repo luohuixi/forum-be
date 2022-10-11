@@ -28,7 +28,7 @@ func Init() {
 	// service.SynchronizeBlacklistToRedis()
 
 	// init redis
-	model.RedisDB.Init()
+	// model.RedisDB.Init() FIXME
 
 	// init casbin
 	model.CB.Init()

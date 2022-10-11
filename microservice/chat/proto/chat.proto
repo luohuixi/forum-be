@@ -7,7 +7,6 @@ package chat;
 service ChatService {
     rpc Create(CreateRequest) returns (Response) {}
     rpc GetList(GetListRequest) returns (GetListResponse) {}
-    rpc SetUUId(SetUUIdRequest) returns (Response) {}
     rpc ListHistory(ListHistoryRequest) returns (ListHistoryResponse) {}
 }
 
@@ -19,16 +18,12 @@ message ListHistoryRequest {
     uint32 other_user_id = 5;
 }
 
-message SetUUIdRequest {
-    string uuid = 1;
-    uint32 user_id = 2;
-}
-
 message CreateRequest {
     uint32 user_id = 1;
     uint32 target_user_id = 2;
     string content = 3;
     string type_name = 4;
+    string time = 5;
 }
 
 message Response {}

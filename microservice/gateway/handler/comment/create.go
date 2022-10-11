@@ -2,7 +2,6 @@ package comment
 
 import (
 	"context"
-	"fmt"
 	pbf "forum-feed/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
@@ -52,8 +51,6 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	fmt.Println("----- userId: ", userId, ok, " -----")
-
 	createReq := pb.CreateCommentRequest{
 		PostId:    req.PostId,
 		TypeName:  req.TypeName,
@@ -62,7 +59,7 @@ func (a *Api) Create(c *gin.Context) {
 		CreatorId: userId,
 	}
 
-	resp, err := service.PostClient.CreateComment(context.TODO(), &createReq)
+	createResp, err := service.PostClient.CreateComment(context.TODO(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -74,24 +71,33 @@ func (a *Api) Create(c *gin.Context) {
 		UserId: userId,
 		Source: &pbf.Source{
 			Id:       req.PostId,
-			TypeName: resp.TypeName,
-			Name:     resp.Content,
+			TypeName: createResp.TypeName,
+			Name:     createResp.FatherContent,
 		},
-		TargetUserId: resp.UserId,
+		TargetUserId: createResp.UserId,
 		Content:      req.Content,
 	}
 	_, err = service.FeedClient.Push(context.TODO(), pushReq)
 
-	SendResponse(c, err, &Comment{
-		Id:            resp.Id,
-		Content:       req.Content,
-		TypeName:      req.TypeName,
-		FatherId:      req.FatherId,
-		CreateTime:    resp.CreateTime,
-		CreatorId:     userId,
-		CreatorName:   resp.CreatorName,
-		CreatorAvatar: resp.CreatorAvatar,
-		LikeNum:       0,
-		IsLiked:       false,
-	})
+	resp := &Comment{
+		Id:               createResp.Id,
+		Content:          req.Content,
+		TypeName:         req.TypeName,
+		FatherId:         req.FatherId,
+		CreateTime:       createResp.CreateTime,
+		CreatorId:        userId,
+		CreatorName:      createResp.CreatorName,
+		CreatorAvatar:    createResp.CreatorAvatar,
+		LikeNum:          0,
+		IsLiked:          false,
+		BeRepliedContent: createResp.FatherContent,
+		// BeRepliedUserName: createResp.BeRepliedUserName,
+		BeRepliedId: req.FatherId,
+	}
+
+	// getProfileReq := &pbu.GetRequest{Id: }
+	//
+	// getProfileResp, err := service.UserClient.GetProfile(context.TODO(), getProfileReq)
+
+	SendResponse(c, err, resp)
 }

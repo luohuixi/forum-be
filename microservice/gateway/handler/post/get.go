@@ -98,8 +98,9 @@ func (a *Api) Get(c *gin.Context) {
 			beRepliedComment := commentsMap[comment.FatherId]
 
 			commentReply := &Comment{
-				BeRepliedId:      comment.FatherId,
-				BeRepliedContent: beRepliedComment.Content,
+				BeRepliedId:       comment.FatherId,
+				BeRepliedContent:  beRepliedComment.Content,
+				BeRepliedUserName: comment.CreatorName,
 			}
 
 			setInfo(&commentReply.info, comment)

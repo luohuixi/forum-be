@@ -112,9 +112,9 @@ func (d *Dao) ListMainPost(filter *PostModel, typeName string, offset, limit, la
 	}
 
 	if typeName == "hot" {
-		query = query.Order("posts.score desc")
+		query = query.Order("posts.score DESC")
 	} else {
-		query = query.Order("posts.id desc")
+		query = query.Order("posts.id DESC")
 	}
 
 	err := query.Scan(&posts).Error
@@ -192,7 +192,7 @@ func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagina
 
 func (d Dao) ListPostInfoByPostIds(postIds []uint32, offset, limit, lastId uint32, pagination bool) ([]*pb.PostPartInfo, error) {
 	var posts []*pb.PostPartInfo
-	query := d.DB.Table("posts").Select("posts.id id, title, category, summary, content, last_edit_time time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.re = 0").Where("posts.id IN ?", postIds).Order("posts.id desc")
+	query := d.DB.Table("posts").Select("posts.id id, title, category, summary, content, last_edit_time time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.re = 0").Where("posts.id IN ?", postIds).Order("posts.id DESC")
 
 	if pagination {
 		if limit == 0 {
