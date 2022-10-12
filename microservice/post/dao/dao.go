@@ -37,7 +37,7 @@ type Interface interface {
 	CreateComment(*CommentModel) (uint32, error)
 	GetCommentInfo(uint32) (*CommentInfo, error)
 	GetComment(uint32) (*CommentModel, error)
-	ListCommentByPostId(uint32) ([]*pb.CommentInfo, error)
+	ListCommentByPostId(uint32) ([]*CommentInfo, error)
 	GetCommentNumByPostId(uint32) (uint32, error)
 
 	AddLike(uint32, Item) error

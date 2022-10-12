@@ -48,6 +48,11 @@ message Report {
     string cause = 4;
     string type_name = 5;
     string create_time = 6;
+    string user_avatar = 7;
+    string user_name = 8;
+    uint32 be_reported_user_id = 9;
+    string be_reported_user_name = 10;
+    string post_title = 11;
 }
 
 message ListReportResponse {
@@ -81,6 +86,7 @@ message CreateCommentRequest {
     uint32 father_id = 3;
     string content = 4;
     uint32 creator_id = 5;
+    repeated string img_urls = 6;
 }
 
 message CommentInfo {
@@ -97,6 +103,7 @@ message CommentInfo {
     uint32 be_replied_user_id = 11;
     string be_replied_user_name = 12;
     string father_content = 13;
+    repeated string img_urls = 14;
 }
 
 message Request {

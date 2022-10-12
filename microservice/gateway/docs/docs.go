@@ -1400,6 +1400,12 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "img_urls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "is_liked": {
                     "type": "boolean"
                 },
@@ -1426,6 +1432,12 @@ const docTemplate = `{
                 },
                 "father_id": {
                     "type": "integer"
+                },
+                "img_urls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
                 },
                 "post_id": {
                     "type": "integer"
@@ -1763,6 +1775,12 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
+                "img_urls": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    }
+                },
                 "is_liked": {
                     "type": "boolean"
                 },
@@ -1856,6 +1874,12 @@ const docTemplate = `{
         "report.Report": {
             "type": "object",
             "properties": {
+                "be_reported_user_id": {
+                    "type": "integer"
+                },
+                "be_reported_user_name": {
+                    "type": "string"
+                },
                 "cause": {
                     "type": "string"
                 },
@@ -1868,11 +1892,20 @@ const docTemplate = `{
                 "post_id": {
                     "type": "integer"
                 },
+                "post_title": {
+                    "type": "string"
+                },
                 "type_name": {
+                    "type": "string"
+                },
+                "user_avatar": {
                     "type": "string"
                 },
                 "user_id": {
                     "type": "integer"
+                },
+                "user_name": {
+                    "type": "string"
                 }
             }
         },

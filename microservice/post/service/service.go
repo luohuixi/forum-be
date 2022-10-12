@@ -19,8 +19,10 @@ func New(i dao.Interface) *PostService {
 	return service
 }
 
-func (s PostService) processComments(userId uint32, comments []*pb.CommentInfo) {
-	for _, comment := range comments {
+func (s PostService) processComments(userId uint32, commentInfos []*dao.CommentInfo) []*pb.CommentInfo {
+	comments := make([]*pb.CommentInfo, len(commentInfos))
+
+	for i, comment := range commentInfos {
 		item := dao.Item{
 			Id:       comment.Id,
 			TypeName: constvar.Comment,
@@ -30,14 +32,28 @@ func (s PostService) processComments(userId uint32, comments []*pb.CommentInfo) 
 		if err != nil {
 			logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 		}
-		comment.LikeNum = uint32(num)
 
 		isLiked, err := s.Dao.IsUserHadLike(userId, item)
 		if err != nil {
 			logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 		}
-		comment.IsLiked = isLiked
+
+		comments[i] = &pb.CommentInfo{
+			Id:            comment.Id,
+			TypeName:      comment.TypeName,
+			Content:       comment.Content,
+			FatherId:      comment.FatherId,
+			Time:          comment.CreateTime,
+			CreatorId:     comment.CreatorId,
+			CreatorName:   comment.CreatorName,
+			CreatorAvatar: comment.CreatorAvatar,
+			LikeNum:       uint32(num),
+			IsLiked:       isLiked,
+			ImgUrls:       comment.ImgUrls,
+		}
 	}
+
+	return comments
 }
 
 func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint32, []string, uint32, uint32) {

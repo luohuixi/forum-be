@@ -105,17 +105,22 @@ func (c *Casbin) Init() {
 			viper.GetString("db.name")),
 	}
 
-	rules := [][]string{
-		{constvar.NormalPost, constvar.Read},
-	}
+	var err error
 
-	_, err := CB.Self.AddPermissionsForUser(constvar.NormalRole, rules...)
-	if err != nil {
-		panic(err)
-	}
+	_, err = CB.Self.AddRoleForUser(constvar.MuxiRole, constvar.NormalRole)
+	_, err = CB.Self.AddRoleForUser(constvar.NormalAdminRole, constvar.NormalRole)
 
-	rules = append(rules, []string{constvar.MuxiPost, constvar.Read})
-	_, err = CB.Self.AddPermissionsForUser(constvar.MuxiRole, rules...)
+	_, err = CB.Self.AddRoleForUser(constvar.MuxiAdminRole, constvar.NormalAdminRole)
+	_, err = CB.Self.AddRoleForUser(constvar.MuxiAdminRole, constvar.MuxiRole)
+
+	_, err = CB.Self.AddRoleForUser(constvar.SuperAdminRole, constvar.MuxiAdminRole)
+
+	_, err = CB.Self.AddPermissionForUser(constvar.NormalRole, []string{constvar.NormalPost, constvar.Read}...)
+	_, err = CB.Self.AddPermissionForUser(constvar.MuxiRole, []string{constvar.MuxiPost, constvar.Read}...)
+
+	_, err = CB.Self.AddPermissionForUser(constvar.NormalAdminRole, []string{constvar.NormalPost, constvar.Write}...)
+	_, err = CB.Self.AddPermissionForUser(constvar.MuxiAdminRole, []string{constvar.MuxiPost, constvar.Write}...)
+
 	if err != nil {
 		panic(err)
 	}

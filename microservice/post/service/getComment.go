@@ -41,6 +41,7 @@ func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.Co
 	resp.CreatorId = comment.CreatorId
 	resp.CreatorAvatar = comment.CreatorAvatar
 	resp.CreatorName = comment.CreatorName
+	resp.ImgUrls = comment.ImgUrls
 
 	return nil
 }

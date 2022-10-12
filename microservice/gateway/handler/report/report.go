@@ -30,10 +30,15 @@ type ListResponse struct {
 }
 
 type Report struct {
-	Id         uint32 `json:"id"`
-	Cause      string `json:"cause"`
-	PostId     uint32 `json:"post_id"`
-	UserId     uint32 `json:"user_id"`
-	TypeName   string `json:"type_name"`
-	CreateTime string `json:"create_time"`
+	Id                 uint32 `json:"id"`
+	Cause              string `json:"cause"`
+	PostId             uint32 `json:"post_id"`
+	UserId             uint32 `json:"user_id"`
+	TypeName           string `json:"type_name"`
+	CreateTime         string `json:"create_time"`
+	UserAvatar         string `json:"user_avatar"`
+	UserName           string `json:"user_name"`
+	BeReportedUserId   uint32 `json:"be_reported_user_id"`
+	BeReportedUserName string `json:"be_reported_user_name"`
+	PostTitle          string `json:"post_title"`
 }

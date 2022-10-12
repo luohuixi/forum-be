@@ -89,7 +89,7 @@ func (d Dao) InValidReport(id, postId uint32) error {
 
 func (d *Dao) ListReport(offset, limit, lastId uint32, pagination bool) ([]*pb.Report, error) {
 	var reports []*pb.Report
-	query := d.DB.Table("reports")
+	query := d.DB.Table("reports").Select("reports.id id, reports.post_id, reports.user_id, reports.create_time, cause, reports.type_name, u.name user_name, u.avatar user_avatar, u2.id be_reported_user_id, u2.name be_reported_user_name, p.title post_title").Joins("join users u on u.id = reports.user_id").Joins("join posts p on p.id = reports.post_id").Joins("join users u2 on u2.id = p.creator_id")
 
 	if pagination {
 		if limit == 0 {

@@ -18,6 +18,8 @@ func (s *PostService) HandleReport(_ context.Context, req *pb.HandleReportReques
 		if err == gorm.ErrRecordNotFound {
 			return errno.NotFoundErr(errno.ErrItemNotFound, "report-"+strconv.Itoa(int(req.Id)))
 		}
+
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	if req.Result == constvar.ValidReport {

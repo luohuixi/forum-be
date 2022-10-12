@@ -67,7 +67,9 @@ func (a *Api) Get(c *gin.Context) {
 		commentsMap[comment.Id] = comment
 
 		if comment.TypeName == constvar.SubPost {
-			var subPost = new(SubPost)
+			subPost := &SubPost{
+				ImgUrls: comment.ImgUrls,
+			}
 
 			subPostCommentsMap[comment.Id] = &subPost.Comments
 

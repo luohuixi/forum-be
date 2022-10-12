@@ -37,7 +37,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 			return errno.ServerErr(errno.ErrBadRequest, "the comment not found")
 		}
 
-		if (req.TypeName == constvar.FirstLevelComment && comment.TypeName != constvar.SubPost) || (req.TypeName == constvar.SecondLevelComment && comment.TypeName != constvar.FirstLevelComment) {
+		if (req.TypeName == constvar.FirstLevelComment && comment.TypeName != constvar.SubPost) || (req.TypeName == constvar.SecondLevelComment && comment.TypeName == constvar.SubPost) {
 			return errno.ServerErr(errno.ErrBadRequest, "type_name of father not legal")
 		}
 
@@ -59,6 +59,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		Re:         false,
 		CreatorId:  req.CreatorId,
 		PostId:     req.PostId,
+		ImgUrls:    req.ImgUrls,
 	}
 
 	commentId, err := s.Dao.CreateComment(data)

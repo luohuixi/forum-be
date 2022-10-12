@@ -20,12 +20,12 @@ func (s *PostService) GetPost(_ context.Context, req *pb.Request, resp *pb.Post)
 		return errno.NotFoundErr(errno.ErrItemNotFound, "post-"+strconv.Itoa(int(req.Id)))
 	}
 
-	comments, err := s.Dao.ListCommentByPostId(req.Id)
+	commentInfos, err := s.Dao.ListCommentByPostId(req.Id)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	s.processComments(req.UserId, comments)
+	comments := s.processComments(req.UserId, commentInfos)
 
 	resp.IsLiked, resp.IsCollection, resp.LikeNum, resp.Tags, resp.CommentNum, resp.CollectionNum = s.getPostInfo(post.Id, req.UserId)
 
