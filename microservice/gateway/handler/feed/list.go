@@ -40,7 +40,6 @@ func (a *Api) List(c *gin.Context) {
 	userId := c.MustGet("userId").(uint32)
 
 	if int(userId) != targetUserId {
-
 		ok, err := model.Enforce(userId, constvar.Feed, targetUserId, constvar.Read)
 		if err != nil {
 			SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
@@ -48,7 +47,7 @@ func (a *Api) List(c *gin.Context) {
 		}
 
 		if !ok {
-			SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+			SendResponse(c, errno.ErrPrivacyInfo, nil)
 			return
 		}
 	}
@@ -72,11 +71,12 @@ func (a *Api) List(c *gin.Context) {
 	}
 
 	listReq := &pb.ListRequest{
-		LastId:     uint32(lastId),
-		Offset:     uint32(page * limit),
-		Limit:      uint32(limit),
-		UserId:     uint32(targetUserId),
-		Pagination: limit != 0 || page != 0,
+		LastId:       uint32(lastId),
+		Offset:       uint32(page * limit),
+		Limit:        uint32(limit),
+		UserId:       userId,
+		Pagination:   limit != 0 || page != 0,
+		TargetUserId: uint32(targetUserId),
 	}
 
 	listResp, err := service.FeedClient.List(context.TODO(), listReq)

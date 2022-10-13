@@ -11,15 +11,15 @@ import (
 	"forum/util"
 )
 
-func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _ *pb.Response) error {
+func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, resp *pb.CreatePostResponse) error {
 	logger.Info("PostService CreatePost")
 
-	if req.TypeName != constvar.NormalPost && req.TypeName != constvar.MuxiPost {
-		return errno.ServerErr(errno.ErrBadRequest, "type_name not legal")
+	if req.Domain != constvar.NormalDomain && req.Domain != constvar.MuxiDomain {
+		return errno.ServerErr(errno.ErrBadRequest, "domain not legal")
 	}
 
 	data := &dao.PostModel{
-		TypeName:        req.TypeName,
+		Domain:          req.Domain,
 		Content:         req.Content,
 		Title:           req.Title,
 		CreateTime:      util.GetCurrentTime(),
@@ -41,7 +41,7 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
-	if err := model.AddResourceRole(constvar.Post, postId, req.TypeName); err != nil {
+	if err := model.AddResourceRole(constvar.Post, postId, req.Domain); err != nil {
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
@@ -69,6 +69,8 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 			}
 		}()
 	}
+
+	resp.Id = postId
 
 	return nil
 }

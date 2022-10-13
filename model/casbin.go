@@ -115,19 +115,22 @@ func (c *Casbin) Init() {
 
 	_, err = CB.Self.AddRoleForUser(constvar.SuperAdminRole, constvar.MuxiAdminRole)
 
-	_, err = CB.Self.AddPermissionForUser(constvar.NormalRole, []string{constvar.NormalPost, constvar.Read}...)
-	_, err = CB.Self.AddPermissionForUser(constvar.MuxiRole, []string{constvar.MuxiPost, constvar.Read}...)
+	_, err = CB.Self.AddPermissionForUser(constvar.NormalRole, []string{constvar.NormalDomain, constvar.Read}...)
+	_, err = CB.Self.AddPermissionForUser(constvar.MuxiRole, []string{constvar.MuxiDomain, constvar.Read}...)
 
-	_, err = CB.Self.AddPermissionForUser(constvar.NormalAdminRole, []string{constvar.NormalPost, constvar.Write}...)
-	_, err = CB.Self.AddPermissionForUser(constvar.MuxiAdminRole, []string{constvar.MuxiPost, constvar.Write}...)
+	_, err = CB.Self.AddPermissionForUser(constvar.NormalRole, []string{constvar.CollectionAndLike, constvar.Read}...)
+	_, err = CB.Self.AddPermissionForUser(constvar.NormalRole, []string{constvar.Feed, constvar.Read}...)
+
+	_, err = CB.Self.AddPermissionForUser(constvar.NormalAdminRole, []string{constvar.NormalDomain, constvar.Write}...)
+	_, err = CB.Self.AddPermissionForUser(constvar.MuxiAdminRole, []string{constvar.MuxiDomain, constvar.Write}...)
 
 	if err != nil {
 		panic(err)
 	}
 
 	recourseRules := [][]string{
-		{constvar.Post + ":" + constvar.MuxiPost, constvar.MuxiPost},
-		{constvar.Post + ":" + constvar.NormalPost, constvar.NormalPost},
+		{constvar.Post + ":" + constvar.MuxiDomain, constvar.MuxiDomain},
+		{constvar.Post + ":" + constvar.NormalDomain, constvar.NormalDomain},
 	}
 
 	_, err = CB.Self.AddNamedGroupingPolicies("g2", recourseRules)
@@ -197,6 +200,18 @@ func AddResourceRole(typeName string, id uint32, role string) error {
 	}
 	if !ok {
 		return errors.New("add g2 not ok")
+	}
+
+	return nil
+}
+
+func DeleteResourceRole(typeName string, id uint32, role string) error {
+	ok, err := CB.Self.RemoveNamedGroupingPolicy("g2", typeName+":"+strconv.Itoa(int(id)), role)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("delete g2 not ok")
 	}
 
 	return nil

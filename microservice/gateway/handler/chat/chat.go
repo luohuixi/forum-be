@@ -45,7 +45,7 @@ func WsHandler(c *gin.Context) {
 		return
 	}
 
-	userId := c.MustGet("userid").(uint32)
+	userId := c.MustGet("userId").(uint32)
 
 	client := &Client{
 		UserId: userId,

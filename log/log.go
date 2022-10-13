@@ -63,6 +63,7 @@ func init() {
 	// logger = zap.New(core, caller, development, filed)
 	logger = zap.New(core, caller, development)
 }
+
 func SyncLogger() {
 	logger.Sync()
 }

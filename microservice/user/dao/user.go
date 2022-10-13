@@ -56,7 +56,7 @@ func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*User
 	query := d.DB.Model(&UserModel{}).Where(filter).Offset(int(offset)).Limit(int(limit))
 
 	if lastId != 0 {
-		query = query.Where("id < ?", lastId).Order("id desc")
+		query = query.Where("id < ?", lastId).Order("id DESC")
 	}
 
 	if err := query.Scan(&list).Error; err != nil {

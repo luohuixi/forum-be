@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"encoding/json"
+	"forum-user/pkg/role"
 	upb "forum-user/proto"
 	"forum/pkg/errno"
 	"forum/util"
@@ -31,7 +32,7 @@ func (s *FeedService) Push(_ context.Context, req *pb.PushRequest, _ *pb.Respons
 		SourceObjectId:   req.Source.Id,
 		TargetUserId:     req.TargetUserId,
 		CreateTime:       util.GetCurrentTime(),
-		TypeName:         getResp.Role,
+		Domain:           role.Role2Domain(getResp.Role),
 	}
 
 	msg, _ := json.Marshal(feed)

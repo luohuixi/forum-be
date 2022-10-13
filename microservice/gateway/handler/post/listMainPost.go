@@ -18,7 +18,7 @@ import (
 
 // ListMainPost ... 获取主帖
 // @Summary list 主帖 api
-// @Description type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal); 根据category获取主帖list
+// @Description 根据category or tag 获取主帖list
 // @Tags post
 // @Accept application/json
 // @Produce application/json
@@ -30,21 +30,21 @@ import (
 // @Param filter query string false "filter"
 // @Param search_content query string false "search_content"
 // @Param tag query string false "tag"
-// @Param type_name path string true "type_name"
+// @Param domain path string true "normal -> 团队外; muxi -> 团队内"
 // @Success 200 {object} ListMainPostResponse
-// @Router /post/list/{type_name} [get]
+// @Router /post/list/{domain} [get]
 func (a *Api) ListMainPost(c *gin.Context) {
 	log.Info("Post ListMainPost function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
 
-	typeName := c.Param("type_name")
-	if typeName != constvar.NormalPost && typeName != constvar.MuxiPost {
-		SendError(c, errno.ErrPathParam, nil, "type_name not legal", GetLine())
+	domain := c.Param("domain")
+	if domain != constvar.NormalDomain && domain != constvar.MuxiDomain {
+		SendError(c, errno.ErrPathParam, nil, "domain not legal", GetLine())
 		return
 	}
 
-	ok, err := model.Enforce(userId, constvar.Post, typeName, constvar.Read)
+	ok, err := model.Enforce(userId, constvar.Post, domain, constvar.Read)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
@@ -84,7 +84,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 	listReq := &pb.ListMainPostRequest{
 		UserId:        userId,
 		Category:      category,
-		TypeName:      typeName,
+		Domain:        domain,
 		LastId:        uint32(lastId),
 		Offset:        uint32(page * limit),
 		Limit:         uint32(limit),

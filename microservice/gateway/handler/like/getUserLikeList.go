@@ -48,7 +48,7 @@ func (a *Api) GetUserLikeList(c *gin.Context) {
 		}
 
 		if !ok {
-			SendError(c, errno.ErrPermissionDenied, nil, "权限不足", GetLine())
+			SendResponse(c, errno.ErrPrivacyInfo, nil)
 			return
 		}
 	}
@@ -72,11 +72,12 @@ func (a *Api) GetUserLikeList(c *gin.Context) {
 	}
 
 	listReq := &pb.ListPostPartInfoRequest{
-		UserId:     uint32(targetUserId),
-		LastId:     uint32(lastId),
-		Offset:     uint32(page * limit),
-		Limit:      uint32(limit),
-		Pagination: limit != 0 || page != 0,
+		UserId:       userId,
+		TargetUserId: uint32(targetUserId),
+		LastId:       uint32(lastId),
+		Offset:       uint32(page * limit),
+		Limit:        uint32(limit),
+		Pagination:   limit != 0 || page != 0,
 	}
 
 	listResp, err := service.PostClient.ListLikeByUserId(context.TODO(), listReq)

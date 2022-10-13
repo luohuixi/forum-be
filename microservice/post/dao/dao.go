@@ -32,7 +32,7 @@ type Interface interface {
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
 	IsUserCollectionPost(uint32, uint32) (bool, error)
-	ListPostInfoByPostIds([]uint32, uint32, uint32, uint32, bool) ([]*pb.PostPartInfo, error)
+	ListPostInfoByPostIds([]uint32, *PostModel, uint32, uint32, uint32, bool) ([]*pb.PostPartInfo, error)
 
 	CreateComment(*CommentModel) (uint32, error)
 	GetCommentInfo(uint32) (*CommentInfo, error)

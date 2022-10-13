@@ -29,6 +29,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	g.Use(middleware.Options)
 	g.Use(middleware.Secure)
 	g.Use(mw...)
+
 	// 404 Handler.
 	g.NoRoute(func(c *gin.Context) {
 		handler.SendError(c, errno.ErrIncorrectAPIRoute, nil, "", "")
@@ -67,10 +68,10 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	}
 
 	postRouter := g.Group("api/v1/post")
-	postRouter.Use(normalRequired)
 	postApi := post.New(dao.GetDao())
+	postRouter.Use(normalRequired)
 	{
-		postRouter.GET("/list/:type_name", postApi.ListMainPost)
+		postRouter.GET("/list/:domain", postApi.ListMainPost)
 		postRouter.GET("/published/:user_id", postApi.ListUserPost)
 		postRouter.GET("/:post_id", postApi.Get)
 		postRouter.POST("", postApi.Create)
@@ -81,8 +82,8 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	}
 
 	commentRouter := g.Group("api/v1/comment")
-	commentRouter.Use(normalRequired)
 	commentApi := comment.New(dao.GetDao())
+	commentRouter.Use(normalRequired)
 	{
 		commentRouter.GET("/:comment_id", commentApi.Get)
 		commentRouter.POST("", commentApi.Create)
@@ -90,8 +91,8 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	}
 
 	likeRouter := g.Group("api/v1/like")
-	likeRouter.Use(normalRequired)
 	likeApi := like.New(dao.GetDao())
+	likeRouter.Use(normalRequired)
 	{
 		likeRouter.GET("/list/:user_id", likeApi.GetUserLikeList)
 		likeRouter.POST("", likeApi.CreateOrRemove)
@@ -99,16 +100,16 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 
 	// feed
 	feedRouter := g.Group("api/v1/feed")
-	feedRouter.Use(normalRequired)
 	feedApi := feed.New(dao.GetDao())
+	feedRouter.Use(normalRequired)
 	{
 		feedRouter.GET("/list/:user_id", feedApi.List)
 	}
 
 	// collection
 	collectionRouter := g.Group("api/v1/collection")
-	collectionRouter.Use(normalRequired)
 	collectionApi := collection.New(dao.GetDao())
+	collectionRouter.Use(normalRequired)
 	{
 		collectionRouter.GET("/list/:user_id", collectionApi.List)
 		collectionRouter.POST("/:post_id", collectionApi.CreateOrRemove)

@@ -45,8 +45,12 @@ type Post struct {
 	CollectionNum uint32             `json:"collection_num"`
 }
 
+type TrimHtmlRequest struct {
+	Data string `json:"data" binding:"required"`
+}
+
 type CreateRequest struct {
-	TypeName        string   `json:"type_name" binding:"required"` // normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal)
+	Domain          string   `json:"domain" binding:"required"` // normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal)
 	Content         string   `json:"content" binding:"required"`
 	CompiledContent string   `json:"compiled_content"`
 	Title           string   `json:"title,omitempty" binding:"required"`
@@ -151,4 +155,8 @@ func setInfo[T pb.CommentInfo | pb.Post](info *info, comment *T) {
 
 type QiNiuToken struct {
 	Token string `json:"token"`
+}
+
+type IdResponse struct {
+	Id uint32 `json:"id"`
 }

@@ -4,6 +4,7 @@ import (
 	"context"
 	"forum-feed/dao"
 	pb "forum-feed/proto"
+	"forum-user/pkg/role"
 	upb "forum-user/proto"
 	logger "forum/log"
 	"forum/pkg/constvar"
@@ -14,20 +15,18 @@ import (
 func (s *FeedService) List(_ context.Context, req *pb.ListRequest, res *pb.ListResponse) error {
 	logger.Info("FeedService List")
 
-	var filter = &dao.FeedModel{
-		// TypeName: constvar.MuxiRole, // TODO
-	}
+	var filter = &dao.FeedModel{}
 
 	getResp, err := UserClient.GetProfile(context.TODO(), &upb.GetRequest{Id: req.UserId})
 	if err != nil {
 		return errno.ServerErr(errno.ErrRPC, err.Error())
 	}
 
-	if getResp.Role == constvar.NormalRole {
-		filter.TypeName = constvar.NormalRole
+	if getResp.Role == constvar.NormalRole || getResp.Role == constvar.NormalAdminRole {
+		filter.Domain = role.Role2Domain(getResp.Role)
 	}
 
-	feeds, err := s.Dao.List(filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.UserId)
+	feeds, err := s.Dao.List(filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.TargetUserId)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}

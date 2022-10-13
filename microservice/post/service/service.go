@@ -1,11 +1,20 @@
 package service
 
 import (
+	"context"
 	"forum-post/dao"
 	pb "forum-post/proto"
+	"forum-user/pkg/role"
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
+	"forum/pkg/handler"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
+	"github.com/opentracing/opentracing-go"
+
+	upb "forum-user/proto"
+
+	micro "go-micro.dev/v4"
 )
 
 // PostService ... 帖子服务
@@ -17,6 +26,21 @@ func New(i dao.Interface) *PostService {
 	service := new(PostService)
 	service.Dao = i
 	return service
+}
+
+var UserClient upb.UserService
+
+func UserInit() {
+	service := micro.NewService(micro.Name("forum.cli.user"),
+		micro.WrapClient(
+			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
+		),
+		micro.WrapCall(handler.ClientErrorHandlerWrapper()),
+	)
+
+	service.Init()
+
+	UserClient = upb.NewUserService("forum.service.user", service.Client())
 }
 
 func (s PostService) processComments(userId uint32, commentInfos []*dao.CommentInfo) []*pb.CommentInfo {
@@ -93,4 +117,13 @@ func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint
 	}
 
 	return isLiked, isCollection, uint32(likeNum), tags, commentNum, collectionNum
+}
+
+func (s PostService) GetUserDomain(userId uint32) (string, error) {
+	getResp, err := UserClient.GetProfile(context.TODO(), &upb.GetRequest{Id: userId})
+	if err != nil {
+		return "", err
+	}
+
+	return role.Role2Domain(getResp.Role), nil
 }

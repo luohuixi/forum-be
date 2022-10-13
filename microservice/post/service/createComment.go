@@ -71,7 +71,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
-	if err := model.AddResourceRole(constvar.Comment, commentId, post.TypeName); err != nil {
+	if err := model.AddResourceRole(constvar.Comment, commentId, post.Domain); err != nil {
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
@@ -87,7 +87,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 	}
 
 	resp.Id = commentId
-	resp.TypeName = post.TypeName
+	resp.TypeName = post.Domain
 	resp.CreateTime = createTime
 	resp.CreatorName = commentInfo.CreatorName
 	resp.CreatorAvatar = commentInfo.CreatorAvatar

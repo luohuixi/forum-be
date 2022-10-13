@@ -28,9 +28,9 @@ const (
 	CollectionAndLike = "collection-like"
 	Feed              = "feed"
 
-	// post type
-	NormalPost = "normal"
-	MuxiPost   = "muxi"
+	// domain
+	NormalDomain = "normal"
+	MuxiDomain   = "muxi"
 
 	// casbin
 	Write = "write"

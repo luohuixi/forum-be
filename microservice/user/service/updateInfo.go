@@ -7,7 +7,6 @@ import (
 	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"strconv"
 )
 
 // UpdateInfo ... 更新用户信息
@@ -29,12 +28,12 @@ func (s *UserService) UpdateInfo(_ context.Context, req *pb.UpdateInfoRequest, _
 
 	if user.IsPublicCollectionAndLike != req.Info.IsPublicCollectionAndLike {
 		if req.Info.IsPublicCollectionAndLike {
-			if _, err := model.CB.Self.AddPolicy(user.Role, constvar.CollectionAndLike+":"+strconv.Itoa(int(user.Id)), constvar.Read); err != nil {
+			if err := model.AddResourceRole(constvar.CollectionAndLike, user.Id, constvar.CollectionAndLike); err != nil {
 				return errno.ServerErr(errno.ErrCasbin, err.Error())
 			}
 
 		} else {
-			if _, err := model.CB.Self.RemovePolicy(user.Role, constvar.CollectionAndLike+":"+strconv.Itoa(int(user.Id)), constvar.Read); err != nil {
+			if err := model.DeleteResourceRole(constvar.CollectionAndLike, user.Id, constvar.CollectionAndLike); err != nil {
 				return errno.ServerErr(errno.ErrCasbin, err.Error())
 			}
 		}
@@ -43,15 +42,16 @@ func (s *UserService) UpdateInfo(_ context.Context, req *pb.UpdateInfoRequest, _
 
 	if user.IsPublicFeed != req.Info.IsPublicFeed {
 		if req.Info.IsPublicFeed {
-			if _, err := model.CB.Self.AddPolicy(user.Role, constvar.Feed+":"+strconv.Itoa(int(user.Id)), constvar.Read); err != nil {
+			if err := model.AddResourceRole(constvar.Feed, user.Id, constvar.Feed); err != nil {
 				return errno.ServerErr(errno.ErrCasbin, err.Error())
 			}
 
 		} else {
-			if _, err := model.CB.Self.RemovePolicy(user.Role, constvar.Feed+":"+strconv.Itoa(int(user.Id)), constvar.Read); err != nil {
+			if err := model.DeleteResourceRole(constvar.Feed, user.Id, constvar.Feed); err != nil {
 				return errno.ServerErr(errno.ErrCasbin, err.Error())
 			}
 		}
+
 		user.IsPublicFeed = req.Info.IsPublicFeed
 	}
 

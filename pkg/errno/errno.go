@@ -52,6 +52,7 @@ var (
 	// user
 	ErrUserNotExisted    = &Errno{Code: 20101, Message: "User not existed"}
 	ErrPasswordIncorrect = &Errno{Code: 20102, Message: "The password was incorrect."}
+	ErrPrivacyInfo       = &Errno{Code: 20103, Message: "The info was privacy by user"}
 )
 
 type Errno struct {

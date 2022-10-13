@@ -21,6 +21,7 @@ require (
 	github.com/gin-gonic/gin v1.7.7
 	github.com/go-micro/plugins/v4/registry/kubernetes v1.1.0
 	github.com/go-micro/plugins/v4/wrapper/trace/opentracing v1.1.0
+	github.com/golang/protobuf v1.5.2
 	github.com/gorilla/websocket v1.4.2
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/qiniu/api.v7/v7 v7.8.2
@@ -30,7 +31,7 @@ require (
 	github.com/spf13/viper v1.12.0
 	github.com/swaggo/files v0.0.0-20210815190702-a29dd2bc99b2
 	github.com/swaggo/gin-swagger v1.4.2
-	github.com/swaggo/swag v1.8.1
+	github.com/swaggo/swag v1.8.6
 	github.com/teris-io/shortid v0.0.0-20201117134242-e59966efd125
 	github.com/willf/pad v0.0.0-20200313202418-172aa767f2a4
 	go-micro.dev/v4 v4.8.1
@@ -81,7 +82,6 @@ require (
 	github.com/gobwas/ws v1.0.4 // indirect
 	github.com/golang-sql/civil v0.0.0-20220223132316-b832511892a9 // indirect
 	github.com/golang-sql/sqlexp v0.0.0-20170517235910-f1bb20e5a188 // indirect
-	github.com/golang/protobuf v1.5.2 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/gookit/color v1.3.6 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect

@@ -14,7 +14,7 @@ type FeedModel struct {
 	SourceObjectName string
 	SourceObjectId   uint32
 	TargetUserId     uint32
-	TypeName         string
+	Domain           string
 	CreateTime       string
 	Re               bool
 }
@@ -57,7 +57,7 @@ func (d Dao) Delete(id uint32) error {
 func (d *Dao) List(filter *FeedModel, offset, limit, lastId uint32, pagination bool, userId uint32) ([]*FeedModel, error) {
 	var feeds []*FeedModel
 
-	query := d.DB.Table("feeds").Select("feeds.*").Order("feeds.id desc").Where(filter).Where("re = 0")
+	query := d.DB.Table("feeds").Select("feeds.*").Order("feeds.id DESC").Where(filter).Where("re = 0")
 
 	// 查找用户的feed
 	if userId != 0 {

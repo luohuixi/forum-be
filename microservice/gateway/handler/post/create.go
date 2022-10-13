@@ -21,7 +21,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body CreateRequest true "create_post_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} IdResponse
 // @Router /post [post]
 func (a *Api) Create(c *gin.Context) {
 	log.Info("Post Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -32,8 +32,8 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	if req.TypeName != constvar.NormalPost && req.TypeName != constvar.MuxiPost {
-		SendError(c, errno.ErrBadRequest, nil, "type_name must be "+constvar.NormalPost+" or "+constvar.MuxiPost, GetLine())
+	if req.Domain != constvar.NormalDomain && req.Domain != constvar.MuxiDomain {
+		SendError(c, errno.ErrBadRequest, nil, "domain must be "+constvar.NormalDomain+" or "+constvar.MuxiDomain, GetLine())
 		return
 	}
 
@@ -44,7 +44,7 @@ func (a *Api) Create(c *gin.Context) {
 
 	userId := c.MustGet("userId").(uint32)
 
-	ok, err := model.Enforce(userId, constvar.Post, req.TypeName, constvar.Read)
+	ok, err := model.Enforce(userId, constvar.Post, req.Domain, constvar.Read)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
@@ -58,7 +58,7 @@ func (a *Api) Create(c *gin.Context) {
 	createReq := pb.CreatePostRequest{
 		UserId:          userId,
 		Content:         req.Content,
-		TypeName:        req.TypeName,
+		Domain:          req.Domain,
 		Title:           req.Title,
 		Category:        req.Category,
 		ContentType:     req.ContentType,
@@ -67,11 +67,11 @@ func (a *Api) Create(c *gin.Context) {
 		Summary:         req.Summary,
 	}
 
-	_, err = service.PostClient.CreatePost(context.TODO(), &createReq)
+	resp, err := service.PostClient.CreatePost(context.TODO(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
-	SendResponse(c, nil, nil)
+	SendResponse(c, nil, &IdResponse{Id: resp.Id})
 }

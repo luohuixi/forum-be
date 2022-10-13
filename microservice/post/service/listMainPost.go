@@ -12,7 +12,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 	logger.Info("PostService ListMainPost")
 
 	filter := &dao.PostModel{
-		TypeName: req.TypeName,
+		Domain:   req.Domain,
 		Category: req.Category,
 	}
 

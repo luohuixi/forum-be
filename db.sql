@@ -31,7 +31,7 @@ DROP TABLE IF EXISTS `posts`;
 CREATE TABLE `posts`
 (
     `id`               int(11) AUTO_INCREMENT PRIMARY KEY,
-    `type_name`        varchar(30)   NOT NULL,
+    `domain`           varchar(30)   NOT NULL,
     `content`          text          NOT NULL,
     `compiled_content` text          NOT NULL,
     `title`            varchar(150)  NOT NULL,
@@ -46,8 +46,8 @@ CREATE TABLE `posts`
     `score`            int(11) DEFAULT 0,
     `is_report`        tinyint(1)    NOT NULL,
     KEY (`category`),
-    CONSTRAINT T_type_Chk CHECK (`type_name` = 'normal' OR `type_name` = 'muxi'),
-    CONSTRAINT T_content_type_Chk CHECK (`type_name` = 'md' OR `type_name` = 'rtf'),
+    CONSTRAINT T_type_Chk CHECK (`domain` = 'normal' OR `domain` = 'muxi'),
+    CONSTRAINT T_content_type_Chk CHECK (`content_type` = 'md' OR `content_type` = 'rtf'),
     FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
 #     FULLTEXT KEY content_title_fulltext (`content`, `title`) # MySQL 5.7.6 才支持中文全文索引
 ) ENGINE = InnoDB
@@ -116,7 +116,7 @@ CREATE TABLE `post2tags`
 DROP TABLE IF EXISTS `feeds`;
 CREATE TABLE `feeds`
 (
-    `id`                            int(11) NOT NULL AUTO_INCREMENT,
+    `id`                            int(11) AUTO_INCREMENT PRIMARY KEY,
     `user_id`                       int(11)      DEFAULT NULL,
     `user_name`                     varchar(100) DEFAULT NULL,
     `user_avatar`                   varchar(200) DEFAULT NULL,
@@ -125,12 +125,12 @@ CREATE TABLE `feeds`
     `source_object_name`            varchar(100) DEFAULT NULL COMMENT 'object 包括  等，这里是它们的名字',
     `source_object_id`              int(11)      DEFAULT NULL COMMENT '对象的 id',
     `target_user_id`                int(11)      DEFAULT NULL,
-    `type_name`                     varchar(100) DEFAULT NULL,
+    `domain`                        varchar(100) DEFAULT NULL,
     `create_time`                   varchar(30)  DEFAULT NULL,
     `re`                            tinyint(1)   DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
     `is_public_feed`                tinyint(1)   DEFAULT NULL COMMENT '是否公开feed',
     `is_public_collection_and_like` tinyint(1)   DEFAULT NULL COMMENT '是否公开collection and like',
-    PRIMARY KEY (`id`)
+    CONSTRAINT T_type_Chk CHECK (`domain` = 'normal' OR `domain` = 'muxi')
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci

@@ -230,6 +230,9 @@ definitions:
       content_type:
         description: md or rtf
         type: string
+      domain:
+        description: normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal)
+        type: string
       summary:
         type: string
       tags:
@@ -238,17 +241,14 @@ definitions:
         type: array
       title:
         type: string
-      type_name:
-        description: normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal)
-        type: string
     required:
     - category
     - content
     - content_type
+    - domain
     - summary
     - tags
     - title
-    - type_name
     type: object
   post.GetPostResponse:
     properties:
@@ -293,6 +293,11 @@ definitions:
         type: string
       title:
         type: string
+    type: object
+  post.IdResponse:
+    properties:
+      id:
+        type: integer
     type: object
   post.ListMainPostResponse:
     properties:
@@ -865,7 +870,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Response'
+            $ref: '#/definitions/post.IdResponse'
       summary: 创建帖子 api
       tags:
       - post
@@ -943,12 +948,11 @@ paths:
       summary: 获取帖子 api
       tags:
       - post
-  /post/list/{type_name}:
+  /post/list/{domain}:
     get:
       consumes:
       - application/json
-      description: 'type_name : normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal);
-        根据category获取主帖list'
+      description: 根据category or tag 获取主帖list
       parameters:
       - description: token 用户令牌
         in: header
@@ -983,9 +987,9 @@ paths:
         in: query
         name: tag
         type: string
-      - description: type_name
+      - description: normal -> 团队外; muxi -> 团队内
         in: path
-        name: type_name
+        name: domain
         required: true
         type: string
       produces:
@@ -1227,7 +1231,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: 获取 my 完整 user 信息
+      description: '获取 my 完整 user 信息（权限 role: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员;
+        MuxiAdmin-团队管理员; SuperAdmin-超级管理员）'
       parameters:
       - description: token 用户令牌
         in: header
@@ -1248,8 +1253,8 @@ paths:
     get:
       consumes:
       - application/json
-      description: '通过 userId 获取完整 user 信息（权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员;
-        MuxiAdmin-团队管理员; SuperAdmin-超级管理员）'
+      description: '通过 userId 获取完整 user 信息（权限 role: Normal-普通学生用户; NormalAdmin-学生管理员;
+        Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员）'
       parameters:
       - description: token 用户令牌
         in: header

@@ -9,7 +9,7 @@ import (
 
 type PostModel struct {
 	Id              uint32
-	TypeName        string
+	Domain          string
 	Content         string
 	Title           string
 	CreateTime      string
@@ -126,7 +126,7 @@ func (d *Dao) ListMainPost(filter *PostModel, typeName string, offset, limit, la
 
 func (d *Dao) ListUserCreatedPost(creatorId uint32) ([]uint32, error) {
 	var postIds []uint32
-	err := d.DB.Table("posts").Select("id").Where("creator_id = ?", creatorId).Where("re = 0 AND ").Find(&postIds).Error
+	err := d.DB.Table("posts").Select("id").Where("creator_id = ? AND re = 0", creatorId).Find(&postIds).Error
 
 	return postIds, err
 }
@@ -154,8 +154,8 @@ func (d Dao) AddChangeRecord(postId uint32) error {
 	return d.Redis.SAdd("changed_posts", strconv.Itoa(int(postId))).Err()
 }
 
-// func (d Dao) ListHotPost(typeName, category string, offset, limit uint32, pagination bool) ([]*PostInfo, error) {
-// 	key := "hot:" + typeName
+// func (d Dao) ListHotPost(domain, category string, offset, limit uint32, pagination bool) ([]*PostInfo, error) {
+// 	key := "hot:" + domain
 // 	if category != "" {
 // 		key += ":" + category
 // 	}
@@ -192,7 +192,7 @@ func (d Dao) AddChangeRecord(postId uint32) error {
 // 	return list, nil
 // }
 
-func (d Dao) ListPostInfoByPostIds(postIds []uint32, offset, limit, lastId uint32, pagination bool) ([]*pb.PostPartInfo, error) {
+func (d Dao) ListPostInfoByPostIds(postIds []uint32, filter *PostModel, offset, limit, lastId uint32, pagination bool) ([]*pb.PostPartInfo, error) {
 	var posts []*pb.PostPartInfo
 	query := d.DB.Table("posts").Select("posts.id id, title, category, summary, content, last_edit_time time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.re = 0").Where("posts.id IN ?", postIds).Order("posts.id DESC")
 

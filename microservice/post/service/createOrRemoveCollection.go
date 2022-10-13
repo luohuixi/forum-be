@@ -10,7 +10,7 @@ import (
 	"forum/util"
 )
 
-func (s *PostService) CreateOrRemoveCollection(_ context.Context, req *pb.Request, resp *pb.CreateCollectionResponse) error {
+func (s *PostService) CreateOrRemoveCollection(_ context.Context, req *pb.Request, resp *pb.CreateOrRemoveCollectionResponse) error {
 	logger.Info("PostService CreateOrRemoveCollection")
 
 	var score int
@@ -52,7 +52,7 @@ func (s *PostService) CreateOrRemoveCollection(_ context.Context, req *pb.Reques
 
 	resp.UserId = post.CreatorId
 	resp.Content = post.Title
-	resp.TypeName = post.TypeName
+	resp.TypeName = post.Domain
 
 	return nil
 }

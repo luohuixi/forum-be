@@ -595,15 +595,15 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/Response"
+                            "$ref": "#/definitions/post.IdResponse"
                         }
                     }
                 }
             }
         },
-        "/post/list/{type_name}": {
+        "/post/list/{domain}": {
             "get": {
-                "description": "type_name : normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal); 根据category获取主帖list",
+                "description": "根据category or tag 获取主帖list",
                 "consumes": [
                     "application/json"
                 ],
@@ -666,8 +666,8 @@ const docTemplate = `{
                     },
                     {
                         "type": "string",
-                        "description": "type_name",
-                        "name": "type_name",
+                        "description": "normal -\u003e 团队外; muxi -\u003e 团队内",
+                        "name": "domain",
                         "in": "path",
                         "required": true
                     }
@@ -1102,7 +1102,7 @@ const docTemplate = `{
         },
         "/user/myprofile": {
             "get": {
-                "description": "获取 my 完整 user 信息",
+                "description": "获取 my 完整 user 信息（权限 role: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员）",
                 "consumes": [
                     "application/json"
                 ],
@@ -1134,7 +1134,7 @@ const docTemplate = `{
         },
         "/user/profile/{id}": {
             "get": {
-                "description": "通过 userId 获取完整 user 信息（权限: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员）",
+                "description": "通过 userId 获取完整 user 信息（权限 role: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员）",
                 "consumes": [
                     "application/json"
                 ],
@@ -1511,10 +1511,10 @@ const docTemplate = `{
                 "category",
                 "content",
                 "content_type",
+                "domain",
                 "summary",
                 "tags",
-                "title",
-                "type_name"
+                "title"
             ],
             "properties": {
                 "category": {
@@ -1530,6 +1530,10 @@ const docTemplate = `{
                     "description": "md or rtf",
                     "type": "string"
                 },
+                "domain": {
+                    "description": "normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal)",
+                    "type": "string"
+                },
                 "summary": {
                     "type": "string"
                 },
@@ -1540,10 +1544,6 @@ const docTemplate = `{
                     }
                 },
                 "title": {
-                    "type": "string"
-                },
-                "type_name": {
-                    "description": "normal -\u003e 团队外; muxi -\u003e 团队内 (type_name暂时均填normal)",
                     "type": "string"
                 }
             }
@@ -1611,6 +1611,14 @@ const docTemplate = `{
                 },
                 "title": {
                     "type": "string"
+                }
+            }
+        },
+        "post.IdResponse": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
                 }
             }
         },
