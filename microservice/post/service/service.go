@@ -9,10 +9,12 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/pkg/handler"
+
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
 	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/opentracing/opentracing-go"
 
-	upb "forum-user/proto"
+	pbu "forum-user/proto"
 
 	micro "go-micro.dev/v4"
 )
@@ -28,7 +30,7 @@ func New(i dao.Interface) *PostService {
 	return service
 }
 
-var UserClient upb.UserService
+var UserClient pbu.UserService
 
 func UserInit() {
 	service := micro.NewService(micro.Name("forum.cli.user"),
@@ -40,7 +42,7 @@ func UserInit() {
 
 	service.Init()
 
-	UserClient = upb.NewUserService("forum.service.user", service.Client())
+	UserClient = pbu.NewUserService("forum.service.user", service.Client())
 }
 
 func (s PostService) processComments(userId uint32, commentInfos []*dao.CommentInfo) []*pb.CommentInfo {
@@ -120,7 +122,7 @@ func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint
 }
 
 func (s PostService) GetUserDomain(userId uint32) (string, error) {
-	getResp, err := UserClient.GetProfile(context.TODO(), &upb.GetRequest{Id: userId})
+	getResp, err := UserClient.GetProfile(context.TODO(), &pbu.GetRequest{Id: userId})
 	if err != nil {
 		return "", err
 	}

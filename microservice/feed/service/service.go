@@ -6,7 +6,7 @@ import (
 	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/opentracing/opentracing-go"
 
-	upb "forum-user/proto"
+	pbu "forum-user/proto"
 
 	micro "go-micro.dev/v4"
 )
@@ -22,7 +22,7 @@ func New(i dao.Interface) *FeedService {
 	return service
 }
 
-var UserClient upb.UserService
+var UserClient pbu.UserService
 
 func UserInit() {
 	service := micro.NewService(micro.Name("forum.cli.user"),
@@ -34,5 +34,5 @@ func UserInit() {
 
 	service.Init()
 
-	UserClient = upb.NewUserService("forum.service.user", service.Client())
+	UserClient = pbu.NewUserService("forum.service.user", service.Client())
 }

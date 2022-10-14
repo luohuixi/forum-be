@@ -1,4 +1,4 @@
-module github.com/forum-be
+module github.com/Muxi-X/forum-be
 
 replace forum => ./
 

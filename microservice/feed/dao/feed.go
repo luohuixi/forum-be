@@ -39,8 +39,8 @@ func (Dao) Create(feed *FeedModel) (uint32, error) {
 }
 
 func (d Dao) Delete(id uint32) error {
-	var f *FeedModel
-	err := d.DB.Model(f).Where("id = ? AND re = 0", id).First(f).Error
+	var f FeedModel
+	err := d.DB.Model(f).Where("id = ? AND re = 0", id).First(&f).Error
 	if err != nil {
 		return err
 	}

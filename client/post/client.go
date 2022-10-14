@@ -13,7 +13,7 @@ func main() { // TODO
 
 	client := pb.NewPostService("forum.service.post", service.Client())
 
-	_, err := client.ListCollection(context.TODO(), &pb.UserIdRequest{
+	_, err := client.ListCollection(context.TODO(), &pb.ListPostPartInfoRequest{
 		UserId: 2,
 	})
 	if err != nil {

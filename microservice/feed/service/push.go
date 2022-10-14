@@ -4,7 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"forum-user/pkg/role"
-	upb "forum-user/proto"
+	pbu "forum-user/proto"
 	"forum/pkg/errno"
 	"forum/util"
 
@@ -17,7 +17,7 @@ import (
 func (s *FeedService) Push(_ context.Context, req *pb.PushRequest, _ *pb.Response) error {
 	logger.Info("FeedService Push")
 
-	getResp, err := UserClient.GetProfile(context.TODO(), &upb.GetRequest{Id: req.UserId})
+	getResp, err := UserClient.GetProfile(context.TODO(), &pbu.GetRequest{Id: req.UserId})
 	if err != nil {
 		return errno.ServerErr(errno.ErrRPC, err.Error())
 	}

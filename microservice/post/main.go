@@ -18,7 +18,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func initRpcClient() {
+func init() {
 	service.UserInit()
 }
 
@@ -50,8 +50,6 @@ func main() {
 	srv.Init()
 
 	dao.Init()
-
-	initRpcClient()
 
 	// Register handler
 	if err := pb.RegisterPostServiceHandler(srv.Server(), service.New(dao.GetDao())); err != nil {
