@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"forum/util"
 	"gorm.io/gorm"
 )
 
@@ -15,7 +14,7 @@ type CommentModel struct {
 	CreatorId  uint32
 	PostId     uint32
 	LikeNum    uint32
-	ImgUrls    util.Strings
+	ImgUrl     string
 }
 
 func (CommentModel) TableName() string {
@@ -52,7 +51,7 @@ type CommentInfo struct {
 	CreatorName   string
 	CreatorAvatar string
 	LikeNum       uint32
-	ImgUrls       util.Strings
+	ImgUrl        string
 }
 
 func (Dao) CreateComment(comment *CommentModel) (uint32, error) {
@@ -62,7 +61,7 @@ func (Dao) CreateComment(comment *CommentModel) (uint32, error) {
 
 func (d *Dao) ListCommentByPostId(postId uint32) ([]*CommentInfo, error) {
 	var comments []*CommentInfo
-	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num, img_urls").Joins("join users u on u.id = comments.creator_id").Where("post_id = ? AND comments.re = 0", postId).Find(&comments).Error
+	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num, img_url").Joins("join users u on u.id = comments.creator_id").Where("post_id = ? AND comments.re = 0", postId).Find(&comments).Error
 
 	return comments, err
 }
@@ -78,7 +77,7 @@ func (d *Dao) GetComment(id uint32) (*CommentModel, error) {
 
 func (d *Dao) GetCommentInfo(commentId uint32) (*CommentInfo, error) {
 	var comment CommentInfo
-	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time, comments.creator_id, post_id, u.name creator_name, u.avatar creator_avatar, like_num, img_urls").Joins("join users u on u.id = comments.creator_id").Where("comments.id = ? AND comments.re = 0", commentId).First(&comment).Error
+	err := d.DB.Table("comments").Select("comments.id id, type_name, content, father_id, create_time, comments.creator_id, post_id, u.name creator_name, u.avatar creator_avatar, like_num, img_url").Joins("join users u on u.id = comments.creator_id").Where("comments.id = ? AND comments.re = 0", commentId).First(&comment).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

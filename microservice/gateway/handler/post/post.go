@@ -76,7 +76,7 @@ type GetPostResponse struct {
 
 type SubPost struct {
 	info
-	ImgUrls    []string   `json:"img_urls"`
+	ImgUrl     string     `json:"img_url"`
 	CommentNum uint32     `json:"comment_num"`
 	Comments   []*Comment `json:"comments"`
 }

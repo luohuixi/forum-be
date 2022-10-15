@@ -90,7 +90,7 @@ message CreateCommentRequest {
     uint32 father_id = 3;
     string content = 4;
     uint32 creator_id = 5;
-    repeated string img_urls = 6;
+    string img_url = 6;
 }
 
 message CommentInfo {
@@ -107,7 +107,7 @@ message CommentInfo {
     uint32 be_replied_user_id = 11;
     string be_replied_user_name = 12;
     string father_content = 13;
-    repeated string img_urls = 14;
+    string img_url = 14;
 }
 
 message Request {

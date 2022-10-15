@@ -69,15 +69,15 @@ func (d *Dao) ListHistory(userId, otherUserId, offset, limit uint32, pagination 
 		end = int64(offset + limit)
 	}
 
-	list, err := d.Redis.LRange(key, start, end).Result()
+	list, err := d.Redis.ZRevRange(key, start, end).Result() // DESC
 	if err != nil {
 		return nil, err
 	}
 
 	histories := make([]*pb.Message, len(list))
-	for i := 0; i < len(list); i++ {
+	for i, history := range list {
 		var msg pb.Message
-		if err := json.Unmarshal([]byte(list[i]), &msg); err != nil {
+		if err := json.Unmarshal([]byte(history), &msg); err != nil {
 			return nil, err
 		}
 		histories[i] = &msg

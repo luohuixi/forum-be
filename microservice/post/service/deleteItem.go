@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/model"
@@ -13,10 +12,15 @@ import (
 func (s *PostService) DeleteItem(_ context.Context, req *pb.DeleteItemRequest, _ *pb.Response) error {
 	logger.Info("PostService DeleteItem")
 
-	err := s.Dao.DeleteItem(dao.Item{
-		Id:       req.Id,
-		TypeName: req.TypeName,
-	})
+	var err error
+
+	if req.TypeName == constvar.Post {
+		err = s.Dao.DeletePost(req.Id)
+	} else if req.TypeName == constvar.Comment {
+		err = s.Dao.DeleteComment(req.Id)
+	} else {
+		return errno.ServerErr(errno.ErrBadRequest, "wrong TypeName")
+	}
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}

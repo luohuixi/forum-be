@@ -58,14 +58,14 @@ func (s *UserService) TeamLogin(_ context.Context, req *pb.TeamLoginRequest, res
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 
-		if err := s.Dao.AddPublicPolicy(user.Role, user.Id); err != nil {
-			return errno.ServerErr(errno.ErrCasbin, err.Error())
-		}
-
 		// 注册后重新查询
 		user, err = s.Dao.GetUserByEmail(userInfo.Email)
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
+
+		if err := s.Dao.AddPublicPolicy(user.Role, user.Id); err != nil {
+			return errno.ServerErr(errno.ErrCasbin, err.Error())
 		}
 
 		if err := model.AddRole("user", user.Id, constvar.MuxiRole); err != nil {

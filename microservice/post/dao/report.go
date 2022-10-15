@@ -51,12 +51,7 @@ func (d Dao) ValidReport(postId uint32) error {
 		return err
 	}
 
-	post, err := d.GetPost(postId)
-	if err != nil {
-		tx.Rollback()
-		return err
-	}
-	if err := post.Delete(); err != nil {
+	if err := d.DeletePost(postId); err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -81,7 +76,7 @@ func (d Dao) InValidReport(id, postId uint32) error {
 		}
 
 		post.IsReport = false
-		return post.Save()
+		return post.Save(dao.DB)
 	}
 
 	return nil

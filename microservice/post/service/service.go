@@ -75,7 +75,7 @@ func (s PostService) processComments(userId uint32, commentInfos []*dao.CommentI
 			CreatorAvatar: comment.CreatorAvatar,
 			LikeNum:       uint32(num),
 			IsLiked:       isLiked,
-			ImgUrls:       comment.ImgUrls,
+			ImgUrl:        comment.ImgUrl,
 		}
 	}
 

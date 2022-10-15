@@ -57,7 +57,7 @@ func (a *Api) Create(c *gin.Context) {
 		FatherId:  req.FatherId,
 		Content:   req.Content,
 		CreatorId: userId,
-		ImgUrls:   req.ImgUrls,
+		ImgUrl:    req.ImgUrl,
 	}
 
 	createResp, err := service.PostClient.CreateComment(context.TODO(), &createReq)
@@ -91,7 +91,7 @@ func (a *Api) Create(c *gin.Context) {
 		CreatorAvatar: createResp.CreatorAvatar,
 		LikeNum:       0,
 		IsLiked:       false,
-		ImgUrls:       req.ImgUrls,
+		ImgUrl:        req.ImgUrl,
 	}
 
 	if req.TypeName == constvar.SecondLevelComment {

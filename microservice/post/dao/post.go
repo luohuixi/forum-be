@@ -35,8 +35,13 @@ func (p *PostModel) Create() error {
 }
 
 // Save ...
-func (p *PostModel) Save() error {
-	return dao.DB.Save(p).Error
+func (p *PostModel) Save(tx ...*gorm.DB) error {
+	db := dao.DB
+	if len(tx) == 1 {
+		db = tx[0]
+	}
+
+	return db.Save(p).Error
 }
 
 func (p *PostModel) Update() error {
@@ -52,9 +57,9 @@ func (p *PostModel) Update() error {
 	return err
 }
 
-func (p *PostModel) Delete() error {
+func (p *PostModel) Delete(tx *gorm.DB) error {
 	p.Re = true
-	return p.Save()
+	return p.Save(tx)
 }
 
 func (p *PostModel) Get(id uint32) error {
@@ -147,7 +152,7 @@ func (Dao) GetPost(id uint32) (*PostModel, error) {
 }
 
 func (d Dao) ChangePostScore(postId uint32, score int) error {
-	return d.Redis.ZIncrBy("posts", float64(score), strconv.Itoa(int(postId))).Err()
+	return d.Redis.ZIncrBy("posts:", float64(score), strconv.Itoa(int(postId))).Err()
 }
 
 func (d Dao) AddChangeRecord(postId uint32) error {
@@ -242,7 +247,7 @@ func (d Dao) ListPostInfoByPostIds(postIds []uint32, filter *PostModel, offset, 
 }
 
 func (d Dao) syncPostScore() error {
-	result, err := d.Redis.ZRevRangeWithScores("posts", 0, -1).Result()
+	result, err := d.Redis.ZRevRangeWithScores("posts:", 0, -1).Result()
 	if err != nil {
 		return err
 	}

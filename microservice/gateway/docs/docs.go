@@ -1400,11 +1400,8 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "img_urls": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "img_url": {
+                    "type": "string"
                 },
                 "is_liked": {
                     "type": "boolean"
@@ -1433,11 +1430,8 @@ const docTemplate = `{
                 "father_id": {
                     "type": "integer"
                 },
-                "img_urls": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "img_url": {
+                    "type": "string"
                 },
                 "post_id": {
                     "type": "integer"
@@ -1783,11 +1777,8 @@ const docTemplate = `{
                 "id": {
                     "type": "integer"
                 },
-                "img_urls": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "img_url": {
+                    "type": "string"
                 },
                 "is_liked": {
                     "type": "boolean"

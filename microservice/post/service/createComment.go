@@ -59,7 +59,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		Re:         false,
 		CreatorId:  req.CreatorId,
 		PostId:     req.PostId,
-		ImgUrls:    req.ImgUrls,
+		ImgUrl:     req.ImgUrl,
 	}
 
 	commentId, err := s.Dao.CreateComment(data)

@@ -1393,11 +1393,8 @@
                 "id": {
                     "type": "integer"
                 },
-                "img_urls": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "img_url": {
+                    "type": "string"
                 },
                 "is_liked": {
                     "type": "boolean"
@@ -1426,11 +1423,8 @@
                 "father_id": {
                     "type": "integer"
                 },
-                "img_urls": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "img_url": {
+                    "type": "string"
                 },
                 "post_id": {
                     "type": "integer"
@@ -1776,11 +1770,8 @@
                 "id": {
                     "type": "integer"
                 },
-                "img_urls": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
+                "img_url": {
+                    "type": "string"
                 },
                 "is_liked": {
                     "type": "boolean"

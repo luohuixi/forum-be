@@ -1,7 +1,6 @@
 package dao
 
 import (
-	"errors"
 	pb "forum-post/proto"
 	"forum/log"
 	"forum/model"
@@ -24,8 +23,6 @@ type Dao struct {
 
 // Interface dao
 type Interface interface {
-	DeleteItem(Item) error
-
 	CreatePost(*PostModel) (uint32, error)
 	ListUserCreatedPost(uint32) ([]uint32, error)
 	ListMainPost(*PostModel, string, uint32, uint32, uint32, bool, string, uint32) ([]*PostInfo, error)
@@ -33,12 +30,14 @@ type Interface interface {
 	GetPost(uint32) (*PostModel, error)
 	IsUserCollectionPost(uint32, uint32) (bool, error)
 	ListPostInfoByPostIds([]uint32, *PostModel, uint32, uint32, uint32, bool) ([]*pb.PostPartInfo, error)
+	DeletePost(uint32, ...*gorm.DB) error
 
 	CreateComment(*CommentModel) (uint32, error)
 	GetCommentInfo(uint32) (*CommentInfo, error)
 	GetComment(uint32) (*CommentModel, error)
 	ListCommentByPostId(uint32) ([]*CommentInfo, error)
 	GetCommentNumByPostId(uint32) (uint32, error)
+	DeleteComment(uint32) error
 
 	AddLike(uint32, Item) error
 	RemoveLike(uint32, Item) error
@@ -111,26 +110,31 @@ func GetDao() *Dao {
 	return dao
 }
 
-func (d Dao) DeleteItem(i Item) error {
-	if i.TypeName == constvar.Post {
-		item := &PostModel{}
-		if err := item.Get(i.Id); err != nil {
-			return err
-		}
-		if err := item.Delete(); err != nil {
-			return err
-		}
-		return d.Redis.ZRem("posts", i.Id).Err()
-	} else if i.TypeName == constvar.Comment {
-		item := &CommentModel{}
-		if err := item.Get(i.Id); err != nil {
-			return err
-		}
-		if err := item.Delete(); err != nil {
-			return err
-		}
-		return d.ChangePostScore(item.PostId, -constvar.CommentScore)
-	} else {
-		return errors.New("wrong TypeName")
+func (d Dao) DeletePost(id uint32, tx ...*gorm.DB) error {
+	db := d.DB
+	if len(tx) == 1 {
+		db = tx[0]
 	}
+
+	post := &PostModel{}
+	if err := post.Get(id); err != nil {
+		return err
+	}
+	if err := post.Delete(db); err != nil {
+		return err
+	}
+	// TODO delete tag if len = 0
+	return d.Redis.ZRem("posts:", id).Err()
+}
+
+func (d Dao) DeleteComment(id uint32) error {
+	comment := &CommentModel{}
+	if err := comment.Get(id); err != nil {
+		return err
+	}
+	if err := comment.Delete(); err != nil {
+		return err
+	}
+	return d.ChangePostScore(comment.PostId, -constvar.CommentScore)
+
 }
