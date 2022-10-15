@@ -182,3 +182,30 @@ func (d *Dao) ListPopularTags(category string) ([]string, error) {
 
 	return tags, nil
 }
+
+func (d Dao) deletePost2TagByPostId(postId uint32, tx ...*gorm.DB) error {
+	db := d.DB
+	if len(tx) == 1 {
+		db = tx[0]
+	}
+
+	return db.Table("post2tags").Where("post_id = ?", postId).Delete(&Post2TagModel{}).Error
+}
+
+func (d Dao) isExistPostWithTagId(tagId int) (bool, error) {
+	var count int64
+	if err := d.DB.Table("post2tags").Where("tag_id = ?", tagId).Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	return count != 0, nil
+}
+
+func (d Dao) isExistPostWithTagIdAndCategory(tagId int, category string) (bool, error) {
+	var count int64
+	if err := d.DB.Table("post2tags").Joins("join posts p on p.id = post2tags.post_id").Where("tag_id = ? AND category = ?", tagId, category).Count(&count).Error; err != nil {
+		return false, err
+	}
+
+	return count != 0, nil
+}

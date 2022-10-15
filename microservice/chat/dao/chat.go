@@ -69,7 +69,7 @@ func (d *Dao) ListHistory(userId, otherUserId, offset, limit uint32, pagination 
 		end = int64(offset + limit)
 	}
 
-	list, err := d.Redis.ZRevRange(key, start, end).Result() // DESC
+	list, err := d.Redis.LRange(key, start, end).Result() // DESC
 	if err != nil {
 		return nil, err
 	}
@@ -100,7 +100,7 @@ func (d *Dao) CreateHistory(userId uint32, list []string) error {
 			min, msg.Sender = msg.Sender, min
 		}
 
-		if err := d.Redis.RPush("history:"+strconv.Itoa(int(min))+"-"+strconv.Itoa(int(msg.Sender)), list[i-1]).Err(); err != nil {
+		if err := d.Redis.LPush("history:"+strconv.Itoa(int(min))+"-"+strconv.Itoa(int(msg.Sender)), list[i-1]).Err(); err != nil {
 			return err
 		}
 	}

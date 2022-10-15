@@ -123,7 +123,59 @@ func (d Dao) DeletePost(id uint32, tx ...*gorm.DB) error {
 	if err := post.Delete(db); err != nil {
 		return err
 	}
-	// TODO delete tag if len = 0
+
+	ch := make(chan struct{})
+
+	go func() {
+		tags, err := d.ListTagsByPostId(id)
+		ch <- struct{}{}
+		if err != nil {
+			log.Error(err.Error())
+			return
+		}
+
+		for _, tag := range tags {
+			tagId, err := d.getTagIdByContent(tag)
+			if err != nil {
+				log.Error(err.Error())
+				return
+			}
+
+			isExist, err := d.isExistPostWithTagId(tagId)
+			if err != nil {
+				log.Error(err.Error())
+				return
+			}
+
+			if !isExist {
+				if err := d.Redis.ZRem("tags:", tagId).Err(); err != nil {
+					log.Error(err.Error())
+					return
+				}
+
+			} else {
+				isExist, err := d.isExistPostWithTagIdAndCategory(tagId, post.Category)
+				if err != nil {
+					log.Error(err.Error())
+					return
+				}
+
+				if !isExist {
+					if err := d.Redis.ZRem("tags:"+post.Category, tagId).Err(); err != nil {
+						log.Error(err.Error())
+						return
+					}
+				}
+			}
+
+		}
+	}()
+
+	<-ch // 上面获取成功后再删除
+	if err := d.deletePost2TagByPostId(id); err != nil {
+		return err
+	}
+
 	return d.Redis.ZRem("posts:", id).Err()
 }
 
