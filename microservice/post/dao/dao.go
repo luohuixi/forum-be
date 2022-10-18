@@ -153,7 +153,6 @@ func (d Dao) DeletePost(id uint32, tx ...*gorm.DB) error {
 					return
 				}
 
-			} else {
 				isExist, err := d.isExistPostWithTagIdAndCategory(tagId, post.Category)
 				if err != nil {
 					log.Error(err.Error())
@@ -187,6 +186,6 @@ func (d Dao) DeleteComment(id uint32) error {
 	if err := comment.Delete(); err != nil {
 		return err
 	}
-	return d.ChangePostScore(comment.PostId, -constvar.CommentScore)
 
+	return d.ChangePostScore(comment.PostId, -constvar.CommentScore)
 }

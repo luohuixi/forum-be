@@ -44,7 +44,7 @@ func (d *Dao) GetList(id uint32, expiration time.Duration) ([]string, error) {
 
 // Rewrite 未成功发送的消息逆序放回list的Right
 func (d *Dao) Rewrite(id uint32, list []string) error {
-	log.Info("rewrite")
+	log.Info("Rewrite")
 
 	for i := len(list); i > 0; i-- {
 		if err := d.Redis.RPush("chat:"+strconv.Itoa(int(id)), list[i-1]).Err(); err != nil {
