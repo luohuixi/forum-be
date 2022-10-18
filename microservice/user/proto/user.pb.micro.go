@@ -41,6 +41,8 @@ type UserService interface {
 	GetInfo(ctx context.Context, in *GetInfoRequest, opts ...client.CallOption) (*UserInfoResponse, error)
 	GetProfile(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*UserProfile, error)
 	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
+	ListMessage(ctx context.Context, in *ListMessageRequest, opts ...client.CallOption) (*ListMessageResponse, error)
+	CreateMessage(ctx context.Context, in *CreateMessageRequest, opts ...client.CallOption) (*Response, error)
 	UpdateInfo(ctx context.Context, in *UpdateInfoRequest, opts ...client.CallOption) (*Response, error)
 }
 
@@ -106,6 +108,26 @@ func (c *userService) List(ctx context.Context, in *ListRequest, opts ...client.
 	return out, nil
 }
 
+func (c *userService) ListMessage(ctx context.Context, in *ListMessageRequest, opts ...client.CallOption) (*ListMessageResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.ListMessage", in)
+	out := new(ListMessageResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) CreateMessage(ctx context.Context, in *CreateMessageRequest, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "UserService.CreateMessage", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userService) UpdateInfo(ctx context.Context, in *UpdateInfoRequest, opts ...client.CallOption) (*Response, error) {
 	req := c.c.NewRequest(c.name, "UserService.UpdateInfo", in)
 	out := new(Response)
@@ -124,6 +146,8 @@ type UserServiceHandler interface {
 	GetInfo(context.Context, *GetInfoRequest, *UserInfoResponse) error
 	GetProfile(context.Context, *GetRequest, *UserProfile) error
 	List(context.Context, *ListRequest, *ListResponse) error
+	ListMessage(context.Context, *ListMessageRequest, *ListMessageResponse) error
+	CreateMessage(context.Context, *CreateMessageRequest, *Response) error
 	UpdateInfo(context.Context, *UpdateInfoRequest, *Response) error
 }
 
@@ -134,6 +158,8 @@ func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts .
 		GetInfo(ctx context.Context, in *GetInfoRequest, out *UserInfoResponse) error
 		GetProfile(ctx context.Context, in *GetRequest, out *UserProfile) error
 		List(ctx context.Context, in *ListRequest, out *ListResponse) error
+		ListMessage(ctx context.Context, in *ListMessageRequest, out *ListMessageResponse) error
+		CreateMessage(ctx context.Context, in *CreateMessageRequest, out *Response) error
 		UpdateInfo(ctx context.Context, in *UpdateInfoRequest, out *Response) error
 	}
 	type UserService struct {
@@ -165,6 +191,14 @@ func (h *userServiceHandler) GetProfile(ctx context.Context, in *GetRequest, out
 
 func (h *userServiceHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
 	return h.UserServiceHandler.List(ctx, in, out)
+}
+
+func (h *userServiceHandler) ListMessage(ctx context.Context, in *ListMessageRequest, out *ListMessageResponse) error {
+	return h.UserServiceHandler.ListMessage(ctx, in, out)
+}
+
+func (h *userServiceHandler) CreateMessage(ctx context.Context, in *CreateMessageRequest, out *Response) error {
+	return h.UserServiceHandler.CreateMessage(ctx, in, out)
 }
 
 func (h *userServiceHandler) UpdateInfo(ctx context.Context, in *UpdateInfoRequest, out *Response) error {

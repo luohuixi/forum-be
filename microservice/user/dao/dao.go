@@ -2,6 +2,7 @@ package dao
 
 import (
 	"forum/model"
+	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 )
 
@@ -11,7 +12,8 @@ var (
 
 // Dao .
 type Dao struct {
-	DB *gorm.DB
+	DB    *gorm.DB
+	Redis *redis.Client
 }
 
 // Interface dao
@@ -23,6 +25,9 @@ type Interface interface {
 	GetUserByStudentId(studentId string) (*UserModel, error)
 	RegisterUser(info *RegisterInfo) error
 	AddPublicPolicy(string, uint32) error
+
+	ListMessage(uint32) ([]string, error)
+	CreateMessage(uint32, string) error
 }
 
 // Init init dao
@@ -36,11 +41,15 @@ func Init() {
 	// init db
 	model.DB.Init()
 
+	// init redis
+	model.RedisDB.Init()
+
 	// init casbin
 	model.CB.Init()
 
 	dao = &Dao{
-		DB: model.DB.Self,
+		DB:    model.DB.Self,
+		Redis: model.RedisDB.Self,
 	}
 }
 

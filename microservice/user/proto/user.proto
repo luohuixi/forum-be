@@ -11,7 +11,23 @@ service UserService {
   rpc GetProfile(GetRequest) returns (UserProfile) {}
   rpc List(ListRequest) returns (ListResponse) {}
 
+  rpc ListMessage(ListMessageRequest)returns (ListMessageResponse) {}
+  rpc CreateMessage(CreateMessageRequest)returns (Response) {}
+
   rpc UpdateInfo(UpdateInfoRequest) returns (Response) {}
+}
+
+message CreateMessageRequest {
+  uint32 user_id = 1;
+  string message = 2;
+}
+
+message ListMessageRequest {
+  uint32 user_id = 1;
+}
+
+message ListMessageResponse {
+  repeated string messages = 1;
 }
 
 message StudentLoginRequest {
