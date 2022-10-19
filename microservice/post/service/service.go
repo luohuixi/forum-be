@@ -129,3 +129,17 @@ func (s PostService) GetUserDomain(userId uint32) (string, error) {
 
 	return role.Role2Domain(getResp.Role), nil
 }
+
+func (s PostService) CreateMessage(userId uint32, message string) {
+	go func() {
+		req := &pbu.CreateMessageRequest{
+			Message: message,
+			UserId:  userId,
+		}
+
+		_, err := UserClient.CreateMessage(context.TODO(), req)
+		if err != nil {
+			logger.Error(errno.ErrRPC.Error(), logger.String(err.Error()))
+		}
+	}()
+}

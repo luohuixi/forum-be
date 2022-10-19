@@ -502,6 +502,20 @@ definitions:
       role:
         type: string
     type: object
+  user.CreateMessageRequest:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  user.ListMessageResponse:
+    properties:
+      messages:
+        items:
+          type: string
+        type: array
+    type: object
 host: forum.muxixyz.com
 info:
   contact: {}
@@ -1219,6 +1233,52 @@ paths:
           schema:
             $ref: '#/definitions/ListResponse'
       summary: list user api
+      tags:
+      - user
+  /user/message:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_message_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 创建 公共 message api
+      tags:
+      - user
+  /user/message/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ListMessageResponse'
+      summary: list user message api
       tags:
       - user
   /user/myprofile:

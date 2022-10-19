@@ -85,3 +85,11 @@ type UpdateInfoRequest struct {
 	IsPublicFeed              bool   `json:"is_public_feed"`
 	IsPublicCollectionAndLike bool   `json:"is_public_collection_and_like"`
 } // @name UpdateInfoRequest
+
+type ListMessageResponse struct {
+	Messages []string `json:"messages"`
+}
+
+type CreateMessageRequest struct {
+	Message string `json:"message" binding:"required"`
+}

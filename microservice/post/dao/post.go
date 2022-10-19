@@ -80,6 +80,7 @@ type PostInfo struct {
 	ContentType     string
 	CompiledContent string
 	Summary         string
+	Domain          string
 }
 
 func (Dao) CreatePost(post *PostModel) (uint32, error) {
@@ -89,7 +90,7 @@ func (Dao) CreatePost(post *PostModel) (uint32, error) {
 
 func (d *Dao) ListMainPost(filter *PostModel, typeName string, offset, limit, lastId uint32, pagination bool, searchContent string, tagId uint32) ([]*PostInfo, error) {
 	var posts []*PostInfo
-	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0 AND posts.is_report = 0")
+	query := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type, summary, domain").Joins("join users u on u.id = posts.creator_id").Where(filter).Where("posts.re = 0 AND posts.is_report = 0")
 
 	if pagination {
 		if limit == 0 {

@@ -81,6 +81,19 @@ func (a *Api) ListMainPost(c *gin.Context) {
 
 	tag := c.DefaultQuery("tag", "")
 
+	if domain == constvar.NormalDomain {
+		ok, err := model.Enforce(userId, constvar.Post, constvar.MuxiDomain, constvar.Read)
+		if err != nil {
+			SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
+			return
+		}
+
+		// 团队用户normal默认获取所有帖子
+		if ok {
+			domain = constvar.AllDomain
+		}
+	}
+
 	listReq := &pb.ListMainPostRequest{
 		UserId:        userId,
 		Category:      category,

@@ -27,9 +27,5 @@ func (d Dao) CreateMessage(userId uint32, message string) error {
 		key += strconv.Itoa(int(userId))
 	}
 
-	if err := d.Redis.LPush(key, message).Err(); err != nil {
-		return err
-	}
-
-	return nil
+	return d.Redis.LPush(key, message).Err()
 }

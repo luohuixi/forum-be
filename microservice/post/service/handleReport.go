@@ -26,6 +26,9 @@ func (s *PostService) HandleReport(_ context.Context, req *pb.HandleReportReques
 		if err := s.Dao.ValidReport(report.PostId); err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
+
+		s.CreateMessage(report.UserId, "One of your posts has been deleted")
+
 	} else if req.Result == constvar.InvalidReport {
 		if err := s.Dao.InValidReport(req.Id, report.PostId); err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())

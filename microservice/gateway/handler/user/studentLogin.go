@@ -38,7 +38,6 @@ func StudentLogin(c *gin.Context) {
 	}
 
 	loginResp, err := service.UserClient.StudentLogin(context.TODO(), loginReq)
-
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

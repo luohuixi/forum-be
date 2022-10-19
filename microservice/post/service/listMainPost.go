@@ -5,6 +5,7 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 )
 
@@ -12,8 +13,11 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 	logger.Info("PostService ListMainPost")
 
 	filter := &dao.PostModel{
-		Domain:   req.Domain,
 		Category: req.Category,
+	}
+
+	if req.Domain != constvar.AllDomain {
+		filter.Domain = req.Domain
 	}
 
 	tag, err := s.Dao.GetTagByContent(req.Tag)
@@ -51,6 +55,7 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 			ContentType:   post.ContentType,
 			Summary:       post.Summary,
 			CollectionNum: collectionNum,
+			Domain:        post.Domain,
 		}
 	}
 

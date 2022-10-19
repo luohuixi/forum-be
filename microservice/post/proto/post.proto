@@ -198,8 +198,9 @@ message Post {
     string compiled_content = 14;
     string summary = 15;
     uint32 collection_num = 16;
-    repeated string tags = 17;
-    repeated CommentInfo comments = 18;
+    string domain = 17;
+    repeated string tags = 18;
+    repeated CommentInfo comments = 19;
 }
 
 message Tags {

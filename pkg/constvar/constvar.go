@@ -31,6 +31,7 @@ const (
 	// domain
 	NormalDomain = "normal"
 	MuxiDomain   = "muxi"
+	AllDomain    = "all"
 
 	// casbin
 	Write = "write"
