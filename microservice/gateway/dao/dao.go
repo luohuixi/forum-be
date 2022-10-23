@@ -10,11 +10,14 @@ var (
 
 // Dao .
 type Dao struct {
+	LimiterManager *LimiterManager
 	// Redis *redis.Client
 }
 
 // Interface dao
-type Interface interface{}
+type Interface interface {
+	AllowN(userId uint32, n int) bool
+}
 
 // Init init dao
 func Init() {
@@ -33,11 +36,18 @@ func Init() {
 	// init casbin
 	model.CB.Init()
 
+	limiterManager := initLimiterManager()
+
 	dao = &Dao{
+		LimiterManager: limiterManager,
 		// Redis: model.RedisDB.Self,
 	}
 }
 
 func GetDao() *Dao {
 	return dao
+}
+
+func (d Dao) AllowN(userId uint32, n int) bool {
+	return d.LimiterManager.allowN(userId, n)
 }

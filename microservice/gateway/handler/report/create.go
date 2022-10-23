@@ -32,9 +32,14 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
+	if req.TypeName != constvar.Post && req.TypeName != constvar.Comment {
+		SendError(c, errno.ErrBadRequest, nil, "type_name must be "+constvar.Post+" or "+constvar.Comment, GetLine())
+		return
+	}
+
 	userId := c.MustGet("userId").(uint32)
 
-	ok, err := model.Enforce(userId, constvar.Post, req.PostId, constvar.Read)
+	ok, err := model.Enforce(userId, req.TypeName, req.Id, constvar.Read)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
@@ -45,10 +50,16 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
+	if ok := a.Dao.AllowN(userId, 20); !ok {
+		SendError(c, errno.ErrExceededTrafficLimit, nil, "Please try again later", GetLine())
+		return
+	}
+
 	createReq := pb.CreateReportRequest{
 		UserId:   userId,
-		PostId:   req.PostId,
+		Id:       req.Id,
 		TypeName: req.TypeName,
+		Category: req.Category,
 		Cause:    req.Cause,
 	}
 

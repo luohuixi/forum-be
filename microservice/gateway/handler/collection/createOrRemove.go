@@ -47,6 +47,11 @@ func (a *Api) CreateOrRemove(c *gin.Context) {
 		return
 	}
 
+	if ok := a.Dao.AllowN(userId, 2); !ok {
+		SendError(c, errno.ErrExceededTrafficLimit, nil, "Please try again later", GetLine())
+		return
+	}
+
 	createReq := pb.Request{
 		UserId: userId,
 		Id:     uint32(postId),

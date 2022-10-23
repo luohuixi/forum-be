@@ -1,17 +1,19 @@
 package dao
 
 import (
+	"errors"
 	pb "forum-post/proto"
 	"forum/pkg/constvar"
 )
 
 type ReportModel struct {
 	Id         uint32
+	TargetId   uint32
 	UserId     uint32
 	CreateTime string
-	PostId     uint32
 	TypeName   string
 	Cause      string
+	Category   string
 }
 
 func (ReportModel) TableName() string {
@@ -38,7 +40,7 @@ func (d Dao) GetReport(id uint32) (*ReportModel, error) {
 	return &report, err
 }
 
-func (d Dao) ValidReport(postId uint32) error {
+func (d Dao) ValidReport(typeName string, targetId uint32) error {
 	tx := d.DB.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -46,12 +48,22 @@ func (d Dao) ValidReport(postId uint32) error {
 		}
 	}()
 
-	if err := tx.Table("reports").Where("post_id = ?", postId).Delete(&ReportModel{}).Error; err != nil {
+	if err := tx.Table("reports").Where("type_name = ? AND id = ?", typeName, targetId).Delete(&ReportModel{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-	if err := d.DeletePost(postId); err != nil {
+	var err error
+
+	if typeName == constvar.Post {
+		err = d.DeletePost(targetId)
+	} else if typeName == constvar.Comment {
+		err = d.DeleteComment(targetId)
+	} else {
+		err = errors.New("wrong TypeName")
+	}
+
+	if err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -59,24 +71,29 @@ func (d Dao) ValidReport(postId uint32) error {
 	return tx.Commit().Error
 }
 
-func (d Dao) InValidReport(id, postId uint32) error {
+func (d Dao) InValidReport(id uint32, typeName string, targetId uint32) error {
 	if err := d.DB.Table("reports").Where("id = ?", id).Delete(&ReportModel{}).Error; err != nil {
 		return err
 	}
 
-	count, err := d.GetReportNumByPostId(postId)
+	count, err := d.GetReportNumByTypeNameAndId(typeName, targetId)
 	if err != nil {
 		return err
 	}
 
 	if count == constvar.BanNumber-1 { // cancel auto ban
-		post, err := d.GetPost(postId)
-		if err != nil {
-			return err
+
+		var item BeReporter
+
+		if typeName == constvar.Post {
+			item, err = d.GetPost(targetId)
+		} else if typeName == constvar.Comment {
+			item, err = d.GetComment(targetId)
+		} else {
+			return errors.New("wrong TypeName")
 		}
 
-		post.IsReport = false
-		return post.Save(dao.DB)
+		return item.BeReported()
 	}
 
 	return nil
@@ -84,7 +101,8 @@ func (d Dao) InValidReport(id, postId uint32) error {
 
 func (d *Dao) ListReport(offset, limit, lastId uint32, pagination bool) ([]*pb.Report, error) {
 	var reports []*pb.Report
-	query := d.DB.Table("reports").Select("reports.id id, reports.post_id, reports.user_id, reports.create_time, cause, reports.type_name, u.name user_name, u.avatar user_avatar, u2.id be_reported_user_id, u2.name be_reported_user_name, p.title post_title").Joins("join users u on u.id = reports.user_id").Joins("join posts p on p.id = reports.post_id").Joins("join users u2 on u2.id = p.creator_id")
+
+	query := d.DB.Table("reports").Select("reports.id id, reports.target_id, reports.user_id, reports.create_time, reports.category, cause, reports.type_name, u.name user_name, u.avatar user_avatar").Joins("join users u on u.id = reports.user_id")
 
 	if pagination {
 		if limit == 0 {
@@ -98,27 +116,42 @@ func (d *Dao) ListReport(offset, limit, lastId uint32, pagination bool) ([]*pb.R
 		}
 	}
 
-	err := query.Scan(&reports).Error
+	if err := query.Scan(&reports).Error; err != nil {
+		return nil, err
+	}
 
-	return reports, err
+	for i, report := range reports {
+		if report.TypeName == constvar.Post {
+			if err := d.DB.Select("title be_reported_content, u.id be_reported_user_id, u.name be_reported_user_name").Joins("join posts p on p.id = reports.target_id").Joins("join users u on u.id = p.creator_id").Where("reports.id = ?", report.Id).First(&reports[i]).Error; err != nil {
+				return nil, err
+			}
+		} else if report.TypeName == constvar.Comment {
+			if err := d.DB.Select("content be_reported_content, u.id be_reported_user_id, u.name be_reported_user_name").Joins("join comments c on c.id = reports.target_id").Joins("join users u on u.id = c.creator_id").Where("reports.id = ?", report.Id).First(&reports[i]).Error; err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, errors.New("wrong TypeName")
+		}
+	}
+
+	return reports, nil
 }
 
-func (d *Dao) GetReportNumByPostId(postId uint32) (uint32, error) {
+func (d *Dao) GetReportNumByTypeNameAndId(typeName string, id uint32) (uint32, error) {
 	var count int64
-	err := d.DB.Model(&ReportModel{}).Where("post_id = ?", postId).Count(&count).Error
+	err := d.DB.Model(&ReportModel{}).Where("type_name = ? AND id = ?", typeName, id).Count(&count).Error
 	return uint32(count), err
 }
 
-func (d *Dao) IsUserHadReportPost(userId uint32, postId uint32) (bool, error) {
-	_, err := d.GetPost(postId)
-	if err != nil {
-		return false, err
-	}
-
+func (d *Dao) IsUserHadReportTarget(userId uint32, typeName string, id uint32) (bool, error) {
 	var count int64
-	if err := d.DB.Table("reports").Where("user_id = ? AND post_id = ?", userId, postId).Count(&count).Error; err != nil {
+	if err := d.DB.Table("reports").Where("user_id = ? AND type_name = ? AND id = ?", userId, typeName, id).Count(&count).Error; err != nil {
 		return false, err
 	}
 
 	return count != 0, nil
+}
+
+type BeReporter interface {
+	BeReported() error
 }

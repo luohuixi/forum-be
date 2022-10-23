@@ -56,7 +56,9 @@ message Report {
     string user_name = 8;
     uint32 be_reported_user_id = 9;
     string be_reported_user_name = 10;
-    string post_title = 11;
+    string be_reported_content = 11;
+    string category = 12;
+    uint32 target_id = 13;
 }
 
 message ListReportResponse {
@@ -65,9 +67,10 @@ message ListReportResponse {
 
 message CreateReportRequest {
     uint32 user_id = 1;
-    uint32 post_id = 2;
+    uint32 id = 2;
     string type_name = 3;
     string cause = 4;
+    string category = 5;
 }
 
 message ListPopularTagRequest {

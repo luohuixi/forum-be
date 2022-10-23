@@ -2,38 +2,33 @@ package main
 
 import (
 	"context"
+	"fmt"
 	pb "forum-post/proto"
+	"forum/pkg/handler"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
+	opentracing "github.com/opentracing/opentracing-go"
 	micro "go-micro.dev/v4"
 )
 
-func main() { // TODO
-	service := micro.NewService(micro.Name("forum.cli.post"))
+func main() {
+	service := micro.NewService(micro.Name("forum.cli.post"),
+		micro.WrapClient(
+			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
+		),
+		micro.WrapCall(handler.ClientErrorHandlerWrapper()),
+	)
 
 	service.Init()
 
 	client := pb.NewPostService("forum.service.post", service.Client())
 
-	_, err := client.ListCollection(context.TODO(), &pb.ListPostPartInfoRequest{
-		UserId: 2,
-	})
-	if err != nil {
-		panic(err)
-	}
+	resp, err := client.ListReport(context.TODO(), &pb.ListReportRequest{})
 
-	// _, err = client.CreateComment(context.TODO(), &pb.CreateCommentRequest{
-	// 	PostId: 1,
-	// 	// TypeId:    2,
-	// 	FatherId:  1,
-	// 	Content:   "first comment to comment",
-	// 	CreatorId: 2,
-	// })
-	// _, err = client.UpdatePostInfo(context.TODO(), &pb.UpdatePostInfoRequest{
-	// 	Id:         1,
-	// 	Content:    "",
-	// 	Title:      "",
-	// 	Category: 1,
-	// })
+	fmt.Println("----- resp: ", resp, " -----")
 
+	panic(err)
+
+	//
 	// fmt.Println("post:", post.List[0].Category)
 	//
 	// if err != nil {

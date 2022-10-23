@@ -64,10 +64,10 @@ type Interface interface {
 	GetReport(uint32) (*ReportModel, error)
 	CreateReport(*ReportModel) error
 	ListReport(uint32, uint32, uint32, bool) ([]*pb.Report, error)
-	GetReportNumByPostId(uint32) (uint32, error)
-	ValidReport(uint32) error
-	InValidReport(uint32, uint32) error
-	IsUserHadReportPost(uint32, uint32) (bool, error)
+	GetReportNumByTypeNameAndId(string, uint32) (uint32, error)
+	ValidReport(string, uint32) error
+	InValidReport(uint32, string, uint32) error
+	IsUserHadReportTarget(uint32, string, uint32) (bool, error)
 }
 
 // Init init dao

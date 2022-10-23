@@ -1891,18 +1891,23 @@
         "report.CreateRequest": {
             "type": "object",
             "required": [
+                "category",
                 "cause",
-                "post_id",
+                "id",
                 "type_name"
             ],
             "properties": {
+                "category": {
+                    "type": "string"
+                },
                 "cause": {
                     "type": "string"
                 },
-                "post_id": {
+                "id": {
                     "type": "integer"
                 },
                 "type_name": {
+                    "description": "post or comment",
                     "type": "string"
                 }
             }
@@ -1937,10 +1942,16 @@
         "report.Report": {
             "type": "object",
             "properties": {
+                "be_reported_content": {
+                    "type": "string"
+                },
                 "be_reported_user_id": {
                     "type": "integer"
                 },
                 "be_reported_user_name": {
+                    "type": "string"
+                },
+                "category": {
                     "type": "string"
                 },
                 "cause": {
@@ -1955,8 +1966,8 @@
                 "post_id": {
                     "type": "integer"
                 },
-                "post_title": {
-                    "type": "string"
+                "target_id": {
+                    "type": "integer"
                 },
                 "type_name": {
                     "type": "string"

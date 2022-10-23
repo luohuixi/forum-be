@@ -23,14 +23,14 @@ func (s *PostService) HandleReport(_ context.Context, req *pb.HandleReportReques
 	}
 
 	if req.Result == constvar.ValidReport {
-		if err := s.Dao.ValidReport(report.PostId); err != nil {
+		if err := s.Dao.ValidReport(report.TypeName, report.TargetId); err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 
-		s.CreateMessage(report.UserId, "One of your posts has been deleted")
+		s.CreateMessage(report.UserId, "One of your "+report.TypeName+"s has been deleted")
 
 	} else if req.Result == constvar.InvalidReport {
-		if err := s.Dao.InValidReport(req.Id, report.PostId); err != nil {
+		if err := s.Dao.InValidReport(req.Id, report.TypeName, report.Id); err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 	} else {

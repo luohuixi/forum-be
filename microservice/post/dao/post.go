@@ -66,6 +66,11 @@ func (p *PostModel) Get(id uint32) error {
 	return dao.DB.Model(p).Where("id = ? AND re = 0", id).First(&p).Error
 }
 
+func (p *PostModel) BeReported() error {
+	p.IsReport = true
+	return p.Save()
+}
+
 type PostInfo struct {
 	Id              uint32
 	Content         string

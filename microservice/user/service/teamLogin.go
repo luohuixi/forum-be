@@ -44,10 +44,11 @@ func (s *UserService) TeamLogin(_ context.Context, req *pb.TeamLoginRequest, res
 
 	// 根据 email 在 DB 查询 user
 	user, err := s.Dao.GetUserByEmail(userInfo.Email)
-
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
-	} else if user == nil {
+	}
+
+	if user == nil {
 		info := &dao.RegisterInfo{
 			Name:  userInfo.Username,
 			Email: userInfo.Email,

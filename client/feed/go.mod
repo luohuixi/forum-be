@@ -4,6 +4,8 @@ replace forum => ../../
 
 replace forum-feed => ../../microservice/feed
 
+replace forum-user => ../../microservice/user
+
 go 1.18
 
 require (

@@ -45,6 +45,11 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 		return
 	}
 
+	if ok := a.Dao.AllowN(userId, 3); !ok {
+		SendError(c, errno.ErrExceededTrafficLimit, nil, "Please try again later", GetLine())
+		return
+	}
+
 	updateReq := pb.UpdatePostInfoRequest{
 		Id:       req.Id,
 		Content:  req.Content,

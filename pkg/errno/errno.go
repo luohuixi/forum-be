@@ -42,12 +42,13 @@ var (
 
 	// ---------------------------------------------------------------------------
 
-	ErrBadRequest       = &Errno{Code: 20001, Message: "Request error"}
-	ErrBind             = &Errno{Code: 20002, Message: "Error occurred while binding the request body to the struct."}
-	ErrQuery            = &Errno{Code: 20003, Message: "Error occurred while getting url queries."}
-	ErrPathParam        = &Errno{Code: 20004, Message: "Error occurred while getting path param."}
-	ErrAuthToken        = &Errno{Code: 20005, Message: "Error occurred while handling the auth token"}
-	ErrPermissionDenied = &Errno{Code: 20006, Message: "Permission denied."}
+	ErrBadRequest           = &Errno{Code: 20001, Message: "Request error"}
+	ErrBind                 = &Errno{Code: 20002, Message: "Error occurred while binding the request body to the struct."}
+	ErrQuery                = &Errno{Code: 20003, Message: "Error occurred while getting url queries."}
+	ErrPathParam            = &Errno{Code: 20004, Message: "Error occurred while getting path param."}
+	ErrAuthToken            = &Errno{Code: 20005, Message: "Error occurred while handling the auth token"}
+	ErrPermissionDenied     = &Errno{Code: 20006, Message: "Permission denied."}
+	ErrExceededTrafficLimit = &Errno{Code: 20006, Message: "Exceeded traffic limit"}
 
 	// user
 	ErrUserNotExisted    = &Errno{Code: 20101, Message: "User not existed"}

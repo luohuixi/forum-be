@@ -45,6 +45,11 @@ func (a *Api) CreateOrRemove(c *gin.Context) {
 		return
 	}
 
+	if ok := a.Dao.AllowN(userId, 1); !ok {
+		SendError(c, errno.ErrExceededTrafficLimit, nil, "Please try again later", GetLine())
+		return
+	}
+
 	likeReq := &pb.LikeRequest{
 		UserId: userId,
 		Item: &pb.LikeItem{

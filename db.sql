@@ -70,6 +70,7 @@ CREATE TABLE `comments`
     `creator_id`  int(11)     DEFAULT NULL,
     `post_id`     int(11)     DEFAULT NULL,
     `like_num`    int(11)     DEFAULT 0,
+    `is_report`   tinyint(1)  NOT NULL,
     CONSTRAINT T_type_Chk CHECK (`type_name` = 'sub-post' OR `type_name` = 'first-level' OR
                                  `type_name` = 'second-level'),
     FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`),
@@ -162,14 +163,14 @@ DROP TABLE IF EXISTS `reports`;
 CREATE TABLE `reports`
 (
     `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
-    `post_id`     int(11) NOT NULL,
+    `target_id`   int(11) NOT NULL,
     `user_id`     int(11) NOT NULL,
     `create_time` varchar(30)   DEFAULT NULL,
     `type_name`   varchar(30)   DEFAULT NULL,
     `cause`       varchar(1000) DEFAULT NULL,
+    `category`    varchar(30)   DEFAULT NULL,
     KEY (`user_id`),
-    UNIQUE (`user_id`, `post_id`),
-    FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`),
+    UNIQUE (`user_id`, `target_id`, `type_name`),
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4

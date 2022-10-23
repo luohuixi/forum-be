@@ -36,6 +36,7 @@ require (
 	github.com/willf/pad v0.0.0-20200313202418-172aa767f2a4
 	go-micro.dev/v4 v4.8.1
 	go.uber.org/zap v1.21.0
+	golang.org/x/time v0.0.0-20210220033141-f8bda1e9f3ba
 )
 
 require (
