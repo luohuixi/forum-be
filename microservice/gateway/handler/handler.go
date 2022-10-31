@@ -27,7 +27,7 @@ type Response struct {
 func GetLine() string {
 	_, file, line, ok := runtime.Caller(1)
 	if !ok {
-		return "forum-gateway/handler/handler.go:26"
+		return "forum-gateway/handler/handler.go:30"
 	}
 	return file + ":" + strconv.Itoa(line)
 }
