@@ -1,5 +1,11 @@
 name=user
 
+all: tidy gotool
+	@go build -o main -v .
+gotool:
+	gofmt -w .
+tidy:
+	go mod tidy
 build:
 	go build -o main
 fmt:

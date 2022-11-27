@@ -1,6 +1,6 @@
 name=gateway
 
-all: gotool
+all: tidy gotool
 	@go build -o main -v .
 vet:
 	go vet ./...
