@@ -24,3 +24,6 @@ push: vet tag gitea github
 
 docker:
 	docker buildx build --platform linux/amd64 -t forum ../.. --build-arg service_name=${name}
+
+sub:
+	go run main.go -sub

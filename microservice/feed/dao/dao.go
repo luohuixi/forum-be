@@ -37,8 +37,7 @@ func Init() {
 	// init redis
 	model.RedisDB.Init()
 
-	// init redis pub-sub client
-	model.PubSubClient.Init(RdbChan)
+	model.InitKafka(kafkaTopic)
 
 	dao = &Dao{
 		DB:    model.DB.Self,
@@ -50,8 +49,8 @@ func GetDao() *Dao {
 	return dao
 }
 
-const RdbChan = "sub"
+const kafkaTopic = "feed"
 
 func (d Dao) PublishMsg(msg []byte) error {
-	return d.Redis.Publish(RdbChan, msg).Err()
+	return model.KafkaWriter.PublishMessage(msg)
 }

@@ -55,13 +55,15 @@ func init() {
 	)
 	// 开启开发模式，堆栈跟踪
 	caller := zap.AddCaller()
+	// 输出的文件名和行号是调用封装函数的位置
+	skip := zap.AddCallerSkip(1)
 	// 开启文件及行号
 	development := zap.Development()
 	// 设置初始化字段
 	// filed := zap.Fields(zap.String("serviceName", viper.GetString("local_name")))
 	// 构造日志
 	// logger = zap.New(core, caller, development, filed)
-	logger = zap.New(core, caller, development)
+	logger = zap.New(core, caller, skip, development)
 }
 
 func SyncLogger() {
