@@ -302,11 +302,12 @@ func (d Dao) syncItemLike() error {
 		}
 	}
 
-	pipe := d.Redis.TxPipeline()
+	if err := d.Redis.SRem("changed_posts").Err(); err != nil {
+		return err
+	}
+	if err := d.Redis.SRem("changed_comments").Err(); err != nil {
+		return err
+	}
 
-	pipe.SRem("changed_posts")
-	pipe.SRem("changed_comments")
-
-	_, err = pipe.Exec()
-	return err
+	return nil
 }

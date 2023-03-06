@@ -16,10 +16,12 @@ require (
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/segmentio/kafka-go v0.4.38
 	github.com/smartystreets/goconvey v1.7.2
+	github.com/speps/go-hashids/v2 v2.0.1
 	github.com/spf13/viper v1.12.0
 	github.com/uber/jaeger-client-go v2.30.0+incompatible
 	go-micro.dev/v4 v4.8.1
 	go.uber.org/zap v1.21.0
+	golang.org/x/time v0.0.0-20191024005414-555d28b269f0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 	gorm.io/driver/mysql v1.3.3
 	gorm.io/gorm v1.23.4

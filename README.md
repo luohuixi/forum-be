@@ -20,4 +20,4 @@ log: zap
 
 CI: .drone.yml
 
-CD: 待实现
+Kafka: 动态功能的消息队列

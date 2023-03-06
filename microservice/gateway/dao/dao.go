@@ -2,6 +2,9 @@ package dao
 
 import (
 	"forum/model"
+	"forum/pkg/limiter"
+	"forum/pkg/obfuscate"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -10,8 +13,8 @@ var (
 
 // Dao .
 type Dao struct {
-	LimiterManager *LimiterManager
-	// Redis *redis.Client
+	LimiterManager *limiter.LimiterManager
+	Obfuscator     *obfuscate.Obfuscator
 }
 
 // Interface dao
@@ -36,11 +39,12 @@ func Init() {
 	// init casbin
 	model.CB.Init()
 
-	limiterManager := initLimiterManager()
+	limiterManager := limiter.NewLimiterManager()
+	obfuscator := obfuscate.NewObfuscator(viper.GetString("hashids.salt"), viper.GetInt("hashids.minlength"))
 
 	dao = &Dao{
 		LimiterManager: limiterManager,
-		// Redis: model.RedisDB.Self,
+		Obfuscator:     obfuscator,
 	}
 }
 
@@ -49,5 +53,5 @@ func GetDao() *Dao {
 }
 
 func (d Dao) AllowN(userId uint32, n int) bool {
-	return d.LimiterManager.allowN(userId, n)
+	return d.LimiterManager.AllowN(userId, n)
 }

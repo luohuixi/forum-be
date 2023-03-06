@@ -22,14 +22,14 @@ func InitKafka(topic string) {
 }
 
 func (*kafkaReader) Init(topic string) {
-	KafkaReader = &kafkaReader{
-		Self: kafka.NewReader(kafka.ReaderConfig{
-			Brokers:   []string{"localhost:9092"},
-			Topic:     topic,
-			Partition: 0,
-			MinBytes:  10e3, // 10KB
-			MaxBytes:  10e6, // 10MB
-		}),
+	if KafkaReader != nil {
+		KafkaReader = &kafkaReader{
+			Self: kafka.NewReader(kafka.ReaderConfig{
+				Brokers:   []string{"localhost:9092"},
+				Topic:     topic,
+				Partition: 0,
+			}),
+		}
 	}
 }
 
@@ -42,12 +42,14 @@ func (r kafkaReader) CommitMessage(ctx context.Context, msg kafka.Message) error
 }
 
 func (*kafkaWriter) Init(topic string) {
-	KafkaWriter = &kafkaWriter{
-		Self: &kafka.Writer{
-			Addr:     kafka.TCP("localhost:9092"),
-			Topic:    topic,
-			Balancer: &kafka.LeastBytes{},
-		},
+	if KafkaReader != nil {
+		KafkaWriter = &kafkaWriter{
+			Self: &kafka.Writer{
+				Addr:     kafka.TCP("localhost:9092"),
+				Topic:    topic,
+				Balancer: &kafka.LeastBytes{},
+			},
+		}
 	}
 }
 

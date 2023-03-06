@@ -21,8 +21,8 @@ func main() {
 
 	client := pb.NewFeedService("forum.service.feed", service.Client())
 
-	_, err := client.Delete(context.TODO(), &pb.Request{
-		Id: 2,
+	_, err := client.Push(context.TODO(), &pb.PushRequest{
+		UserId: 4,
 	})
 
 	panic(err)
