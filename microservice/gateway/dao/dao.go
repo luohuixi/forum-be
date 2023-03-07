@@ -20,6 +20,8 @@ type Dao struct {
 // Interface dao
 type Interface interface {
 	AllowN(userId uint32, n int) bool
+	Obfuscate(id uint32) string
+	Deobfuscate(hid string) (uint32, error)
 }
 
 // Init init dao
@@ -54,4 +56,17 @@ func GetDao() *Dao {
 
 func (d Dao) AllowN(userId uint32, n int) bool {
 	return d.LimiterManager.AllowN(userId, n)
+}
+
+func (d Dao) Obfuscate(id uint32) string {
+	return d.Obfuscator.Obfuscate(uint(id))
+}
+
+func (d Dao) Deobfuscate(hid string) (uint32, error) {
+	id, err := d.Obfuscator.Deobfuscate(hid)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint32(id), nil
 }
