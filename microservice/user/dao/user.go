@@ -1,8 +1,11 @@
 package dao
 
 import (
+	"errors"
+	"forum/model"
 	"forum/pkg/constvar"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
+	"strconv"
 )
 
 type RegisterInfo struct {
@@ -10,7 +13,7 @@ type RegisterInfo struct {
 	Email     string `json:"email"`
 	StudentId string `json:"student_id"`
 	Password  string `json:"password"`
-	Role      uint32 `json:"role"`
+	Role      string `json:"role"`
 }
 
 // GetUser get a single user by id
@@ -36,21 +39,11 @@ func (d *Dao) GetUserByIds(ids []uint32) ([]*UserModel, error) {
 func (d *Dao) GetUserByEmail(email string) (*UserModel, error) {
 	u := &UserModel{}
 	err := d.DB.Where("email = ? AND re = 0", email).First(u).Error
-	if gorm.IsRecordNotFoundError(err) {
+	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
 	return u, err
 }
-
-// GetUserByName get a user by name.
-// func GetUserByName(name string) (*UserModel, error) {
-// 	u := &UserModel{}
-// 	err := m.DB.Self.Where("name = ?", name).First(u).Error
-// 	if gorm.IsRecordNotFoundError(err) {
-// 		return nil, nil
-// 	}
-// 	return u, err
-// }
 
 // ListUser list users
 func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, error) {
@@ -60,10 +53,10 @@ func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*User
 
 	var list []*UserModel
 
-	query := d.DB.Model(&UserModel{}).Where(filter).Offset(offset).Limit(limit)
+	query := d.DB.Model(&UserModel{}).Where(filter).Offset(int(offset)).Limit(int(limit))
 
 	if lastId != 0 {
-		query = query.Where("id < ?", lastId).Order("id desc")
+		query = query.Where("id < ?", lastId).Order("id DESC")
 	}
 
 	if err := query.Scan(&list).Error; err != nil {
@@ -77,21 +70,36 @@ func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*User
 func (d *Dao) GetUserByStudentId(studentId string) (*UserModel, error) {
 	u := &UserModel{}
 	err := d.DB.Where("student_id = ? AND re = 0", studentId).First(u).Error
-	if gorm.IsRecordNotFoundError(err) {
+	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}
 	return u, err
 }
 
 func (Dao) RegisterUser(info *RegisterInfo) error {
-	// 本地 user 数据库创建用户
 	user := &UserModel{
-		Name:         info.Name,
-		Email:        info.Email,
-		StudentId:    info.StudentId,
-		HashPassword: generatePasswordHash(info.Password),
-		Role:         info.Role,
-		Re:           false,
+		Name:                      info.Name,
+		Email:                     info.Email,
+		StudentId:                 info.StudentId,
+		HashPassword:              generatePasswordHash(info.Password),
+		Role:                      info.Role,
+		Re:                        false,
+		IsPublicCollectionAndLike: true,
+		IsPublicFeed:              true,
 	}
+
 	return user.Create()
+}
+
+func (Dao) AddPublicPolicy(role string, userId uint32) error {
+	ok, err := model.CB.Self.AddPolicy(role, constvar.CollectionAndLike+":"+strconv.Itoa(int(userId)), constvar.Read)
+	if err != nil || !ok {
+		return errors.New("AddPolicy CollectionAndLike fail")
+	}
+
+	ok, err = model.CB.Self.AddPolicy(role, constvar.Feed+":"+strconv.Itoa(int(userId)), constvar.Read)
+	if err != nil || !ok {
+		return errors.New("AddPolicy Feed fail")
+	}
+	return nil
 }

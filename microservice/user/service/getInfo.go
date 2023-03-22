@@ -19,10 +19,13 @@ func (s *UserService) GetInfo(_ context.Context, req *pb.GetInfoRequest, resp *p
 	userInfos := make([]*pb.UserInfo, len(list))
 	for i, user := range list {
 		userInfos[i] = &pb.UserInfo{
-			Id:        user.Id,
-			Name:      user.Name,
-			AvatarUrl: user.Avatar,
-			Email:     user.Email,
+			Id:                        user.Id,
+			Name:                      user.Name,
+			AvatarUrl:                 user.Avatar,
+			Email:                     user.Email,
+			Signature:                 user.Signature,
+			IsPublicCollectionAndLike: user.IsPublicCollectionAndLike,
+			IsPublicFeed:              user.IsPublicFeed,
 		}
 	}
 

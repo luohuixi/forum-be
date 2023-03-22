@@ -7,8 +7,8 @@ type TeamLoginRequest struct {
 
 // StudentLoginRequest StudentLogin 请求
 type StudentLoginRequest struct {
-	StudentId string `json:"student_id"`
-	Password  string `json:"password"`
+	StudentId string `json:"student_id" binding:"required"`
+	Password  string `json:"password" binding:"required"`
 } // @name StudentLoginRequest
 
 // TeamLoginResponse login 请求响应
@@ -32,6 +32,7 @@ type userInfo struct {
 	Name      string `json:"name"`
 	AvatarURL string `json:"avatar_url"`
 	Email     string `json:"email"`
+	Signature string `json:"signature"`
 }
 
 // GetInfoResponse 获取 info 响应
@@ -46,11 +47,14 @@ type GetProfileRequest struct {
 
 // UserProfile 获取 profile 响应
 type UserProfile struct {
-	Id     uint32 `json:"id"`
-	Name   string `json:"name"`
-	Avatar string `json:"avatar"`
-	Email  string `json:"email"`
-	Role   uint32 `json:"role"`
+	Id                        uint32 `json:"id"`
+	Name                      string `json:"name"`
+	Avatar                    string `json:"avatar"`
+	Email                     string `json:"email"`
+	Role                      string `json:"role"`
+	Signature                 string `json:"signature"`
+	IsPublicFeed              bool   `json:"is_public_feed"`
+	IsPublicCollectionAndLike bool   `json:"is_public_collection_and_like"`
 } // @name UserProfile
 
 // ListRequest 获取 userList 请求
@@ -64,7 +68,7 @@ type user struct {
 	Name   string `json:"name"`
 	Email  string `json:"email"`
 	Avatar string `json:"avatar"`
-	Role   uint32 `json:"role"`
+	Role   string `json:"role"`
 } // @name user
 
 // ListResponse 获取 userList 响应
@@ -75,5 +79,17 @@ type ListResponse struct {
 
 // UpdateInfoRequest 更新 userInfo 请求
 type UpdateInfoRequest struct {
-	userInfo
+	Name                      string `json:"name"`
+	AvatarURL                 string `json:"avatar_url"`
+	Signature                 string `json:"signature"`
+	IsPublicFeed              bool   `json:"is_public_feed"`
+	IsPublicCollectionAndLike bool   `json:"is_public_collection_and_like"`
 } // @name UpdateInfoRequest
+
+type ListMessageResponse struct {
+	Messages []string `json:"messages"`
+}
+
+type CreateMessageRequest struct {
+	Message string `json:"message" binding:"required"`
+}

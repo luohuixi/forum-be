@@ -7,16 +7,15 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
 
 // UpdateInfo ... 修改帖子信息
-// @Summary update post info api
-// @Description 修改帖子信息
+// @Summary 修改帖子信息 api
 // @Tags post
 // @Accept application/json
 // @Produce application/json
@@ -27,17 +26,17 @@ import (
 func (a *Api) UpdateInfo(c *gin.Context) {
 	log.Info("Post UpdateInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var req *pb.UpdatePostInfoRequest
-	if err := c.BindJSON(req); err != nil {
+	var req UpdateInfoRequest
+	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
 
-	req.UserId = c.MustGet("userId").(uint32)
+	userId := c.MustGet("userId").(uint32)
 
-	ok, err := a.Dao.Enforce(req.UserId, req.Id, constvar.Write)
+	ok, err := model.Enforce(userId, constvar.Post, req.Id, constvar.Write)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
 	}
 
@@ -46,11 +45,26 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 		return
 	}
 
-	_, err = service.PostClient.UpdatePostInfo(context.TODO(), req)
+	if ok := a.Dao.AllowN(userId, 3); !ok {
+		SendError(c, errno.ErrExceededTrafficLimit, nil, "Please try again later", GetLine())
+		return
+	}
+
+	updateReq := pb.UpdatePostInfoRequest{
+		Id:       req.Id,
+		Content:  req.Content,
+		Title:    req.Title,
+		UserId:   userId,
+		Category: req.Category,
+		Tags:     req.Tags,
+		Summary:  req.Summary,
+	}
+
+	_, err = service.PostClient.UpdatePostInfo(context.TODO(), &updateReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
-	SendResponse(c, errno.OK, nil)
+	SendResponse(c, nil, nil)
 }

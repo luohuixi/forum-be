@@ -15,10 +15,10 @@ func New(i dao.Interface) *Api {
 }
 
 type Item struct {
-	TargetId uint32 `json:"target_id"`
-	TypeName string `json:"type_name"`
+	TargetId uint32 `json:"target_id" binding:"required"`
+	TypeName string `json:"type_name" binding:"required"` // post or comment
 }
 
 type ListResponse struct {
-	likes *[]Item
+	Likes *[]Item `json:"likes"`
 }

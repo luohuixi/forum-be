@@ -3,13 +3,11 @@ package chat
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	pb "forum-chat/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	"forum/log"
-	m "forum/model"
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -19,7 +17,7 @@ import (
 )
 
 type Client struct {
-	UserId string
+	UserId uint32
 	Socket *websocket.Conn
 	Close  chan struct{}
 }
@@ -29,11 +27,15 @@ type Client struct {
 // @Description 建立 WebSocket 连接
 // @Tags chat
 // @Param id query string true "uuid"
+// @Success 200 {object} Message
 // @Router /chat/ws [get]
 func WsHandler(c *gin.Context) {
 	log.Info("Chat WsHandler function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	var upGrader = websocket.Upgrader{CheckOrigin: func(r *http.Request) bool { return true }}
+	var upGrader = websocket.Upgrader{
+		CheckOrigin:  func(r *http.Request) bool { return true },
+		Subprotocols: []string{c.Request.Header.Get("Sec-WebSocket-Protocol")},
+	}
 
 	// Upgrade our raw HTTP connection to a websocket based one
 	conn, err := upGrader.Upgrade(c.Writer, c.Request, nil)
@@ -43,13 +45,7 @@ func WsHandler(c *gin.Context) {
 		return
 	}
 
-	id := c.DefaultQuery("id", "0")
-	userId, ok, err := m.GetStringFromRedis(id)
-	if !ok {
-		log.Error("not ok")
-		conn.WriteMessage(websocket.CloseMessage, []byte("error"))
-		return
-	}
+	userId := c.MustGet("userId").(uint32)
 
 	client := &Client{
 		UserId: userId,
@@ -90,6 +86,12 @@ func (c *Client) Read() {
 			break
 		}
 
+		if req.TargetUserId == 0 {
+			log.Error("error: wrong target_user_id")
+			c.Socket.WriteMessage(websocket.TextMessage, []byte("error: wrong target_user_id"))
+			break
+		}
+
 		if _, err := service.ChatClient.Create(context.Background(), &req); err != nil {
 			log.Error(err.Error())
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
@@ -108,10 +110,10 @@ func (c *Client) Write() {
 		getListRequest := &pb.GetListRequest{
 			UserId: c.UserId,
 		}
+
 		ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Hour)) // set rpc expiration to 1 Hour
 		go func() {
 			<-c.Close // cancel the request when client close connect
-			fmt.Println("cancel", c.UserId)
 			cancel()
 		}()
 
@@ -123,8 +125,14 @@ func (c *Client) Write() {
 		}
 
 		for _, msg := range resp.List {
-			fmt.Println("msg", msg)
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(msg))
 		}
 	}
+}
+
+type Message struct {
+	Content  string `json:"content"`
+	Time     string `json:"time"`
+	Sender   uint32 `json:"sender"`
+	TypeName string `json:"type_name"`
 }

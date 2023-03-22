@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+option go_package = "./proto";
+
 package user;
 
 service UserService {
@@ -9,7 +11,23 @@ service UserService {
   rpc GetProfile(GetRequest) returns (UserProfile) {}
   rpc List(ListRequest) returns (ListResponse) {}
 
+  rpc ListMessage(ListMessageRequest)returns (ListMessageResponse) {}
+  rpc CreateMessage(CreateMessageRequest)returns (Response) {}
+
   rpc UpdateInfo(UpdateInfoRequest) returns (Response) {}
+}
+
+message CreateMessageRequest {
+  uint32 user_id = 1;
+  string message = 2;
+}
+
+message ListMessageRequest {
+  uint32 user_id = 1;
+}
+
+message ListMessageResponse {
+  repeated string messages = 1;
 }
 
 message StudentLoginRequest {
@@ -50,6 +68,9 @@ message UserInfo {
   string name = 2;
   string email = 3;
   string avatar_url = 4;
+  string signature = 5;
+  bool is_public_collection_and_like = 6;
+  bool is_public_feed = 7;
 }
 
 message UserInfoResponse {
@@ -59,20 +80,19 @@ message UserInfoResponse {
 message UserProfile {
   uint32 id = 1;
   string name = 2;
-  uint32 role = 3;
+  string role = 3;
   string avatar = 4;
   string email = 5;
-}
-
-message GetResponse {
-  User user = 1;
+  string signature = 6;
+  bool is_public_feed = 7;
+  bool is_public_collection_and_like = 8;
 }
 
 message ListRequest {
   uint32 last_id = 1;
   uint32 offset = 2;
   uint32 limit = 3;
-  uint32 role = 4;
+  string role = 4;
 }
 
 message ListResponse {
@@ -90,5 +110,5 @@ message User {
   string student_id = 3;
   string email = 4;
   string avatar = 5;
-  uint32 role = 6;
+  string role = 6;
 }

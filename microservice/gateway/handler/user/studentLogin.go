@@ -14,7 +14,7 @@ import (
 )
 
 // StudentLogin ... 学生登录
-// @Summary login api
+// @Summary 学生登录 api
 // @Description login the student-forum
 // @Tags auth
 // @Accept application/json
@@ -26,7 +26,7 @@ func StudentLogin(c *gin.Context) {
 	log.Info("User StudentLogin function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	var req StudentLoginRequest
-	if err := c.Bind(&req); err != nil {
+	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
@@ -38,16 +38,10 @@ func StudentLogin(c *gin.Context) {
 	}
 
 	loginResp, err := service.UserClient.StudentLogin(context.TODO(), loginReq)
-
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
-	// 构造返回 response
-	resp := StudentLoginResponse{
-		Token: loginResp.Token,
-	}
-
-	SendResponse(c, nil, resp)
+	SendMicroServiceResponse(c, nil, loginResp, StudentLoginResponse{})
 }

@@ -19,7 +19,8 @@ main
 .idea
 *.log
 *.tmp
-#*.mod
 *.sum
 .DS_Store
 config.yaml
+config_sub.yaml
+test.go

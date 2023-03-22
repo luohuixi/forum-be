@@ -9,8 +9,8 @@ import (
 )
 
 // GetMyProfile ... 获取 myProfile
-// @Summary get my_profile api
-// @Description 获取 my 完整 user 信息
+// @Summary get 我的 profile api
+// @Description 获取 my 完整 user 信息（权限 role: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员）
 // @Tags user
 // @Accept application/json
 // @Produce application/json
@@ -29,5 +29,5 @@ func GetMyProfile(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, nil, user)
+	SendMicroServiceResponse(c, nil, user, UserProfile{})
 }

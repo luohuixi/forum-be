@@ -1,5 +1,28 @@
 basePath: /api/v1
 definitions:
+  FeedItem:
+    properties:
+      action:
+        type: string
+      create_time:
+        type: string
+      id:
+        type: integer
+      show_divider:
+        description: 分割线
+        type: boolean
+      source:
+        $ref: '#/definitions/Source'
+      user:
+        $ref: '#/definitions/User'
+    type: object
+  FeedListResponse:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/FeedItem'
+        type: array
+    type: object
   ListResponse:
     properties:
       count:
@@ -17,12 +40,24 @@ definitions:
       message:
         type: string
     type: object
+  Source:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      type_name:
+        type: string
+    type: object
   StudentLoginRequest:
     properties:
       password:
         type: string
       student_id:
         type: string
+    required:
+    - password
+    - student_id
     type: object
   StudentLoginResponse:
     properties:
@@ -45,7 +80,18 @@ definitions:
     properties:
       avatar_url:
         type: string
-      email:
+      is_public_collection_and_like:
+        type: boolean
+      is_public_feed:
+        type: boolean
+      name:
+        type: string
+      signature:
+        type: string
+    type: object
+  User:
+    properties:
+      avatar_url:
         type: string
       id:
         type: integer
@@ -60,18 +106,34 @@ definitions:
         type: string
       id:
         type: integer
+      is_public_collection_and_like:
+        type: boolean
+      is_public_feed:
+        type: boolean
       name:
         type: string
       role:
-        type: integer
+        type: string
+      signature:
+        type: string
     type: object
-  chat.Id:
+  chat.Message:
     properties:
-      id:
+      content:
+        type: string
+      sender:
+        type: integer
+      time:
+        type: string
+      type_name:
         type: string
     type: object
   comment.Comment:
     properties:
+      be_replied_content:
+        type: string
+      be_replied_user_id:
+        type: integer
       content:
         type: string
       create_time:
@@ -86,11 +148,14 @@ definitions:
         type: integer
       id:
         type: integer
+      img_url:
+        type: string
       is_liked:
         type: boolean
       like_num:
         type: integer
       type_name:
+        description: first-level -> 一级评论; second-level -> 其它级
         type: string
     type: object
   comment.CreateRequest:
@@ -99,42 +164,232 @@ definitions:
         type: string
       father_id:
         type: integer
+      img_url:
+        type: string
       post_id:
         type: integer
       type_name:
+        description: sub-post -> 从帖; first-level -> 一级评论; second-level -> 其它级
         type: string
+    required:
+    - content
+    - father_id
+    - post_id
+    - type_name
     type: object
   like.Item:
     properties:
       target_id:
         type: integer
       type_name:
+        description: post or comment
         type: string
+    required:
+    - target_id
+    - type_name
     type: object
-  like.ListResponse:
+  post.Comment:
+    properties:
+      be_replied_content:
+        type: string
+      be_replied_id:
+        type: integer
+      be_replied_user_id:
+        type: integer
+      be_replied_user_name:
+        type: string
+      content:
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      id:
+        type: integer
+      is_liked:
+        type: boolean
+      like_num:
+        type: integer
+      time:
+        type: string
     type: object
   post.CreateRequest:
     properties:
-      category_id:
-        type: integer
+      category:
+        type: string
+      compiled_content:
+        type: string
       content:
         type: string
-      main_post_id:
-        type: integer
+      content_type:
+        description: md or rtf
+        type: string
+      domain:
+        description: normal -> 团队外; muxi -> 团队内 (type_name暂时均填normal)
+        type: string
+      summary:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
       title:
         type: string
-      type_name:
+    required:
+    - category
+    - content
+    - content_type
+    - domain
+    - summary
+    - tags
+    - title
+    type: object
+  post.GetPostResponse:
+    properties:
+      category:
         type: string
+      collection_num:
+        type: integer
+      comment_num:
+        type: integer
+      compiled_content:
+        type: string
+      content:
+        type: string
+      content_type:
+        description: md or rtf
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      id:
+        type: integer
+      is_collection:
+        type: boolean
+      is_liked:
+        type: boolean
+      like_num:
+        type: integer
+      sub_posts:
+        items:
+          $ref: '#/definitions/post.SubPost'
+        type: array
+      summary:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      time:
+        type: string
+      title:
+        type: string
+    type: object
+  post.IdResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  post.ListMainPostResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/post.Post'
+        type: array
     type: object
   post.Post:
     properties:
-      category_id:
+      category:
+        type: string
+      collection_num:
         type: integer
       comment_num:
         type: integer
       comments:
         items:
           $ref: '#/definitions/comment.Comment'
+        type: array
+      content_type:
+        description: md or rtf
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      id:
+        type: integer
+      is_collection:
+        type: boolean
+      is_liked:
+        type: boolean
+      like_num:
+        type: integer
+      summary:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      time:
+        type: string
+      title:
+        type: string
+    type: object
+  post.PostPartInfo:
+    properties:
+      category:
+        type: string
+      collection_num:
+        type: integer
+      comment_num:
+        type: integer
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      id:
+        type: integer
+      like_num:
+        type: integer
+      summary:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+      time:
+        type: string
+      title:
+        type: string
+    type: object
+  post.PostPartInfoResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/post.PostPartInfo'
+        type: array
+    type: object
+  post.QiNiuToken:
+    properties:
+      token:
+        type: string
+    type: object
+  post.SubPost:
+    properties:
+      comment_num:
+        type: integer
+      comments:
+        items:
+          $ref: '#/definitions/post.Comment'
         type: array
       content:
         type: string
@@ -146,30 +401,100 @@ definitions:
         type: string
       id:
         type: integer
-      is_favorite:
-        type: boolean
+      img_url:
+        type: string
       is_liked:
         type: boolean
       like_num:
         type: integer
-      tags:
-        items:
-          type: string
-        type: array
       time:
-        type: string
-      title:
         type: string
     type: object
   post.UpdateInfoRequest:
     properties:
-      category_id:
-        type: integer
+      category:
+        type: string
       content:
         type: string
       id:
         type: integer
+      summary:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
       title:
+        type: string
+    required:
+    - category
+    - content
+    - id
+    - tags
+    - title
+    type: object
+  report.CreateRequest:
+    properties:
+      category:
+        type: string
+      cause:
+        type: string
+      id:
+        type: integer
+      type_name:
+        description: post or comment
+        type: string
+    required:
+    - category
+    - cause
+    - id
+    - type_name
+    type: object
+  report.HandleRequest:
+    properties:
+      id:
+        type: integer
+      result:
+        description: invalid or valid
+        type: string
+    required:
+    - id
+    - result
+    type: object
+  report.ListResponse:
+    properties:
+      reports:
+        items:
+          $ref: '#/definitions/report.Report'
+        type: array
+    type: object
+  report.Report:
+    properties:
+      be_reported_content:
+        type: string
+      be_reported_user_id:
+        type: integer
+      be_reported_user_name:
+        type: string
+      category:
+        type: string
+      cause:
+        type: string
+      create_time:
+        type: string
+      id:
+        type: integer
+      post_id:
+        type: integer
+      target_id:
+        type: integer
+      type_name:
+        type: string
+      user_avatar:
+        type: string
+      user_id:
+        type: integer
+      user_name:
         type: string
     type: object
   user:
@@ -183,9 +508,23 @@ definitions:
       name:
         type: string
       role:
-        type: integer
+        type: string
     type: object
-host: work.test.muxi-tech.xyz
+  user.CreateMessageRequest:
+    properties:
+      message:
+        type: string
+    required:
+    - message
+    type: object
+  user.ListMessageResponse:
+    properties:
+      messages:
+        items:
+          type: string
+        type: array
+    type: object
+host: forum.muxixyz.com
 info:
   contact: {}
   description: The gateway of forum
@@ -211,7 +550,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/StudentLoginResponse'
-      summary: login api
+      summary: 学生登录 api
       tags:
       - auth
   /auth/login/team:
@@ -233,28 +572,42 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/TeamLoginResponse'
-      summary: login api
+      summary: 团队登录 api
       tags:
       - auth
-  /chat:
+  /chat/history/{id}:
     get:
       consumes:
       - application/json
-      description: 该用户发送信息前先获取自己的uuid，并放入query(id=?)，有效期24h
       parameters:
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: id
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/chat.Id'
-      summary: 获取该用户的uuid
+            items:
+              $ref: '#/definitions/chat.Message'
+            type: array
+      summary: 获取该用户的聊天记录
       tags:
       - chat
   /chat/ws:
@@ -266,15 +619,80 @@ paths:
         name: id
         required: true
         type: string
-      responses: {}
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/chat.Message'
       summary: WebSocket
       tags:
       - chat
+  /collection/{post_id}:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: post_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 收藏/取消收藏帖子 api
+      tags:
+      - collection
+  /collection/list/{user_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.PostPartInfoResponse'
+      summary: list收藏 api
+      tags:
+      - collection
   /comment:
     post:
       consumes:
       - application/json
-      description: 'typeName: first-level -> 一级评论; second-level -> 其它级'
       parameters:
       - description: token 用户令牌
         in: header
@@ -293,8 +711,8 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Response'
-      summary: 创建评论 api
+            $ref: '#/definitions/comment.Comment'
+      summary: 创建评论/从帖 api
       tags:
       - comment
   /comment/{comment_id}:
@@ -302,16 +720,16 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: comment_id
-        in: path
-        name: comment_id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: comment_id
+        in: path
+        name: comment_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -325,18 +743,17 @@ paths:
     get:
       consumes:
       - application/json
-      description: 'typeName: first-level -> 一级评论; second-level -> 其它级'
       parameters:
-      - description: comment_id
-        in: path
-        name: comment_id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: comment_id
+        in: path
+        name: comment_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -347,77 +764,103 @@ paths:
       summary: 获取评论 api
       tags:
       - comment
-  /like:
-    delete:
-      consumes:
-      - application/json
-      description: 'TypeName: post or comment'
-      parameters:
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: remove_like_request
-        in: body
-        name: object
-        required: true
-        schema:
-          $ref: '#/definitions/like.Item'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/Response'
-      summary: 取消点赞 api
-      tags:
-      - like
-    post:
-      consumes:
-      - application/json
-      description: 'TypeName: post or comment'
-      parameters:
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: create_like_request
-        in: body
-        name: object
-        required: true
-        schema:
-          $ref: '#/definitions/like.Item'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/Response'
-      summary: 点赞 api
-      tags:
-      - like
-  /like/list:
+  /feed/list/{user_id}:
     get:
       consumes:
       - application/json
-      description: 'TypeName: post or comment'
       parameters:
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/like.ListResponse'
+            $ref: '#/definitions/FeedListResponse'
+      summary: list 用户的动态 api
+      tags:
+      - feed
+  /like:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: like_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/like.Item'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 点赞/取消点赞 api
+      tags:
+      - like
+  /like/list/{user_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user_id
+        in: path
+        name: user_id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.PostPartInfoResponse'
       summary: 获取用户点赞列表 api
       tags:
       - like
@@ -425,7 +868,6 @@ paths:
     post:
       consumes:
       - application/json
-      description: type_name = normal -> 团队外 (type_name暂时均填normal); 主贴的main_post_id不填或为0
       parameters:
       - description: token 用户令牌
         in: header
@@ -444,14 +886,13 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/Response'
+            $ref: '#/definitions/post.IdResponse'
       summary: 创建帖子 api
       tags:
       - post
     put:
       consumes:
       - application/json
-      description: 修改帖子信息
       parameters:
       - description: token 用户令牌
         in: header
@@ -471,7 +912,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Response'
-      summary: update post info api
+      summary: 修改帖子信息 api
       tags:
       - post
   /post/{post_id}:
@@ -479,16 +920,16 @@ paths:
       consumes:
       - application/json
       parameters:
-      - description: post_id
-        in: path
-        name: post_id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: post_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -499,12 +940,41 @@ paths:
       summary: 删除帖子 api
       tags:
       - post
-  /post/list/{type_name}/{category_id}:
     get:
       consumes:
       - application/json
-      description: type_name = normal -> 团队外 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)
       parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: post_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.GetPostResponse'
+      summary: 获取帖子 api
+      tags:
+      - post
+  /post/list/{domain}:
+    get:
+      consumes:
+      - application/json
+      description: 根据category or tag 获取主帖list
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: limit
         in: query
         name: limit
@@ -517,16 +987,106 @@ paths:
         in: query
         name: last_id
         type: integer
-      - description: type_name
+      - description: category
+        in: query
+        name: category
+        type: string
+      - description: filter
+        in: query
+        name: filter
+        type: string
+      - description: search_content
+        in: query
+        name: search_content
+        type: string
+      - description: tag
+        in: query
+        name: tag
+        type: string
+      - description: normal -> 团队外; muxi -> 团队内
         in: path
-        name: type_name
+        name: domain
         required: true
         type: string
-      - description: category_id
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.ListMainPostResponse'
+      summary: list 主帖 api
+      tags:
+      - post
+  /post/popular_tag:
+    get:
+      consumes:
+      - application/json
+      description: 降序
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: category
+        in: query
+        name: category
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: list 热门tags api
+      tags:
+      - post
+  /post/published/{user_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user_id
         in: path
-        name: category_id
+        name: user_id
         required: true
         type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/post.PostPartInfoResponse'
+      summary: list 用户发布的帖子 api
+      tags:
+      - post
+  /post/qiniu_token:
+    get:
+      consumes:
+      - application/json
+      parameters:
       - description: token 用户令牌
         in: header
         name: Authorization
@@ -538,17 +1098,97 @@ paths:
         "200":
           description: OK
           schema:
-            items:
-              $ref: '#/definitions/post.Post'
-            type: array
-      summary: list 主贴 api
+            $ref: '#/definitions/post.QiNiuToken'
+      summary: 获取七牛云token
       tags:
       - post
+  /report:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_report_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/report.CreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 举报帖子 api
+      tags:
+      - report
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: handle_report_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/report.HandleRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 处理举报 api
+      tags:
+      - report
+  /report/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: limit
+        in: query
+        name: limit
+        type: integer
+      - description: page
+        in: query
+        name: page
+        type: integer
+      - description: last_id
+        in: query
+        name: last_id
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/report.ListResponse'
+      summary: list举报 api
+      tags:
+      - report
   /user:
     put:
       consumes:
       - application/json
-      description: 修改用户个人信息
       parameters:
       - description: token 用户令牌
         in: header
@@ -568,15 +1208,19 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/Response'
-      summary: update info api
+      summary: 修改用户个人信息 api
       tags:
       - user
-  /user/list/{group_id}/{team_id}:
+  /user/list:
     get:
       consumes:
       - application/json
-      description: 通过 group 和 team 获取 user_list
       parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
       - description: limit
         in: query
         name: limit
@@ -589,21 +1233,6 @@ paths:
         in: query
         name: last_id
         type: integer
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: group_id
-        in: path
-        name: group_id
-        required: true
-        type: integer
-      - description: team_id
-        in: path
-        name: team_id
-        required: true
-        type: integer
       produces:
       - application/json
       responses:
@@ -611,14 +1240,61 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/ListResponse'
-      summary: get user_list api
+      summary: list user api
+      tags:
+      - user
+  /user/message:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_message_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreateMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 创建 公共 message api
+      tags:
+      - user
+  /user/message/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ListMessageResponse'
+      summary: list user message api
       tags:
       - user
   /user/myprofile:
     get:
       consumes:
       - application/json
-      description: 获取 my 完整 user 信息
+      description: '获取 my 完整 user 信息（权限 role: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员;
+        MuxiAdmin-团队管理员; SuperAdmin-超级管理员）'
       parameters:
       - description: token 用户令牌
         in: header
@@ -632,25 +1308,26 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/UserProfile'
-      summary: get my_profile api
+      summary: get 我的 profile api
       tags:
       - user
   /user/profile/{id}:
     get:
       consumes:
       - application/json
-      description: 通过 userId 获取完整 user 信息
+      description: '通过 userId 获取完整 user 信息（权限 role: Normal-普通学生用户; NormalAdmin-学生管理员;
+        Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员）'
       parameters:
-      - description: user_id
-        in: path
-        name: id
-        required: true
-        type: integer
       - description: token 用户令牌
         in: header
         name: Authorization
         required: true
         type: string
+      - description: user_id
+        in: path
+        name: id
+        required: true
+        type: integer
       produces:
       - application/json
       responses:
@@ -658,7 +1335,7 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/UserProfile'
-      summary: get user_profile api
+      summary: 获取用户 profile api
       tags:
       - user
 swagger: "2.0"
@@ -671,3 +1348,13 @@ tags:
   name: chat
 - description: 帖子服务
   name: post
+- description: 动态服务
+  name: feed
+- description: 收藏服务
+  name: collection
+- description: 评论服务
+  name: comment
+- description: 点赞服务
+  name: like
+- description: 举报服务
+  name: report

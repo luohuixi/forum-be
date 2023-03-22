@@ -1,10 +1,10 @@
 package dao
 
 import (
-	// pb "forum-post/proto"
 	"forum/model"
-	"github.com/casbin/casbin/v2"
-	"github.com/go-redis/redis"
+	"forum/pkg/limiter"
+	"forum/pkg/obfuscate"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -13,13 +13,15 @@ var (
 
 // Dao .
 type Dao struct {
-	Redis *redis.Client
-	CB    *casbin.Enforcer
+	LimiterManager *limiter.LimiterManager
+	Obfuscator     *obfuscate.Obfuscator
 }
 
 // Interface dao
 type Interface interface {
-	Enforce(...interface{}) (bool, error)
+	AllowN(userId uint32, n int) bool
+	Obfuscate(id uint32) string
+	Deobfuscate(hid string) (uint32, error)
 }
 
 // Init init dao
@@ -39,9 +41,12 @@ func Init() {
 	// init casbin
 	model.CB.Init()
 
+	limiterManager := limiter.NewLimiterManager()
+	obfuscator := obfuscate.NewObfuscator(viper.GetString("hashids.salt"), viper.GetInt("hashids.minlength"))
+
 	dao = &Dao{
-		Redis: model.RedisDB.Self,
-		CB:    model.CB.Self,
+		LimiterManager: limiterManager,
+		Obfuscator:     obfuscator,
 	}
 }
 
@@ -49,6 +54,19 @@ func GetDao() *Dao {
 	return dao
 }
 
-func (d *Dao) Enforce(rvals ...interface{}) (bool, error) {
-	return d.CB.Enforce(rvals)
+func (d Dao) AllowN(userId uint32, n int) bool {
+	return d.LimiterManager.AllowN(userId, n)
+}
+
+func (d Dao) Obfuscate(id uint32) string {
+	return d.Obfuscator.Obfuscate(uint(id))
+}
+
+func (d Dao) Deobfuscate(hid string) (uint32, error) {
+	id, err := d.Obfuscator.Deobfuscate(hid)
+	if err != nil {
+		return 0, err
+	}
+
+	return uint32(id), nil
 }

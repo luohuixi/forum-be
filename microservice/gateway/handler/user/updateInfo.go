@@ -14,8 +14,7 @@ import (
 )
 
 // UpdateInfo ... 修改用户个人信息
-// @Summary update info api
-// @Description 修改用户个人信息
+// @Summary 修改用户个人信息 api
 // @Tags user
 // @Accept application/json
 // @Produce application/json
@@ -38,9 +37,11 @@ func UpdateInfo(c *gin.Context) {
 	updateInfoReq := &pb.UpdateInfoRequest{
 		Id: userId,
 		Info: &pb.UserInfo{
-			Name:      req.Name,
-			AvatarUrl: req.AvatarURL,
-			Email:     req.Email,
+			Name:                      req.Name,
+			AvatarUrl:                 req.AvatarURL,
+			Signature:                 req.Signature,
+			IsPublicCollectionAndLike: req.IsPublicCollectionAndLike,
+			IsPublicFeed:              req.IsPublicFeed,
 		},
 	}
 
@@ -50,5 +51,5 @@ func UpdateInfo(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, errno.OK, nil)
+	SendResponse(c, nil, nil)
 }

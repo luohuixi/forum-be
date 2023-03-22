@@ -6,7 +6,6 @@ import (
 	pb "forum-chat/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
-	"forum/util"
 )
 
 // Create 发送消息
@@ -15,7 +14,7 @@ func (s *ChatService) Create(_ context.Context, req *pb.CreateRequest, _ *pb.Res
 
 	data := &dao.ChatData{
 		Content:  req.Content,
-		Time:     util.GetCurrentTime(),
+		Time:     req.Time,
 		Receiver: req.TargetUserId,
 		Sender:   req.UserId,
 		TypeName: req.TypeName,

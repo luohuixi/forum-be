@@ -1,12 +1,11 @@
 package errno
 
 import (
-	errors "github.com/micro/go-micro/errors"
+	"go-micro.dev/v4/errors"
 )
 
 func ServerErr(errno *Errno, cause string) error {
 	return &errors.Error{
-		// Id:     "",
 		Code:   int32(errno.Code),
 		Detail: cause,
 		Status: errno.Message,
@@ -31,8 +30,6 @@ func DecodeErr(err error) (int, string) {
 	}
 
 	switch typed := err.(type) {
-	// case *Err:
-	// 	return typed.Code, typed.Message
 	case *Errno:
 		return typed.Code, typed.Message
 	case *errors.Error:

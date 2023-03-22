@@ -6,6 +6,7 @@ import (
 	logger "forum/log"
 	"forum/pkg/errno"
 	"forum/util"
+	"gorm.io/gorm"
 	"strconv"
 )
 
@@ -18,19 +19,21 @@ func (s *PostService) UpdatePostInfo(_ context.Context, req *pb.UpdatePostInfoRe
 
 	post, err := s.Dao.GetPost(req.Id)
 	if err != nil {
-		return errno.ServerErr(errno.ErrDatabase, err.Error())
-	}
+		if err == gorm.ErrRecordNotFound {
+			return errno.NotFoundErr(errno.ErrItemNotFound, "post-"+strconv.Itoa(int(req.Id)))
+		}
 
-	if post == nil {
-		return errno.NotFoundErr(errno.ErrItemNotFound, "post-"+strconv.Itoa(int(req.Id)))
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
 	post.Title = req.Title
 	post.Content = req.Content
+	post.CompiledContent = req.CompiledContent
 	post.LastEditTime = util.GetCurrentTime()
-	post.CategoryId = req.CategoryId
+	post.Category = req.Category
+	post.Summary = req.Summary
 
-	if err := post.Save(); err != nil {
+	if err := post.Update(); err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 

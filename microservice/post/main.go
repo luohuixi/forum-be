@@ -3,18 +3,24 @@ package main
 import (
 	"forum-post/dao"
 	pb "forum-post/proto"
-	s "forum-post/service"
+	"forum-post/service"
 	"forum/config"
 	logger "forum/log"
 	"forum/pkg/handler"
-	tracer "forum/pkg/tracer"
-	"github.com/micro/go-micro"
+	"forum/pkg/tracer"
 	"github.com/opentracing/opentracing-go"
+	micro "go-micro.dev/v4"
 	"log"
 
-	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
+
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/spf13/viper"
 )
+
+func init() {
+	service.UserInit()
+}
 
 func main() {
 	// init config
@@ -46,7 +52,9 @@ func main() {
 	dao.Init()
 
 	// Register handler
-	pb.RegisterPostServiceHandler(srv.Server(), s.New(dao.GetDao()))
+	if err := pb.RegisterPostServiceHandler(srv.Server(), service.New(dao.GetDao())); err != nil {
+		panic(err)
+	}
 
 	// Run the server
 	if err := srv.Run(); err != nil {

@@ -1,11 +1,13 @@
 package post
 
 import (
+	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"strconv"
@@ -15,32 +17,36 @@ import (
 )
 
 // ListMainPost ... 获取主帖
-// @Summary list 主贴 api
-// @Description type_name = normal -> 团队外 (type_name暂时均填normal); 根据category获取主贴list(前端实现category的映射)
+// @Summary list 主帖 api
+// @Description 根据category or tag 获取主帖list
 // @Tags post
 // @Accept application/json
 // @Produce application/json
+// @Param Authorization header string true "token 用户令牌"
 // @Param limit query int false "limit"
 // @Param page query int false "page"
 // @Param last_id query int false "last_id"
-// @Param type_name path string true "type_name"
-// @Param category_id path int true "category_id"
-// @Param Authorization header string true "token 用户令牌"
-// @Success 200 {object} []post.Post
-// @Router /post/list/{type_name}/{category_id} [get]
+// @Param category query string false "category"
+// @Param filter query string false "filter"
+// @Param search_content query string false "search_content"
+// @Param tag query string false "tag"
+// @Param domain path string true "normal -> 团队外; muxi -> 团队内"
+// @Success 200 {object} ListMainPostResponse
+// @Router /post/list/{domain} [get]
 func (a *Api) ListMainPost(c *gin.Context) {
 	log.Info("Post ListMainPost function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
 
-	typeName := c.Param("type_name")
-	if typeName != "normal" { // TODO
-		SendError(c, errno.ErrPathParam, nil, "type_name not legal", GetLine())
+	domain := c.Param("domain")
+	if domain != constvar.NormalDomain && domain != constvar.MuxiDomain {
+		SendError(c, errno.ErrPathParam, nil, "domain not legal", GetLine())
 		return
 	}
-	ok, err := a.Dao.Enforce(userId, typeName, constvar.Read)
+
+	ok, err := model.Enforce(userId, constvar.Post, domain, constvar.Read)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
 	}
 
@@ -49,11 +55,9 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	id, err := strconv.Atoi(c.Param("category_id"))
-	if err != nil {
-		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
-		return
-	}
+	category := c.DefaultQuery("category", "")
+
+	filter := c.DefaultQuery("filter", "")
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	if err != nil {
@@ -73,21 +77,41 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		return
 	}
 
-	listReq := &pb.ListMainPostRequest{
-		UserId:     userId,
-		CategoryId: uint32(id),
-		TypeName:   typeName,
-		LastId:     uint32(lastId),
-		Offset:     uint32(page * limit),
-		Limit:      uint32(limit),
-		Pagination: page != 0,
+	searchContent := c.DefaultQuery("search_content", "")
+
+	tag := c.DefaultQuery("tag", "")
+
+	if domain == constvar.NormalDomain {
+		ok, err := model.Enforce(userId, constvar.Post, constvar.MuxiDomain, constvar.Read)
+		if err != nil {
+			SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
+			return
+		}
+
+		// 团队用户normal默认获取所有帖子
+		if ok {
+			domain = constvar.AllDomain
+		}
 	}
 
-	postResp, err := service.PostClient.ListMainPost(c, listReq)
+	listReq := &pb.ListMainPostRequest{
+		UserId:        userId,
+		Category:      category,
+		Domain:        domain,
+		LastId:        uint32(lastId),
+		Offset:        uint32(page * limit),
+		Limit:         uint32(limit),
+		Pagination:    limit != 0 || page != 0,
+		SearchContent: searchContent,
+		Filter:        filter,
+		Tag:           tag,
+	}
+
+	postResp, err := service.PostClient.ListMainPost(context.TODO(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
-	SendResponse(c, errno.OK, postResp.List)
+	SendMicroServiceResponse(c, nil, postResp, ListMainPostResponse{})
 }

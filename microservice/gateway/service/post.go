@@ -2,25 +2,23 @@ package service
 
 import (
 	pbp "forum-post/proto"
-	handler "forum/pkg/handler"
-
-	micro "github.com/micro/go-micro"
-	_ "github.com/micro/go-plugins/registry/kubernetes"
-	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
+	"forum/pkg/handler"
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/opentracing/opentracing-go"
+	micro "go-micro.dev/v4"
 )
 
-var PostService micro.Service
-var PostClient pbp.PostServiceClient
+var PostClient pbp.PostService
 
 func PostInit() {
-	PostService = micro.NewService(micro.Name("forum.cli.post"),
+	service := micro.NewService(micro.Name("forum.cli.post"),
 		micro.WrapClient(
 			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
 		),
 		micro.WrapCall(handler.ClientErrorHandlerWrapper()))
-	PostService.Init()
 
-	PostClient = pbp.NewPostServiceClient("forum.service.post", PostService.Client())
+	service.Init()
 
+	PostClient = pbp.NewPostService("forum.service.post", service.Client())
 }

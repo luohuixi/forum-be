@@ -23,13 +23,13 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi/forum_be_user  #要推送docker地址
-      registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
+      repo: registry-vpc.cn-shenzhen.aliyuncs.com/muxi/forum_be_user  #要推送docker地址
+      registry: registry-vpc.cn-shenzhen.aliyuncs.com # 使用的docker hub地址
       tags: ${DRONE_TAG} 
       build_args:
         - service_name=user
   - name: build gateway service image # 构建 gateway 服务镜像
-    image: plugins/docker 
+    image: plugins/docker
     when:
       ref:
       - refs/tags/release-gateway-*
@@ -41,13 +41,13 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi/forum_be_gateway  #要推送docker地址
-      registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
-      tags: ${DRONE_TAG} 
+      repo: registry-vpc.cn-shenzhen.aliyuncs.com/muxi/forum_be_gateway  #要推送docker地址
+      registry: registry-vpc.cn-shenzhen.aliyuncs.com # 使用的docker hub地址
+      tags: ${DRONE_TAG}
       build_args:
         - service_name=gateway
   - name: build post service image # 构建 post 服务镜像
-    image: plugins/docker 
+    image: plugins/docker
     when:
       ref:
       - refs/tags/release-post-*
@@ -59,13 +59,13 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi/forum_be_post  #要推送docker地址
-      registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
-      tags: ${DRONE_TAG} 
+      repo: registry-vpc.cn-shenzhen.aliyuncs.com/muxi/forum_be_post  #要推送docker地址
+      registry: registry-vpc.cn-shenzhen.aliyuncs.com # 使用的docker hub地址
+      tags: ${DRONE_TAG}
       build_args:
         - service_name=post
   - name: build chat service image # 构建 chat 服务镜像
-    image: plugins/docker 
+    image: plugins/docker
     when:
       ref:
       - refs/tags/release-chat-*
@@ -77,9 +77,9 @@ steps:
         from_secret: docker_user # alicloud指定的docker hub的用户名(前面配置)
       password:
         from_secret: docker_password # alicloud指定的docker hub的密码(前面配置)
-      repo: registry-vpc.cn-hangzhou.aliyuncs.com/muxi/forum_be_chat  #要推送docker地址
-      registry: registry-vpc.cn-hangzhou.aliyuncs.com # 使用的docker hub地址
-      tags: ${DRONE_TAG} 
+      repo: registry-vpc.cn-shenzhen.aliyuncs.com/muxi/forum_be_chat  #要推送docker地址
+      registry: registry-vpc.cn-shenzhen.aliyuncs.com # 使用的docker hub地址
+      tags: ${DRONE_TAG}
       build_args:
         - service_name=chat
 

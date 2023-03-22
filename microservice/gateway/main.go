@@ -13,6 +13,8 @@ import (
 	"forum/config"
 	"forum/log"
 
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
+
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
 	"github.com/spf13/viper"
@@ -27,12 +29,13 @@ func init() {
 	service.UserInit()
 	service.ChatInit()
 	service.PostInit()
+	service.FeedInit()
 }
 
-// @title forum-gateway
-// @version 1.0
-// @description The gateway of forum
-// @host work.test.muxi-tech.xyz
+// @Title forum-gateway
+// @Version 1.0
+// @Description The gateway of forum
+// @Host forum.muxixyz.com
 // @BasePath /api/v1
 
 // @tag.name user
@@ -43,9 +46,17 @@ func init() {
 // @tag.description 聊天服务
 // @tag.name post
 // @tag.description 帖子服务
+// @tag.name feed
+// @tag.description 动态服务
+// @tag.name collection
+// @tag.description 收藏服务
+// @tag.name comment
+// @tag.description 评论服务
+// @tag.name like
+// @tag.description 点赞服务
+// @tag.name report
+// @tag.description 举报服务
 
-func main1() {
-}
 func main() {
 	pflag.Parse()
 

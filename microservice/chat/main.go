@@ -3,19 +3,18 @@ package main
 import (
 	"forum-chat/dao"
 	pb "forum-chat/proto"
-	s "forum-chat/service"
+	"forum-chat/service"
 	"forum/config"
 	logger "forum/log"
 	"forum/pkg/handler"
-	tracer "forum/pkg/tracer"
-	"github.com/micro/go-micro"
+	"forum/pkg/tracer"
 	"github.com/opentracing/opentracing-go"
-	// "github.com/micro/protobuf/protoc-gen-go/micro"
+	micro "go-micro.dev/v4"
 	"log"
 
-	// _ "github.com/micro/go-plugins/registry/kubernetes"
+	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
 
-	opentracingWrapper "github.com/micro/go-plugins/wrapper/trace/opentracing"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/spf13/viper"
 )
 
@@ -49,7 +48,9 @@ func main() {
 	dao.Init()
 
 	// Register handler
-	pb.RegisterChatServiceHandler(srv.Server(), s.New(dao.GetDao()))
+	if err := pb.RegisterChatServiceHandler(srv.Server(), service.New(dao.GetDao())); err != nil {
+		panic(err)
+	}
 
 	// Run the server
 	if err := srv.Run(); err != nil {

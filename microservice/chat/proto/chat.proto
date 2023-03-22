@@ -1,25 +1,48 @@
 syntax = "proto3";
 
+option go_package = "./proto";
+
 package chat;
 
 service ChatService {
     rpc Create(CreateRequest) returns (Response) {}
     rpc GetList(GetListRequest) returns (GetListResponse) {}
+    rpc ListHistory(ListHistoryRequest) returns (ListHistoryResponse) {}
+}
+
+message ListHistoryRequest {
+    uint32 offset = 1;
+    uint32 limit = 2;
+    bool pagination = 3;
+    uint32 user_id = 4;
+    uint32 other_user_id = 5;
 }
 
 message CreateRequest {
-    string user_id = 1;
-    string target_user_id = 2;
+    uint32 user_id = 1;
+    uint32 target_user_id = 2;
     string content = 3;
     string type_name = 4;
+    string time = 5;
 }
 
 message Response {}
 
 message GetListRequest {
-    string user_id = 1;
+    uint32 user_id = 1;
 }
 
 message GetListResponse {
     repeated string list = 1;
+}
+
+message Message {
+    string content = 1;
+    string time = 2;
+    string type_name = 3;
+    uint32 sender = 4;
+}
+
+message ListHistoryResponse {
+    repeated Message histories = 1;
 }

@@ -7,7 +7,6 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"go.uber.org/zap"
 	"strconv"
 )
 
@@ -28,7 +27,7 @@ func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.Co
 		TypeName: constvar.Comment,
 	})
 	if err != nil {
-		logger.Error(err.Error(), zap.Error(errno.ErrRedis))
+		logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
 	}
 
 	resp.LikeNum = comment.LikeNum
@@ -38,10 +37,11 @@ func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.Co
 	resp.TypeName = comment.TypeName
 	resp.Id = comment.Id
 	resp.Content = comment.Content
-	resp.CreateTime = comment.CreateTime
+	resp.Time = comment.CreateTime
 	resp.CreatorId = comment.CreatorId
 	resp.CreatorAvatar = comment.CreatorAvatar
 	resp.CreatorName = comment.CreatorName
+	resp.ImgUrl = comment.ImgUrl
 
 	return nil
 }

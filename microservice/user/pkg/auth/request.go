@@ -29,7 +29,7 @@ type UserItem struct {
 	Group     string `json:"group"`
 	Timejoin  string `json:"timejoin"`
 	Timeleft  string `json:"timeleft"`
-	RoleID    uint64 `json:"role_id"`
+	RoleId    uint64 `json:"role_id"`
 	Left      bool   `json:"left"`
 	Info      string `json:"info"`
 	AvatarURL string `json:"avatar_url"`

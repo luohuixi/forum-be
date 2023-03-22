@@ -1,6 +1,6 @@
 name=gateway
 
-all: gotool
+all: tidy gotool
 	@go build -o main -v .
 vet:
 	go vet ./...
@@ -32,3 +32,6 @@ help:
 	@echo "make deploy name=gateway ver=1.0.x - push code and tag to github and gitea"
 
 .PHONY: clean gotool ca help
+
+docker:
+	docker buildx build --platform linux/amd64 -t forum ../.. --build-arg service_name=${name}

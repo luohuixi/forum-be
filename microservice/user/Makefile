@@ -1,5 +1,11 @@
 name=user
 
+all: tidy gotool
+	@go build -o main -v .
+gotool:
+	gofmt -w .
+tidy:
+	go mod tidy
 build:
 	go build -o main
 fmt:
@@ -7,7 +13,7 @@ fmt:
 vet:
 	go vet ./...
 protoc:
-	protoc --go_out=plugins=micro:. ./proto/user.proto
+	protoc --proto_path=. --micro_out=. --go_out=. ./proto/user.proto
 github:
 	git push origin && git push --tags origin
 gitea:
@@ -15,3 +21,6 @@ gitea:
 tag:
 	git tag release-${name}-${ver}
 push: vet tag gitea github
+
+docker:
+	docker buildx build --platform linux/amd64 -t forum ../.. --build-arg service_name=${name}

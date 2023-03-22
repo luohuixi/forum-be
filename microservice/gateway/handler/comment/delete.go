@@ -7,6 +7,7 @@ import (
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
+	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"github.com/gin-gonic/gin"
@@ -16,12 +17,11 @@ import (
 
 // Delete ... 删除评论
 // @Summary 删除评论 api
-// @Description
 // @Tags comment
 // @Accept application/json
 // @Produce application/json
-// @Param comment_id path int true "comment_id"
 // @Param Authorization header string true "token 用户令牌"
+// @Param comment_id path int true "comment_id"
 // @Success 200 {object} handler.Response
 // @Router /comment/{comment_id} [delete]
 func (a *Api) Delete(c *gin.Context) {
@@ -35,9 +35,9 @@ func (a *Api) Delete(c *gin.Context) {
 		return
 	}
 
-	ok, err := a.Dao.Enforce(userId, "type_name", constvar.Write)
+	ok, err := model.Enforce(userId, constvar.Comment, id, constvar.Write)
 	if err != nil {
-		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
 	}
 
@@ -46,9 +46,10 @@ func (a *Api) Delete(c *gin.Context) {
 		return
 	}
 
-	deleteReq := &pb.Item{
+	deleteReq := &pb.DeleteItemRequest{
 		Id:       uint32(id),
 		TypeName: constvar.Comment,
+		UserId:   userId,
 	}
 
 	_, err = service.PostClient.DeleteItem(context.TODO(), deleteReq)
@@ -57,5 +58,5 @@ func (a *Api) Delete(c *gin.Context) {
 		return
 	}
 
-	SendResponse(c, errno.OK, nil)
+	SendResponse(c, nil, nil)
 }

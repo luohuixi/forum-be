@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-redis/redis"
 	"github.com/spf13/viper"
-	"go.uber.org/zap"
 )
 
 type Redis struct {
@@ -46,13 +45,18 @@ func (*PubSub) Close() {
 // OpenRedisClient opens a redis client with the addr and password getting from env or config file
 func OpenRedisClient() *redis.Client {
 	r := redis.NewClient(&redis.Options{
-		Addr:     viper.GetString("redis.addr"),
-		Password: viper.GetString("redis.password"),
-		DB:       0,
+		Addr:         viper.GetString("redis.addr"),
+		Password:     viper.GetString("redis.password"),
+		DB:           0,
+		PoolSize:     1000,
+		PoolTimeout:  2 * time.Minute,
+		IdleTimeout:  10 * time.Minute,
+		ReadTimeout:  2 * time.Minute,
+		WriteTimeout: 1 * time.Minute,
 	})
 
 	if _, err := r.Ping().Result(); err != nil {
-		log.Error("Open redis failed", zap.String("reason", err.Error()))
+		log.Error("Open redis failed", log.String(err.Error()))
 	}
 	return r
 }

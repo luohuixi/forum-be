@@ -2,30 +2,31 @@ package service
 
 import (
 	"context"
-	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"strconv"
 )
 
-func (s *PostService) DeleteItem(_ context.Context, req *pb.Item, _ *pb.Response) error {
+func (s *PostService) DeleteItem(_ context.Context, req *pb.DeleteItemRequest, _ *pb.Response) error {
 	logger.Info("PostService DeleteItem")
 
-	item, err := s.Dao.GetItem(dao.Item{
-		Id:       req.Id,
-		TypeName: req.TypeName,
-	})
+	var err error
+
+	if req.TypeName == constvar.Post {
+		err = s.Dao.DeletePost(req.Id)
+	} else if req.TypeName == constvar.Comment {
+		err = s.Dao.DeleteComment(req.Id)
+	} else {
+		return errno.ServerErr(errno.ErrBadRequest, "wrong TypeName")
+	}
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	if item == nil {
-		return errno.NotFoundErr(errno.ErrItemNotFound, strconv.Itoa(int(req.Id)))
-	}
-
-	if err := item.Delete(); err != nil {
-		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	if err := model.DeletePermission(req.UserId, req.TypeName, req.Id, constvar.Write); err != nil {
+		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}
 
 	return nil

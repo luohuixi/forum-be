@@ -5,34 +5,31 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/util"
 )
 
-func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _ *pb.Response) error {
+func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, resp *pb.CreatePostResponse) error {
 	logger.Info("PostService CreatePost")
 
-	if req.MainPostId != 0 {
-		post, err := s.Dao.GetPost(req.MainPostId)
-		if err != nil {
-			return errno.ServerErr(errno.ErrItemNotFound, "main_post cant find")
-		}
-
-		if post.MainPostId != 0 {
-			return errno.ServerErr(errno.ErrBadRequest, "the main_post_id is not a main_post id")
-		}
+	if req.Domain != constvar.NormalDomain && req.Domain != constvar.MuxiDomain {
+		return errno.ServerErr(errno.ErrBadRequest, "domain not legal")
 	}
 
 	data := &dao.PostModel{
-		TypeName:     req.TypeName,
-		Content:      req.Content,
-		Title:        req.Title,
-		CreateTime:   util.GetCurrentTime(),
-		CategoryId:   req.CategoryId,
-		MainPostId:   req.MainPostId,
-		Re:           false,
-		CreatorId:    req.UserId,
-		LastEditTime: util.GetCurrentTime(),
+		Domain:          req.Domain,
+		Content:         req.Content,
+		Title:           req.Title,
+		CreateTime:      util.GetCurrentTime(),
+		Category:        req.Category,
+		Re:              false,
+		CreatorId:       req.UserId,
+		ContentType:     req.ContentType,
+		CompiledContent: req.CompiledContent,
+		LastEditTime:    util.GetCurrentTime(),
+		Summary:         req.Summary,
 	}
 
 	postId, err := s.Dao.CreatePost(data)
@@ -40,7 +37,19 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
+	if err := model.AddPolicy(req.UserId, constvar.Post, postId, constvar.Write); err != nil {
+		return errno.ServerErr(errno.ErrCasbin, err.Error())
+	}
+
+	if err := model.AddResourceRole(constvar.Post, postId, req.Domain); err != nil {
+		return errno.ServerErr(errno.ErrCasbin, err.Error())
+	}
+
 	for _, content := range req.Tags {
+		if content == "" {
+			return errno.ServerErr(errno.ErrBadRequest, "tag content can't be null")
+		}
+
 		tag, err := s.Dao.GetTagByContent(content)
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
@@ -53,7 +62,15 @@ func (s *PostService) CreatePost(_ context.Context, req *pb.CreatePostRequest, _
 		if err := s.Dao.CreatePost2Tag(item); err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
+
+		go func() {
+			if err := s.Dao.AddTagToSortedSet(tag.Id, req.Category); err != nil {
+				logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
+			}
+		}()
 	}
+
+	resp.Id = postId
 
 	return nil
 }

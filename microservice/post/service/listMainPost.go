@@ -7,72 +7,55 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"go.uber.org/zap"
 )
 
 func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostRequest, resp *pb.ListPostResponse) error {
 	logger.Info("PostService ListMainPost")
 
 	filter := &dao.PostModel{
-		TypeName:   req.TypeName,
-		CategoryId: req.CategoryId,
+		Category: req.Category,
 	}
 
-	posts, err := s.Dao.ListPost(filter, req.Offset, req.Limit, req.LastId, req.Pagination)
+	if req.Domain != constvar.AllDomain {
+		filter.Domain = req.Domain
+	}
+
+	tag, err := s.Dao.GetTagByContent(req.Tag)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	resp.List = make([]*pb.Post, len(posts))
+	posts, err := s.Dao.ListMainPost(filter, req.Filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.SearchContent, tag.Id)
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+
+	resp.Posts = make([]*pb.Post, len(posts))
 	for i, post := range posts {
 
-		// limit max len of post content
-		content := post.Content
-		if len(content) > 200 {
-			content = post.Content[:200]
+		isLiked, isCollection, likeNum, tags, commentNum, collectionNum := s.getPostInfo(post.Id, req.UserId)
+
+		if likeNum != 0 {
+			post.LikeNum = likeNum
 		}
 
-		commentNum := s.Dao.GetCommentNumByPostId(post.Id)
-
-		item := dao.Item{
-			Id:       post.Id,
-			TypeName: constvar.Post,
-		}
-
-		isLiked, err := s.Dao.IsUserHadLike(req.UserId, item)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
-		}
-
-		isFavorite, err := s.Dao.IsUserFavoritePost(req.UserId, post.Id)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
-		}
-
-		likeNum, err := s.Dao.GetLikedNum(item)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrRedis))
-		}
-
-		tags, err := s.Dao.ListTagsByPostId(post.Id)
-		if err != nil {
-			logger.Error(err.Error(), zap.Error(errno.ErrDatabase))
-		}
-
-		resp.List[i] = &pb.Post{
+		resp.Posts[i] = &pb.Post{
 			Id:            post.Id,
 			Title:         post.Title,
 			Time:          post.LastEditTime,
-			CategoryId:    post.CategoryId,
+			Category:      post.Category,
 			CreatorId:     post.CreatorId,
 			CreatorName:   post.CreatorName,
 			CreatorAvatar: post.CreatorAvatar,
-			Content:       content,
+			LikeNum:       post.LikeNum,
 			CommentNum:    commentNum,
-			LikeNum:       uint32(likeNum),
 			IsLiked:       isLiked,
-			IsFavorite:    isFavorite,
+			IsCollection:  isCollection,
 			Tags:          tags,
+			ContentType:   post.ContentType,
+			Summary:       post.Summary,
+			CollectionNum: collectionNum,
+			Domain:        post.Domain,
 		}
 	}
 

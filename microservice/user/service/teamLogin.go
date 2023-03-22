@@ -2,15 +2,15 @@ package service
 
 import (
 	"context"
-	"forum/pkg/constvar"
-	"forum/pkg/token"
-
 	"forum-user/dao"
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
 	"forum-user/util"
 	logger "forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
+	"forum/pkg/token"
 )
 
 // TeamLogin ... 登录
@@ -44,36 +44,53 @@ func (s *UserService) TeamLogin(_ context.Context, req *pb.TeamLoginRequest, res
 
 	// 根据 email 在 DB 查询 user
 	user, err := s.Dao.GetUserByEmail(userInfo.Email)
-
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
-	} else if user == nil {
+	}
+
+	if user == nil {
 		info := &dao.RegisterInfo{
 			Name:  userInfo.Username,
 			Email: userInfo.Email,
-			Role:  constvar.TeamNormal,
+			Role:  constvar.MuxiRole,
 		}
 		// 用户未注册，自动注册
 		if err := s.Dao.RegisterUser(info); err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
+
 		// 注册后重新查询
 		user, err = s.Dao.GetUserByEmail(userInfo.Email)
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
+
+		if err := s.Dao.AddPublicPolicy(user.Role, user.Id); err != nil {
+			return errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
+
+		if err := model.AddRole("user", user.Id, constvar.MuxiRole); err != nil {
+			return errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
+	}
+
+	role := uint32(constvar.Normal)
+	if user.Role == constvar.NormalAdminRole || user.Role == constvar.MuxiAdminRole {
+		role = constvar.Admin
+	} else if user.Role == constvar.SuperAdminRole {
+		role = constvar.SuperAdmin
 	}
 
 	// 生成 auth token
-	token, err := token.GenerateToken(&token.TokenPayload{
+	Token, err := token.GenerateToken(&token.TokenPayload{
 		Id:      user.Id,
-		Role:    user.Role,
+		Role:    role,
 		Expired: util.GetExpiredTime(),
 	})
 	if err != nil {
 		return errno.ServerErr(errno.ErrAuthToken, err.Error())
 	}
 
-	resp.Token = token
+	resp.Token = Token
 	return nil
 }
