@@ -1,0 +1,24 @@
+local_name: "forum.service.user"  # 服务名称
+tracing:
+  jager: "localhost:12345"  # Jaeger 跟踪服务的地址
+
+auth_server:
+
+  host: "pass.muxi-tech.xyz"
+  client_id: 123456789
+  client_secret: 1234567890
+
+runmode: debug                 # 开发模式, debug, release, test 部署时环境变量覆盖
+jwt_secret: 1234567890
+redis:
+  addr: 127.0.0.1:6379
+  password: ""
+
+
+db:  # DB 配置 部署时环境变量覆盖
+  name: forum
+  addr: 127.0.0.1:3306
+  username: root
+  password: 123456
+token:
+  expired: 30 # 过期时间（天）

@@ -1,0 +1,244 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package post;
+
+service PostService {
+    rpc CreatePost(CreatePostRequest) returns (CreatePostResponse) {}
+    rpc GetPost(Request) returns (Post) {}
+    rpc ListMainPost(ListMainPostRequest) returns (ListPostResponse) {}
+    rpc ListUserCreatedPost(ListPostPartInfoRequest) returns (ListPostPartInfoResponse) {}
+    rpc UpdatePostInfo(UpdatePostInfoRequest) returns (Response) {}
+
+    rpc GetComment(Request) returns (CommentInfo) {}
+    rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse) {}
+
+    rpc DeleteItem(DeleteItemRequest) returns (Response) {}
+
+    rpc CreateOrRemoveLike(LikeRequest) returns (Response) {}
+    rpc ListLikeByUserId(ListPostPartInfoRequest) returns (ListPostPartInfoResponse) {}
+
+    rpc ListPopularTag(ListPopularTagRequest) returns (Tags) {}
+
+    rpc CreateOrRemoveCollection(Request) returns (CreateOrRemoveCollectionResponse) {}
+    rpc ListCollection(ListPostPartInfoRequest) returns (ListPostPartInfoResponse) {}
+
+    rpc CreateReport(CreateReportRequest) returns (Response) {}
+    rpc ListReport(ListReportRequest) returns (ListReportResponse) {}
+    rpc HandleReport(HandleReportRequest) returns (Response) {}
+}
+
+message CreatePostResponse {
+    uint32 id = 1;
+}
+
+message HandleReportRequest {
+    uint32 id = 1;
+    string result = 2;
+}
+
+message ListReportRequest {
+    uint32 last_id = 1;
+    uint32 offset = 2;
+    uint32 limit = 3;
+    bool pagination = 4;
+}
+
+message Report {
+    uint32 id = 1;
+    uint32 post_id = 2;
+    uint32 user_id = 3;
+    string cause = 4;
+    string type_name = 5;
+    string create_time = 6;
+    string user_avatar = 7;
+    string user_name = 8;
+    uint32 be_reported_user_id = 9;
+    string be_reported_user_name = 10;
+    string be_reported_content = 11;
+    string category = 12;
+    uint32 target_id = 13;
+}
+
+message ListReportResponse {
+    repeated Report reports = 1;
+}
+
+message CreateReportRequest {
+    uint32 user_id = 1;
+    uint32 id = 2;
+    string type_name = 3;
+    string cause = 4;
+    string category = 5;
+}
+
+message ListPopularTagRequest {
+    string category = 1;
+}
+
+message LikeItem {
+    uint32 target_id = 1;
+    string type_name = 2;
+}
+
+message LikeRequest {
+    uint32 user_id = 1;
+    LikeItem item = 2;
+}
+
+message CreateCommentRequest {
+    uint32 post_id = 1;
+    string type_name = 2;
+    uint32 father_id = 3;
+    string content = 4;
+    uint32 creator_id = 5;
+    string img_url = 6;
+}
+
+message CommentInfo {
+    uint32 id = 1;
+    string type_name = 2;
+    string content = 3;
+    uint32 father_id = 4;
+    string time = 5;
+    uint32 creator_id = 6;
+    string creator_name = 7;
+    string creator_avatar = 8;
+    uint32 like_num = 9;
+    bool is_liked = 10;
+    uint32 be_replied_user_id = 11;
+    string be_replied_user_name = 12;
+    string father_content = 13;
+    string img_url = 14;
+}
+
+message Request {
+    uint32 id = 1;
+    uint32 user_id = 2;
+}
+
+message DeleteItemRequest {
+    uint32 id = 1;
+    string type_name = 2;
+    uint32 user_id = 3;
+}
+
+message UpdatePostInfoRequest {
+    uint32 id = 1;
+    string content = 2;
+    string compiled_content = 3;
+    uint32 user_id = 4;
+    string category = 5;
+    string title = 6;
+    string summary = 7;
+    repeated string tags = 8;
+}
+
+message CreatePostRequest {
+    uint32 user_id = 1;
+    string content = 2;
+    string domain = 3;
+    string title = 4;
+    string category = 5;
+    string content_type = 6;
+    string compiled_content = 7;
+    string summary = 8;
+    repeated string tags = 9;
+}
+
+message Response {}
+
+message CreateOrRemoveCollectionResponse {
+    uint32 id = 1;
+    uint32 user_id = 2;
+    string content = 3;
+    string type_name = 4;
+}
+
+message CreateCommentResponse {
+    uint32 id = 1;
+    uint32 user_id = 2;
+    string father_content = 3;
+    uint32 father_user_id = 4;
+    string create_time = 5;
+    string creator_name = 6;
+    string creator_avatar = 7;
+    string type_name = 8;
+}
+
+message ListMainPostRequest {
+    uint32 last_id = 1;
+    uint32 offset = 2;
+    uint32 limit = 3;
+    string domain = 4;
+    string category = 5;
+    uint32 user_id = 6;
+    bool pagination = 7;
+    string search_content = 8;
+    string filter = 9;
+    string tag = 10;
+}
+
+message ListPostResponse {
+    repeated Post posts = 1;
+}
+
+message Post {
+    uint32 id = 1;
+    string title = 2;
+    string time = 3;
+    string category = 4;
+    uint32 creator_id = 5;
+    string creator_name = 6;
+    string content = 7;
+    string creator_avatar = 8;
+    uint32 comment_num = 9;
+    uint32 like_num = 10;
+    bool is_liked = 11;
+    bool is_collection = 12;
+    string content_type = 13;
+    string compiled_content = 14;
+    string summary = 15;
+    uint32 collection_num = 16;
+    string domain = 17;
+    repeated string tags = 18;
+    repeated CommentInfo comments = 19;
+}
+
+message Tags {
+    repeated string tags = 1;
+}
+
+message ListPostPartInfoRequest {
+    uint32 last_id = 1;
+    uint32 offset = 2;
+    uint32 limit = 3;
+    uint32 id = 4;
+    uint32 user_id = 5;
+    bool pagination = 6;
+    uint32 target_user_id = 7;
+}
+
+message ListPostPartInfoResponse {
+    repeated PostPartInfo posts = 1;
+}
+
+message PostPartInfo {
+    uint32 id = 1;
+    string title = 2;
+    string summary = 3;
+    string category = 4;
+    string time = 5;
+    uint32 creator_id = 6;
+    string creator_name = 7;
+    string creator_avatar = 8;
+    uint32 comment_num = 9;
+    uint32 like_num = 10;
+    uint32 collection_num = 11;
+    repeated string tags = 12;
+}
+
+message DeleteCollectionRequest {
+    uint32 id = 1;
+}

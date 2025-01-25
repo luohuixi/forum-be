@@ -1,0 +1,15 @@
+local_name: forum.service.post  # 服务名称
+tracing:
+  jager: "localhost:12345"  # Jaeger 跟踪服务的地址
+
+
+
+db:  # DB 配置 部署时环境变量覆盖
+  name: forum
+  addr: 127.0.0.1:3306
+  username: root
+  password: 123456
+
+redis:
+  addr: 127.0.0.1:6379
+  password: ""

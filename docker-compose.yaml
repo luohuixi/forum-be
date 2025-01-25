@@ -1,0 +1,114 @@
+version: '3.8'
+
+services:
+  # 前端服务
+  forum_fe:
+    image: registry.cn-shenzhen.aliyuncs.com/muxi/forum_fe:v1.0.0
+    container_name: forum_fe
+    ports:
+      - "4173:4173" # 前端服务端口
+    networks:
+      - forum_network
+
+  # 后端网关服务
+  forum_be_gateway:
+    image: registry.cn-shenzhen.aliyuncs.com/muxi/forum_be_gateway:v1.0.0
+    container_name: forum_be_gateway
+    ports:
+      - "8080:8080" # 网关服务端口
+    environment:
+      - MICRO_REGISTRY_ADDRESS=etcd:2379
+    volumes:
+      - ./configs/forum_be_gateway:/app/conf # 挂载配置文件
+    networks:
+      - forum_network
+
+  # 后端帖子服务
+  forum_be_post:
+    image: registry.cn-shenzhen.aliyuncs.com/muxi/forum_be_post:v1.0.0
+    container_name: forum_be_post
+    environment:
+      - MICRO_REGISTRY_ADDRESS=etcd:2379
+    volumes:
+      - ./configs/forum_be_post:/app/conf # 挂载配置文件
+    networks:
+      - forum_network
+
+  # 后端动态推送服务
+  forum_be_feed:
+    image: registry.cn-shenzhen.aliyuncs.com/muxi/forum_be_feed:v1.0.0
+    container_name: forum_be_feed
+    environment:
+      - MICRO_REGISTRY_ADDRESS=etcd:2379
+    volumes:
+      - ./configs/forum_be_feed:/app/conf # 挂载配置文件
+    networks:
+      - forum_network
+
+  # 后端聊天服务
+  forum_be_chat:
+    image: registry.cn-shenzhen.aliyuncs.com/muxi/forum_be_chat:v1.0.0
+    container_name: forum_be_chat
+    environment:
+      - MICRO_REGISTRY_ADDRESS=etcd:2379
+    volumes:
+      - ./configs/forum_be_chat:/app/conf # 挂载配置文件
+    networks:
+      - forum_network
+
+  # 后端用户服务
+  forum_be_user:
+    image: registry.cn-shenzhen.aliyuncs.com/muxi/forum_be_user:v1.0.0
+    container_name: forum_be_user
+    environment:
+      - MICRO_REGISTRY_ADDRESS=etcd:2379
+    volumes:
+      - ./configs/forum_be_user:/app/conf # 挂载配置文件
+    networks:
+      - forum_network
+
+  # Redis 服务
+  redis:
+    image: redis:6.2
+    container_name: redis
+    ports:
+      - "16379:6379" # 网关服务端口
+    networks:
+      - forum_network
+
+  # Etcd 服务
+  etcd:
+    image: bitnami/etcd:latest
+    container_name: etcd
+    ports:
+      - "2379:2379"
+      - "2380:2380"
+    environment:
+      - ALLOW_NONE_AUTHENTICATION=yes
+      - ETCD_ADVERTISE_CLIENT_URLS=http://0.0.0.0:2379
+      - ETCD_LISTEN_CLIENT_URLS=http://0.0.0.0:2379
+    networks:
+      - forum_network
+
+  kafka:
+    image: 'bitnami/kafka:3.6.0'
+    ports:
+      - '9092:9092'
+      - '9094:9094'
+    environment:
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CREATE_TOPICS=webook_binlog:3:1
+      - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://0.0.0.0:9092,CONTROLLER://:9093,EXTERNAL://0.0.0.0:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092,EXTERNAL://localhost:9094
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka:9093
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - TZ=Asia/Shanghai
+    networks:
+      - forum_network
+
+networks:
+  forum_network:
+    driver: bridge
