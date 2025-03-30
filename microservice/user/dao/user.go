@@ -45,6 +45,15 @@ func (d *Dao) GetUserByEmail(email string) (*UserModel, error) {
 	return u, err
 }
 
+func (d *Dao) UpdatePassword(userID uint32, newPassword string) error {
+	hashedPassword := generatePasswordHash(newPassword)
+
+	// 只更新 hash_password 字段
+	return d.DB.Model(&UserModel{}).
+		Where("id = ?", userID).
+		Update("hash_password", hashedPassword).Error
+}
+
 // ListUser list users
 func (d *Dao) ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, error) {
 	if limit == 0 {

@@ -19,22 +19,26 @@ import (
 func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginRequest, resp *pb.LoginResponse) error {
 	logger.Info("UserService StudentLogin")
 
-	// 根据 StudentId 在 DB 查询 user
-	user, err := s.Dao.GetUserByStudentId(req.StudentId)
-
-	if err != nil {
-		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	// 使用 ccnu 登陆
+	if err := auth.GetUserInfoFormOne(req.StudentId, req.Password); err != nil {
+		return errno.ServerErr(errno.ErrPasswordIncorrect, err.Error())
 	}
+
+	//查询是否存在用户
+	user, err := s.Dao.GetUserByStudentId(req.StudentId)
+	if err != nil {
+		return err
+	}
+
+	//如果用户为空
 	if user == nil {
-		if err := auth.GetUserInfoFormOne(req.StudentId, req.Password); err != nil {
-			return errno.ServerErr(errno.ErrRegister, err.Error())
-		}
 		info := &dao.RegisterInfo{
 			StudentId: req.StudentId,
 			Password:  req.Password,
 			Role:      constvar.NormalRole,
 			Name:      req.StudentId,
 		}
+
 		// 用户未注册，自动注册
 		if err := s.Dao.RegisterUser(info); err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
@@ -54,11 +58,14 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 			return errno.ServerErr(errno.ErrCasbin, err.Error())
 		}
 	} else {
-		if !user.CheckPassword(req.Password) {
-			return errno.ServerErr(errno.ErrPasswordIncorrect, "密码错误！")
+		//更新用户密码
+		err := s.Dao.UpdatePassword(user.Id, req.Password)
+		if err != nil {
+			return err
 		}
 	}
 
+	//根据权限生成token
 	role := uint32(constvar.Normal)
 	if user.Role == constvar.NormalAdminRole || user.Role == constvar.MuxiAdminRole {
 		role = constvar.Admin

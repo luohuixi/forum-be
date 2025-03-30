@@ -17,16 +17,17 @@ func (s *PostService) ListMainPost(_ context.Context, req *pb.ListMainPostReques
 	filter := &dao.PostModel{
 		Category: req.Category,
 	}
-
+	//默认应该是all
 	if req.Domain != constvar.AllDomain {
 		filter.Domain = req.Domain
 	}
-
+	//通过tag获取到tagId
 	tag, err := s.Dao.GetTagByContent(req.Tag)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
+	//通过tagId找到帖子列表
 	posts, err := s.Dao.ListMainPost(filter, req.Filter, req.Offset, req.Limit, req.LastId, req.Pagination, req.SearchContent, tag.Id)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())

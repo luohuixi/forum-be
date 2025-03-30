@@ -33,15 +33,18 @@ func GetUserInfoFormOne(sid string, pwd string) error {
 		log.Println(err)
 		return err
 	}
+
 	client := http.Client{
 		Timeout: time.Duration(10 * time.Second),
 		Jar:     jar,
 	}
+
 	err = makeAccountRequest(sid, pwd, params, &client)
 	if err != nil {
 		log.Println(err)
 		return err
 	}
+
 	return nil
 }
 

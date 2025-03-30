@@ -28,11 +28,13 @@ func (s *ChatService) GetList(ctx context.Context, req *pb.GetListRequest, resp 
 	}
 
 	select {
-	case <-ctx.Done(): // client cancel this request
+	case <-ctx.Done():
+		//如果客户单消费失败了,说明要写回去
 		if err := s.Dao.Rewrite(req.UserId, list); err != nil {
 			return errno.ServerErr(errno.ErrRewriteRedisList, err.Error())
 		}
 	default:
+		// 意思是只要读了就会写到历史记录里面 ?
 		if err := s.Dao.CreateHistory(req.UserId, list); err != nil {
 			return errno.ServerErr(errno.ErrCreateHistory, err.Error())
 		}

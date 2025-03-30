@@ -9,6 +9,7 @@ import (
 )
 
 func (d *Dao) Create(data *ChatData) error {
+	//序列化为string后推入数列左侧(越靠左的消息越新)
 	msg, err := json.Marshal(data)
 	if err != nil {
 		return err
@@ -18,8 +19,11 @@ func (d *Dao) Create(data *ChatData) error {
 }
 
 func (d *Dao) GetList(id uint32, expiration time.Duration) ([]string, error) {
+
+	//使用用户的id创建一个key
 	key := "chat:" + strconv.Itoa(int(id))
 
+	// 如果数列里面为空的话则阻塞等待
 	if d.Redis.LLen(key).Val() == 0 {
 		msg, err := d.Redis.BRPop(expiration, key).Result() // 阻塞
 		if err != nil {
@@ -29,6 +33,7 @@ func (d *Dao) GetList(id uint32, expiration time.Duration) ([]string, error) {
 		return msg[1:], nil // first ele is key
 	}
 
+	// 逐个读取整个队列,从右侧取(先取旧的消息)
 	var list []string
 	for d.Redis.LLen(key).Val() != 0 {
 		msg, err := d.Redis.RPop(key).Result()
@@ -46,19 +51,23 @@ func (d *Dao) GetList(id uint32, expiration time.Duration) ([]string, error) {
 func (d *Dao) Rewrite(id uint32, list []string) error {
 	log.Info("Rewrite")
 
+	//从右侧将消息回写,这个地方为了保持消息的顺序与原来保持一致需要倒序写入
 	for i := len(list); i > 0; i-- {
 		if err := d.Redis.RPush("chat:"+strconv.Itoa(int(id)), list[i-1]).Err(); err != nil {
 			return err
 		}
 	}
+
 	return nil
 }
 
 func (d *Dao) ListHistory(userId, otherUserId, offset, limit uint32, pagination bool) ([]*pb.Message, error) {
-
+	//这个地方为了保证顺序要进行交换
 	if otherUserId < userId {
 		otherUserId, userId = userId, otherUserId
 	}
+
+	//读取这两个人的历史消息
 	key := "history:" + strconv.Itoa(int(userId)) + "-" + strconv.Itoa(int(otherUserId)) // history:min_id-max_id
 
 	var start int64 = 0
@@ -69,6 +78,7 @@ func (d *Dao) ListHistory(userId, otherUserId, offset, limit uint32, pagination 
 		end = int64(offset + limit)
 	}
 
+	//批量读取消息,这个地方要注意索引从小到大是从新到旧
 	list, err := d.Redis.LRange(key, start, end).Result() // DESC
 	if err != nil {
 		return nil, err
@@ -95,12 +105,14 @@ func (d *Dao) CreateHistory(userId uint32, list []string) error {
 			return err
 		}
 
-		min := userId
-		if min > msg.Sender {
-			min, msg.Sender = msg.Sender, min
+		//调整为统一顺序,为什么要这么做呢?因为这么做首先可以保证一致性,其次可以减半存储空间
+		minId := userId
+		if minId > msg.Sender {
+			minId, msg.Sender = msg.Sender, minId
 		}
 
-		if err := d.Redis.LPush("history:"+strconv.Itoa(int(min))+"-"+strconv.Itoa(int(msg.Sender)), list[i-1]).Err(); err != nil {
+		//推送到这两个人的历史消息里面去
+		if err := d.Redis.LPush("history:"+strconv.Itoa(int(minId))+"-"+strconv.Itoa(int(msg.Sender)), list[i-1]).Err(); err != nil {
 			return err
 		}
 	}

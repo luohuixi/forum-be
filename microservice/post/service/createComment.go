@@ -22,9 +22,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 	// check if the FatherId is valid
 	switch req.TypeName {
 	case constvar.SubPost:
-
 		req.FatherId = req.PostId
-
 		resp.UserId = post.CreatorId
 		resp.FatherContent = post.Title
 

@@ -21,6 +21,7 @@ type Interface interface {
 	GetUser(id uint32) (*UserModel, error)
 	GetUserByIds(ids []uint32) ([]*UserModel, error)
 	GetUserByEmail(email string) (*UserModel, error)
+	UpdatePassword(userID uint32, newPassword string) error
 	ListUser(offset, limit, lastId uint32, filter *UserModel) ([]*UserModel, error)
 	GetUserByStudentId(studentId string) (*UserModel, error)
 	RegisterUser(info *RegisterInfo) error

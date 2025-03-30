@@ -148,6 +148,7 @@ func (d Dao) DeletePost(id uint32, tx ...*gorm.DB) error {
 			}
 
 			if !isExist {
+				// TODO 添加redis事务保证数据一致性
 				if err := d.Redis.ZRem("tags:", tagId).Err(); err != nil {
 					log.Error(err.Error())
 					return

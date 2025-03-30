@@ -22,12 +22,14 @@ type Client struct {
 	Close  chan struct{}
 }
 
-// WsHandler ... socket 连接 中间件 作用:升级协议,用户验证,自定义信息等
-// @Summary WebSocket
-// @Description 建立 WebSocket 连接
+// WsHandler 建立 WebSocket 连接
+// @Summary WebSocket 连接
+// @Description 通过 WebSocket 进行实时通信。请使用 ws:// 或 wss:// 连接此接口，并在 Apifox 选择 WebSocket 请求。
 // @Tags chat
-// @Param id query string true "uuid"
-// @Success 200 {object} Message
+// @Param id query string true "用户 UUID"
+// @Success 101 {string} string "WebSocket 连接成功"
+// @Failure 400 {object} ErrorResponse "请求错误"
+// @Failure 500 {object} ErrorResponse "服务器错误"
 // @Router /chat/ws [get]
 func WsHandler(c *gin.Context) {
 	log.Info("Chat WsHandler function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -65,6 +67,8 @@ func (c *Client) Read() {
 	}()
 
 	for {
+
+		//读取写入的message
 		_, message, err := c.Socket.ReadMessage()
 		if err != nil {
 			log.Info("client close connect")
@@ -91,7 +95,7 @@ func (c *Client) Read() {
 			c.Socket.WriteMessage(websocket.TextMessage, []byte("error: wrong target_user_id"))
 			break
 		}
-
+		//创建聊天记录
 		if _, err := service.ChatClient.Create(context.Background(), &req); err != nil {
 			log.Error(err.Error())
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
@@ -107,6 +111,7 @@ func (c *Client) Write() {
 	}()
 
 	for {
+		//获取聊天记录
 		getListRequest := &pb.GetListRequest{
 			UserId: c.UserId,
 		}
@@ -116,7 +121,7 @@ func (c *Client) Write() {
 			<-c.Close // cancel the request when client close connect
 			cancel()
 		}()
-
+		// 死循环获取,直到客户端断开连接
 		resp, err := service.ChatClient.GetList(ctx, getListRequest)
 		if err != nil {
 			log.Error(err.Error())
