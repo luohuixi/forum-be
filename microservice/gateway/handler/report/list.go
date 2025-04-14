@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} ListResponse
 // @Router /report/list [get]
 func (a *Api) List(c *gin.Context) {
-	log.Info("Report List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Report List function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
 	if err != nil {

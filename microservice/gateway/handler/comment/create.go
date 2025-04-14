@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} Comment
 // @Router /comment [post]
 func (a *Api) Create(c *gin.Context) {
-	log.Info("Comment Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Comment Create function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	var req CreateRequest
 	if err := c.BindJSON(&req); err != nil {

@@ -133,7 +133,7 @@ func setInfo[T pb.CommentInfo | pb.Post](info *info, comment *T) {
 		field := typeT.Field(i)
 
 		switch field.Name {
-		case "Id":
+		case "PostId":
 			info.Id = uint32(v.Uint())
 		case "Content":
 			info.Content = v.String()

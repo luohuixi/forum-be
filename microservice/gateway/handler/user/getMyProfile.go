@@ -18,7 +18,7 @@ import (
 // @Success 200 {object} UserProfile
 // @Router /user/myprofile [get]
 func GetMyProfile(c *gin.Context) {
-	log.Info("User GetMyProfile function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User GetMyProfile function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
 

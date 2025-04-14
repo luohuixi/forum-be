@@ -23,7 +23,7 @@ import (
 // @Success 200 {object} TeamLoginResponse
 // @Router /auth/login/team [post]
 func TeamLogin(c *gin.Context) {
-	log.Info("User TeamLogin function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User TeamLogin function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	// 从前端获取 oauth_code
 	var req TeamLoginRequest

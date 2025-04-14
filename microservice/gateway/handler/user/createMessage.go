@@ -22,7 +22,7 @@ import (
 // @Success 200 {object} handler.Response
 // @Router /user/message [post]
 func CreateMessage(c *gin.Context) {
-	log.Info("User CreateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User CreateMessage function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	var req CreateMessageRequest
 	if err := c.BindJSON(&req); err != nil {

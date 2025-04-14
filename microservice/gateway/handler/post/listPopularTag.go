@@ -22,7 +22,7 @@ import (
 // @Success 200 {object} []string
 // @Router /post/popular_tag [get]
 func (a *Api) ListPopularTag(c *gin.Context) {
-	log.Info("Post ListPopularTag function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Post ListPopularTag function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	category := c.DefaultQuery("category", "")
 

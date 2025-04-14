@@ -20,7 +20,7 @@ import (
 // @Success 200 {object} QiNiuToken
 // @Router /post/qiniu_token [get]
 func (a *Api) GetQiNiuToken(c *gin.Context) {
-	log.Info("Post GetQiNiuToken function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Post GetQiNiuToken function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	token := getToken()
 	resp := QiNiuToken{

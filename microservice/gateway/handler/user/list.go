@@ -26,7 +26,7 @@ import (
 // @Success 200 {object} ListResponse
 // @Router /user/list [get]
 func List(c *gin.Context) {
-	log.Info("User List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User List function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	// 获取 limit
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))

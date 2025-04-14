@@ -20,7 +20,7 @@ import (
 // @Success 200 {object} ListMessageResponse
 // @Router /user/message/list [get]
 func ListMessage(c *gin.Context) {
-	log.Info("User ListMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User ListMessage function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
 

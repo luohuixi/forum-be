@@ -23,7 +23,7 @@ import (
 // @Success 200 {object} handler.Response
 // @Router /user [put]
 func UpdateInfo(c *gin.Context) {
-	log.Info("User UpdateInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User UpdateInfo function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	var req UpdateInfoRequest
 	if err := c.BindJSON(&req); err != nil {

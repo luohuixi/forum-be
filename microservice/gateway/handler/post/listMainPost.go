@@ -34,7 +34,7 @@ import (
 // @Success 200 {object} ListMainPostResponse
 // @Router /post/list/{domain} [get]
 func (a *Api) ListMainPost(c *gin.Context) {
-	log.Info("Post ListMainPost function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Post ListMainPost function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
 

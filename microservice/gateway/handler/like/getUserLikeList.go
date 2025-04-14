@@ -29,7 +29,7 @@ import (
 // @Success 200 {object} post.PostPartInfoResponse
 // @Router /like/list/{user_id} [get]
 func (a *Api) GetUserLikeList(c *gin.Context) {
-	log.Info("Like GetUserLikeList function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Like GetUserLikeList function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	targetUserId, err := strconv.Atoi(c.Param("user_id"))
 	if err != nil {

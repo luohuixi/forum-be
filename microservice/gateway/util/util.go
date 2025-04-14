@@ -10,7 +10,7 @@ func GenShortId() (string, error) {
 }
 
 func GetReqID(c *gin.Context) string {
-	v, ok := c.Get("X-Request-Id")
+	v, ok := c.Get("X-Request-PostId")
 	if !ok {
 		return ""
 	}

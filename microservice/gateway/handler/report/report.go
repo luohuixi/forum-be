@@ -18,7 +18,7 @@ type CreateRequest struct {
 	TypeName string `json:"type_name" binding:"required"` // post or comment
 	Category string `json:"category" binding:"required"`
 	Cause    string `json:"cause" binding:"required"`
-	Id       uint32 `json:"id" binding:"required"`
+	PostId   uint32 `json:"post_id" binding:"required"`
 }
 
 type HandleRequest struct {

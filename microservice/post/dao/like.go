@@ -39,7 +39,7 @@ func (d *Dao) RemoveLike(userId uint32, target Item) error {
 
 func (d *Dao) GetLikedNum(target Item) (int64, error) {
 	return d.Redis.SCard("like:" + target.TypeName + "_list:" + strconv.Itoa(int(target.Id))).Result()
-	// res, err := d.Redis.Get("like:" + target.TypeName + ":" + strconv.Itoa(int(target.Id))).Result()
+	// res, err := d.Redis.Get("like:" + target.TypeName + ":" + strconv.Itoa(int(target.PostId))).Result()
 	// if err == redis.Nil {
 	// 	return 0, nil
 	// } else if err != nil {

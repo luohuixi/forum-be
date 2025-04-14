@@ -26,7 +26,7 @@ import (
 // @Success 200 {object} UserProfile
 // @Router /user/profile/{id} [get]
 func GetProfile(c *gin.Context) {
-	log.Info("User GetProfile function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("User GetProfile function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {

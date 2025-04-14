@@ -32,7 +32,7 @@ type Client struct {
 // @Failure 500 {object} ErrorResponse "服务器错误"
 // @Router /chat/ws [get]
 func WsHandler(c *gin.Context) {
-	log.Info("Chat WsHandler function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Chat WsHandler function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	var upGrader = websocket.Upgrader{
 		CheckOrigin:  func(r *http.Request) bool { return true },

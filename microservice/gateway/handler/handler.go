@@ -48,7 +48,7 @@ func SendMicroServiceResponse(c *gin.Context, err error, m proto.Message, data a
 	}
 
 	code, message := errno.DecodeErr(err)
-	log.Info(message, zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info(message, zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	c.JSON(http.StatusOK, Response{
 		Code:    code,
@@ -59,7 +59,7 @@ func SendMicroServiceResponse(c *gin.Context, err error, m proto.Message, data a
 
 func SendResponse(c *gin.Context, err error, data interface{}) {
 	code, message := errno.DecodeErr(err)
-	log.Info(message, zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info(message, zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	c.JSON(http.StatusOK, Response{
 		Code:    code,
@@ -71,7 +71,7 @@ func SendResponse(c *gin.Context, err error, data interface{}) {
 func SendError(c *gin.Context, err error, data interface{}, cause string, source string) {
 	code, message := errno.DecodeErr(err)
 	log.Error(message,
-		zap.String("X-Request-Id", util.GetReqID(c)),
+		zap.String("X-Request-PostId", util.GetReqID(c)),
 		zap.String("cause", cause),
 		zap.String("source", source))
 

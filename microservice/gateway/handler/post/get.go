@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} GetPostResponse
 // @Router /post/{post_id} [get]
 func (a *Api) Get(c *gin.Context) {
-	log.Info("Post Get function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Post Get function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	id, err := strconv.Atoi(c.Param("post_id"))
 	if err != nil {

@@ -12,7 +12,7 @@ replace forum-feed => ../feed
 
 go 1.21
 
-toolchain go1.22.5
+toolchain go1.23.3
 
 require (
 	forum v0.0.0-00010101000000-000000000000

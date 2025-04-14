@@ -23,7 +23,7 @@ import (
 // @Success 200 {object} handler.Response
 // @Router /report [put]
 func (a *Api) Handle(c *gin.Context) {
-	log.Info("Report Handle function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+	log.Info("Report Handle function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
 
 	var req HandleRequest
 	if err := c.BindJSON(&req); err != nil {
