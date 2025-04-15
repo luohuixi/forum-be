@@ -1,5 +1,5 @@
 # 第一阶段：构建可执行文件
-FROM golang:1.18 AS builder
+FROM golang:1.23 AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -21,7 +21,7 @@ RUN make
 RUN ls -al /app/microservice/$service_name
 
 # 第二阶段：使用 debian 镜像作为基础
-FROM debian:bullseye-slim
+FROM debian:bookworm-slim
 
 ARG service_name
 

@@ -4,9 +4,9 @@ replace forum => ../../
 
 replace forum-chat => ../../microservice/chat
 
-go 1.21
+go 1.23.0
 
-toolchain go1.22.5
+toolchain go1.23.3
 
 require (
 	forum-chat v0.0.0-00010101000000-000000000000
