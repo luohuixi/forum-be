@@ -54,6 +54,7 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 		Id:       req.Id,
 		Content:  req.Content,
 		Title:    req.Title,
+		Domain:   req.Domain,
 		UserId:   userId,
 		Category: req.Category,
 		Tags:     req.Tags,

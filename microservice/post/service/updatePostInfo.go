@@ -28,6 +28,7 @@ func (s *PostService) UpdatePostInfo(_ context.Context, req *pb.UpdatePostInfoRe
 
 	post.Title = req.Title
 	post.Content = req.Content
+	post.Domain = req.Domain
 	post.CompiledContent = req.CompiledContent
 	post.LastEditTime = util.GetCurrentTime()
 	post.Category = req.Category

@@ -2,7 +2,7 @@ module forum-user
 
 replace forum => ../../
 
-go 1.18
+go 1.23.0
 
 require (
 	forum v0.0.0-00010101000000-000000000000

@@ -45,3 +45,12 @@ docker buildx build --platform linux/amd64 -t registry.cn-shenzhen.aliyuncs.com/
 MICRO_REGISTRY_ADDRESS=localhost:2379
 ```
 
+生成相关的proto代码需要先下载如下插件
+```
+go install github.com/go-micro/generator/cmd/protoc-gen-micro@latest
+```
+
+生成proto代码
+```
+protoc --proto_path=. --go_out=:. --micro_out=. path/your.proto
+```

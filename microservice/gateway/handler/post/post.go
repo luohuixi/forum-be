@@ -19,6 +19,7 @@ func New(i dao.Interface) *Api {
 
 type UpdateInfoRequest struct {
 	Id       uint32   `json:"id" binding:"required"`
+	Domain   string   `json:"domain" binding:"required"`
 	Content  string   `json:"content" binding:"required"`
 	Title    string   `json:"title" binding:"required"`
 	Category string   `json:"category" binding:"required"`

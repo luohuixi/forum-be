@@ -133,6 +133,7 @@ message UpdatePostInfoRequest {
     string title = 6;
     string summary = 7;
     repeated string tags = 8;
+    string domain = 9;
 }
 
 message CreatePostRequest {

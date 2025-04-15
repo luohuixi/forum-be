@@ -50,6 +50,7 @@ func (p *PostModel) Update() error {
 		"content":          p.Content,
 		"compiled_content": p.CompiledContent,
 		"last_edit_time":   p.LastEditTime,
+		"domain":           p.Domain,
 		"category":         p.Category,
 		"summary":          p.Summary,
 	}).Error
