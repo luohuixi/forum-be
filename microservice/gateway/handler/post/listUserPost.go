@@ -26,7 +26,7 @@ import (
 // @Success 200 {object} PostPartInfoResponse
 // @Router /post/published/{user_id} [get]
 func (a *Api) ListUserPost(c *gin.Context) {
-	log.Info("Post ListUserPost function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("Post ListUserPost function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	targetUserId, err := strconv.Atoi(c.Param("user_id"))
 	if err != nil {

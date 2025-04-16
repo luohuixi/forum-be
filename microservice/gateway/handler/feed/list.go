@@ -29,7 +29,7 @@ import (
 // @Success 200 {object} FeedListResponse
 // @Router /feed/list/{user_id} [get]
 func (a *Api) List(c *gin.Context) {
-	log.Info("feed List function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("feed List function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	targetUserId, err := strconv.Atoi(c.Param("user_id"))
 	if err != nil {

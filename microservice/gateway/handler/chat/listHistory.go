@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} []Message
 // @Router /chat/history/{id} [get]
 func ListHistory(c *gin.Context) {
-	log.Info("Chat ListHistory function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("Chat ListHistory function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
 

@@ -17,9 +17,9 @@ func RequestId() gin.HandlerFunc {
 		}
 
 		// Expose it for use in the application
-		c.Set("X-Request-PostId", requestId)
+		c.Set("X-Request-Id", requestId)
 
-		// Set X-Request-PostId header
+		// Set X-Request-Id header
 		c.Writer.Header().Set("X-Request-Id", requestId)
 		c.Next()
 	}

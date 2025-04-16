@@ -24,7 +24,7 @@ import (
 // @Success 200 {object} handler.Response
 // @Router /post [put]
 func (a *Api) UpdateInfo(c *gin.Context) {
-	log.Info("Post UpdateInfo function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("Post UpdateInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	var req UpdateInfoRequest
 	if err := c.BindJSON(&req); err != nil {

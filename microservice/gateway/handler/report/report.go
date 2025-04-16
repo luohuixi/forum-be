@@ -16,9 +16,9 @@ func New(i dao.Interface) *Api {
 
 type CreateRequest struct {
 	TypeName string `json:"type_name" binding:"required"` // post or comment
-	Category string `json:"category" binding:"required"`
+	Category string `json:"category"`                     //可选参数
 	Cause    string `json:"cause" binding:"required"`
-	PostId   uint32 `json:"post_id" binding:"required"`
+	Id       uint32 `json:"id" binding:"required"` //post的id或者是comment的id
 }
 
 type HandleRequest struct {

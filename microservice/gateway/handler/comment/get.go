@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} Comment
 // @Router /comment/{comment_id} [get]
 func (a *Api) Get(c *gin.Context) {
-	log.Info("Comment Get function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("Comment Get function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	id, err := strconv.Atoi(c.Param("comment_id"))
 	if err != nil {

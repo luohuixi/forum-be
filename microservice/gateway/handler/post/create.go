@@ -24,7 +24,7 @@ import (
 // @Success 200 {object} IdResponse
 // @Router /post [post]
 func (a *Api) Create(c *gin.Context) {
-	log.Info("Post Create function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("Post Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	var req CreateRequest
 	if err := c.BindJSON(&req); err != nil {

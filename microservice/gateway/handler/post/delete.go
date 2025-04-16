@@ -25,7 +25,7 @@ import (
 // @Success 200 {object} handler.Response
 // @Router /post/{post_id} [delete]
 func (a *Api) Delete(c *gin.Context) {
-	log.Info("Post Delete function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("Post Delete function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
 

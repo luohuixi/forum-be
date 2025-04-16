@@ -23,7 +23,7 @@ import (
 // @Success 200 {object} StudentLoginResponse
 // @Router /auth/login/student [post]
 func StudentLogin(c *gin.Context) {
-	log.Info("User StudentLogin function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("User StudentLogin function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	var req StudentLoginRequest
 	if err := c.BindJSON(&req); err != nil {

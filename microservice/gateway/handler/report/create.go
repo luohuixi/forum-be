@@ -24,7 +24,7 @@ import (
 // @Success 200 {object} handler.Response
 // @Router /report [post]
 func (a *Api) Create(c *gin.Context) {
-	log.Info("Report Create function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("Report Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	var req CreateRequest
 	if err := c.BindJSON(&req); err != nil {
@@ -39,7 +39,7 @@ func (a *Api) Create(c *gin.Context) {
 
 	userId := c.MustGet("userId").(uint32)
 
-	ok, err := model.Enforce(userId, req.TypeName, req.PostId, constvar.Read)
+	ok, err := model.Enforce(userId, req.TypeName, req.Id, constvar.Read)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
@@ -57,7 +57,7 @@ func (a *Api) Create(c *gin.Context) {
 
 	createReq := pb.CreateReportRequest{
 		UserId:   userId,
-		Id:       req.PostId,
+		Id:       req.Id,
 		TypeName: req.TypeName,
 		Category: req.Category,
 		Cause:    req.Cause,

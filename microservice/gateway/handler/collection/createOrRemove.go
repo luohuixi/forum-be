@@ -26,7 +26,7 @@ import (
 // @Success 200 {object} handler.Response
 // @Router /collection/{post_id} [post]
 func (a *Api) CreateOrRemove(c *gin.Context) {
-	log.Info("Collection CreateOrRemove function called.", zap.String("X-Request-PostId", util.GetReqID(c)))
+	log.Info("Collection CreateOrRemove function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	postId, err := strconv.Atoi(c.Param("post_id"))
 	if err != nil {
