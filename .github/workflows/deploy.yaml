@@ -14,7 +14,7 @@ jobs:
       REGISTRY: registry.cn-shenzhen.aliyuncs.com/muxi
       IMAGE_TAG: latest
       SSH_HOST: ${{ secrets.DEV_SERVER }}
-      SSH_USER: ${{ secrets.DEV_SERVER }}
+      SSH_USER: ${{ secrets.DEV_SERVER_USER }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -55,26 +55,21 @@ jobs:
             SERVICE=$svc REGISTRY=$REGISTRY IMAGE_TAG=$IMAGE_TAG make docker-push
           done < services.txt
 
-      - name: Prepare SSH
-        if: steps.detect.outputs.list != ''
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.DEV_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H $SSH_HOST >> ~/.ssh/known_hosts
-
       - name: Deploy on remote (single SSH)
         if: steps.detect.outputs.list != ''
         run: |
-            ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_SERVER }}@${{ secrets.DEV_SERVER }} << EOF
-            cd ~/forum
-            
-              for svc in $SERVICES; do
-              SERVICE=forum_be_\$svc
-              IMAGE=${REGISTRY}/\$SERVICE:${IMAGE_TAG}
-              echo "» Deploying \$SERVICE → \$IMAGE"
-              docker rm -f \$SERVICE    || true
-              docker rmi -f \$IMAGE     || true
-              IMAGE=\$IMAGE docker compose up -d \$SERVICE
-              done
+            mkdir -p ~/.ssh
+            echo "${{ secrets.DEV_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+            chmod 600 ~/.ssh/id_rsa
+            ssh-keyscan -H ${{ secrets.DEV_SERVER }}  >> ~/.ssh/known_hosts
+            ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_SERVER_USER  }}@${{ secrets.DEV_SERVER }} << EOF
+              cd ~/forum
+                for svc in $SERVICES; do
+                  SERVICE=forum_be_\$svc
+                  IMAGE=${REGISTRY}/\$SERVICE:${IMAGE_TAG}
+                  echo "» Deploying \$SERVICE → \$IMAGE"
+                  docker rm -f \$SERVICE    || true
+                  docker rmi -f \$IMAGE     || true
+                  IMAGE=\$IMAGE docker compose up -d \$SERVICE
+                done
             EOF
