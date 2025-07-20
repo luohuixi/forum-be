@@ -15,7 +15,7 @@ RUN go env -w GOPROXY="https://goproxy.cn,direct"
 WORKDIR /app/microservice/$service_name
 
 # 执行 make 编译项目
-RUN go build -o main .
+RUN go mod tidy && go build -o main .
 
 # 第二阶段：使用 debian 镜像作为基础
 FROM debian:bookworm-slim

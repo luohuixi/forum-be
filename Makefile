@@ -9,6 +9,7 @@ docker-build:
 	  -t $(REGISTRY)/forum_be_$(SERVICE):$(IMAGE_TAG) \
 	  .
 
+
 # 推送镜像
 docker-push:
 	@echo "Pushing image for service: $(SERVICE)"

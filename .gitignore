@@ -19,7 +19,6 @@ main
 .idea
 *.log
 *.tmp
-*.sum
 .DS_Store
 config.yaml
 config_sub.yaml
