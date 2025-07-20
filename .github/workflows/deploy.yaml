@@ -14,7 +14,7 @@ jobs:
       REGISTRY: registry.cn-shenzhen.aliyuncs.com/muxi
       IMAGE_TAG: latest
       SSH_HOST: ${{ secrets.DEV_SERVER }}
-      SSH_USER: ${{ secrets.DEV_SERVER_USER }}
+      SSH_USER: ${{ secrets.DEV_SERVER }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -66,12 +66,7 @@ jobs:
       - name: Deploy on remote (single SSH)
         if: steps.detect.outputs.list != ''
         run: |
-            SERVICES="$(paste -sd ' ' services.txt)"
-            echo "Will deploy: $SERVICES"
-            
-            ssh -i ~/.ssh/id_rsa \
-                -o StrictHostKeyChecking=no \
-                ${SSH_USER}@${SSH_HOST} bash -s <<EOF
+            ssh -o StrictHostKeyChecking=no ${{ secrets.DEV_SERVER }}@${{ secrets.DEV_SERVER }} << EOF
             cd ~/forum
             
               for svc in $SERVICES; do
