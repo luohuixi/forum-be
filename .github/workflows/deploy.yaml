@@ -67,14 +67,14 @@ jobs:
          ssh -i ~/.ssh/id_rsa \
              -o StrictHostKeyChecking=no \
              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} << EOF
-          echo "SSH Success!"
-         EOF
-#             cd ~/forum
-#              for svc in $SERVICES; do
-#                SERVICE=forum_be_\$svc
-#                IMAGE=${REGISTRY}/\$SERVICE:${IMAGE_TAG}
-#                echo "» Deploying \$SERVICE → \$IMAGE"
-#                docker rm -f \$SERVICE    || true
-#                docker rmi -f \$IMAGE     || true
-#                IMAGE=\$IMAGE docker compose up -d \$SERVICE
-#              done
+         echo "SSH Success!"
+         cd ~/forum
+          for svc in $SERVICES; do
+            SERVICE=forum_be_\$svc
+            IMAGE=${REGISTRY}/\$SERVICE:${IMAGE_TAG}
+            echo "» Deploying \$SERVICE → \$IMAGE"
+            docker rm -f \$SERVICE    || true
+            docker rmi -f \$IMAGE     || true
+            IMAGE=\$IMAGE docker compose up -d \$SERVICE
+          done
+        EOF
