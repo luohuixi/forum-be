@@ -61,6 +61,7 @@ jobs:
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ secrets.SERVER_ADDR }} >> ~/.ssh/known_hosts
+
       - name: SSH into server and deploy
         run: |
          ssh -i ~/.ssh/id_rsa \
