@@ -13,8 +13,8 @@ jobs:
     env:
       REGISTRY: registry.cn-shenzhen.aliyuncs.com/muxi
       IMAGE_TAG: latest
-      SSH_HOST: ${{ secrets.SERVER_USER }}
-      SSH_USER: ${{ secrets.SERVER_ADDR }}
+      SSH_HOST: ${{ secrets.SERVER_ADDR  }}
+      SSH_USER: ${{ secrets.SERVER_USER  }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
