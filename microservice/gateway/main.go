@@ -75,7 +75,6 @@ func main() {
 	// Create the Gin engine.
 	g := gin.New()
 
-	//
 	// Routes.
 	router.Load(
 		// Cores.
