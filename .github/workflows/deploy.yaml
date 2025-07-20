@@ -68,6 +68,9 @@ jobs:
              -o StrictHostKeyChecking=no \
              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} << EOF
          echo "SSH Success!"
+          
+         SERVICES="$(paste -sd ' ' services.txt)"
+         echo "Will deploy: $SERVICES"
          cd ~/forum
           for svc in $SERVICES; do
             SERVICE=forum_be_\$svc
