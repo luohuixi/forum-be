@@ -65,7 +65,7 @@ jobs:
         run: |
          ssh -i ~/.ssh/id_rsa \
              -o StrictHostKeyChecking=no \
-             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
+             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} << EOF
           echo "SSH Success!"
          EOF
 #             cd ~/forum
