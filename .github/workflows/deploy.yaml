@@ -55,25 +55,17 @@ jobs:
             SERVICE=$svc REGISTRY=$REGISTRY IMAGE_TAG=$IMAGE_TAG make docker-push
           done < services.txt
 
-      - name: Deploy on remote (single SSH)
-        if: steps.detect.outputs.list != ''
+      - name: Set up SSH key
         run: |
-            # 本地准备 SSH key
-            mkdir -p ~/.ssh
-            echo "${{ secrets.DEV_SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-            chmod 600 ~/.ssh/id_rsa
-            ssh-keyscan -H ${{ secrets.DEV_SERVER }} >> ~/.ssh/known_hosts
-  
-            # 一次 SSH 登录并远端循环
-            ssh -i ~/.ssh/id_rsa \
-                -o StrictHostKeyChecking=no \
-                ${{ secrets.DEV_SERVER_USER }}@${{ secrets.DEV_SERVER }} bash -s <<EOF
-            
-            # 本地拼服务列表
-            SERVICES="$(paste -sd ' ' services.txt)"
-            echo "Will deploy: $SERVICES"
-            
-            cd ~/forum
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H ${{ secrets.SERVER_ADDR }} >> ~/.ssh/known_hosts
+
+      - name: SSH into server and deploy
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} << EOF
+             cd ~/forum
               for svc in $SERVICES; do
                 SERVICE=forum_be_\$svc
                 IMAGE=${REGISTRY}/\$SERVICE:${IMAGE_TAG}
@@ -82,4 +74,4 @@ jobs:
                 docker rmi -f \$IMAGE     || true
                 IMAGE=\$IMAGE docker compose up -d \$SERVICE
               done
-            EOF
+          EOF
