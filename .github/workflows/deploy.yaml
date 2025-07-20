@@ -64,14 +64,14 @@ jobs:
             chmod 600 ~/.ssh/id_rsa
             ssh-keyscan -H ${{ secrets.DEV_SERVER }} >> ~/.ssh/known_hosts
   
-            # 本地拼服务列表
-            SERVICES="$(paste -sd ' ' services.txt)"
-            echo "Will deploy: $SERVICES"
-  
             # 一次 SSH 登录并远端循环
             ssh -i ~/.ssh/id_rsa \
                 -o StrictHostKeyChecking=no \
                 ${{ secrets.DEV_SERVER_USER }}@${{ secrets.DEV_SERVER }} bash -s <<EOF
+            
+            # 本地拼服务列表
+            SERVICES="$(paste -sd ' ' services.txt)"
+            echo "Will deploy: $SERVICES"
             
             cd ~/forum
               for svc in $SERVICES; do
