@@ -63,9 +63,11 @@ jobs:
           ssh-keyscan -H ${{ secrets.SERVER_ADDR }} >> ~/.ssh/known_hosts
       - name: SSH into server and deploy
         run: |
-          ssh i ~/.ssh/id_rsa -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} << EOF
-          EOF
-
+         ssh -i ~/.ssh/id_rsa \
+             -o StrictHostKeyChecking=no \
+             ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << EOF
+          echo "SSH Success!"
+         EOF
 #             cd ~/forum
 #              for svc in $SERVICES; do
 #                SERVICE=forum_be_\$svc
