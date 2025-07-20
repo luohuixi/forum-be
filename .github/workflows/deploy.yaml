@@ -64,16 +64,13 @@ jobs:
 
       - name: SSH into server and deploy
         run: |
+          SERVICES="$(paste -sd ' ' services.txt)"
+          echo "Will deploy: $SERVICES"
           ssh -i ~/.ssh/id_rsa \
               -o StrictHostKeyChecking=no \
               ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} bash -s <<'EOF'
-            echo "SSH Success!"
-          
-            SERVICES="$(paste -sd ' ' services.txt)"
-            echo "Will deploy: $SERVICES"
-          
-            cd ~/forum
-          
+          echo "SSH Success!"
+          cd ~/forum
             for svc in $SERVICES; do
               SERVICE=forum_be_$svc
               IMAGE=${REGISTRY}/$SERVICE:${IMAGE_TAG}
