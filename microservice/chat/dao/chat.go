@@ -2,8 +2,11 @@ package dao
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	pb "forum-chat/proto"
 	"forum/log"
+	"github.com/go-redis/redis"
 	"strconv"
 	"time"
 )
@@ -19,14 +22,20 @@ func (d *Dao) Create(data *ChatData) error {
 }
 
 func (d *Dao) GetList(id uint32, expiration time.Duration) ([]string, error) {
-
+	t := time.Now()
+	defer func() {
+		fmt.Println(time.Now().Sub(t))
+	}()
 	//使用用户的id创建一个key
 	key := "chat:" + strconv.Itoa(int(id))
-
 	// 如果数列里面为空的话则阻塞等待
 	if d.Redis.LLen(key).Val() == 0 {
 		msg, err := d.Redis.BRPop(expiration, key).Result() // 阻塞
 		if err != nil {
+			if errors.Is(err, redis.Nil) {
+				// 超时但没拿到值，是正常现象
+				return nil, nil
+			}
 			return nil, err
 		}
 

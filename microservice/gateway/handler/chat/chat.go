@@ -23,13 +23,22 @@ type Client struct {
 }
 
 // WsHandler 建立 WebSocket 连接
-// @Summary WebSocket 连接
-// @Description 通过 WebSocket 进行实时通信。请使用 ws:// 或 wss:// 连接此接口，并在 Apifox 选择 WebSocket 请求。
+// @Summary 建立 WebSocket 连接
+// @Description 通过 WebSocket 实现客户端与服务器之间的实时通信。
+// @Description 使用 `ws://` 或 `wss://` 协议访问此接口，连接成功后可进行双向通信。
+// @Description 客户端连接后，请使用 JSON 格式发送消息，结构如下：
+// @Description
+// @Description ```json
+// @Description {
+// @Description   "target_user_id": 123,
+// @Description   "content": "你好",
+// @Description   "type_name": "text",
+// @Description   "time": "2025-07-20 12:00:00"
+// @Description }
+// @Description ```
 // @Tags chat
-// @Param id query string true "用户 UUID"
+// @Param Sec-WebSocket-Protocol header string false "子协议，一般用于身份校验或版本协商"
 // @Success 101 {string} string "WebSocket 连接成功"
-// @Failure 400 {object} ErrorResponse "请求错误"
-// @Failure 500 {object} ErrorResponse "服务器错误"
 // @Router /chat/ws [get]
 func WsHandler(c *gin.Context) {
 	log.Info("Chat WsHandler function called.", zap.String("X-Request-Id", util.GetReqID(c)))

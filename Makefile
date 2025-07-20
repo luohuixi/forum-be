@@ -1,15 +1,12 @@
-build:
-	go build -o main
-proto:
-	protoc --go_out=plugins=micro:. ./proto/status.proto
-github:
-	git push origin && git push --tags origin
-gitea:
-	git push --tags muxi
-tag:
-	git tag release-${name}-${ver}
-buildx:
-	@echo -e "make tag=1.0.0 buildx\n"
-	docker buildx build --platform linux/amd64 -t registry.cn-shenzhen.aliyuncs.com/muxi/forum-backend:$(tag) .
+# Makefile（根目录）
+.PHONY: docker-build docker-push
 
-#push: tag gitea github
+docker-build:
+	@# SERVICE、REGISTRY、IMAGE_TAG 通过环境变量传入
+	docker build -t $(REGISTRY)/forum_be_$(SERVICE):$(IMAGE_TAG) .
+
+docker-push:
+	docker push $(REGISTRY)/forum_be_$(SERVICE):$(IMAGE_TAG)
+
+swag:
+	cd microservice/gateway && swag init

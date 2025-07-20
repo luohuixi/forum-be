@@ -9,6 +9,7 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/pkg/handler"
+	"sync"
 
 	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
 	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
@@ -47,38 +48,57 @@ func UserInit() {
 
 func (s PostService) processComments(userId uint32, commentInfos []*dao.CommentInfo) []*pb.CommentInfo {
 	comments := make([]*pb.CommentInfo, len(commentInfos))
+	var wg sync.WaitGroup
+	var mu sync.Mutex
+	ch := make(chan struct{}, 10)
 
 	for i, comment := range commentInfos {
-		item := dao.Item{
-			Id:       comment.Id,
-			TypeName: constvar.Comment,
-		}
 
-		num, err := s.Dao.GetLikedNum(item)
-		if err != nil {
-			logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
-		}
+		wg.Add(1)
 
-		isLiked, err := s.Dao.IsUserHadLike(userId, item)
-		if err != nil {
-			logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
-		}
+		go func(i int, comment *dao.CommentInfo) {
+			ch <- struct{}{}
+			defer func() {
+				<-ch
+				wg.Done()
+			}()
 
-		comments[i] = &pb.CommentInfo{
-			Id:            comment.Id,
-			TypeName:      comment.TypeName,
-			Content:       comment.Content,
-			FatherId:      comment.FatherId,
-			Time:          comment.CreateTime,
-			CreatorId:     comment.CreatorId,
-			CreatorName:   comment.CreatorName,
-			CreatorAvatar: comment.CreatorAvatar,
-			LikeNum:       uint32(num),
-			IsLiked:       isLiked,
-			ImgUrl:        comment.ImgUrl,
-		}
+			item := dao.Item{
+				Id:       comment.Id,
+				TypeName: constvar.Comment,
+			}
+
+			num, err := s.Dao.GetLikedNum(item)
+			if err != nil {
+				logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
+			}
+
+			isLiked, err := s.Dao.IsUserHadLike(userId, item)
+			if err != nil {
+				logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
+			}
+
+			commentInfo := &pb.CommentInfo{
+				Id:            comment.Id,
+				TypeName:      comment.TypeName,
+				Content:       comment.Content,
+				FatherId:      comment.FatherId,
+				Time:          comment.CreateTime,
+				CreatorId:     comment.CreatorId,
+				CreatorName:   comment.CreatorName,
+				CreatorAvatar: comment.CreatorAvatar,
+				LikeNum:       uint32(num),
+				IsLiked:       isLiked,
+				ImgUrl:        comment.ImgUrl,
+			}
+
+			mu.Lock()
+			comments[i] = commentInfo
+			mu.Unlock()
+		}(i, comment)
 	}
 
+	wg.Wait()
 	return comments
 }
 

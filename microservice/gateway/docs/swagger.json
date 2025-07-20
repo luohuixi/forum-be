@@ -132,25 +132,24 @@
         },
         "/chat/ws": {
             "get": {
-                "description": "建立 WebSocket 连接",
+                "description": "通过 WebSocket 实现客户端与服务器之间的实时通信。\n使用 `ws://` 或 `wss://` 协议访问此接口，连接成功后可进行双向通信。\n客户端连接后，请使用 JSON 格式发送消息，结构如下：\n\n```json\n{\n\"target_user_id\": 123,\n\"content\": \"你好\",\n\"type_name\": \"text\",\n\"time\": \"2025-07-20 12:00:00\"\n}\n```",
                 "tags": [
                     "chat"
                 ],
-                "summary": "WebSocket",
+                "summary": "建立 WebSocket 连接",
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "uuid",
-                        "name": "id",
-                        "in": "query",
-                        "required": true
+                        "description": "子协议，一般用于身份校验或版本协商",
+                        "name": "Sec-WebSocket-Protocol",
+                        "in": "header"
                     }
                 ],
                 "responses": {
-                    "200": {
-                        "description": "OK",
+                    "101": {
+                        "description": "WebSocket 连接成功",
                         "schema": {
-                            "$ref": "#/definitions/chat.Message"
+                            "type": "string"
                         }
                     }
                 }
@@ -1860,6 +1859,7 @@
             "required": [
                 "category",
                 "content",
+                "domain",
                 "id",
                 "tags",
                 "title"
@@ -1869,6 +1869,9 @@
                     "type": "string"
                 },
                 "content": {
+                    "type": "string"
+                },
+                "domain": {
                     "type": "string"
                 },
                 "id": {
@@ -1891,19 +1894,20 @@
         "report.CreateRequest": {
             "type": "object",
             "required": [
-                "category",
                 "cause",
                 "id",
                 "type_name"
             ],
             "properties": {
                 "category": {
+                    "description": "可选参数",
                     "type": "string"
                 },
                 "cause": {
                     "type": "string"
                 },
                 "id": {
+                    "description": "post的id或者是comment的id",
                     "type": "integer"
                 },
                 "type_name": {

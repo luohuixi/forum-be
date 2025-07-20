@@ -29,7 +29,7 @@ func (s *ChatService) GetList(ctx context.Context, req *pb.GetListRequest, resp 
 
 	select {
 	case <-ctx.Done():
-		//如果客户单消费失败了,说明要写回去
+		//如果客户端消费失败了,说明要写回去
 		if err := s.Dao.Rewrite(req.UserId, list); err != nil {
 			return errno.ServerErr(errno.ErrRewriteRedisList, err.Error())
 		}
