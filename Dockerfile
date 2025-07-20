@@ -5,7 +5,7 @@ FROM golang:1.23 AS builder
 WORKDIR /app
 
 # 将源代码添加到容器中
-ADD . /app/
+COPY . /app/
 
 # 设置 Go 环境变量
 ARG service_name
@@ -15,10 +15,7 @@ RUN go env -w GOPROXY="https://goproxy.cn,direct"
 WORKDIR /app/microservice/$service_name
 
 # 执行 make 编译项目
-RUN make
-
-# 调试：检查文件是否生成
-RUN ls -al /app/microservice/$service_name
+RUN go build . -o main
 
 # 第二阶段：使用 debian 镜像作为基础
 FROM debian:bookworm-slim

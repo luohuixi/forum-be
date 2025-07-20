@@ -69,6 +69,7 @@ func main() {
 	defer log.SyncLogger()
 
 	dao.Init()
+	//
 
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))
