@@ -64,20 +64,22 @@ jobs:
 
       - name: SSH into server and deploy
         run: |
-         ssh -i ~/.ssh/id_rsa \
-             -o StrictHostKeyChecking=no \
-             ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} << EOF
-         echo "SSH Success!"
+          ssh -i ~/.ssh/id_rsa \
+              -o StrictHostKeyChecking=no \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} bash -s <<'EOF'
+            echo "SSH Success!"
           
-         SERVICES="$(paste -sd ' ' services.txt)"
-         echo "Will deploy: $SERVICES"
-         cd ~/forum
-          for svc in $SERVICES; do
-            SERVICE=forum_be_\$svc
-            IMAGE=${REGISTRY}/\$SERVICE:${IMAGE_TAG}
-            echo "» Deploying \$SERVICE → \$IMAGE"
-            docker rm -f \$SERVICE    || true
-            docker rmi -f \$IMAGE     || true
-            IMAGE=\$IMAGE docker compose up -d \$SERVICE
-          done
+            SERVICES="$(paste -sd ' ' services.txt)"
+            echo "Will deploy: $SERVICES"
+          
+            cd ~/forum
+          
+            for svc in $SERVICES; do
+              SERVICE=forum_be_$svc
+              IMAGE=${REGISTRY}/$SERVICE:${IMAGE_TAG}
+              echo "» Deploying $SERVICE → $IMAGE"
+              docker rm -f $SERVICE || true
+              docker rmi -f $IMAGE || true
+              IMAGE=$IMAGE docker compose up -d $SERVICE
+            done
           EOF
