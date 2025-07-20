@@ -70,7 +70,6 @@ func main() {
 
 	dao.Init()
 
-	//
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))
 
