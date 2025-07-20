@@ -64,6 +64,8 @@ jobs:
       - name: SSH into server and deploy
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} << EOF
+          EOF
+
 #             cd ~/forum
 #              for svc in $SERVICES; do
 #                SERVICE=forum_be_\$svc
@@ -73,4 +75,3 @@ jobs:
 #                docker rmi -f \$IMAGE     || true
 #                IMAGE=\$IMAGE docker compose up -d \$SERVICE
 #              done
-          EOF
