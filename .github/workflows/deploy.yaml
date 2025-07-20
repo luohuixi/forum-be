@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REGISTRY: registry.cn-shenzhen.aliyuncs.com/muxi
-      IMAGE_TAG: ${{ github.sha }}
+      IMAGE_TAG: latest
       SSH_HOST: ${{ secrets.DEV_SERVER }}
       SSH_USER: ${{ secrets.DEV_SERVER_USER }}
     steps:
