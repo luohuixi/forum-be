@@ -66,14 +66,20 @@ jobs:
       - name: Deploy on remote (single SSH)
         if: steps.detect.outputs.list != ''
         run: |
-          ssh $SSH_USER@$SSH_HOST bash -s <<'EOF'
+            SERVICES="$(paste -sd ' ' services.txt)"
+            echo "Will deploy: $SERVICES"
+            
+            ssh -i ~/.ssh/id_rsa \
+                -o StrictHostKeyChecking=no \
+                ${SSH_USER}@${SSH_HOST} bash -s <<EOF
             cd ~/forum
-            for svc in $(cat services.txt); do
-              SERVICE=forum_be_$svc
-              IMAGE=${REGISTRY}/$SERVICE:${IMAGE_TAG}
-              echo "» Deploying $SERVICE → $IMAGE"
-              docker rm -f "$SERVICE"    || true
-              docker rmi -f "$IMAGE"     || true
-              IMAGE="$IMAGE" docker compose up -d "$SERVICE"
-            done
-          EOF
+            
+              for svc in $SERVICES; do
+              SERVICE=forum_be_\$svc
+              IMAGE=${REGISTRY}/\$SERVICE:${IMAGE_TAG}
+              echo "» Deploying \$SERVICE → \$IMAGE"
+              docker rm -f \$SERVICE    || true
+              docker rmi -f \$IMAGE     || true
+              IMAGE=\$IMAGE docker compose up -d \$SERVICE
+              done
+            EOF
