@@ -46,7 +46,6 @@ func main() {
 
 	// Init will parse the command line flags.
 
-	//
 	srv.Init()
 
 	dao.Init()
