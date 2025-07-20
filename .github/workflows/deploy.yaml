@@ -13,8 +13,8 @@ jobs:
     env:
       REGISTRY: registry.cn-shenzhen.aliyuncs.com/muxi
       IMAGE_TAG: latest
-      SSH_HOST: ${{ secrets.DEV_SERVER }}
-      SSH_USER: ${{ secrets.DEV_SERVER_USER }}
+      SSH_HOST: ${{ secrets.SERVER_USER }}
+      SSH_USER: ${{ secrets.SERVER_ADDR }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -65,13 +65,13 @@ jobs:
       - name: SSH into server and deploy
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} << EOF
-             cd ~/forum
-              for svc in $SERVICES; do
-                SERVICE=forum_be_\$svc
-                IMAGE=${REGISTRY}/\$SERVICE:${IMAGE_TAG}
-                echo "» Deploying \$SERVICE → \$IMAGE"
-                docker rm -f \$SERVICE    || true
-                docker rmi -f \$IMAGE     || true
-                IMAGE=\$IMAGE docker compose up -d \$SERVICE
-              done
+#             cd ~/forum
+#              for svc in $SERVICES; do
+#                SERVICE=forum_be_\$svc
+#                IMAGE=${REGISTRY}/\$SERVICE:${IMAGE_TAG}
+#                echo "» Deploying \$SERVICE → \$IMAGE"
+#                docker rm -f \$SERVICE    || true
+#                docker rmi -f \$IMAGE     || true
+#                IMAGE=\$IMAGE docker compose up -d \$SERVICE
+#              done
           EOF
