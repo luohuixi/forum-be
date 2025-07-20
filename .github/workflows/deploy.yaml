@@ -77,4 +77,4 @@ jobs:
             docker rmi -f \$IMAGE     || true
             IMAGE=\$IMAGE docker compose up -d \$SERVICE
           done
-        EOF
+          EOF
