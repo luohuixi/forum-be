@@ -23,7 +23,8 @@ CI: .drone.yml
 Kafka: 动态功能的消息队列
 
 # 部署
-
+配置了github action(比较暴力,没有去区分版本)
+如果需要细粒度的版本控制:
 在根目录下对每个微服务进行docker build即可
 
 ```
