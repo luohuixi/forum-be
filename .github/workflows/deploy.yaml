@@ -1,4 +1,3 @@
-# .github/workflows/deploy.yml
 name: CI/CD
 
 on:
@@ -13,8 +12,8 @@ jobs:
     env:
       REGISTRY: registry.cn-shenzhen.aliyuncs.com/muxi
       IMAGE_TAG: latest
-      SSH_HOST: ${{ secrets.SERVER_ADDR  }}
-      SSH_USER: ${{ secrets.SERVER_USER  }}
+      SSH_HOST: ${{ secrets.SERVER_ADDR }}
+      SSH_USER: ${{ secrets.SERVER_USER }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -39,7 +38,6 @@ jobs:
             | sort -u)
           if [ -n "$SERVICES" ]; then
             echo "$SERVICES" > services.txt
-            # 把多行服务列表折成一行
             ONE_LINE=$(echo "$SERVICES" | paste -sd ' ')
             echo "list=$ONE_LINE" >> $GITHUB_OUTPUT
           else
@@ -68,16 +66,18 @@ jobs:
           echo "Will deploy: $SERVICES"
           ssh -i ~/.ssh/id_rsa \
             -o StrictHostKeyChecking=no \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} bash -s << 'EOF'
+            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} bash -s <<EOF
           echo "SSH Success!"
           cd ~/forum
+          REGISTRY=${{ env.REGISTRY }}
+          IMAGE_TAG=${{ env.IMAGE_TAG }}
           for svc in $SERVICES; do
-            SERVICE=forum_be_$svc
-            IMAGE=${REGISTRY}/$SERVICE:${IMAGE_TAG}
-            echo "» Deploying $SERVICE → $IMAGE"
-            docker pull $IMAGE || true
-            docker rm -f $SERVICE || true
-            docker rmi -f $IMAGE || true
-            IMAGE=$IMAGE docker-compose up -d $SERVICE
+            SERVICE=forum_be_\$svc
+            IMAGE=\$REGISTRY/\$SERVICE:\$IMAGE_TAG
+            echo "» Deploying \$SERVICE → \$IMAGE"
+            docker pull \$IMAGE || true
+            docker rm -f \$SERVICE || true
+            docker rmi -f \$IMAGE || true
+            IMAGE=\$IMAGE docker compose up -d \$SERVICE
           done
           EOF
