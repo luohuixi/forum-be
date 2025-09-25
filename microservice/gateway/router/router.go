@@ -16,6 +16,7 @@ import (
 	"forum-gateway/router/middleware"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
+
 	"github.com/gin-gonic/gin"
 	swaggerFiles "github.com/swaggo/files"     // swagger embed files
 	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
@@ -59,7 +60,10 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		userRouter.GET("/list", user.List)
 		userRouter.PUT("", user.UpdateInfo)
 		userRouter.GET("/message/list", user.ListMessage)
+		userRouter.POST("/private_message", user.CreatePrivateMessage)
 		userRouter.POST("/message", adminRequired, user.CreateMessage)
+		userRouter.DELETE("/private_message", user.DeletePrivateMessage)
+		userRouter.GET("/private_message/list", user.ListPrivateMessage)
 	}
 
 	chatRouter := g.Group("api/v1/chat")
