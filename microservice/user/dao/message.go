@@ -2,30 +2,52 @@ package dao
 
 import "strconv"
 
-func (d Dao) ListMessage(userId uint32) ([]string, error) {
+var t = []string{"like", "comment", "collection", "reply_comment"}
+
+const (
+	RedisKeyPrefix = "TeaHouse"
+	Message        = "messages"
+)
+
+func GetKey(userId uint32, t string) string {
+	if userId == 0 {
+		return RedisKeyPrefix + ":" + Message
+	}
+	return RedisKeyPrefix + ":" + Message + ":" + strconv.Itoa(int(userId)) + ":" + t
+}
+
+func (d Dao) ListMessage() ([]string, error) {
+	publicMessage, err := d.Redis.LRange(GetKey(0, ""), 0, -1).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	return publicMessage, nil
+}
+
+func (d Dao) ListPrivateMessage(userId uint32) ([]string, error) {
 	var messages []string
-	publicMessage, err := d.Redis.LRange("messages:", 0, -1).Result()
-	if err != nil {
-		return nil, err
+
+	for _, str := range t {
+		userMessages, err := d.Redis.LRange(GetKey(userId, str), 0, -1).Result()
+		if err != nil {
+			return nil, err
+		}
+		messages = append(messages, userMessages...)
 	}
-
-	messages = append(messages, publicMessage...)
-
-	userMessage, err := d.Redis.LRange("messages:"+strconv.Itoa(int(userId)), 0, -1).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	messages = append(messages, userMessage...)
 
 	return messages, nil
 }
 
-func (d Dao) CreateMessage(userId uint32, message string) error {
-	key := "messages:"
-	if userId != 0 {
-		key += strconv.Itoa(int(userId))
-	}
+func (d Dao) CreateMessage(userId uint32, t, message string) error {
+	return d.Redis.LPush(GetKey(userId, t), message).Err()
+}
 
-	return d.Redis.LPush(key, message).Err()
+func (d Dao) DeleteMessage(userId uint32) error {
+	for _, str := range t {
+		if err := d.Redis.Del(GetKey(userId, str)).Err(); err != nil {
+			return err
+		}
+	}
+	return nil
 }

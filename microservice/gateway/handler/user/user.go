@@ -93,3 +93,11 @@ type ListMessageResponse struct {
 type CreateMessageRequest struct {
 	Message string `json:"message" binding:"required"`
 }
+
+type CreatePrivateMessageRequest struct {
+	ReceiveUserid uint32 `json:"receive_userid" binding:"required"`
+	Type          string `json:"type" binding:"required"` // comment/like/collection/reply_comment
+	Content       string `json:"content"`
+	PostId        uint32 `json:"post_id" binding:"required"`
+	CommentId     uint32 `json:"comment_id"`
+}

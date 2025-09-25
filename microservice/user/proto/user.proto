@@ -12,7 +12,10 @@ service UserService {
   rpc List(ListRequest) returns (ListResponse) {}
 
   rpc ListMessage(ListMessageRequest)returns (ListMessageResponse) {}
+  rpc ListPrivateMessage(ListMessageRequest)returns (ListMessageResponse) {}
   rpc CreateMessage(CreateMessageRequest)returns (Response) {}
+  rpc CreatePrivateMessage(CreatePrivateMessageRequest)returns (Response) {}
+  rpc DeletePrivateMessage(DeletePrivateMessageRequest)returns (Response) {}
 
   rpc UpdateInfo(UpdateInfoRequest) returns (Response) {}
 }
@@ -20,6 +23,19 @@ service UserService {
 message CreateMessageRequest {
   uint32 user_id = 1;
   string message = 2;
+}
+
+message CreatePrivateMessageRequest {
+  uint32 send_id = 1;
+  uint32 receive_id = 2;
+  uint32 post_id =3;
+  uint32 comment_id =4;
+  string type = 5;
+  string content = 6;
+}
+
+message DeletePrivateMessageRequest {
+  uint32 user_id = 1;
 }
 
 message ListMessageRequest {

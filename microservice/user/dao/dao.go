@@ -2,6 +2,7 @@ package dao
 
 import (
 	"forum/model"
+
 	"github.com/go-redis/redis"
 	"gorm.io/gorm"
 )
@@ -27,8 +28,10 @@ type Interface interface {
 	RegisterUser(info *RegisterInfo) error
 	AddPublicPolicy(string, uint32) error
 
-	ListMessage(uint32) ([]string, error)
-	CreateMessage(uint32, string) error
+	ListMessage() ([]string, error)
+	ListPrivateMessage(uint32) ([]string, error)
+	CreateMessage(uint32, string, string) error
+	DeleteMessage(uint32) error
 }
 
 // Init init dao

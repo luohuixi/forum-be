@@ -521,6 +521,24 @@ definitions:
     required:
     - message
     type: object
+  user.CreatePrivateMessageRequest:
+    properties:
+      comment_id:
+        type: integer
+      content:
+        type: string
+      post_id:
+        type: integer
+      receive_userid:
+        type: integer
+      type:
+        description: comment/like/collection/reply_comment
+        type: string
+    required:
+    - post_id
+    - receive_userid
+    - type
+    type: object
   user.ListMessageResponse:
     properties:
       messages:
@@ -1259,6 +1277,25 @@ paths:
       tags:
       - user
   /user/message:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 删除 个人 message api
+      tags:
+      - user
     post:
       consumes:
       - application/json
@@ -1324,6 +1361,52 @@ paths:
           schema:
             $ref: '#/definitions/UserProfile'
       summary: get 我的 profile api
+      tags:
+      - user
+  /user/private_message:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_private_message_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/user.CreatePrivateMessageRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 创建 个人 message api
+      tags:
+      - user
+  /user/private_message/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.ListMessageResponse'
+      summary: list user private_message api
       tags:
       - user
   /user/profile/{id}:
