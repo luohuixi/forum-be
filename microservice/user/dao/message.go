@@ -4,8 +4,20 @@ import "strconv"
 
 var t = []string{"like", "comment", "collection", "reply_comment"}
 
+const (
+	RedisKeyPrefix = "TeaHouse"
+	Message        = "messages"
+)
+
+func GetKey(userId uint32, t string) string {
+	if userId == 0 {
+		return RedisKeyPrefix + ":" + Message
+	}
+	return RedisKeyPrefix + ":" + Message + ":" + strconv.Itoa(int(userId)) + ":" + t
+}
+
 func (d Dao) ListMessage() ([]string, error) {
-	publicMessage, err := d.Redis.LRange("messages:", 0, -1).Result()
+	publicMessage, err := d.Redis.LRange(GetKey(0, ""), 0, -1).Result()
 	if err != nil {
 		return nil, err
 	}
@@ -17,7 +29,7 @@ func (d Dao) ListPrivateMessage(userId uint32) ([]string, error) {
 	var messages []string
 
 	for _, str := range t {
-		userMessages, err := d.Redis.LRange("messages:"+strconv.Itoa(int(userId))+":"+str, 0, -1).Result()
+		userMessages, err := d.Redis.LRange(GetKey(userId, str), 0, -1).Result()
 		if err != nil {
 			return nil, err
 		}
@@ -28,25 +40,12 @@ func (d Dao) ListPrivateMessage(userId uint32) ([]string, error) {
 }
 
 func (d Dao) CreateMessage(userId uint32, t, message string) error {
-	key := "messages:"
-	if userId != 0 {
-		key += strconv.Itoa(int(userId))
-	}
-	if t != "" {
-		key += ":" + t
-	}
-
-	return d.Redis.LPush(key, message).Err()
+	return d.Redis.LPush(GetKey(userId, t), message).Err()
 }
 
 func (d Dao) DeleteMessage(userId uint32) error {
-	key := "messages:"
-	if userId != 0 {
-		key += strconv.Itoa(int(userId))
-	}
-
 	for _, str := range t {
-		if err := d.Redis.Del(key + ":" + str).Err(); err != nil {
+		if err := d.Redis.Del(GetKey(userId, str)).Err(); err != nil {
 			return err
 		}
 	}
