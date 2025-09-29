@@ -1277,25 +1277,6 @@ paths:
       tags:
       - user
   /user/message:
-    delete:
-      consumes:
-      - application/json
-      parameters:
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/Response'
-      summary: 删除 个人 message api
-      tags:
-      - user
     post:
       consumes:
       - application/json
@@ -1364,6 +1345,25 @@ paths:
       tags:
       - user
   /user/private_message:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 删除 个人 message api
+      tags:
+      - user
     post:
       consumes:
       - application/json

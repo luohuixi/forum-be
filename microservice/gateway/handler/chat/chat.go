@@ -9,11 +9,12 @@ import (
 	"forum-gateway/util"
 	"forum/log"
 	"forum/pkg/errno"
+	"net/http"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
-	"net/http"
-	"time"
 )
 
 type Client struct {
@@ -123,6 +124,7 @@ func (c *Client) Write() {
 		//获取聊天记录
 		getListRequest := &pb.GetListRequest{
 			UserId: c.UserId,
+			Wait:   true,
 		}
 
 		ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Hour)) // set rpc expiration to 1 Hour

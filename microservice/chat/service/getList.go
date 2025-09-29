@@ -22,7 +22,7 @@ func (s *ChatService) GetList(ctx context.Context, req *pb.GetListRequest, resp 
 	}
 
 	// get message of the user from redis
-	list, err := s.Dao.GetList(req.UserId, expiration)
+	list, err := s.Dao.GetList(req.UserId, expiration, req.Wait)
 	if err != nil {
 		return errno.ServerErr(errno.ErrGetRedisList, err.Error())
 	}
