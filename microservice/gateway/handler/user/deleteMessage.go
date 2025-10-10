@@ -24,8 +24,10 @@ func DeletePrivateMessage(c *gin.Context) {
 	log.Info("User DeletePrivateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
+	messageId := c.Query("id")
 	listReq := &pb.DeletePrivateMessageRequest{
 		UserId: userId,
+		Id:     messageId,
 	}
 
 	_, err := service.UserClient.DeletePrivateMessage(context.TODO(), listReq)

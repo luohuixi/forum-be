@@ -36,6 +36,7 @@ message CreatePrivateMessageRequest {
 
 message DeletePrivateMessageRequest {
   uint32 user_id = 1;
+  string id = 2;
 }
 
 message ListMessageRequest {

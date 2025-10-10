@@ -62,6 +62,7 @@ func CreatePrivateMessage(c *gin.Context) {
 	var req CreatePrivateMessageRequest
 	if err := c.BindJSON(&req); err != nil {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
+		return
 	}
 	if req.Type != "comment" && req.Type != "collection" && req.Type != "like" && req.Type != "reply_comment" {
 		SendError(c, errno.ErrBadRequest, nil, ErrType.Error(), GetLine())
@@ -75,6 +76,7 @@ func CreatePrivateMessage(c *gin.Context) {
 		Content:   req.Content,
 		Type:      req.Type,
 		PostId:    req.PostId,
+		CommentId: req.CommentId,
 	}
 
 	_, err := service.UserClient.CreatePrivateMessage(context.TODO(), listReq)

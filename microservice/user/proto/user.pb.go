@@ -160,6 +160,7 @@ func (x *CreatePrivateMessageRequest) GetContent() string {
 type DeletePrivateMessageRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        uint32                 `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	Id            string                 `protobuf:"bytes,2,opt,name=id,proto3" json:"id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -199,6 +200,13 @@ func (x *DeletePrivateMessageRequest) GetUserId() uint32 {
 		return x.UserId
 	}
 	return 0
+}
+
+func (x *DeletePrivateMessageRequest) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 type ListMessageRequest struct {
@@ -1166,9 +1174,10 @@ const file_user_proto_rawDesc = "" +
 	"\n" +
 	"comment_id\x18\x04 \x01(\rR\tcommentId\x12\x12\n" +
 	"\x04type\x18\x05 \x01(\tR\x04type\x12\x18\n" +
-	"\acontent\x18\x06 \x01(\tR\acontent\"6\n" +
+	"\acontent\x18\x06 \x01(\tR\acontent\"F\n" +
 	"\x1bDeletePrivateMessageRequest\x12\x17\n" +
-	"\auser_id\x18\x01 \x01(\rR\x06userId\"-\n" +
+	"\auser_id\x18\x01 \x01(\rR\x06userId\x12\x0e\n" +
+	"\x02id\x18\x02 \x01(\tR\x02id\"-\n" +
 	"\x12ListMessageRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\rR\x06userId\"1\n" +
 	"\x13ListMessageResponse\x12\x1a\n" +

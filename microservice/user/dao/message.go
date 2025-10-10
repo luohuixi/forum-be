@@ -1,53 +1,57 @@
 package dao
 
-import "strconv"
-
-var t = []string{"like", "comment", "collection", "reply_comment"}
+import (
+	"encoding/json"
+	"strconv"
+)
 
 const (
 	RedisKeyPrefix = "TeaHouse"
 	Message        = "messages"
 )
 
-func GetKey(userId uint32, t string) string {
+func GetKey(userId uint32) string {
 	if userId == 0 {
 		return RedisKeyPrefix + ":" + Message
 	}
-	return RedisKeyPrefix + ":" + Message + ":" + strconv.Itoa(int(userId)) + ":" + t
+	return RedisKeyPrefix + ":" + Message + ":" + strconv.Itoa(int(userId))
 }
 
 func (d Dao) ListMessage() ([]string, error) {
-	publicMessage, err := d.Redis.LRange(GetKey(0, ""), 0, -1).Result()
-	if err != nil {
-		return nil, err
-	}
-
-	return publicMessage, nil
+	return d.Redis.LRange(GetKey(0), 0, -1).Result()
 }
 
 func (d Dao) ListPrivateMessage(userId uint32) ([]string, error) {
-	var messages []string
-
-	for _, str := range t {
-		userMessages, err := d.Redis.LRange(GetKey(userId, str), 0, -1).Result()
-		if err != nil {
-			return nil, err
-		}
-		messages = append(messages, userMessages...)
-	}
-
-	return messages, nil
+	return d.Redis.LRange(GetKey(userId), 0, -1).Result()
 }
 
-func (d Dao) CreateMessage(userId uint32, t, message string) error {
-	return d.Redis.LPush(GetKey(userId, t), message).Err()
+func (d Dao) CreateMessage(userId uint32, message string) error {
+	return d.Redis.LPush(GetKey(userId), message).Err()
+}
+
+func (d Dao) DeleteOneMessage(userId uint32, uid string) error {
+	message, err := d.ListPrivateMessage(userId)
+	if err != nil {
+		return err
+	}
+
+	var targetMessage string
+	for _, msg := range message {
+		var data map[string]string
+		if err := json.Unmarshal([]byte(msg), &data); err == nil && data["id"] == uid {
+			targetMessage = msg
+			break
+		}
+	}
+
+	if targetMessage != "" {
+		_, err = d.Redis.LRem(GetKey(userId), 0, targetMessage).Result()
+		return err
+	}
+
+	return nil
 }
 
 func (d Dao) DeleteMessage(userId uint32) error {
-	for _, str := range t {
-		if err := d.Redis.Del(GetKey(userId, str)).Err(); err != nil {
-			return err
-		}
-	}
-	return nil
+	return d.Redis.Del(GetKey(userId)).Err()
 }
