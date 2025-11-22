@@ -30,6 +30,7 @@ message Response {}
 
 message GetListRequest {
     uint32 user_id = 1;
+    bool wait = 2;
 }
 
 message GetListResponse {
@@ -40,7 +41,8 @@ message Message {
     string content = 1;
     string time = 2;
     string type_name = 3;
-    uint32 sender = 4;
+    uint32 sender_id = 4;
+    uint32 receiver_id = 5;
 }
 
 message ListHistoryResponse {

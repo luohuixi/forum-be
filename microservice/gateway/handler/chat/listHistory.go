@@ -8,9 +8,10 @@ import (
 	"forum-gateway/util"
 	"forum/log"
 	"forum/pkg/errno"
+	"strconv"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
-	"strconv"
 )
 
 // ListHistory ... 获取该用户的聊天记录
@@ -43,6 +44,18 @@ func ListHistory(c *gin.Context) {
 	}
 
 	page, err := strconv.Atoi(c.DefaultQuery("page", "0"))
+	if err != nil {
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		return
+	}
+
+	// 如果我方发送消息，对方未即使从redis读取，我方又重新刷新进入聊天页面，需要先将还没消费的消息存入数据库
+	getListRequest := &pb.GetListRequest{
+		UserId: uint32(otherUserId),
+		Wait:   false,
+	}
+
+	_, err = service.ChatClient.GetList(context.Background(), getListRequest)
 	if err != nil {
 		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
 		return

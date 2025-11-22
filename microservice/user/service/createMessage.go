@@ -8,13 +8,15 @@ import (
 	pb "forum-user/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
+
+	"github.com/google/uuid"
 )
 
 // CreateMessage ... 创建用户消息
 func (s *UserService) CreateMessage(_ context.Context, req *pb.CreateMessageRequest, _ *pb.Response) error {
 	logger.Info("UserService CreateMessage")
 
-	if err := s.Dao.CreateMessage(0, "", req.Message); err != nil {
+	if err := s.Dao.CreateMessage(0, req.Message); err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
 
@@ -24,7 +26,9 @@ func (s *UserService) CreateMessage(_ context.Context, req *pb.CreateMessageRequ
 func (s *UserService) CreatePrivateMessage(_ context.Context, req *pb.CreatePrivateMessageRequest, _ *pb.Response) error {
 	logger.Info("UserService CreatePrivateMessage")
 
+	uid := uuid.New().String()
 	message, _ := json.Marshal(map[string]string{
+		"id":          uid,
 		"send_userid": strconv.Itoa(int(req.SendId)),
 		"content":     req.Content,
 		"post_id":     strconv.Itoa(int(req.PostId)),
@@ -32,7 +36,7 @@ func (s *UserService) CreatePrivateMessage(_ context.Context, req *pb.CreatePriv
 		"type":        req.Type,
 	})
 
-	if err := s.Dao.CreateMessage(req.ReceiveId, req.Type, string(message)); err != nil {
+	if err := s.Dao.CreateMessage(req.ReceiveId, string(message)); err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
 

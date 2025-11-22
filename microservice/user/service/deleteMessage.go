@@ -11,8 +11,14 @@ import (
 func (s *UserService) DeletePrivateMessage(_ context.Context, req *pb.DeletePrivateMessageRequest, _ *pb.Response) error {
 	logger.Info("UserService DeletePrivateMessage")
 
-	if err := s.Dao.DeleteMessage(req.UserId); err != nil {
-		return errno.ServerErr(errno.ErrRedis, err.Error())
+	if req.Id == "" {
+		if err := s.Dao.DeleteMessage(req.UserId); err != nil {
+			return errno.ServerErr(errno.ErrRedis, err.Error())
+		}
+	} else {
+		if err := s.Dao.DeleteOneMessage(req.UserId, req.Id); err != nil {
+			return errno.ServerErr(errno.ErrRedis, err.Error())
+		}
 	}
 
 	return nil

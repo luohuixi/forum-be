@@ -3,8 +3,10 @@ package dao
 import (
 	pb "forum-chat/proto"
 	"forum/model"
-	"github.com/go-redis/redis"
 	"time"
+
+	"github.com/go-redis/redis"
+	"gorm.io/gorm"
 )
 
 var (
@@ -13,13 +15,14 @@ var (
 
 // Dao .
 type Dao struct {
+	DB    *gorm.DB
 	Redis *redis.Client
 }
 
 // Interface dao
 type Interface interface {
 	Create(*ChatData) error
-	GetList(uint32, time.Duration) ([]string, error)
+	GetList(uint32, time.Duration, bool) ([]string, error)
 	Rewrite(uint32, []string) error
 	ListHistory(uint32, uint32, uint32, uint32, bool) ([]*pb.Message, error)
 	CreateHistory(uint32, []string) error
@@ -31,10 +34,14 @@ func Init() {
 		return
 	}
 
+	// init db
+	model.DB.Init()
+
 	// init redis
 	model.RedisDB.Init()
 
 	dao = &Dao{
+		DB:    model.DB.Self,
 		Redis: model.RedisDB.Self,
 	}
 
@@ -51,4 +58,12 @@ type ChatData struct {
 
 func GetDao() *Dao {
 	return dao
+}
+
+type DBdata struct {
+	ReceiverID uint32
+	SenderID   uint32
+	Content    string
+	Time       string
+	TypeName   string
 }
