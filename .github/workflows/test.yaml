@@ -42,28 +42,53 @@ jobs:
     needs: find_changed_services
     if: contains(needs.find_changed_services.outputs.list, 'chat')
     uses: ./.github/workflows/chat1.yaml
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
 
   deploy_feed:
     needs: find_changed_services
     if: contains(needs.find_changed_services.outputs.list, 'feed')
     uses: ./.github/workflows/feed1.yaml
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
 
   deploy_gateway:
     needs: find_changed_services
     if: contains(needs.find_changed_services.outputs.list, 'gateway')
     uses: ./.github/workflows/gateway1.yaml
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
 
   deploy_post:
     needs: find_changed_services
     if: contains(needs.find_changed_services.outputs.list, 'post')
     uses: ./.github/workflows/post1.yaml
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
 
   deploy_user:
     needs: find_changed_services
     if: contains(needs.find_changed_services.outputs.list, 'user')
     uses: ./.github/workflows/user1.yaml
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
