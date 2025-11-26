@@ -8,6 +8,7 @@ on:
 
 jobs:
   find_changed_services:
+    if: github.repository == 'Muxi-X/forum-be'
     runs-on: ubuntu-latest
     outputs:
       list: ${{ steps.detect.outputs.list }}
@@ -32,7 +33,7 @@ jobs:
 
   nothing_deploy:
     needs: find_changed_services
-    if: needs.find_changed_services.outputs.list == ''
+    if: github.repository == 'Muxi-X/forum-be' && needs.find_changed_services.outputs.list == ''
     runs-on: ubuntu-latest
     steps:
       - name: No services changed
@@ -40,8 +41,8 @@ jobs:
 
   deploy_chat:
     needs: find_changed_services
-    if: contains(needs.find_changed_services.outputs.list, 'chat')
-    uses: ./.github/workflows/chat1.yaml
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'chat')
+    uses: ./.github/workflows/chat.yaml
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -51,8 +52,8 @@ jobs:
 
   deploy_feed:
     needs: find_changed_services
-    if: contains(needs.find_changed_services.outputs.list, 'feed')
-    uses: ./.github/workflows/feed1.yaml
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'feed')
+    uses: ./.github/workflows/feed.yaml
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -62,8 +63,8 @@ jobs:
 
   deploy_gateway:
     needs: find_changed_services
-    if: contains(needs.find_changed_services.outputs.list, 'gateway')
-    uses: ./.github/workflows/gateway1.yaml
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'gateway')
+    uses: ./.github/workflows/gateway.yaml
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -73,8 +74,8 @@ jobs:
 
   deploy_post:
     needs: find_changed_services
-    if: contains(needs.find_changed_services.outputs.list, 'post')
-    uses: ./.github/workflows/post1.yaml
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'post')
+    uses: ./.github/workflows/post.yaml
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -84,8 +85,8 @@ jobs:
 
   deploy_user:
     needs: find_changed_services
-    if: contains(needs.find_changed_services.outputs.list, 'user')
-    uses: ./.github/workflows/user1.yaml
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'user')
+    uses: ./.github/workflows/user.yaml
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
