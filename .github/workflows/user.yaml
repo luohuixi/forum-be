@@ -2,7 +2,17 @@ name: Deploy User Service
 
 on:
   workflow_call:
-    secrets: inherit
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+      SERVER_USER:
+        required: true
+      SERVER_ADDR:
+        required: true
+      ALIYUN_USERNAME:
+        required: true
+      ALIYUN_PASSWORD:
+        required: true
 
 jobs:
   user:

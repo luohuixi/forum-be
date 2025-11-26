@@ -135,7 +135,7 @@ func (c *Client) Write() {
 		// 死循环获取,直到客户端断开连接
 		resp, err := service.ChatClient.GetList(ctx, getListRequest)
 		if err != nil {
-			// TODO:ctx报错额外处理
+			// TODO:ctx报错
 			log.Error(err.Error())
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 			return
