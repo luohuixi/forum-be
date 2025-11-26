@@ -1,0 +1,12 @@
+name: Deploy Post Service
+
+on:
+  workflow_call:
+    secrets: inherit
+
+jobs:
+  chat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test Post Service
+        run: echo "Post Service Test Successful!"

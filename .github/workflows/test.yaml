@@ -1,0 +1,69 @@
+name: CI/CD
+
+on:
+  push:
+    branches:
+      - main
+      - CICD
+
+jobs:
+  find_changed_services:
+    runs-on: ubuntu-latest
+    outputs:
+      list: ${{ steps.detect.outputs.list }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed back-end services
+        id: detect
+        run: |
+          SERVICES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
+            | awk -F/ '/^microservice\/[^\/]+/ {print $2}' \
+            | sort -u)
+          if [ -n "$SERVICES" ]; then
+            ONE_LINE=$(echo "$SERVICES" | paste -sd ' ')
+            echo "list=$ONE_LINE" >> $GITHUB_OUTPUT
+          else
+            echo "list=" >> $GITHUB_OUTPUT
+          fi
+
+  nothing_deploy:
+    needs: find_changed_services
+    if: needs.find_changed_services.outputs.list == ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: No services changed
+        run: echo "No back-end services have changed"
+
+  deploy_chat:
+    needs: find_changed_services
+    if: contains(needs.find_changed_services.outputs.list, 'chat')
+    uses: ./.github/workflows/chat1.yaml
+    secrets: inherit
+
+  deploy_feed:
+    needs: find_changed_services
+    if: contains(needs.find_changed_services.outputs.list, 'feed')
+    uses: ./.github/workflows/feed1.yaml
+    secrets: inherit
+
+  deploy_gateway:
+    needs: find_changed_services
+    if: contains(needs.find_changed_services.outputs.list, 'gateway')
+    uses: ./.github/workflows/gateway1.yaml
+    secrets: inherit
+
+  deploy_post:
+    needs: find_changed_services
+    if: contains(needs.find_changed_services.outputs.list, 'post')
+    uses: ./.github/workflows/post1.yaml
+    secrets: inherit
+
+  deploy_user:
+    needs: find_changed_services
+    if: contains(needs.find_changed_services.outputs.list, 'user')
+    uses: ./.github/workflows/user1.yaml
+    secrets: inherit

@@ -1,0 +1,12 @@
+name: Deploy Chat Service
+
+on:
+  workflow_call:
+    secrets: inherit
+
+jobs:
+  chat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test Chat Service
+        run: echo "Chat Service Test Successful!"

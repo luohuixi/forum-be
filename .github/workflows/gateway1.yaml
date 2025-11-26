@@ -1,0 +1,12 @@
+name: Deploy Gateway Service
+
+on:
+  workflow_call:
+    secrets: inherit
+
+jobs:
+  chat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test Gateway Service
+        run: echo "Gateway Service Test Successful!"

@@ -1,0 +1,12 @@
+name: Deploy Feed Service
+
+on:
+  workflow_call:
+    secrets: inherit
+
+jobs:
+  chat:
+    runs-on: ubuntu-latest
+    steps:
+      - name: test Feed Service
+        run: echo "Feed Service Test Successful!"
