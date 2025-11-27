@@ -6,29 +6,16 @@ on:
       - main
 
 jobs:
-  build-push-deploy:
+  find_changed_services:
     if: github.repository == 'Muxi-X/forum-be'
     runs-on: ubuntu-latest
-    env:
-      REGISTRY: registry.cn-shenzhen.aliyuncs.com/muxi
-      IMAGE_TAG: latest
-      SSH_HOST: ${{ secrets.SERVER_ADDR }}
-      SSH_USER: ${{ secrets.SERVER_USER }}
+    outputs:
+      list: ${{ steps.detect.outputs.list }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
-
-      - name: Log in to Aliyun Registry
-        uses: docker/login-action@v2
-        with:
-          registry: registry.cn-shenzhen.aliyuncs.com
-          username: ${{ secrets.ALIYUN_USERNAME }}
-          password: ${{ secrets.ALIYUN_PASSWORD }}
 
       - name: Detect changed back-end services
         id: detect
@@ -37,47 +24,71 @@ jobs:
             | awk -F/ '/^microservice\/[^\/]+/ {print $2}' \
             | sort -u)
           if [ -n "$SERVICES" ]; then
-            echo "$SERVICES" > services.txt
             ONE_LINE=$(echo "$SERVICES" | paste -sd ' ')
             echo "list=$ONE_LINE" >> $GITHUB_OUTPUT
           else
             echo "list=" >> $GITHUB_OUTPUT
           fi
 
-      - name: Build & push via Makefile
-        if: steps.detect.outputs.list != ''
-        run: |
-          while read svc; do
-            echo "» Build & push forum_be_$svc"
-            SERVICE=$svc REGISTRY=$REGISTRY IMAGE_TAG=$IMAGE_TAG make docker-build
-            SERVICE=$svc REGISTRY=$REGISTRY IMAGE_TAG=$IMAGE_TAG make docker-push
-          done < services.txt
+  nothing_deploy:
+    needs: find_changed_services
+    if: github.repository == 'Muxi-X/forum-be' && needs.find_changed_services.outputs.list == ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: No services changed
+        run: echo "No back-end services have changed"
 
-      - name: Set up SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SERVER_ADDR }} >> ~/.ssh/known_hosts
+  deploy_chat:
+    needs: find_changed_services
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'chat')
+    uses: ./.github/workflows/chat.yaml
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
 
-      - name: SSH into server and deploy
-        run: |
-          SERVICES="$(paste -sd ' ' services.txt)"
-          echo "Will deploy: $SERVICES"
-          ssh -i ~/.ssh/id_rsa \
-            -o StrictHostKeyChecking=no \
-            ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} bash -s <<EOF
-          echo "SSH Success!"
-          cd ~/forum
-          REGISTRY=${{ env.REGISTRY }}
-          IMAGE_TAG=${{ env.IMAGE_TAG }}
-          for svc in $SERVICES; do
-            SERVICE=forum_be_\$svc
-            IMAGE=\$REGISTRY/\$SERVICE:\$IMAGE_TAG
-            echo "» Deploying \$SERVICE → \$IMAGE"
-            docker pull \$IMAGE || true
-            docker rm -f \$SERVICE || true
-            docker rmi -f \$IMAGE || true
-            IMAGE=\$IMAGE docker-compose up -d \$SERVICE
-          done
-          EOF
+  deploy_feed:
+    needs: find_changed_services
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'feed')
+    uses: ./.github/workflows/feed.yaml
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
+
+  deploy_gateway:
+    needs: find_changed_services
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'gateway')
+    uses: ./.github/workflows/gateway.yaml
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
+
+  deploy_post:
+    needs: find_changed_services
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'post')
+    uses: ./.github/workflows/post.yaml
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
+
+  deploy_user:
+    needs: find_changed_services
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'user')
+    uses: ./.github/workflows/user.yaml
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
