@@ -5,6 +5,7 @@ import (
 	"github.com/go-micro/plugins/v4/registry/etcd"
 	"github.com/opentracing/opentracing-go"
 	micro "go-micro.dev/v4"
+	"go-micro.dev/v4/registry"
 	"log"
 
 	"forum-feed/dao"
@@ -41,8 +42,8 @@ func main() {
 	// init config
 	if !*subFg {
 		// feed-service
-		initRpcClient()
 		err = config.Init("./conf/config.yaml", "FORUM_FEED")
+		initRpcClient()
 	} else {
 		// sub-service
 		err = config.Init("./conf/config_sub.yaml", "FORUM_SUB")
@@ -70,7 +71,10 @@ func main() {
 		service.SubServiceRun()
 		return
 	}
-
+	r := etcd.NewRegistry(
+		registry.Addrs(viper.GetString("etcd.addr")),
+		etcd.Auth(viper.GetString("etcd.username"), viper.GetString("etcd.password")),
+	)
 	// feed-service
 	srv := micro.NewService(
 		micro.Name(viper.GetString("local_name")),
@@ -83,7 +87,7 @@ func main() {
 			Usage:  "use subscribe service mode",
 			Hidden: false,
 		}),
-		micro.Registry(etcd.NewRegistry()),
+		micro.Registry(r),
 	)
 
 	// Init will parse the command line flags.

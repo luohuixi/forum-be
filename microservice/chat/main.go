@@ -11,6 +11,7 @@ import (
 	"github.com/go-micro/plugins/v4/registry/etcd"
 	"github.com/opentracing/opentracing-go"
 	micro "go-micro.dev/v4"
+	"go-micro.dev/v4/registry"
 	"log"
 
 	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
@@ -34,14 +35,17 @@ func main() {
 
 	// set var t to Global Tracer (opentracing single instance mode)
 	opentracing.SetGlobalTracer(t)
-
+	r := etcd.NewRegistry(
+		registry.Addrs(viper.GetString("etcd.addr")),
+		etcd.Auth(viper.GetString("etcd.username"), viper.GetString("etcd.password")),
+	)
 	srv := micro.NewService(
 		micro.Name(viper.GetString("local_name")),
 		micro.WrapHandler(
 			opentracingWrapper.NewHandlerWrapper(opentracing.GlobalTracer()),
 		),
 		micro.WrapHandler(handler.ServerErrorHandlerWrapper()),
-		micro.Registry(etcd.NewRegistry()),
+		micro.Registry(r),
 	)
 
 	// Init will parse the command line flags.

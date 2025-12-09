@@ -22,3 +22,9 @@ db:  # DB 配置 部署时环境变量覆盖
   password: 123456
 token:
   expired: 30 # 过期时间（天）
+
+
+etcd:
+  addr: "127.0.0.1:2379"
+  username: "root"
+  password: "123456"

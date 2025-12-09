@@ -49,7 +49,7 @@ func GetDao() *Dao {
 	return dao
 }
 
-const kafkaTopic = "feed"
+const kafkaTopic = "forum_feed"
 
 func (d Dao) PublishMsg(msg []byte) error {
 	return model.KafkaWriter.PublishMessage(msg)

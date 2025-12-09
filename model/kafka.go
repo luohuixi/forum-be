@@ -1,10 +1,11 @@
 package model
 
 import (
+	"context"
 	"github.com/segmentio/kafka-go"
+	"github.com/segmentio/kafka-go/sasl/plain"
 	"github.com/spf13/viper"
 )
-import "context"
 
 // KafkaWriter ...
 type kafkaWriter struct {
@@ -20,18 +21,31 @@ var KafkaReader *kafkaReader
 var KafkaWriter *kafkaWriter
 
 func InitKafka(topic string) {
-	KafkaReader.Init(topic)
-	KafkaWriter.Init(topic)
-
+	KafkaReaderInit(topic)
+	KafkaWriterInit(topic)
 }
 
-func (*kafkaReader) Init(topic string) {
+// ------------------- Reader -------------------
+
+func KafkaReaderInit(topic string) {
 	if KafkaReader == nil {
+		// SASL PLAIN 配置
+		mechanism := plain.Mechanism{
+			Username: viper.GetString("kafka.username"),
+			Password: viper.GetString("kafka.password"),
+		}
+
+		dialer := &kafka.Dialer{
+			SASLMechanism: mechanism,
+			TLS:           nil,
+		}
+
 		KafkaReader = &kafkaReader{
 			Self: kafka.NewReader(kafka.ReaderConfig{
 				Brokers:   []string{viper.GetString("kafka.addr")},
 				Topic:     topic,
 				Partition: 0,
+				Dialer:    dialer,
 			}),
 		}
 	}
@@ -45,14 +59,27 @@ func (r kafkaReader) CommitMessage(ctx context.Context, msg kafka.Message) error
 	return r.Self.CommitMessages(ctx, msg)
 }
 
-func (*kafkaWriter) Init(topic string) {
-	if KafkaReader != nil {
+// ------------------- Writer -------------------
+
+func KafkaWriterInit(topic string) {
+	if KafkaWriter == nil {
+		mechanism := plain.Mechanism{
+			Username: viper.GetString("kafka.username"),
+			Password: viper.GetString("kafka.password"),
+		}
+
+		dialer := &kafka.Dialer{
+			SASLMechanism: mechanism,
+			TLS:           nil,
+		}
+
 		KafkaWriter = &kafkaWriter{
-			Self: &kafka.Writer{
-				Addr:     kafka.TCP(viper.GetString("kafka.addr")),
+			Self: kafka.NewWriter(kafka.WriterConfig{
+				Brokers:  []string{viper.GetString("kafka.addr")},
 				Topic:    topic,
 				Balancer: &kafka.LeastBytes{},
-			},
+				Dialer:   dialer,
+			}),
 		}
 	}
 }

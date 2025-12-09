@@ -25,13 +25,6 @@ var (
 	cfg = pflag.StringP("config", "c", "", "apiserver config file path.")
 )
 
-func init() {
-	service.UserInit()
-	service.ChatInit()
-	service.PostInit()
-	service.FeedInit()
-}
-
 // @Title forum-gateway
 // @Version 1.0
 // @Description The gateway of forum
@@ -67,7 +60,10 @@ func main() {
 
 	// logger sync
 	defer log.SyncLogger()
-
+	service.UserInit()
+	service.ChatInit()
+	service.PostInit()
+	service.FeedInit()
 	dao.Init()
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))
