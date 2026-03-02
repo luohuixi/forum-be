@@ -11,6 +11,8 @@ import (
 	"forum/pkg/tracer"
 	"log"
 
+	"forum/client"
+
 	"github.com/go-micro/plugins/v4/registry/etcd"
 	"github.com/joho/godotenv"
 	"github.com/opentracing/opentracing-go"
@@ -59,7 +61,7 @@ func main() {
 
 	// Init will parse the command line flags.
 	srv.Init()
-
+	client.UserInit(srv)
 	dao.Init()
 
 	// Register handler
