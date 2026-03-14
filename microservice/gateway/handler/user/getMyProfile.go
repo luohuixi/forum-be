@@ -4,6 +4,7 @@ import (
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	"forum/log"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -22,7 +23,7 @@ func GetMyProfile(c *gin.Context) {
 
 	userId := c.MustGet("userId").(uint32)
 
-	user, err := GetUserProfile(userId)
+	user, err := GetUserProfile(c.Request.Context(), userId)
 
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())

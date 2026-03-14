@@ -36,7 +36,8 @@ func main() {
 		panic(err)
 	}
 
-	t, io, err := tracer.NewTracer(viper.GetString("local_name"), viper.GetString("tracing.jager"))
+	traceAddr := "http://" + viper.GetString("tracing.jager") + "/api/traces"
+	t, io, err := tracer.NewTracer(viper.GetString("local_name"), traceAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,6 +57,12 @@ func main() {
 			opentracingWrapper.NewHandlerWrapper(opentracing.GlobalTracer()),
 		),
 		micro.WrapHandler(handler.ServerErrorHandlerWrapper()),
+
+		micro.WrapClient(
+			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
+		),
+		micro.WrapCall(handler.ClientErrorHandlerWrapper()),
+
 		micro.Registry(r),
 	)
 

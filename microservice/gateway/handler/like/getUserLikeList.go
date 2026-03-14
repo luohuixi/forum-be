@@ -1,7 +1,6 @@
 package like
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/handler/post"
 	"forum-gateway/util"
@@ -13,6 +12,7 @@ import (
 	"strconv"
 
 	"forum/client"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -81,7 +81,7 @@ func (a *Api) GetUserLikeList(c *gin.Context) {
 		Pagination:   limit != 0 || page != 0,
 	}
 
-	listResp, err := client.PostClient.ListLikeByUserId(context.TODO(), listReq)
+	listResp, err := client.PostClient.ListLikeByUserId(c.Request.Context(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

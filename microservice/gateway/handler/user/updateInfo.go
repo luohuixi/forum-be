@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-user/proto"
@@ -46,7 +45,7 @@ func UpdateInfo(c *gin.Context) {
 		},
 	}
 
-	_, err := client.UserClient.UpdateInfo(context.TODO(), updateInfoReq)
+	_, err := client.UserClient.UpdateInfo(c.Request.Context(), updateInfoReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

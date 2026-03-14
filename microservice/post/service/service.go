@@ -122,8 +122,8 @@ func (s PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uint
 	return isLiked, isCollection, uint32(likeNum), tags, commentNum, collectionNum
 }
 
-func (s PostService) GetUserDomain(userId uint32) (string, error) {
-	getResp, err := client.UserClient.GetProfile(context.TODO(), &pbu.GetRequest{Id: userId})
+func (s PostService) GetUserDomain(ctx context.Context, userId uint32) (string, error) {
+	getResp, err := client.UserClient.GetProfile(ctx, &pbu.GetRequest{Id: userId})
 	if err != nil {
 		return "", err
 	}
@@ -131,14 +131,14 @@ func (s PostService) GetUserDomain(userId uint32) (string, error) {
 	return role.Role2Domain(getResp.Role), nil
 }
 
-func (s PostService) CreateMessage(userId uint32, message string) {
+func (s PostService) CreateMessage(ctx context.Context, userId uint32, message string) {
 	go func() {
 		req := &pbu.CreateMessageRequest{
 			Message: message,
 			UserId:  userId,
 		}
 
-		_, err := client.UserClient.CreateMessage(context.TODO(), req)
+		_, err := client.UserClient.CreateMessage(ctx, req)
 		if err != nil {
 			logger.Error(errno.ErrRPC.Error(), logger.String(err.Error()))
 		}

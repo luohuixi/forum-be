@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-user/proto"
@@ -38,7 +37,7 @@ func TeamLogin(c *gin.Context) {
 		OauthCode: req.OauthCode,
 	}
 
-	loginResp, err := client.UserClient.TeamLogin(context.TODO(), loginReq)
+	loginResp, err := client.UserClient.TeamLogin(c.Request.Context(), loginReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

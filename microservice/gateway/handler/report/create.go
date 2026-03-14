@@ -1,7 +1,6 @@
 package report
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -65,7 +64,7 @@ func (a *Api) Create(c *gin.Context) {
 		Cause:    req.Cause,
 	}
 
-	_, err = client.PostClient.CreateReport(context.TODO(), &createReq)
+	_, err = client.PostClient.CreateReport(c.Request.Context(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

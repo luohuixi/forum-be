@@ -16,10 +16,13 @@ import (
 
 	"forum/pkg/handler"
 
+	"forum/pkg/tracer"
+
 	"github.com/go-micro/plugins/v4/registry/etcd"
 	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
 	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/joho/godotenv"
+	"github.com/opentracing-contrib/go-gin/ginhttp"
 	"github.com/opentracing/opentracing-go"
 	"go-micro.dev/v4"
 	"go-micro.dev/v4/registry"
@@ -72,6 +75,14 @@ func main() {
 		panic(err)
 	}
 
+	traceAddr := "http://" + viper.GetString("tracing.jager") + "/api/traces"
+	t, io, err := tracer.NewTracer(viper.GetString("local_name"), traceAddr)
+	if err != nil {
+		log.Fatal("tracer error", zap.String("reason", err.Error()))
+	}
+	defer io.Close()
+	opentracing.SetGlobalTracer(t)
+
 	r := etcd.NewRegistry(
 		registry.Addrs(viper.GetString("etcd.addr")),
 		etcd.Auth(viper.GetString("etcd.username"), viper.GetString("etcd.password")),
@@ -106,6 +117,7 @@ func main() {
 
 		// MiddleWares.
 		middleware.Logging(),
+		ginhttp.Middleware(opentracing.GlobalTracer()),
 		middleware.RequestId(),
 	)
 

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-user/proto"
@@ -38,7 +37,7 @@ func StudentLogin(c *gin.Context) {
 		Password:  req.Password,
 	}
 
-	loginResp, err := client.UserClient.StudentLogin(context.TODO(), loginReq)
+	loginResp, err := client.UserClient.StudentLogin(c.Request.Context(), loginReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

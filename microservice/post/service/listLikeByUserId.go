@@ -9,7 +9,7 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) ListLikeByUserId(_ context.Context, req *pb.ListPostPartInfoRequest, resp *pb.ListPostPartInfoResponse) error {
+func (s *PostService) ListLikeByUserId(ctx context.Context, req *pb.ListPostPartInfoRequest, resp *pb.ListPostPartInfoResponse) error {
 	logger.Info("PostService ListLikeByUserId")
 
 	likes, err := s.Dao.ListUserLike(req.TargetUserId)
@@ -27,7 +27,7 @@ func (s *PostService) ListLikeByUserId(_ context.Context, req *pb.ListPostPartIn
 
 	var filter = &dao.PostModel{}
 
-	domain, err := s.GetUserDomain(req.UserId)
+	domain, err := s.GetUserDomain(ctx, req.UserId)
 	if err != nil {
 		return errno.ServerErr(errno.ErrRPC, err.Error())
 	}

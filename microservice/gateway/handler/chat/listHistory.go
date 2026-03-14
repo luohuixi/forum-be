@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"context"
 	pb "forum-chat/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
@@ -56,7 +55,7 @@ func ListHistory(c *gin.Context) {
 		Wait:   false,
 	}
 
-	_, err = client.ChatClient.GetList(context.Background(), getListRequest)
+	_, err = client.ChatClient.GetList(c.Request.Context(), getListRequest)
 	if err != nil {
 		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
 		return
@@ -70,7 +69,7 @@ func ListHistory(c *gin.Context) {
 		OtherUserId: uint32(otherUserId),
 	}
 
-	resp, err := client.ChatClient.ListHistory(context.TODO(), &req)
+	resp, err := client.ChatClient.ListHistory(c.Request.Context(), &req)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

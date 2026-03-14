@@ -9,7 +9,7 @@ import (
 	"forum/pkg/errno"
 )
 
-func (s *PostService) ListCollection(_ context.Context, req *pb.ListPostPartInfoRequest, resp *pb.ListPostPartInfoResponse) error {
+func (s *PostService) ListCollection(ctx context.Context, req *pb.ListPostPartInfoRequest, resp *pb.ListPostPartInfoResponse) error {
 	logger.Info("PostService ListCollections")
 
 	postIds, err := s.Dao.ListCollectionByUserId(req.TargetUserId)
@@ -19,7 +19,7 @@ func (s *PostService) ListCollection(_ context.Context, req *pb.ListPostPartInfo
 
 	var filter = &dao.PostModel{}
 
-	domain, err := s.GetUserDomain(req.UserId)
+	domain, err := s.GetUserDomain(ctx, req.UserId)
 	if err != nil {
 		return errno.ServerErr(errno.ErrRPC, err.Error())
 	}
