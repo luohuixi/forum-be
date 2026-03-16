@@ -4,18 +4,22 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"github.com/nacos-group/nacos-sdk-go/clients"
-	"github.com/nacos-group/nacos-sdk-go/common/constant"
-	"github.com/nacos-group/nacos-sdk-go/vo"
-	"github.com/spf13/viper"
 	"log"
 	"net/url"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
+	"github.com/spf13/viper"
 )
 
-const NACOS_ENV = "NACOSDSN"
+const (
+	NACOS_ENV  = "NACOSDSN"
+	TRACER_ENV = "TRACER"
+)
 
 type Config struct {
 	Name string
@@ -73,6 +77,7 @@ func GetConfigFromNacos(env string) (string, error) {
 	}
 
 	server, port, namespace, user, pass, group, dataId := ParseNacosDSN(dsn)
+	os.Setenv(TRACER_ENV, group) // 给 tracer 设置采样概率和上报频率用
 
 	serverConfigs := []constant.ServerConfig{
 		{

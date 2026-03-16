@@ -1,7 +1,6 @@
 package comment
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -12,6 +11,7 @@ import (
 	"strconv"
 
 	"forum/client"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -53,7 +53,7 @@ func (a *Api) Delete(c *gin.Context) {
 		UserId:   userId,
 	}
 
-	_, err = client.PostClient.DeleteItem(context.TODO(), deleteReq)
+	_, err = client.PostClient.DeleteItem(c.Request.Context(), deleteReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

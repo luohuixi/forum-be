@@ -1,7 +1,6 @@
 package comment
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -12,6 +11,7 @@ import (
 	"strconv"
 
 	"forum/client"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -52,7 +52,7 @@ func (a *Api) Get(c *gin.Context) {
 		Id:     uint32(id),
 	}
 
-	getResp, err := client.PostClient.GetComment(context.TODO(), getReq)
+	getResp, err := client.PostClient.GetComment(c.Request.Context(), getReq)
 	if err != nil {
 		SendError(c, err, getResp, "", GetLine())
 		return

@@ -1,7 +1,6 @@
 package post
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -63,7 +62,7 @@ func (a *Api) UpdateInfo(c *gin.Context) {
 		Summary:  req.Summary,
 	}
 
-	_, err = client.PostClient.UpdatePostInfo(context.TODO(), &updateReq)
+	_, err = client.PostClient.UpdatePostInfo(c.Request.Context(), &updateReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

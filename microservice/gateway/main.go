@@ -14,8 +14,18 @@ import (
 
 	"forum/client"
 
+	"forum/pkg/handler"
+
+	"forum/pkg/tracer"
+
+	"github.com/go-micro/plugins/v4/registry/etcd"
 	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
+	opentracingWrapper "github.com/go-micro/plugins/v4/wrapper/trace/opentracing"
 	"github.com/joho/godotenv"
+	"github.com/opentracing-contrib/go-gin/ginhttp"
+	"github.com/opentracing/opentracing-go"
+	"go-micro.dev/v4"
+	"go-micro.dev/v4/registry"
 
 	"github.com/gin-gonic/gin"
 	"github.com/spf13/pflag"
@@ -65,12 +75,34 @@ func main() {
 		panic(err)
 	}
 
+	traceAddr := "http://" + viper.GetString("tracing.jager") + "/api/traces"
+	t, io, err := tracer.NewTracer(viper.GetString("local_name"), traceAddr)
+	if err != nil {
+		log.Fatal("tracer error", zap.String("reason", err.Error()))
+	}
+	defer io.Close()
+	opentracing.SetGlobalTracer(t)
+
+	r := etcd.NewRegistry(
+		registry.Addrs(viper.GetString("etcd.addr")),
+		etcd.Auth(viper.GetString("etcd.username"), viper.GetString("etcd.password")),
+	)
+	service := micro.NewService(
+		micro.Name("forum.gateway.client"),
+		micro.Registry(r),
+		micro.WrapClient(
+			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
+		),
+		micro.WrapCall(handler.ClientErrorHandlerWrapper()))
+
+	service.Init()
+
 	// logger sync
 	defer log.SyncLogger()
-	client.UserInit()
-	client.ChatInit()
-	client.PostInit()
-	client.FeedInit()
+	client.UserInit(service)
+	client.ChatInit(service)
+	client.PostInit(service)
+	client.FeedInit(service)
 	dao.Init()
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))
@@ -85,6 +117,7 @@ func main() {
 
 		// MiddleWares.
 		middleware.Logging(),
+		ginhttp.Middleware(opentracing.GlobalTracer()),
 		middleware.RequestId(),
 	)
 

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	"errors"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
@@ -39,7 +38,7 @@ func CreateMessage(c *gin.Context) {
 		Message: req.Message,
 	}
 
-	_, err := client.UserClient.CreateMessage(context.TODO(), listReq)
+	_, err := client.UserClient.CreateMessage(c.Request.Context(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -85,7 +84,7 @@ func CreatePrivateMessage(c *gin.Context) {
 		CommentContent: req.CommentContent,
 	}
 
-	_, err := client.UserClient.CreatePrivateMessage(context.TODO(), listReq)
+	_, err := client.UserClient.CreatePrivateMessage(c.Request.Context(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

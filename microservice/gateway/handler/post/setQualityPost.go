@@ -1,7 +1,6 @@
 package post
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	pb "forum-post/proto"
 	"forum/client"
@@ -46,7 +45,7 @@ func (a *Api) SetQualityPost(c *gin.Context) {
 	req := &pb.Request{
 		Id: uint32(id),
 	}
-	_, err = client.PostClient.SetQualityPost(context.TODO(), req)
+	_, err = client.PostClient.SetQualityPost(c.Request.Context(), req)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

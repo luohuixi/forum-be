@@ -1,7 +1,6 @@
 package post
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -72,7 +71,7 @@ func (a *Api) Delete(c *gin.Context) {
 		deleteReq.TypeName = constvar.QualityPost
 	}
 
-	_, err = client.PostClient.DeleteItem(context.TODO(), deleteReq)
+	_, err = client.PostClient.DeleteItem(c.Request.Context(), deleteReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

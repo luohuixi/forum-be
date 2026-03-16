@@ -9,9 +9,13 @@ import (
 	"forum/log"
 	"forum/pkg/errno"
 	"net/http"
+	"strings"
 	"time"
 
 	"forum/client"
+
+	mclient "go-micro.dev/v4/client"
+
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"go.uber.org/zap"
@@ -20,7 +24,8 @@ import (
 type Client struct {
 	UserId uint32
 	Socket *websocket.Conn
-	Close  chan struct{}
+	ctx    context.Context
+	cancel context.CancelFunc
 }
 
 // WsHandler 建立 WebSocket 连接
@@ -59,10 +64,13 @@ func WsHandler(c *gin.Context) {
 
 	userId := c.MustGet("userId").(uint32)
 
+	newCtx, cancel := context.WithCancel(context.WithoutCancel(c.Request.Context()))
 	client := &Client{
 		UserId: userId,
 		Socket: conn,
-		Close:  make(chan struct{}),
+		// 设置一个不受取消影响的上下文，WsHandler 结束时不会取消这个上下文，用于继承链路
+		ctx:    newCtx,
+		cancel: cancel,
 	}
 
 	go client.Read()
@@ -72,7 +80,7 @@ func WsHandler(c *gin.Context) {
 // Read 从client接收消息
 func (c *Client) Read() {
 	defer func() {
-		close(c.Close)
+		c.cancel()
 		c.Socket.Close()
 	}()
 
@@ -81,7 +89,9 @@ func (c *Client) Read() {
 		//读取写入的message
 		_, message, err := c.Socket.ReadMessage()
 		if err != nil {
-			log.Info("client close connect")
+			// 正常情况由 read 控制 write 的退出
+			// 因为 ReadMessage 会一直阻塞直到断开连接报错或读取成功
+			log.Info("client close connect", zap.Error(err))
 			break
 		}
 
@@ -106,7 +116,7 @@ func (c *Client) Read() {
 			break
 		}
 		//创建聊天记录
-		if _, err := client.ChatClient.Create(context.Background(), &req); err != nil {
+		if _, err := client.ChatClient.Create(c.ctx, &req); err != nil {
 			log.Error(err.Error())
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 			break
@@ -117,26 +127,33 @@ func (c *Client) Read() {
 // Write 返回client收到的消息
 func (c *Client) Write() {
 	defer func() {
+		c.cancel()
 		c.Socket.Close()
 	}()
 
 	for {
-		//获取聊天记录
+		if c.ctx.Err() != nil {
+			return
+		}
+
+		// 获取聊天记录
 		getListRequest := &pb.GetListRequest{
 			UserId: c.UserId,
 			Wait:   true,
 		}
 
-		ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(time.Hour)) // set rpc expiration to 1 Hour
-		go func() {
-			<-c.Close // cancel the request when client close connect
-			cancel()
-		}()
+		ctx, cancel := context.WithDeadline(c.ctx, time.Now().Add(time.Hour)) // set rpc expiration to 1 Hour
 		// 死循环获取,直到客户端断开连接
-		resp, err := client.ChatClient.GetList(ctx, getListRequest)
+		resp, err := client.ChatClient.GetList(ctx, getListRequest,
+			mclient.WithRequestTimeout(time.Hour),
+			withConnectionTimeout(time.Hour))
+
+		cancel()
+
 		if err != nil {
-			// TODO:ctx报错
-			log.Error(err.Error())
+			if !strings.Contains(err.Error(), context.DeadlineExceeded.Error()) && !strings.Contains(err.Error(), context.Canceled.Error()) {
+				log.Error("chatClient getList error", zap.Error(err))
+			}
 			c.Socket.WriteMessage(websocket.TextMessage, []byte(err.Error()))
 			return
 		}
@@ -152,4 +169,11 @@ type Message struct {
 	Time     string `json:"time"`
 	Sender   uint32 `json:"sender"`
 	TypeName string `json:"type_name"`
+}
+
+// go-microV4只设置RequestTimeout不能改变客户端超时，要设置ConnectionTimeout
+func withConnectionTimeout(d time.Duration) mclient.CallOption {
+	return func(o *mclient.CallOptions) {
+		o.ConnectionTimeout = d
+	}
 }

@@ -1,7 +1,6 @@
 package like
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -11,6 +10,7 @@ import (
 	"forum/pkg/errno"
 
 	"forum/client"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -59,7 +59,7 @@ func (a *Api) CreateOrRemove(c *gin.Context) {
 		},
 	}
 
-	_, err = client.PostClient.CreateOrRemoveLike(context.TODO(), likeReq)
+	_, err = client.PostClient.CreateOrRemoveLike(c.Request.Context(), likeReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

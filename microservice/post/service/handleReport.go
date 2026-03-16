@@ -6,11 +6,12 @@ import (
 	logger "forum/log"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
-	"gorm.io/gorm"
 	"strconv"
+
+	"gorm.io/gorm"
 )
 
-func (s *PostService) HandleReport(_ context.Context, req *pb.HandleReportRequest, _ *pb.Response) error {
+func (s *PostService) HandleReport(ctx context.Context, req *pb.HandleReportRequest, _ *pb.Response) error {
 	logger.Info("PostService HandleReport")
 
 	report, err := s.Dao.GetReport(req.Id)
@@ -27,7 +28,7 @@ func (s *PostService) HandleReport(_ context.Context, req *pb.HandleReportReques
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 
-		s.CreateMessage(report.UserId, "One of your "+report.TypeName+"s has been deleted")
+		s.CreateMessage(ctx, report.UserId, "One of your "+report.TypeName+"s has been deleted")
 
 	} else if req.Result == constvar.InvalidReport {
 		if err := s.Dao.InValidReport(req.Id, report.TypeName, report.Id); err != nil {

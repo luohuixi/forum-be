@@ -1,7 +1,6 @@
 package post
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -32,7 +31,7 @@ func (a *Api) ListPopularTag(c *gin.Context) {
 		Category: category,
 	}
 
-	resp, err := client.PostClient.ListPopularTag(context.TODO(), req)
+	resp, err := client.PostClient.ListPopularTag(c.Request.Context(), req)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

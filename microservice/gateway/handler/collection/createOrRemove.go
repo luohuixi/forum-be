@@ -1,7 +1,6 @@
 package collection
 
 import (
-	"context"
 	pbf "forum-feed/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
@@ -13,6 +12,7 @@ import (
 	"strconv"
 
 	"forum/client"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -58,7 +58,7 @@ func (a *Api) CreateOrRemove(c *gin.Context) {
 		Id:     uint32(postId),
 	}
 
-	resp, err := client.PostClient.CreateOrRemoveCollection(context.TODO(), &createReq)
+	resp, err := client.PostClient.CreateOrRemoveCollection(c.Request.Context(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -76,7 +76,7 @@ func (a *Api) CreateOrRemove(c *gin.Context) {
 		TargetUserId: resp.UserId,
 		Content:      "",
 	}
-	_, err = client.FeedClient.Push(context.TODO(), pushReq)
+	_, err = client.FeedClient.Push(c.Request.Context(), pushReq)
 
 	SendResponse(c, err, nil)
 }

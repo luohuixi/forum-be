@@ -1,7 +1,6 @@
 package post
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	pb "forum-post/proto"
 	"forum/client"
@@ -21,7 +20,7 @@ import (
 func (a *Api) GetUnReadPostNum(c *gin.Context) {
 	userId := c.MustGet("userId").(uint32)
 
-	resp, err := client.PostClient.GetUnReadPostNum(context.TODO(), &pb.Request{
+	resp, err := client.PostClient.GetUnReadPostNum(c.Request.Context(), &pb.Request{
 		UserId: userId,
 	})
 	if err != nil {

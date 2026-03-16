@@ -1,7 +1,6 @@
 package report
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -43,7 +42,7 @@ func (a *Api) Handle(c *gin.Context) {
 		Result: req.Result,
 	}
 
-	_, err := client.PostClient.HandleReport(context.TODO(), &handleReq)
+	_, err := client.PostClient.HandleReport(c.Request.Context(), &handleReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

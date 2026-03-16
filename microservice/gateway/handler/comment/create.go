@@ -1,7 +1,6 @@
 package comment
 
 import (
-	"context"
 	pbf "forum-feed/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
@@ -12,6 +11,7 @@ import (
 	"forum/pkg/errno"
 
 	"forum/client"
+
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
@@ -66,7 +66,7 @@ func (a *Api) Create(c *gin.Context) {
 		ImgUrl:    req.ImgUrl,
 	}
 
-	createResp, err := client.PostClient.CreateComment(context.TODO(), &createReq)
+	createResp, err := client.PostClient.CreateComment(c.Request.Context(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -84,7 +84,7 @@ func (a *Api) Create(c *gin.Context) {
 		TargetUserId: createResp.UserId,
 		Content:      req.Content,
 	}
-	_, err = client.FeedClient.Push(context.TODO(), pushReq)
+	_, err = client.FeedClient.Push(c.Request.Context(), pushReq)
 
 	resp := &Comment{
 		Id:            createResp.Id,
