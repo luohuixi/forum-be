@@ -54,14 +54,7 @@ jobs:
               -o StrictHostKeyChecking=no \
               ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} bash -s <<EOF
           echo "SSH Success!"
-          cd ~/forum
-          REGISTRY=${{ env.REGISTRY }}
-          IMAGE_TAG=${{ env.IMAGE_TAG }}
-          SERVICE=forum_be_user
-          IMAGE=\$REGISTRY/\$SERVICE:\$IMAGE_TAG
-          echo "» Deploying \$SERVICE → \$IMAGE"
-          docker rm -f \$SERVICE || true
-          docker pull \$IMAGE || true
-          docker rmi -f \$IMAGE || true
-          IMAGE=\$IMAGE docker compose up -d \$SERVICE
+          kubectl rollout restart deployment forum-be-user -n forum
+          kubectl rollout status deployment forum-be-user -n forum
+          echo "» Deploying User Success"
           EOF
