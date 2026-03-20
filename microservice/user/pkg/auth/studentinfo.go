@@ -137,7 +137,7 @@ func makeAccountPreflightRequest() (*accountRequestParams, error) {
 	params._eventId = _eventId
 	params.submit = "LOGIN"
 	// 硬编码即可，学校没有加合法性校验
-	params.visitorid = "ed34a8fd50289daf915910920b80f6ea"
+	params.visitorid = "77419871e061a629a21b70441e31ff6f"
 	params.epid = "Chrome145.0.0.0"
 	params.ugt = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36"
 	params.bz = "ed34a8fd50289daf915910920b80f6ea"
@@ -154,11 +154,10 @@ func makeAccountRequest(sid, password string, params *accountRequestParams, clie
 	v.Set("execution", params.execution)
 	v.Set("_eventId", params._eventId)
 	v.Set("submit", params.submit)
-	v.Set("visitorId", params.visitorid)
-	v.Set("visitorId1", params.visitorid)
-	//v.Set("epid", params.epid)
-	//v.Set("ugt", params.ugt)
-	//v.Set("bz", params.bz)
+	v.Set("visitorid", params.visitorid)
+	v.Set("epid", params.epid)
+	v.Set("ugt", params.ugt)
+	v.Set("bz", params.bz)
 	request, err := http.NewRequest("POST", "https://account.ccnu.edu.cn/cas/login;jsessionid="+params.JSESSIONID, strings.NewReader(v.Encode()))
 	if err != nil {
 		log.Print(err)
