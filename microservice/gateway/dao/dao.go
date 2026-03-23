@@ -4,6 +4,7 @@ import (
 	"forum/model"
 	"forum/pkg/limiter"
 	"forum/pkg/obfuscate"
+
 	"github.com/spf13/viper"
 )
 
@@ -25,9 +26,9 @@ type Interface interface {
 }
 
 // Init init dao
-func Init() {
+func Init() func() {
 	if dao != nil {
-		return
+		return nil
 	}
 
 	// 黑名单过期数据定时清理
@@ -47,6 +48,10 @@ func Init() {
 	dao = &Dao{
 		LimiterManager: limiterManager,
 		Obfuscator:     obfuscator,
+	}
+
+	return func() {
+		dao.LimiterManager.Close()
 	}
 }
 

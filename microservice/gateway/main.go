@@ -103,7 +103,8 @@ func main() {
 	client.ChatInit(service)
 	client.PostInit(service)
 	client.FeedInit(service)
-	dao.Init()
+	limiterClose := dao.Init()
+	defer limiterClose()
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))
 
