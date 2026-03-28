@@ -10,6 +10,8 @@ replace forum-post => ./microservice/post
 
 replace forum-feed => ./microservice/feed
 
+replace forum-ocr => ./microservice/ocr
+
 go 1.23.0
 
 toolchain go1.24.4
@@ -18,6 +20,7 @@ require (
 	forum v0.0.0-00010101000000-000000000000
 	forum-chat v0.0.0-00010101000000-000000000000
 	forum-feed v0.0.0-00010101000000-000000000000
+	forum-ocr v0.0.0-00010101000000-000000000000
 	forum-post v0.0.0-00010101000000-000000000000
 	forum-user v0.0.0-00010101000000-000000000000
 	github.com/casbin/casbin/v2 v2.103.0
@@ -129,7 +132,6 @@ require (
 	github.com/spf13/cast v1.5.0 // indirect
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.6 // indirect
-	github.com/stretchr/objx v0.5.2 // indirect
 	github.com/subosito/gotenv v1.3.0 // indirect
 	github.com/uber/jaeger-lib v2.4.1+incompatible // indirect
 	github.com/urfave/cli/v2 v2.25.7 // indirect

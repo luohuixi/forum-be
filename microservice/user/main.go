@@ -3,6 +3,7 @@ package main
 import (
 	"forum-user/dao"
 	"forum-user/pkg/auth"
+	"forum/client"
 	"forum/pkg/identity"
 
 	pb "forum-user/proto"
@@ -50,6 +51,7 @@ func main() {
 	// init oauth-manager and some variables
 	auth.InitVar()
 	auth.OauthManager.Init()
+	client.OCRInit()
 	r := etcd.NewRegistry(
 		registry.Addrs(viper.GetString("etcd.addr")),
 		etcd.Auth(viper.GetString("etcd.username"), viper.GetString("etcd.password")),

@@ -4,8 +4,9 @@ package log
 // lumberjack是用于持久化日志的包
 
 import (
-	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
+
+	"gopkg.in/natefinch/lumberjack.v2"
 
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"

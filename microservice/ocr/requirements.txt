@@ -1,0 +1,10 @@
+addict==2.4.0
+datasets==4.8.4
+einops
+modelscope==1.35.3
+numpy==1.26.4
+opencv-python-headless
+oss2
+scipy
+simplejson>=3.3.0
+sortedcontainers>=1.5.9

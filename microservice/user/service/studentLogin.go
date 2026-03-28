@@ -2,6 +2,9 @@ package service
 
 import (
 	"context"
+	"errors"
+	"strings"
+
 	"forum-user/dao"
 	"forum-user/pkg/auth"
 	pb "forum-user/proto"
@@ -13,59 +16,97 @@ import (
 	"forum/pkg/token"
 )
 
-// StudentLogin ... 登录
-// 如果无 code，则返回 oauth 的地址，让前端去请求 oauth，
-// 否则，用 code 获取 oauth 的 access token，并生成该应用的 auth token，返回给前端。
+// StudentLogin handles the CCNU student login state machine and issues a forum token on success.
 func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginRequest, resp *pb.LoginResponse) error {
 	logger.Info("UserService StudentLogin")
 
-	// 使用 ccnu 登陆
-	if err := auth.GetUserInfoFormOne(req.StudentId, req.Password); err != nil {
-		return errno.ServerErr(errno.ErrPasswordIncorrect, err.Error())
+	if strings.TrimSpace(req.GetAction()) == "" || strings.TrimSpace(req.GetAction()) == "start" {
+		if strings.TrimSpace(req.GetStudentId()) == "" || strings.TrimSpace(req.GetPassword()) == "" {
+			return errno.ServerErr(errno.ErrBind, "student_id and password are required")
+		}
 	}
 
-	//查询是否存在用户
-	user, err := s.Dao.GetUserByStudentId(req.StudentId)
+	loginResult, err := auth.HandleStudentLogin(req)
+	if err != nil {
+		switch {
+		case errors.Is(err, auth.ErrStudentCredentialInvalid):
+			return errno.ServerErr(errno.ErrPasswordIncorrect, err.Error())
+		case errors.Is(err, auth.ErrStudentLoginBadRequest), errors.Is(err, auth.ErrStudentLoginSessionExpired):
+			return errno.ServerErr(errno.ErrBadRequest, err.Error())
+		default:
+			return errno.ServerErr(errno.ErrGetUserInfo, err.Error())
+		}
+	}
+
+	fillStudentLoginState(resp, loginResult)
+	if loginResult.State.Status != "logged_in" {
+		return nil
+	}
+
+	Token, err := s.issueStudentToken(loginResult.StudentID, loginResult.Password)
 	if err != nil {
 		return err
 	}
+	resp.Token = Token
+	return nil
+}
 
-	//如果用户为空
+func fillStudentLoginState(resp *pb.LoginResponse, result *auth.StudentLoginResult) {
+	resp.SessionId = result.State.SessionID
+	resp.Status = result.State.Status
+	resp.Message = result.State.Message
+	resp.CaptchaImageBase64 = result.State.CaptchaImageBase64
+	resp.AvailableSecondAuthMethods = result.State.AvailableSecondAuthMethods
+	resp.CurrentSecondAuthMethod = result.State.CurrentSecondAuthMethod
+	resp.SecondAuthSmsTarget = result.State.SecondAuthSMSTarget
+	resp.SecondAuthEmailTarget = result.State.SecondAuthEmailTarget
+}
+
+func (s *UserService) issueStudentToken(studentID string, password string) (string, error) {
+	// 查询是否存在用户
+	// 若已存在则刷新密码；否则自动注册。
+	// NOTE: 这里仍沿用 forum 的本地用户体系与 token 发放逻辑。
+	user, err := s.Dao.GetUserByStudentId(studentID)
+	if err != nil {
+		return "", err
+	}
+
+	// 如果用户为空
 	if user == nil {
 		info := &dao.RegisterInfo{
-			StudentId: req.StudentId,
-			Password:  req.Password,
+			StudentId: studentID,
+			Password:  password,
 			Role:      constvar.NormalRole,
-			Name:      req.StudentId,
+			Name:      studentID,
 		}
 
 		// 用户未注册，自动注册
 		if err := s.Dao.RegisterUser(info); err != nil {
-			return errno.ServerErr(errno.ErrDatabase, err.Error())
+			return "", errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 
 		// 注册后重新查询
-		user, err = s.Dao.GetUserByStudentId(req.StudentId)
+		user, err = s.Dao.GetUserByStudentId(studentID)
 		if err != nil {
-			return errno.ServerErr(errno.ErrDatabase, err.Error())
+			return "", errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 
 		if err := s.Dao.AddPublicPolicy(user.Role, user.Id); err != nil {
-			return errno.ServerErr(errno.ErrCasbin, err.Error())
+			return "", errno.ServerErr(errno.ErrCasbin, err.Error())
 		}
 
 		if err := model.AddRole("user", user.Id, constvar.NormalRole); err != nil {
-			return errno.ServerErr(errno.ErrCasbin, err.Error())
+			return "", errno.ServerErr(errno.ErrCasbin, err.Error())
 		}
 	} else {
-		//更新用户密码
-		err := s.Dao.UpdatePassword(user.Id, req.Password)
+		// 更新用户密码
+		err := s.Dao.UpdatePassword(user.Id, password)
 		if err != nil {
-			return err
+			return "", err
 		}
 	}
 
-	//根据权限生成token
+	// 根据权限生成 token
 	role := uint32(constvar.Normal)
 	if user.Role == constvar.NormalAdminRole || user.Role == constvar.MuxiAdminRole {
 		role = constvar.Admin
@@ -80,9 +121,8 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 		Expired: util.GetExpiredTime(),
 	})
 	if err != nil {
-		return errno.ServerErr(errno.ErrAuthToken, err.Error())
+		return "", errno.ServerErr(errno.ErrAuthToken, err.Error())
 	}
 
-	resp.Token = Token
-	return nil
+	return Token, nil
 }
