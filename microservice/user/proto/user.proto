@@ -110,6 +110,8 @@ message LoginResponse {
   string captcha_image_base64 = 6;
   repeated string available_second_auth_methods = 7;
   string current_second_auth_method = 8;
+  string second_auth_sms_target = 9;
+  string second_auth_email_target = 10;
 }
 
 message UserInfo {

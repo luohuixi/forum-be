@@ -10,6 +10,7 @@ auth_server:
 
 ccnu_login:
   captcha_auto_retry: 3
+  captcha_auto_timeout_ms: 3000
 
 runmode: debug                 # 开发模式, debug, release, test 部署时环境变量覆盖
 jwt_secret: 1234567890

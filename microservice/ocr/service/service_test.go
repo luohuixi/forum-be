@@ -1,7 +1,10 @@
 package service
 
 import (
+	"context"
+	"errors"
 	"testing"
+	"time"
 
 	"github.com/spf13/viper"
 )
@@ -68,5 +71,34 @@ func TestNewModelscopeEngineUsesConfiguredValues(t *testing.T) {
 	}
 	if !engine.skipSelfCheck {
 		t.Fatal("expected skip self-check to be enabled")
+	}
+}
+
+func TestWorkerStartTimeoutIgnoresCanceledParent(t *testing.T) {
+	viper.Reset()
+	t.Cleanup(viper.Reset)
+
+	engine := &modelscopeEngine{
+		timeout: 180 * time.Second,
+	}
+
+	parent, cancel := context.WithCancel(context.Background())
+	cancel()
+
+	startCtx, stop := engine.newWorkerStartContext()
+	defer stop()
+
+	if err := startCtx.Err(); err != nil {
+		t.Fatalf("unexpected start context error: %v", err)
+	}
+	if !errors.Is(parent.Err(), context.Canceled) {
+		t.Fatalf("expected parent to be canceled, got %v", parent.Err())
+	}
+	deadline, ok := startCtx.Deadline()
+	if !ok {
+		t.Fatal("expected worker start context deadline")
+	}
+	if remaining := time.Until(deadline); remaining <= 0 || remaining > engine.workerStartTimeout() {
+		t.Fatalf("unexpected worker start context deadline: %s", remaining)
 	}
 }

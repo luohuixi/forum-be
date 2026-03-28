@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -54,6 +55,8 @@ type StudentLoginState struct {
 	CaptchaImageBase64         string
 	AvailableSecondAuthMethods []string
 	CurrentSecondAuthMethod    string
+	SecondAuthSMSTarget        string
+	SecondAuthEmailTarget      string
 }
 
 type StudentLoginResult struct {
@@ -77,6 +80,8 @@ type ccnuLoginSession struct {
 	CaptchaImageBase64         string             `json:"captcha_image_base64"`
 	AvailableSecondAuthMethods []string           `json:"available_second_auth_methods"`
 	CurrentSecondAuthMethod    string             `json:"current_second_auth_method"`
+	SecondAuthSMSTarget        string             `json:"second_auth_sms_target"`
+	SecondAuthEmailTarget      string             `json:"second_auth_email_target"`
 	Cookies                    []serializedCookie `json:"cookies"`
 }
 
@@ -174,7 +179,12 @@ func (m *ccnuLoginManager) start(studentID, password string) (*StudentLoginResul
 		return m.buildCaptchaChallenge(client, session, page, "请输入验证码后继续登录。")
 	}
 
+	autoOCRDeadline := time.Now().Add(ccnuCaptchaAutoTimeout())
 	for attempt := 0; attempt < ccnuCaptchaAutoRetry(); attempt++ {
+		if time.Until(autoOCRDeadline) <= 0 {
+			return m.buildCaptchaChallenge(client, session, page, "OCR 超时，请输入验证码继续登录。")
+		}
+
 		captchaBase64, err := m.fetchCaptchaBase64(client, page)
 		if err != nil {
 			if attempt == ccnuCaptchaAutoRetry()-1 {
@@ -187,10 +197,13 @@ func (m *ccnuLoginManager) start(studentID, password string) (*StudentLoginResul
 			continue
 		}
 
-		captchaText, err := m.recognizeCaptcha(captchaBase64)
+		captchaText, err := m.recognizeCaptcha(captchaBase64, time.Until(autoOCRDeadline))
 		if err != nil {
+			if errors.Is(err, context.DeadlineExceeded) {
+				return m.buildCaptchaChallenge(client, session, page, "OCR 超时，请输入验证码继续登录。")
+			}
 			if attempt == ccnuCaptchaAutoRetry()-1 {
-				return m.buildCaptchaChallenge(client, session, page, "请输入验证码后继续登录。")
+				return m.buildCaptchaChallenge(client, session, page, "OCR 未通过，请输入验证码继续登录。")
 			}
 			page, err = m.fetchCCNUPage(client, http.MethodGet, ccnuLoginURL, nil, "")
 			if err != nil {
@@ -365,6 +378,8 @@ func (m *ccnuLoginManager) buildCaptchaChallenge(client *http.Client, session *c
 	session.CaptchaImageBase64 = captchaBase64
 	session.AvailableSecondAuthMethods = nil
 	session.CurrentSecondAuthMethod = ""
+	session.SecondAuthSMSTarget = ""
+	session.SecondAuthEmailTarget = ""
 	session.Cookies = snapshotCCNUCookies(client.Jar, page)
 	if err := m.saveSession(session); err != nil {
 		return nil, err
@@ -378,6 +393,7 @@ func (m *ccnuLoginManager) buildCaptchaChallenge(client *http.Client, session *c
 
 func (m *ccnuLoginManager) buildSecondAuthMethodChallenge(client *http.Client, session *ccnuLoginSession, page *ccnuPageSnapshot, message string, persist bool) (*StudentLoginResult, error) {
 	methods, currentMethod, _ := detectSecondAuthMethods(page)
+	targets := m.collectSecondAuthTargets(client, page)
 	if len(methods) == 0 {
 		methods = []string{studentSecondAuthMethodSMS}
 	}
@@ -392,6 +408,8 @@ func (m *ccnuLoginManager) buildSecondAuthMethodChallenge(client *http.Client, s
 	session.CaptchaImageBase64 = ""
 	session.AvailableSecondAuthMethods = methods
 	session.CurrentSecondAuthMethod = currentMethod
+	session.SecondAuthSMSTarget = targets[studentSecondAuthMethodSMS]
+	session.SecondAuthEmailTarget = targets[studentSecondAuthMethodEmail]
 	session.Cookies = snapshotCCNUCookies(client.Jar, page)
 	if persist {
 		if err := m.saveSession(session); err != nil {
@@ -408,6 +426,7 @@ func (m *ccnuLoginManager) buildSecondAuthMethodChallenge(client *http.Client, s
 
 func (m *ccnuLoginManager) buildSecondAuthCodeChallenge(client *http.Client, session *ccnuLoginSession, page *ccnuPageSnapshot, message string) (*StudentLoginResult, error) {
 	methods, currentMethod, _ := detectSecondAuthMethods(page)
+	targets := m.collectSecondAuthTargets(client, page)
 	if len(methods) == 0 {
 		methods = session.AvailableSecondAuthMethods
 	}
@@ -428,6 +447,8 @@ func (m *ccnuLoginManager) buildSecondAuthCodeChallenge(client *http.Client, ses
 	session.CaptchaImageBase64 = ""
 	session.AvailableSecondAuthMethods = methods
 	session.CurrentSecondAuthMethod = currentMethod
+	session.SecondAuthSMSTarget = firstNonEmpty(targets[studentSecondAuthMethodSMS], session.SecondAuthSMSTarget)
+	session.SecondAuthEmailTarget = firstNonEmpty(targets[studentSecondAuthMethodEmail], session.SecondAuthEmailTarget)
 	session.Cookies = snapshotCCNUCookies(client.Jar, page)
 	if err := m.saveSession(session); err != nil {
 		return nil, err
@@ -604,7 +625,47 @@ func (s *ccnuLoginSession) publicState() StudentLoginState {
 		CaptchaImageBase64:         s.CaptchaImageBase64,
 		AvailableSecondAuthMethods: methods,
 		CurrentSecondAuthMethod:    s.CurrentSecondAuthMethod,
+		SecondAuthSMSTarget:        s.SecondAuthSMSTarget,
+		SecondAuthEmailTarget:      s.SecondAuthEmailTarget,
 	}
+}
+
+func (m *ccnuLoginManager) collectSecondAuthTargets(client *http.Client, page *ccnuPageSnapshot) map[string]string {
+	targets := detectSecondAuthTargets(page)
+	if client == nil || page == nil {
+		return targets
+	}
+
+	methods, _, switchURLs := detectSecondAuthMethods(page)
+	if len(methods) == 0 {
+		return targets
+	}
+
+	serializedCookies := snapshotCCNUCookies(client.Jar, page)
+	for _, method := range methods {
+		if targets[method] != "" {
+			continue
+		}
+		switchURL := strings.TrimSpace(switchURLs[method])
+		if switchURL == "" {
+			continue
+		}
+		mirrorClient := newCCNUHTTPClient()
+		if err := restoreCCNUCookies(mirrorClient.Jar, serializedCookies); err != nil {
+			continue
+		}
+		switchPage, err := m.fetchCCNUPage(mirrorClient, http.MethodGet, switchURL, nil, "")
+		if err != nil {
+			continue
+		}
+		for targetMethod, targetValue := range detectSecondAuthTargets(switchPage) {
+			if targetValue == "" {
+				continue
+			}
+			targets[targetMethod] = targetValue
+		}
+	}
+	return targets
 }
 
 func ccnuLoginSessionKey(sessionID string) string {
@@ -721,4 +782,13 @@ func containsString(list []string, target string) bool {
 		}
 	}
 	return false
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return value
+		}
+	}
+	return ""
 }

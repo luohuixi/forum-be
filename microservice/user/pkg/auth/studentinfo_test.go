@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"strings"
 	"testing"
 
@@ -57,6 +58,10 @@ func TestDetectSecondAuthSMSPage(t *testing.T) {
 	if findSecondAuthCodeField(page.Form) == "" {
 		t.Fatal("expected second auth code field")
 	}
+	targets := detectSecondAuthTargets(page)
+	if !regexp.MustCompile(`^\*+\d{4}$`).MatchString(targets[studentSecondAuthMethodSMS]) {
+		t.Fatalf("unexpected sms target: %#v", targets)
+	}
 }
 
 func TestDetectSecondAuthEmailPage(t *testing.T) {
@@ -75,6 +80,10 @@ func TestDetectSecondAuthEmailPage(t *testing.T) {
 	}
 	if switchURLs[studentSecondAuthMethodSMS] == "" {
 		t.Fatal("expected sms switch url")
+	}
+	targets := detectSecondAuthTargets(page)
+	if !regexp.MustCompile(`^\*+@.+$`).MatchString(targets[studentSecondAuthMethodEmail]) {
+		t.Fatalf("unexpected email target: %#v", targets)
 	}
 }
 

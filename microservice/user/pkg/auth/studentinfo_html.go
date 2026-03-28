@@ -191,6 +191,80 @@ func detectSecondAuthMethods(page *ccnuPageSnapshot) ([]string, string, map[stri
 	return methods, currentMethod, switchURLs
 }
 
+func detectSecondAuthTargets(page *ccnuPageSnapshot) map[string]string {
+	targets := make(map[string]string, 2)
+	if page == nil {
+		return targets
+	}
+	if smsTarget := extractSecondAuthTargetFromHTML(page.HTML, "手机号：", "手机号码："); smsTarget != "" {
+		targets[studentSecondAuthMethodSMS] = smsTarget
+	} else if smsTarget := extractSecondAuthTarget(page.BodyText, "手机号：", "手机号码："); smsTarget != "" {
+		targets[studentSecondAuthMethodSMS] = smsTarget
+	}
+	if emailTarget := extractSecondAuthTargetFromHTML(page.HTML, "电子邮箱："); emailTarget != "" {
+		targets[studentSecondAuthMethodEmail] = emailTarget
+	} else if emailTarget := extractSecondAuthTarget(page.BodyText, "电子邮箱："); emailTarget != "" {
+		targets[studentSecondAuthMethodEmail] = emailTarget
+	}
+	return targets
+}
+
+func extractSecondAuthTargetFromHTML(htmlContent string, labels ...string) string {
+	if strings.TrimSpace(htmlContent) == "" {
+		return ""
+	}
+	doc, err := html.Parse(strings.NewReader(htmlContent))
+	if err != nil {
+		return ""
+	}
+
+	var target string
+	walkHTML(doc, func(node *html.Node) {
+		if target != "" || node.Type != html.ElementNode || node.Data != "tr" {
+			return
+		}
+		cells := make([]string, 0, 3)
+		for child := node.FirstChild; child != nil; child = child.NextSibling {
+			if child.Type == html.ElementNode && child.Data == "td" {
+				cells = append(cells, normalizeHTMLText(extractNodeText(child)))
+			}
+		}
+		if len(cells) < 2 {
+			return
+		}
+		for _, label := range labels {
+			if cells[0] == label && strings.TrimSpace(cells[1]) != "" {
+				target = strings.TrimSpace(cells[1])
+				return
+			}
+		}
+	})
+	return target
+}
+
+func extractSecondAuthTarget(bodyText string, labels ...string) string {
+	normalized := normalizeHTMLText(bodyText)
+	if normalized == "" {
+		return ""
+	}
+	for _, label := range labels {
+		index := strings.Index(normalized, label)
+		if index < 0 {
+			continue
+		}
+		rest := strings.TrimSpace(normalized[index+len(label):])
+		if rest == "" {
+			continue
+		}
+		fields := strings.Fields(rest)
+		if len(fields) == 0 {
+			continue
+		}
+		return fields[0]
+	}
+	return ""
+}
+
 func findSecondAuthCodeField(form *ccnuHTMLForm) string {
 	if form == nil {
 		return ""

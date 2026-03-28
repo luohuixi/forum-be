@@ -31,6 +31,8 @@ type StudentLoginResponse struct {
 	CaptchaImageBase64         string   `json:"captcha_image_base64"`
 	AvailableSecondAuthMethods []string `json:"available_second_auth_methods"`
 	CurrentSecondAuthMethod    string   `json:"current_second_auth_method"`
+	SecondAuthSMSTarget        string   `json:"second_auth_sms_target"`
+	SecondAuthEmailTarget      string   `json:"second_auth_email_target"`
 } // @name StudentLoginResponse
 
 // GetInfoRequest 获取 info 请求

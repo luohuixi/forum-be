@@ -78,7 +78,7 @@ type modelscopeEngine struct {
 	helperOnce sync.Once
 	helperPath string
 	helperErr  error
-
+	// TODO 优化锁粒度，提高并发度
 	mu     sync.Mutex
 	worker *modelscopeWorker
 }
@@ -231,7 +231,7 @@ func (e *modelscopeEngine) Close() error {
 	return e.stopWorkerLocked()
 }
 
-func (e *modelscopeEngine) Recognize(parent context.Context, imageBase64 string) (string, error) {
+func (e *modelscopeEngine) Recognize(_ context.Context, imageBase64 string) (string, error) {
 	if e == nil {
 		return "", errors.New("ocr engine is nil")
 	}
@@ -245,13 +245,13 @@ func (e *modelscopeEngine) Recognize(parent context.Context, imageBase64 string)
 	}
 	defer cleanup()
 
-	ctx, cancel := context.WithTimeout(parent, e.timeout)
+	ctx, cancel := e.newWorkerRequestContext()
 	defer cancel()
 
 	e.mu.Lock()
 	defer e.mu.Unlock()
 
-	if err := e.ensureWorkerLocked(ctx); err != nil {
+	if err := e.ensureWorkerReadyForRequestLocked(); err != nil {
 		return "", err
 	}
 
@@ -268,6 +268,31 @@ func (e *modelscopeEngine) Recognize(parent context.Context, imageBase64 string)
 		return "", errors.New("ocr response text is empty")
 	}
 	return text, nil
+}
+
+func (e *modelscopeEngine) ensureWorkerReadyForRequestLocked() error {
+	startCtx, cancel := e.newWorkerStartContext()
+	defer cancel()
+	return e.ensureWorkerLocked(startCtx)
+}
+
+func (e *modelscopeEngine) workerStartTimeout() time.Duration {
+	timeout := defaultSelfCheckTimeout
+	if timeoutMS := viper.GetInt("ocr.modelscope.self_check_timeout_ms"); timeoutMS > 0 {
+		timeout = time.Duration(timeoutMS) * time.Millisecond
+	}
+	if e.timeout > timeout {
+		timeout = e.timeout
+	}
+	return timeout
+}
+
+func (e *modelscopeEngine) newWorkerStartContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), e.workerStartTimeout())
+}
+
+func (e *modelscopeEngine) newWorkerRequestContext() (context.Context, context.CancelFunc) {
+	return context.WithTimeout(context.Background(), e.timeout)
 }
 
 func (e *modelscopeEngine) validateEnvironment() error {
@@ -387,6 +412,7 @@ func (e *modelscopeEngine) startWorkerLocked(ctx context.Context) error {
 		}
 		return errors.New("ocr worker ready handshake failed")
 	}
+	worker.stderr.Reset()
 	return nil
 }
 
@@ -610,4 +636,13 @@ func (b *lockedBuffer) String() string {
 	b.mu.Lock()
 	defer b.mu.Unlock()
 	return strings.TrimSpace(b.buf.String())
+}
+
+func (b *lockedBuffer) Reset() {
+	if b == nil {
+		return
+	}
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	b.buf.Reset()
 }

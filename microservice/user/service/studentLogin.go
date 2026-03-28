@@ -58,6 +58,8 @@ func fillStudentLoginState(resp *pb.LoginResponse, result *auth.StudentLoginResu
 	resp.CaptchaImageBase64 = result.State.CaptchaImageBase64
 	resp.AvailableSecondAuthMethods = result.State.AvailableSecondAuthMethods
 	resp.CurrentSecondAuthMethod = result.State.CurrentSecondAuthMethod
+	resp.SecondAuthSmsTarget = result.State.SecondAuthSMSTarget
+	resp.SecondAuthEmailTarget = result.State.SecondAuthEmailTarget
 }
 
 func (s *UserService) issueStudentToken(studentID string, password string) (string, error) {
