@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-user/proto"
@@ -31,7 +30,7 @@ func DeletePrivateMessage(c *gin.Context) {
 		Id:     messageId,
 	}
 
-	_, err := client.UserClient.DeletePrivateMessage(context.TODO(), listReq)
+	_, err := client.UserClient.DeletePrivateMessage(c.Request.Context(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

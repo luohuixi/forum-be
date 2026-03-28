@@ -1,7 +1,6 @@
 package post
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -74,7 +73,7 @@ func (a *Api) Create(c *gin.Context) {
 		Summary:         req.Summary,
 	}
 
-	resp, err := client.PostClient.CreatePost(context.TODO(), &createReq)
+	resp, err := client.PostClient.CreatePost(c.Request.Context(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

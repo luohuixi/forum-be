@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-user/proto"
@@ -49,7 +48,7 @@ func ListMessage(c *gin.Context) {
 		Offset: uint32(page * limit),
 	}
 
-	listResp, err := client.UserClient.ListMessage(context.TODO(), listReq)
+	listResp, err := client.UserClient.ListMessage(c.Request.Context(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -91,7 +90,7 @@ func ListPrivateMessage(c *gin.Context) {
 		Offset: uint32(page * limit),
 	}
 
-	listResp, err := client.UserClient.ListPrivateMessage(context.TODO(), listReq)
+	listResp, err := client.UserClient.ListPrivateMessage(c.Request.Context(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

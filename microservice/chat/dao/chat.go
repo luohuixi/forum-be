@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-redis/redis"
+	"go.uber.org/zap"
 )
 
 const (
@@ -34,7 +35,7 @@ func (d *Dao) Create(data *ChatData) error {
 func (d *Dao) GetList(id uint32, expiration time.Duration, wait bool) ([]string, error) {
 	t := time.Now()
 	defer func() {
-		fmt.Println(time.Now().Sub(t))
+		log.Info(fmt.Sprintf("GetList Done(Receiver:%d)", id), zap.Duration("duration", time.Since(t)))
 	}()
 	// 使用用户的id创建一个key
 	key := GetKey(id)
@@ -43,6 +44,7 @@ func (d *Dao) GetList(id uint32, expiration time.Duration, wait bool) ([]string,
 		if !wait {
 			return nil, nil
 		}
+
 		msg, err := d.Redis.BRPop(expiration, key).Result() // 阻塞
 		if err != nil {
 			if errors.Is(err, redis.Nil) {

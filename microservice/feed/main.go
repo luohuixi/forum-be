@@ -5,6 +5,8 @@ import (
 	"forum/pkg/identity"
 	"log"
 
+	"forum/client"
+
 	"github.com/go-micro/plugins/v4/registry/etcd"
 	"github.com/joho/godotenv"
 	"github.com/opentracing/opentracing-go"
@@ -56,7 +58,8 @@ func main() {
 		panic(err)
 	}
 
-	t, io, err := tracer.NewTracer(viper.GetString("local_name"), viper.GetString("tracing.jager"))
+	traceAddr := "http://" + viper.GetString("tracing.jager") + "/api/traces"
+	t, io, err := tracer.NewTracer(viper.GetString("local_name"), traceAddr)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -90,11 +93,18 @@ func main() {
 			Usage:  "use subscribe service mode",
 			Hidden: false,
 		}),
+
+		micro.WrapClient(
+			opentracingWrapper.NewClientWrapper(opentracing.GlobalTracer()),
+		),
+		micro.WrapCall(handler.ClientErrorHandlerWrapper()),
+
 		micro.Registry(r),
 	)
 
 	// Init will parse the command line flags.
 	srv.Init()
+	client.UserInit(srv)
 
 	if err := pb.RegisterFeedServiceHandler(srv.Server(), service.New(dao.GetDao())); err != nil {
 		panic(err)

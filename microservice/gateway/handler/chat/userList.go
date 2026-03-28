@@ -1,7 +1,6 @@
 package chat
 
 import (
-	"context"
 	pb "forum-chat/proto"
 	. "forum-gateway/handler"
 	"strconv"
@@ -47,7 +46,7 @@ func UserList(c *gin.Context) {
 		Limit:  uint32(limit),
 	}
 
-	resp, err := client.ChatClient.UserList(context.Background(), req)
+	resp, err := client.ChatClient.UserList(c.Request.Context(), req)
 	if err != nil {
 		SendError(c, err, nil, err.Error(), GetLine())
 		return

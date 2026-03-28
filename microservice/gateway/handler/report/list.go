@@ -1,7 +1,6 @@
 package report
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -54,7 +53,7 @@ func (a *Api) List(c *gin.Context) {
 		Pagination: limit != 0 || page != 0,
 	}
 
-	listResp, err := client.PostClient.ListReport(context.TODO(), listReq)
+	listResp, err := client.PostClient.ListReport(c.Request.Context(), listReq)
 	if err != nil {
 		SendError(c, err, listResp, "", GetLine())
 		return

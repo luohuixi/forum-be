@@ -1,7 +1,6 @@
 package post
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -108,7 +107,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 		Tag:           tag,
 	}
 
-	postResp, err := client.PostClient.ListMainPost(context.TODO(), listReq)
+	postResp, err := client.PostClient.ListMainPost(c.Request.Context(), listReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -121,7 +120,7 @@ func (a *Api) ListMainPost(c *gin.Context) {
 			Category: category,
 		}
 
-		_, err = client.PostClient.UpdateLastReadTime(context.TODO(), lastReadReq)
+		_, err = client.PostClient.UpdateLastReadTime(c.Request.Context(), lastReadReq)
 		if err != nil {
 			SendError(c, err, nil, "", GetLine())
 			return

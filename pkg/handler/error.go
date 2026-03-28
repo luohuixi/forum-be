@@ -4,9 +4,10 @@ import (
 	"context"
 	logger "forum/log"
 
+	"forum/pkg/tracer"
+
 	"go-micro.dev/v4/client"
 	errors "go-micro.dev/v4/errors"
-	"go-micro.dev/v4/metadata"
 	"go-micro.dev/v4/registry"
 	"go-micro.dev/v4/server"
 	"go.uber.org/zap"
@@ -15,15 +16,10 @@ import (
 func ServerErrorHandlerWrapper() server.HandlerWrapper {
 	return func(h server.HandlerFunc) server.HandlerFunc {
 		return func(ctx context.Context, req server.Request, rsp interface{}) error {
-			md, ok := metadata.FromContext(ctx)
-			if !ok {
-				md = make(map[string]string)
-			}
-
 			err := h(ctx, req, rsp)
 
 			if err != nil {
-				logger.Error(err.Error(), zap.String("traceId", md["uber-trace-id"]))
+				logger.Error(err.Error(), zap.String("X-Request-Id", tracer.GetTraceId(ctx)))
 			}
 			return err
 		}
