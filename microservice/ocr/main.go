@@ -57,6 +57,7 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer ocrService.Close()
 
 	if err := pb.RegisterOCRServiceHandler(srv.Server(), ocrService); err != nil {
 		panic(err)

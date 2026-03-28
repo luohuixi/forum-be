@@ -1,11 +1,14 @@
 package service
 
 import (
+	"bufio"
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -34,16 +37,30 @@ const (
 	envModelscopeSkipSelfChk = "FORUM_OCR_OCR_MODELSCOPE_SKIP_SELF_CHECK"
 )
 
-const helperScriptTemplate = `from modelscope.pipelines import pipeline
+const workerScriptTemplate = `from modelscope.pipelines import pipeline
 from modelscope.utils.constant import Tasks
 import json
 import re
 import sys
 
-ocr = pipeline(Tasks.ocr_recognition, model=%q)
-raw = ''.join(ocr(sys.argv[1]).get('text') or [])
-captcha = re.sub(r'[^A-Za-z0-9]', '', raw)[-4:]
-print(json.dumps({'raw': raw, 'captcha': captcha}, ensure_ascii=False))
+try:
+    ocr = pipeline(Tasks.ocr_recognition, model=%q)
+    print(json.dumps({"status": "ready"}, ensure_ascii=False), flush=True)
+except Exception as exc:
+    print(json.dumps({"status": "error", "error": str(exc)}, ensure_ascii=False), flush=True)
+    raise
+
+for line in sys.stdin:
+    line = line.strip()
+    if not line:
+        continue
+    try:
+        payload = json.loads(line)
+        raw = ''.join(ocr(payload["image_path"]).get("text") or [])
+        captcha = re.sub(r'[^A-Za-z0-9]', '', raw)[-4:]
+        print(json.dumps({"ok": True, "raw": raw, "captcha": captcha}, ensure_ascii=False), flush=True)
+    except Exception as exc:
+        print(json.dumps({"ok": False, "error": str(exc)}, ensure_ascii=False), flush=True)
 `
 
 type OCRService struct {
@@ -61,11 +78,40 @@ type modelscopeEngine struct {
 	helperOnce sync.Once
 	helperPath string
 	helperErr  error
+
+	mu     sync.Mutex
+	worker *modelscopeWorker
+}
+
+type modelscopeWorker struct {
+	cmd    *exec.Cmd
+	stdin  io.WriteCloser
+	stdout *bufio.Reader
+	stderr *lockedBuffer
+	waitCh chan error
+}
+
+type lockedBuffer struct {
+	mu  sync.Mutex
+	buf bytes.Buffer
 }
 
 type recognizeResult struct {
 	Raw     string `json:"raw"`
 	Captcha string `json:"captcha"`
+}
+
+type workerMessage struct {
+	Status  string `json:"status"`
+	Ok      bool   `json:"ok"`
+	Error   string `json:"error"`
+	Raw     string `json:"raw"`
+	Captcha string `json:"captcha"`
+}
+
+type lineResult struct {
+	line string
+	err  error
 }
 
 func New() (*OCRService, error) {
@@ -74,6 +120,13 @@ func New() (*OCRService, error) {
 		return nil, err
 	}
 	return &OCRService{engine: engine}, nil
+}
+
+func (s *OCRService) Close() error {
+	if s == nil || s.engine == nil {
+		return nil
+	}
+	return s.engine.Close()
 }
 
 func (s *OCRService) RecognizeCaptcha(ctx context.Context, req *pb.RecognizeCaptchaRequest, resp *pb.RecognizeCaptchaResponse) error {
@@ -145,19 +198,8 @@ func (e *modelscopeEngine) SelfCheck(parent context.Context) error {
 		logger.Info("OCR startup self-check skipped by config")
 		return nil
 	}
-	if strings.TrimSpace(e.pythonBin) == "" {
-		return errors.New("ocr python_bin is empty")
-	}
-	if _, err := exec.LookPath(e.pythonBin); err != nil {
-		return fmt.Errorf("ocr python_bin is not executable: %w", err)
-	}
-	if e.workspace != "" {
-		if err := os.MkdirAll(e.workspace, 0o755); err != nil {
-			return fmt.Errorf("create ocr workspace failed: %w", err)
-		}
-	}
-	if err := e.ensureHelperScript(); err != nil {
-		return fmt.Errorf("prepare helper script failed: %w", err)
+	if err := e.validateEnvironment(); err != nil {
+		return err
 	}
 
 	timeout := defaultSelfCheckTimeout
@@ -169,27 +211,27 @@ func (e *modelscopeEngine) SelfCheck(parent context.Context) error {
 	defer cancel()
 
 	startedAt := time.Now()
-	cmd := exec.CommandContext(ctx, e.pythonBin, "-c", fmt.Sprintf(
-		"from modelscope.pipelines import pipeline\nfrom modelscope.utils.constant import Tasks\npipeline(Tasks.ocr_recognition, model=%q)\nprint('ok')\n",
-		e.model,
-	))
-	if e.workspace != "" {
-		cmd.Dir = e.workspace
-	}
+	e.mu.Lock()
+	defer e.mu.Unlock()
 
-	output, err := cmd.CombinedOutput()
-	if ctx.Err() == context.DeadlineExceeded {
-		return fmt.Errorf("ocr self-check timed out after %s", timeout)
-	}
-	if err != nil {
-		return fmt.Errorf("ocr self-check failed: %w: %s", err, strings.TrimSpace(string(output)))
+	if err := e.ensureWorkerLocked(ctx); err != nil {
+		return err
 	}
 
 	logger.Info(fmt.Sprintf("OCR startup self-check passed in %s", time.Since(startedAt)))
 	return nil
 }
 
-func (e *modelscopeEngine) Recognize(ctx context.Context, imageBase64 string) (string, error) {
+func (e *modelscopeEngine) Close() error {
+	if e == nil {
+		return nil
+	}
+	e.mu.Lock()
+	defer e.mu.Unlock()
+	return e.stopWorkerLocked()
+}
+
+func (e *modelscopeEngine) Recognize(parent context.Context, imageBase64 string) (string, error) {
 	if e == nil {
 		return "", errors.New("ocr engine is nil")
 	}
@@ -203,7 +245,17 @@ func (e *modelscopeEngine) Recognize(ctx context.Context, imageBase64 string) (s
 	}
 	defer cleanup()
 
-	result, err := e.runHelper(ctx, imagePath)
+	ctx, cancel := context.WithTimeout(parent, e.timeout)
+	defer cancel()
+
+	e.mu.Lock()
+	defer e.mu.Unlock()
+
+	if err := e.ensureWorkerLocked(ctx); err != nil {
+		return "", err
+	}
+
+	result, err := e.runWorkerRequestLocked(ctx, imagePath)
 	if err != nil {
 		return "", err
 	}
@@ -218,6 +270,231 @@ func (e *modelscopeEngine) Recognize(ctx context.Context, imageBase64 string) (s
 	return text, nil
 }
 
+func (e *modelscopeEngine) validateEnvironment() error {
+	if strings.TrimSpace(e.pythonBin) == "" {
+		return errors.New("ocr python_bin is empty")
+	}
+	if _, err := exec.LookPath(e.pythonBin); err != nil {
+		return fmt.Errorf("ocr python_bin is not executable: %w", err)
+	}
+	if e.workspace != "" {
+		if err := os.MkdirAll(e.workspace, 0o755); err != nil {
+			return fmt.Errorf("create ocr workspace failed: %w", err)
+		}
+	}
+	if err := e.ensureHelperScript(); err != nil {
+		return fmt.Errorf("prepare helper script failed: %w", err)
+	}
+	return nil
+}
+
+func (e *modelscopeEngine) ensureWorkerLocked(ctx context.Context) error {
+	if err := e.validateEnvironment(); err != nil {
+		return err
+	}
+
+	if err := e.checkWorkerExitedLocked(); err != nil {
+		logger.Error(fmt.Sprintf("OCR worker exited unexpectedly: %v", err))
+	}
+
+	if e.worker != nil {
+		return nil
+	}
+	return e.startWorkerLocked(ctx)
+}
+
+func (e *modelscopeEngine) checkWorkerExitedLocked() error {
+	if e.worker == nil || e.worker.waitCh == nil {
+		return nil
+	}
+	select {
+	case err, ok := <-e.worker.waitCh:
+		if !ok {
+			err = nil
+		}
+		stderrText := e.worker.stderr.String()
+		e.worker = nil
+		if err == nil {
+			if stderrText != "" {
+				return fmt.Errorf("ocr worker stopped: %s", stderrText)
+			}
+			return errors.New("ocr worker stopped")
+		}
+		if stderrText != "" {
+			return fmt.Errorf("%w: %s", err, stderrText)
+		}
+		return err
+	default:
+		return nil
+	}
+}
+
+func (e *modelscopeEngine) startWorkerLocked(ctx context.Context) error {
+	cmd := exec.Command(e.pythonBin, "-u", e.helperPath)
+	if e.workspace != "" {
+		cmd.Dir = e.workspace
+	}
+
+	stdin, err := cmd.StdinPipe()
+	if err != nil {
+		return fmt.Errorf("create ocr worker stdin failed: %w", err)
+	}
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		return fmt.Errorf("create ocr worker stdout failed: %w", err)
+	}
+	stderr := &lockedBuffer{}
+	cmd.Stderr = stderr
+
+	if err := cmd.Start(); err != nil {
+		return fmt.Errorf("start ocr worker failed: %w", err)
+	}
+
+	worker := &modelscopeWorker{
+		cmd:    cmd,
+		stdin:  stdin,
+		stdout: bufio.NewReader(stdout),
+		stderr: stderr,
+		waitCh: make(chan error, 1),
+	}
+	go func() {
+		worker.waitCh <- cmd.Wait()
+		close(worker.waitCh)
+	}()
+
+	e.worker = worker
+
+	message, err := e.readWorkerMessageLocked(ctx)
+	if err != nil {
+		stderrText := worker.stderr.String()
+		_ = e.stopWorkerLocked()
+		if stderrText != "" {
+			return fmt.Errorf("start ocr worker failed: %w: %s", err, stderrText)
+		}
+		return fmt.Errorf("start ocr worker failed: %w", err)
+	}
+	if message.Status != "ready" {
+		stderrText := worker.stderr.String()
+		_ = e.stopWorkerLocked()
+		if message.Error != "" {
+			if stderrText != "" {
+				return fmt.Errorf("ocr worker ready handshake failed: %s: %s", message.Error, stderrText)
+			}
+			return fmt.Errorf("ocr worker ready handshake failed: %s", message.Error)
+		}
+		if stderrText != "" {
+			return fmt.Errorf("ocr worker ready handshake failed: %s", stderrText)
+		}
+		return errors.New("ocr worker ready handshake failed")
+	}
+	return nil
+}
+
+func (e *modelscopeEngine) stopWorkerLocked() error {
+	if e.worker == nil {
+		return nil
+	}
+
+	worker := e.worker
+	e.worker = nil
+
+	if worker.stdin != nil {
+		_ = worker.stdin.Close()
+	}
+	if worker.cmd != nil && worker.cmd.Process != nil {
+		_ = worker.cmd.Process.Kill()
+	}
+	return nil
+}
+
+func (e *modelscopeEngine) runWorkerRequestLocked(ctx context.Context, imagePath string) (recognizeResult, error) {
+	if e.worker == nil {
+		return recognizeResult{}, errors.New("ocr worker is not running")
+	}
+
+	reqBody, err := json.Marshal(map[string]string{"image_path": imagePath})
+	if err != nil {
+		return recognizeResult{}, err
+	}
+	if _, err := fmt.Fprintln(e.worker.stdin, string(reqBody)); err != nil {
+		stderrText := e.worker.stderr.String()
+		_ = e.stopWorkerLocked()
+		if stderrText != "" {
+			return recognizeResult{}, fmt.Errorf("send ocr request failed: %w: %s", err, stderrText)
+		}
+		return recognizeResult{}, fmt.Errorf("send ocr request failed: %w", err)
+	}
+
+	message, err := e.readWorkerMessageLocked(ctx)
+	if err != nil {
+		stderrText := e.worker.stderr.String()
+		_ = e.stopWorkerLocked()
+		if errors.Is(err, context.DeadlineExceeded) {
+			if stderrText != "" {
+				return recognizeResult{}, fmt.Errorf("modelscope ocr timed out after %s: %s", e.timeout, stderrText)
+			}
+			return recognizeResult{}, fmt.Errorf("modelscope ocr timed out after %s", e.timeout)
+		}
+		if stderrText != "" {
+			return recognizeResult{}, fmt.Errorf("modelscope ocr failed: %w: %s", err, stderrText)
+		}
+		return recognizeResult{}, fmt.Errorf("modelscope ocr failed: %w", err)
+	}
+	if !message.Ok {
+		if strings.TrimSpace(message.Error) != "" {
+			return recognizeResult{}, fmt.Errorf("modelscope ocr failed: %s", strings.TrimSpace(message.Error))
+		}
+		return recognizeResult{}, errors.New("modelscope ocr failed")
+	}
+
+	return recognizeResult{
+		Raw:     message.Raw,
+		Captcha: message.Captcha,
+	}, nil
+}
+
+func (e *modelscopeEngine) readWorkerMessageLocked(ctx context.Context) (workerMessage, error) {
+	for {
+		line, err := e.readLineLocked(ctx)
+		if err != nil {
+			return workerMessage{}, err
+		}
+
+		trimmed := strings.TrimSpace(line)
+		if trimmed == "" || !strings.HasPrefix(trimmed, "{") {
+			continue
+		}
+
+		var message workerMessage
+		if err := json.Unmarshal([]byte(trimmed), &message); err != nil {
+			continue
+		}
+		return message, nil
+	}
+}
+
+func (e *modelscopeEngine) readLineLocked(ctx context.Context) (string, error) {
+	if e.worker == nil || e.worker.stdout == nil {
+		return "", errors.New("ocr worker stdout is not available")
+	}
+
+	resultCh := make(chan lineResult, 1)
+	go func(reader *bufio.Reader) {
+		line, err := reader.ReadString('\n')
+		resultCh <- lineResult{line: line, err: err}
+	}(e.worker.stdout)
+
+	select {
+	case <-ctx.Done():
+		return "", ctx.Err()
+	case result := <-resultCh:
+		if result.err != nil {
+			return "", result.err
+		}
+		return result.line, nil
+	}
+}
+
 func (e *modelscopeEngine) ensureHelperScript() error {
 	e.helperOnce.Do(func() {
 		if err := os.MkdirAll(e.runtimeDir, 0o755); err != nil {
@@ -225,8 +502,8 @@ func (e *modelscopeEngine) ensureHelperScript() error {
 			return
 		}
 
-		helperPath := filepath.Join(e.runtimeDir, "ocr_once.py")
-		script := fmt.Sprintf(helperScriptTemplate, e.model)
+		helperPath := filepath.Join(e.runtimeDir, "ocr_worker.py")
+		script := fmt.Sprintf(workerScriptTemplate, e.model)
 		if err := os.WriteFile(helperPath, []byte(script), 0o644); err != nil {
 			e.helperErr = err
 			return
@@ -266,27 +543,6 @@ func (e *modelscopeEngine) writeImage(imageBase64 string) (string, func(), error
 	}
 
 	return file.Name(), cleanup, nil
-}
-
-func (e *modelscopeEngine) runHelper(parent context.Context, imagePath string) (recognizeResult, error) {
-	ctx, cancel := context.WithTimeout(parent, e.timeout)
-	defer cancel()
-
-	cmd := exec.CommandContext(ctx, e.pythonBin, e.helperPath, imagePath)
-	if e.workspace != "" {
-		cmd.Dir = e.workspace
-	}
-
-	output, err := cmd.CombinedOutput()
-	if err != nil {
-		return recognizeResult{}, fmt.Errorf("modelscope ocr failed: %w: %s", err, strings.TrimSpace(string(output)))
-	}
-
-	result, err := parseRecognizeResult(output)
-	if err != nil {
-		return recognizeResult{}, fmt.Errorf("parse ocr result failed: %w: %s", err, strings.TrimSpace(string(output)))
-	}
-	return result, nil
 }
 
 func parseRecognizeResult(output []byte) (recognizeResult, error) {
@@ -339,4 +595,19 @@ func sanitizeCaptchaText(raw string) string {
 		text = text[len(text)-4:]
 	}
 	return text
+}
+
+func (b *lockedBuffer) Write(p []byte) (int, error) {
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return b.buf.Write(p)
+}
+
+func (b *lockedBuffer) String() string {
+	if b == nil {
+		return ""
+	}
+	b.mu.Lock()
+	defer b.mu.Unlock()
+	return strings.TrimSpace(b.buf.String())
 }

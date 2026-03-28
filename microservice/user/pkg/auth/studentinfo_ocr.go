@@ -12,12 +12,13 @@ import (
 )
 
 func ccnuCaptchaAutoRetry() int {
+	if !viper.IsSet("ccnu_login.captcha_auto_retry") {
+		return 3
+	}
+
 	retries := viper.GetInt("ccnu_login.captcha_auto_retry")
 	if retries < 0 {
 		return 0
-	}
-	if retries == 0 {
-		return 3
 	}
 	return retries
 }
