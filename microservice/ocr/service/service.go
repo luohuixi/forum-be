@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -26,6 +27,11 @@ const (
 	defaultModelscopeModel     = "xiaolv/ocr_small"
 	defaultModelscopeTimeout   = 180 * time.Second
 	defaultSelfCheckTimeout    = 120 * time.Second
+
+	envModelscopePythonBin   = "FORUM_OCR_OCR_MODELSCOPE_PYTHON_BIN"
+	envModelscopeWorkspace   = "FORUM_OCR_OCR_MODELSCOPE_WORKSPACE"
+	envModelscopeRuntimeDir  = "FORUM_OCR_OCR_MODELSCOPE_RUNTIME_DIR"
+	envModelscopeSkipSelfChk = "FORUM_OCR_OCR_MODELSCOPE_SKIP_SELF_CHECK"
 )
 
 const helperScriptTemplate = `from modelscope.pipelines import pipeline
@@ -45,11 +51,12 @@ type OCRService struct {
 }
 
 type modelscopeEngine struct {
-	pythonBin  string
-	workspace  string
-	runtimeDir string
-	model      string
-	timeout    time.Duration
+	pythonBin     string
+	workspace     string
+	runtimeDir    string
+	model         string
+	timeout       time.Duration
+	skipSelfCheck bool
 
 	helperOnce sync.Once
 	helperPath string
@@ -86,9 +93,19 @@ func (s *OCRService) RecognizeCaptcha(ctx context.Context, req *pb.RecognizeCapt
 }
 
 func newModelscopeEngine() *modelscopeEngine {
-	runtimeDir := strings.TrimSpace(viper.GetString("ocr.modelscope.runtime_dir"))
-	if runtimeDir == "" {
-		runtimeDir = filepath.Join(os.TempDir(), "forum-ocr")
+	pythonBin := defaultModelscopePythonBin
+	if override := strings.TrimSpace(os.Getenv(envModelscopePythonBin)); override != "" {
+		pythonBin = override
+	}
+
+	workspace := defaultModelscopeWorkspace
+	if override := strings.TrimSpace(os.Getenv(envModelscopeWorkspace)); override != "" {
+		workspace = override
+	}
+
+	runtimeDir := filepath.Join(os.TempDir(), "forum-ocr")
+	if override := strings.TrimSpace(os.Getenv(envModelscopeRuntimeDir)); override != "" {
+		runtimeDir = override
 	}
 
 	model := strings.TrimSpace(viper.GetString("ocr.modelscope.model"))
@@ -101,18 +118,32 @@ func newModelscopeEngine() *modelscopeEngine {
 		timeout = time.Duration(timeoutMS) * time.Millisecond
 	}
 
+	skipSelfCheck := false
+	if override := strings.TrimSpace(os.Getenv(envModelscopeSkipSelfChk)); override != "" {
+		if parsed, err := strconv.ParseBool(override); err == nil {
+			skipSelfCheck = parsed
+		} else {
+			logger.Error(fmt.Sprintf("invalid %s value: %q", envModelscopeSkipSelfChk, override))
+		}
+	}
+
 	return &modelscopeEngine{
-		pythonBin:  defaultModelscopePythonBin,
-		workspace:  defaultModelscopeWorkspace,
-		runtimeDir: runtimeDir,
-		model:      model,
-		timeout:    timeout,
+		pythonBin:     pythonBin,
+		workspace:     workspace,
+		runtimeDir:    runtimeDir,
+		model:         model,
+		timeout:       timeout,
+		skipSelfCheck: skipSelfCheck,
 	}
 }
 
 func (e *modelscopeEngine) SelfCheck(parent context.Context) error {
 	if e == nil {
 		return errors.New("ocr engine is nil")
+	}
+	if e.skipSelfCheck {
+		logger.Info("OCR startup self-check skipped by config")
+		return nil
 	}
 	if strings.TrimSpace(e.pythonBin) == "" {
 		return errors.New("ocr python_bin is empty")

@@ -1,16 +1,22 @@
-OCR microservice for forum internal captcha recognition.
+OCR 服务用于识别统一身份认证验证码。
 
-Runtime config should stay minimal. `python_bin` and `workspace` are fixed by the
-image layout and are not expected in Nacos or local YAML. Only keep business or
-operational knobs such as `model`, `timeout_ms`, and `self_check_timeout_ms`.
+本地启动默认读取同目录 `.env`，当前已提供一组开发机可用的覆盖值：
 
-Deployment compose uses the versioned image:
-- `registry.cn-shenzhen.aliyuncs.com/muxi/forum_be_ocr:v1.0.0`
+- `FORUM_OCR_OCR_MODELSCOPE_PYTHON_BIN=python3`
+- `FORUM_OCR_OCR_MODELSCOPE_WORKSPACE=/tmp/forum-ocr-workspace`
+- `FORUM_OCR_OCR_MODELSCOPE_RUNTIME_DIR=/tmp/forum-ocr-runtime`
+- `FORUM_OCR_OCR_MODELSCOPE_SKIP_SELF_CHECK=true`
 
-Build and push OCR with the same root workflow as other services:
+直接启动：
 
 ```bash
-cd forum-be
-make docker-build SERVICE=ocr REGISTRY=registry.cn-shenzhen.aliyuncs.com/muxi IMAGE_TAG=v1.0.0
-make docker-push SERVICE=ocr REGISTRY=registry.cn-shenzhen.aliyuncs.com/muxi IMAGE_TAG=v1.0.0
+cd microservice/ocr
+go run .
 ```
+
+说明：
+
+- `workspace` 是 Python 进程工作目录。
+- `runtime_dir` 是临时运行目录，用来放 helper 脚本和临时图片。
+- `skip_self_check=true` 只是不在启动时做环境自检，不代表实际 OCR 依赖已经装齐。
+- 如果要验证真实识别能力，请先安装 `torch`、`torchvision`、`modelscope` 等依赖，再把 `skip_self_check` 改成 `false`。
