@@ -26,9 +26,9 @@ type Interface interface {
 }
 
 // Init init dao
-func Init() func() {
+func Init() {
 	if dao != nil {
-		return nil
+		return
 	}
 
 	// 黑名单过期数据定时清理
@@ -48,10 +48,6 @@ func Init() func() {
 	dao = &Dao{
 		LimiterManager: limiterManager,
 		Obfuscator:     obfuscator,
-	}
-
-	return func() {
-		dao.LimiterManager.Close()
 	}
 }
 

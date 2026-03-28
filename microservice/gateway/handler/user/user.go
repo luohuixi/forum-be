@@ -103,3 +103,7 @@ type CreatePrivateMessageRequest struct {
 	PostTitle      string `json:"post_title" binding:"required"`
 	CommentContent string `json:"comment_content"`
 }
+
+type AddRoleRequest struct {
+	Role string `json:"role" binding:"required"`
+}

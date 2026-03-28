@@ -50,7 +50,7 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 
-		if err := s.Dao.AddPublicPolicy(user.Role, user.Id); err != nil {
+		if err := s.Dao.AddPublicPolicy(constvar.NormalRole, user.Id); err != nil {
 			return errno.ServerErr(errno.ErrCasbin, err.Error())
 		}
 
@@ -63,6 +63,11 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 		if err != nil {
 			return err
 		}
+	}
+
+	user.Role, err = resolveRoleByUserID(user.Id)
+	if err != nil {
+		return err
 	}
 
 	//根据权限生成token

@@ -5,14 +5,14 @@ import (
 	"sync/atomic"
 	"time"
 
+	"github.com/robfig/cron/v3"
 	"golang.org/x/time/rate"
 )
 
 const (
 	// 限流只作用在创建操作(post,comment,report)的时候
 	// 如果用户一周不进行创建操作，删除其限流桶，节约内存空间
-	defaultTTL             = 7 * 24 * time.Hour
-	defaultCleanupInterval = 24 * time.Hour
+	defaultTTL = 7 * 24 * time.Hour
 )
 
 type limiterEntry struct {
@@ -21,23 +21,23 @@ type limiterEntry struct {
 }
 
 type LimiterManager struct {
-	mu sync.RWMutex
-	m  map[uint32]*limiterEntry
-
-	ttl             time.Duration
-	cleanupInterval time.Duration
-	stopCh          chan struct{}
-	closeOnce       sync.Once
+	mu  sync.RWMutex
+	m   map[uint32]*limiterEntry
+	ttl time.Duration
 }
 
 func NewLimiterManager() *LimiterManager {
 	l := &LimiterManager{
-		m:               make(map[uint32]*limiterEntry),
-		ttl:             defaultTTL,
-		cleanupInterval: defaultCleanupInterval,
-		stopCh:          make(chan struct{}),
+		m:   make(map[uint32]*limiterEntry),
+		ttl: defaultTTL,
 	}
-	l.startCleanupLoop()
+
+	c := cron.New()
+	_, _ = c.AddFunc("0 2 * * *", func() {
+		l.cleanup(time.Now())
+	})
+	c.Start()
+
 	return l
 }
 
@@ -69,21 +69,6 @@ func (l *LimiterManager) getOrCreateEntry(userId uint32, now time.Time) *limiter
 	return entry
 }
 
-func (l *LimiterManager) startCleanupLoop() {
-	ticker := time.NewTicker(l.cleanupInterval)
-	go func() {
-		defer ticker.Stop()
-		for {
-			select {
-			case <-ticker.C:
-				l.cleanup(time.Now())
-			case <-l.stopCh:
-				return
-			}
-		}
-	}()
-}
-
 func (l *LimiterManager) cleanup(now time.Time) {
 	expireBefore := now.Add(-l.ttl).UnixNano()
 	l.mu.Lock()
@@ -93,10 +78,4 @@ func (l *LimiterManager) cleanup(now time.Time) {
 		}
 	}
 	l.mu.Unlock()
-}
-
-func (l *LimiterManager) Close() {
-	l.closeOnce.Do(func() {
-		close(l.stopCh)
-	})
 }
