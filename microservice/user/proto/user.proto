@@ -71,6 +71,11 @@ message ListMessageResponse {
 message StudentLoginRequest {
   string student_id = 1;
   string password = 2;
+  string action = 3;
+  string session_id = 4;
+  string captcha = 5;
+  string second_auth_method = 6;
+  string second_auth_code = 7;
 }
 
 message UpdateInfoRequest {
@@ -99,6 +104,12 @@ message TeamLoginRequest {
 message LoginResponse {
   string token = 1;
   string redirect_url = 2;
+  string session_id = 3;
+  string status = 4;
+  string message = 5;
+  string captcha_image_base64 = 6;
+  repeated string available_second_auth_methods = 7;
+  string current_second_auth_method = 8;
 }
 
 message UserInfo {

@@ -1,7 +1,6 @@
 package user
 
 import (
-	"context"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-user/proto"
@@ -34,11 +33,16 @@ func StudentLogin(c *gin.Context) {
 
 	// 构造请求给 login
 	loginReq := &pb.StudentLoginRequest{
-		StudentId: req.StudentId,
-		Password:  req.Password,
+		StudentId:        req.StudentId,
+		Password:         req.Password,
+		Action:           req.Action,
+		SessionId:        req.SessionId,
+		Captcha:          req.Captcha,
+		SecondAuthMethod: req.SecondAuthMethod,
+		SecondAuthCode:   req.SecondAuthCode,
 	}
 
-	loginResp, err := client.UserClient.StudentLogin(context.TODO(), loginReq)
+	loginResp, err := client.UserClient.StudentLogin(c.Request.Context(), loginReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return

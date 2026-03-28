@@ -19,6 +19,8 @@ main
 .idea
 *.log
 *.tmp
+*.pyc
+__pycache__/
 .DS_Store
 config.yaml
 config_sub.yaml

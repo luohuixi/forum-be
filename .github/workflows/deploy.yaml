@@ -71,6 +71,17 @@ jobs:
       ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
       ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
 
+  deploy_ocr:
+    needs: find_changed_services
+    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'ocr')
+    uses: ./.github/workflows/ocr.yaml
+    secrets:
+      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+      SERVER_USER: ${{ secrets.SERVER_USER }}
+      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
+      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
+      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
+
   deploy_post:
     needs: find_changed_services
     if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'post')

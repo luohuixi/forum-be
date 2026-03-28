@@ -7,8 +7,13 @@ type TeamLoginRequest struct {
 
 // StudentLoginRequest StudentLogin 请求
 type StudentLoginRequest struct {
-	StudentId string `json:"student_id" binding:"required"`
-	Password  string `json:"password" binding:"required"`
+	StudentId        string `json:"student_id"`
+	Password         string `json:"password"`
+	Action           string `json:"action"`
+	SessionId        string `json:"session_id"`
+	Captcha          string `json:"captcha"`
+	SecondAuthMethod string `json:"second_auth_method"`
+	SecondAuthCode   string `json:"second_auth_code"`
 } // @name StudentLoginRequest
 
 // TeamLoginResponse login 请求响应
@@ -19,7 +24,13 @@ type TeamLoginResponse struct {
 
 // StudentLoginResponse login 请求响应
 type StudentLoginResponse struct {
-	Token string `json:"token"`
+	Token                      string   `json:"token"`
+	SessionId                  string   `json:"session_id"`
+	Status                     string   `json:"status"`
+	Message                    string   `json:"message"`
+	CaptchaImageBase64         string   `json:"captcha_image_base64"`
+	AvailableSecondAuthMethods []string `json:"available_second_auth_methods"`
+	CurrentSecondAuthMethod    string   `json:"current_second_auth_method"`
 } // @name StudentLoginResponse
 
 // GetInfoRequest 获取 info 请求
