@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package ocr;
+
+service OCRService {
+  rpc RecognizeCaptcha(RecognizeCaptchaRequest) returns (RecognizeCaptchaResponse) {}
+}
+
+message RecognizeCaptchaRequest {
+  string image_base64 = 1;
+}
+
+message RecognizeCaptchaResponse {
+  string text = 1;
+}

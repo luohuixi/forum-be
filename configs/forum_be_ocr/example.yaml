@@ -1,0 +1,14 @@
+local_name: "forum.service.ocr"  # 服务名称
+tracing:
+  jager: "localhost:12345"  # Jaeger 跟踪服务的地址
+
+ocr:
+  modelscope:
+    model: "xiaolv/ocr_small"
+    timeout_ms: 180000
+    self_check_timeout_ms: 120000
+
+etcd:
+  addr: "127.0.0.1:2379"
+  username: "root"
+  password: "123456"

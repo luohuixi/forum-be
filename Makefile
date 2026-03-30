@@ -4,10 +4,17 @@
 # 构建指定微服务镜像，SERVICE、REGISTRY、IMAGE_TAG 通过环境变量传入
 docker-build:
 	@echo "Building image for service: $(SERVICE)"
-	docker build \
-	  --build-arg service_name=$(SERVICE) \
-	  -t $(REGISTRY)/forum_be_$(SERVICE):$(IMAGE_TAG) \
-	  .
+	@if [ "$(SERVICE)" = "ocr" ]; then \
+		docker build \
+		  -t $(REGISTRY)/forum_be_$(SERVICE):$(IMAGE_TAG) \
+		  -f microservice/ocr/Dockerfile \
+		  .; \
+	else \
+		docker build \
+		  --build-arg service_name=$(SERVICE) \
+		  -t $(REGISTRY)/forum_be_$(SERVICE):$(IMAGE_TAG) \
+		  .; \
+	fi
 
 
 # 推送镜像
