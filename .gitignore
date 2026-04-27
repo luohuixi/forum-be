@@ -32,3 +32,5 @@ configs/forum_be_user/config.yaml
 configs/forum_be_feed/config.yaml
 configs/forum_be_gateway/config.yaml
 configs/forum_be_post/config.yaml
+
+*AGENTS.md
