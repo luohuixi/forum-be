@@ -10,6 +10,8 @@ replace forum-post => ../post
 
 replace forum-ocr => ../ocr
 
+replace forum-agent => ../agent
+
 go 1.24.7
 
 require (

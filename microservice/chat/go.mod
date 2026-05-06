@@ -10,6 +10,8 @@ replace forum-feed => ../feed
 
 replace forum-ocr => ../ocr
 
+replace forum-agent => ../agent
+
 go 1.24.7
 
 require (
