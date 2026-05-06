@@ -7,11 +7,15 @@ type PostModel struct {
 }
 
 // todo：change
-func (d *Dao) GetPostByTime(time string) (*[]PostModel, error) {
-	var allPosts []PostModel
-	if err := d.DB.Table("posts").Where("create_time >= ?", time).Find(&allPosts).Error; err != nil {
+func (d *Dao) GetValuablePost() (*[]PostModel, error) {
+	return nil, nil
+}
+
+func (d *Dao) GetPostById(id uint32) (*PostModel, error) {
+	var post PostModel
+	if err := d.DB.Table("posts").Where("id = ?", id).First(&post).Error; err != nil {
 		return nil, err
 	}
 
-	return &allPosts, nil
+	return &post, nil
 }

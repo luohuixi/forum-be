@@ -11,6 +11,7 @@ websocket: 聊天
 - user
 - chat
 - feed
+- agent
 
 casbin: 鉴权
 

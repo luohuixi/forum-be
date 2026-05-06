@@ -4,6 +4,7 @@ import (
 	"forum-gateway/dao"
 	_ "forum-gateway/docs"
 	"forum-gateway/handler"
+	"forum-gateway/handler/agent"
 	"forum-gateway/handler/chat"
 	"forum-gateway/handler/collection"
 	"forum-gateway/handler/comment"
@@ -132,6 +133,13 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		reportRouter.POST("", normalRequired, reportApi.Create)
 		reportRouter.GET("/list", adminRequired, reportApi.List)
 		reportRouter.PUT("", adminRequired, reportApi.Handle)
+	}
+
+	agentRouter := g.Group("api/v1/agent")
+	agentApi := agent.New(dao.GetDao())
+	{
+		agentRouter.POST("/knowledge", adminRequired, agentApi.AddKnowledge)
+		agentRouter.POST("/answer", normalRequired, agentApi.GiveAnswer)
 	}
 
 	// The health check handlers

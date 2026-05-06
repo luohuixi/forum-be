@@ -23,12 +23,13 @@ type commentQueueInput struct {
 func (t *CommentQueueTool) Info(_ context.Context) (*schema.ToolInfo, error) {
 	return &schema.ToolInfo{
 		Name: "comment_queue",
-		Desc: "Send agent-generated comment to Kafka queue. Input JSON: {\"content\":\"...\",\"post_id\":\"...\"}",
+		Desc: "Send agent-generated comment to Kafka queue. Input JSON: {\"content\":\"...\",\"post_id\":n, post_id must be uint32.}",
 	}, nil
 }
 
 func (t *CommentQueueTool) InvokableRun(ctx context.Context, argumentsInJSON string, opts ...einotool.Option) (string, error) {
 	var input commentQueueInput
+	fmt.Println(argumentsInJSON)
 	if err := json.Unmarshal([]byte(argumentsInJSON), &input); err != nil {
 		return "", err
 	}

@@ -4,11 +4,7 @@ import (
 	"context"
 	"forum-agent/core"
 	"forum-agent/dao"
-	"forum-agent/tool"
-	"forum/log"
 	"time"
-
-	"go.uber.org/zap"
 )
 
 const (
@@ -25,18 +21,14 @@ type Async interface {
 	CreateCommentFromKafka(ctx context.Context)
 }
 
-func NewAsyncManager(dao dao.Interface) (*AsyncManager, error) {
-	agent, err := core.NewReActAgent(context.Background(), tool.ToolList())
-	if err != nil {
-		log.Error("Failed to create react agent", zap.Error(err))
-		return nil, err
-	}
+func NewAsyncManager(dao dao.Interface, agent *core.ReActAgent) *AsyncManager {
 	return &AsyncManager{
 		dao:   dao,
 		agent: agent,
-	}, nil
+	}
 }
 
-func (a *AsyncManager) Begin(ctx context.Context) {
+func (a *AsyncManager) Begin() {
+	ctx := context.Background()
 	go a.CreateCommentFromKafka(ctx)
 }

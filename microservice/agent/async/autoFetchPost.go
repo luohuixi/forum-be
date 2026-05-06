@@ -28,7 +28,7 @@ func (a *AsyncManager) fetch(t string) string {
 	var posts *[]dao.PostModel
 
 	for i := 0; i < MaxTries; i++ {
-		posts, err = a.dao.GetPostByTime(t)
+		posts, err = a.dao.GetValuablePost()
 		if err != nil {
 			log.Error("Failed to fetch posts", zap.Error(err))
 			time.Sleep(WaitForError)
@@ -57,6 +57,6 @@ func (a *AsyncManager) Run(postJson string) {
 	if err != nil {
 		log.Error("Failed to generate post", zap.Error(err))
 	} else {
-		log.Info("Successfully store post into es", zap.Any("post", ans.Content))
+		log.Info("Successfully store post into es", zap.Any("final_reply", ans.Content))
 	}
 }

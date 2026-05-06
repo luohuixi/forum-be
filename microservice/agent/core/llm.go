@@ -3,9 +3,9 @@ package core
 import (
 	"context"
 	"log"
-	"os"
 
 	"github.com/cloudwego/eino-ext/components/model/openai"
+	"github.com/spf13/viper"
 )
 
 var ChatModel *openai.ChatModel
@@ -15,9 +15,9 @@ func ChatModelInit() {
 	var err error
 
 	ChatModel, err = openai.NewChatModel(ctx, &openai.ChatModelConfig{
-		APIKey:  os.Getenv("LLM_API_KEY"),
-		Model:   os.Getenv("LLM_MODEL_ID"),
-		BaseURL: os.Getenv("LLM_BASE_URL"),
+		APIKey:  viper.GetString("llm.api_key"),
+		Model:   viper.GetString("llm.model_id"),
+		BaseURL: viper.GetString("llm.base_url"),
 	})
 	if err != nil {
 		log.Fatalf("NewChatModel failed, err=%v", err)

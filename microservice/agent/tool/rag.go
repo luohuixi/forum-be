@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"os"
-	"strconv"
 	"strings"
 
 	"forum-agent/core"
@@ -16,11 +14,7 @@ import (
 	einotool "github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/schema"
 	"github.com/google/uuid"
-)
-
-const (
-	agentVectorIndexEnv = "AGENT_VECTOR_INDEX"
-	agentESDimEnv       = "AGENT_ES_DIM"
+	"github.com/spf13/viper"
 )
 
 type VectorStoreTool struct{}
@@ -88,7 +82,7 @@ func (t *VectorStoreTool) InvokableRun(ctx context.Context, argumentsInJSON stri
 func (t *VectorSearchTool) Info(_ context.Context) (*schema.ToolInfo, error) {
 	return &schema.ToolInfo{
 		Name: "vector_search",
-		Desc: "Search Elasticsearch vector database using Eino retriever. Input JSON: {\"query\":\"...\",\"top_k\":\"...\"}",
+		Desc: "Search Elasticsearch vector database using Eino retriever. Input JSON: {\"query\":\"...\",\"top_k\":n, top_k must be int.}",
 	}, nil
 }
 
@@ -176,19 +170,20 @@ func newRetriever(ctx context.Context, topK int) (*es8retriever.Retriever, error
 }
 
 func vectorIndexName() string {
-	if v := os.Getenv(agentVectorIndexEnv); v != "" {
+	if v := viper.GetString("agent_es.index"); v != "" {
 		return v
 	}
 	return "forum_agent_vectors"
 }
 
 func getDims() int {
-	if dim := os.Getenv(agentESDimEnv); dim != "" {
-		if d, err := strconv.Atoi(dim); err == nil {
-			return d
-		}
+	if dim := viper.GetInt("agent_es.dim"); dim > 0 {
+		return dim
 	}
-	return 1536
+	if dim := viper.GetInt("embed.dimensions"); dim > 0 {
+		return dim
+	}
+	return 1024
 }
 
 func removeVector(origin map[string]any) map[string]any {

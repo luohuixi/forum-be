@@ -58,6 +58,8 @@ func init() {
 // @tag.description 帖子服务
 // @tag.name feed
 // @tag.description 动态服务
+// @tag.name agent
+// @tag.description 智能体服务
 // @tag.name collection
 // @tag.description 收藏服务
 // @tag.name comment
@@ -103,6 +105,7 @@ func main() {
 	client.ChatInit(service)
 	client.PostInit(service)
 	client.FeedInit(service)
+	client.AgentInit(service)
 	dao.Init()
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))

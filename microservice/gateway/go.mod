@@ -12,12 +12,13 @@ replace forum-feed => ../feed
 
 replace forum-ocr => ../ocr
 
-go 1.23.0
+replace forum-agent => ../agent
 
-toolchain go1.23.3
+go 1.24.7
 
 require (
 	forum v0.0.0-00010101000000-000000000000
+	forum-agent v0.0.0-00010101000000-000000000000
 	forum-chat v0.0.0-00010101000000-000000000000
 	forum-feed v0.0.0-00010101000000-000000000000
 	forum-post v0.0.0-00010101000000-000000000000
@@ -29,9 +30,9 @@ require (
 	github.com/golang/protobuf v1.5.4
 	github.com/gorilla/websocket v1.5.3
 	github.com/joho/godotenv v1.5.1
+	github.com/opentracing-contrib/go-gin v0.0.0-20241203023905-a5650667207a
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/qiniu/api.v7/v7 v7.8.2
-	github.com/satori/go.uuid v1.2.0
 	github.com/shirou/gopsutil/v3 v3.24.5
 	github.com/spf13/pflag v1.0.6
 	github.com/spf13/viper v1.20.1
@@ -57,6 +58,7 @@ require (
 	github.com/bitly/go-simplejson v0.5.0 // indirect
 	github.com/bmatcuk/doublestar/v4 v4.6.1 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
+	github.com/bytedance/gopkg v0.1.3 // indirect
 	github.com/bytedance/sonic v1.14.1 // indirect
 	github.com/bytedance/sonic/loader v0.3.0 // indirect
 	github.com/casbin/casbin/v2 v2.103.0 // indirect
@@ -66,7 +68,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/cloudflare/circl v1.6.1 // indirect
 	github.com/cloudwego/base64x v0.1.6 // indirect
-	github.com/cloudwego/iasm v0.2.0 // indirect
 	github.com/coreos/go-semver v0.3.0 // indirect
 	github.com/coreos/go-systemd/v22 v22.3.2 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.6 // indirect
@@ -140,7 +141,6 @@ require (
 	github.com/nacos-group/nacos-sdk-go v1.1.6 // indirect
 	github.com/ncruces/go-strftime v0.1.9 // indirect
 	github.com/nxadm/tail v1.4.8 // indirect
-	github.com/opentracing-contrib/go-gin v0.0.0-20241203023905-a5650667207a // indirect
 	github.com/oxtoacart/bpool v0.0.0-20190530202638-03653db5a59c // indirect
 	github.com/patrickmn/go-cache v2.1.0+incompatible // indirect
 	github.com/pelletier/go-toml/v2 v2.2.3 // indirect

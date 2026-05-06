@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+option go_package = "./proto";
+
+package agent;
+
+service AgentService {
+  rpc AddKnowledge(AddKnowledgeRequest) returns (Response) {}
+  rpc GiveAnswer(GiveAnswerRequest) returns (Response) {}
+}
+
+message AddKnowledgeRequest {
+  uint32 post_id = 1;
+}
+
+message GiveAnswerRequest {
+  uint32 post_id = 1;
+  string extra_content = 2;
+}
+
+message Response {}

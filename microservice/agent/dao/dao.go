@@ -13,7 +13,8 @@ type Dao struct {
 }
 
 type Interface interface {
-	GetPostByTime(time string) (*[]PostModel, error)
+	GetValuablePost() (*[]PostModel, error)
+	GetPostById(id uint32) (*PostModel, error)
 }
 
 func GetDao() *Dao {

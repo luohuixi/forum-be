@@ -21,3 +21,11 @@ Functions are in package `forum-gateway/service`
 // @expiresAt: 过期时间（10位的时间戳）
 func AddToBlacklist(token string, expiresAt int64) error
 ```
+
+### Agent
+
+对接 Agent 微服务，提供论坛知识检索与问答相关能力。
+
+#### Usage
+
+Functions are in package `forum-gateway/service`

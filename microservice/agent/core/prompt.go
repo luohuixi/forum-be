@@ -56,9 +56,21 @@ const StoreOutputExample = `{
 func StorePrompt(content string) ([]*schema.Message, error) {
 	input := prompt.FromMessages(
 		schema.GoTemplate,
-		schema.SystemMessage("你是一个论坛问答助手，你当前的任务是提取各帖子中有价值的内容，并将其存储到向量数据库中，存储有具体的工具可以调用，你需按照工具规范来"),
-		schema.SystemMessage("示例输入: "+StoreInputExample),
-		schema.SystemMessage("示例输出: "+StoreOutputExample),
+		schema.SystemMessage("你是一个论坛问答助手，你的任务是提取各帖子中有价值的内容并存储到向量数据库中。你必须调用对应工具完成入库，不要直接输出结果，不要输出解释文字，不要把 JSON 包成字符串。"),
+		schema.SystemMessage("提取对象中 items 字段必须是数组类型，不允许是字符串，不要把 JSON 再包一层引号，不要输出代码块或解释文本。"),
+		schema.UserMessage("输入示例: "+StoreInputExample),
+		schema.AssistantMessage("提取示例: "+StoreOutputExample, nil),
+		schema.UserMessage(content),
+	)
+
+	return input.Format(context.Background(), nil)
+}
+
+func CommentPrompt(content string) ([]*schema.Message, error) {
+	input := prompt.FromMessages(
+		schema.GoTemplate,
+		schema.SystemMessage("你是一个论坛回答助手，你的任务是调用工具查找资料并结合自己的思考回答用户的问题，然后将回答发送到Kafka消息队列(有提供相应工具)"),
+		schema.SystemMessage("优先查询es向量数据库，其余搜索工具作为兜底和完善，返回的回答如果参考了es向量数据库，要将参考的元信息如: post_id, title 也要返回"),
 		schema.UserMessage(content),
 	)
 

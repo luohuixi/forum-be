@@ -3,8 +3,9 @@ package core
 import (
 	"context"
 	"fmt"
+	"log"
 
-	"github.com/cloudwego/eino/components/tool"
+	einotool "github.com/cloudwego/eino/components/tool"
 	"github.com/cloudwego/eino/compose"
 	"github.com/cloudwego/eino/flow/agent/react"
 	"github.com/cloudwego/eino/schema"
@@ -16,7 +17,13 @@ type ReActAgent struct {
 	Inner *react.Agent
 }
 
-func NewReActAgent(ctx context.Context, tools []tool.BaseTool) (*ReActAgent, error) {
+var reActAgent *ReActAgent
+
+func GetReActAgent() *ReActAgent {
+	return reActAgent
+}
+
+func NewReActAgent(ctx context.Context, tools []einotool.BaseTool) (*ReActAgent, error) {
 	if ChatModel == nil {
 		return nil, fmt.Errorf("chat model is not initialized")
 	}
@@ -40,4 +47,12 @@ func (a *ReActAgent) Generate(ctx context.Context, messages []*schema.Message) (
 		return nil, fmt.Errorf("agent is nil")
 	}
 	return a.Inner.Generate(ctx, messages)
+}
+
+func AgentInit(tools []einotool.BaseTool) {
+	var err error
+	reActAgent, err = NewReActAgent(context.Background(), tools)
+	if err != nil {
+		log.Fatal(err)
+	}
 }

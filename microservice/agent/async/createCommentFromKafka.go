@@ -37,6 +37,7 @@ func (a *AsyncManager) CreateCommentFromKafka(ctx context.Context) {
 				log.Error(fmt.Sprintf("Failed to create comment(%v)", string(commentJson)), zap.Error(err))
 				time.Sleep(WaitForError)
 			} else {
+				fmt.Println("Create comment successfully", c)
 				break
 			}
 		}
