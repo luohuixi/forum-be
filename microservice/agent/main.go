@@ -35,6 +35,7 @@ func main() {
 	}
 	core.ChatModelInit()
 	core.EmbedderInit()
+	core.InitCallbacks()
 	core.ESClientInit()
 	core.KafkaInit()
 	core.AgentInit(tool.ToolList())

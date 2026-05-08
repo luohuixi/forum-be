@@ -29,7 +29,6 @@ func (t *CommentQueueTool) Info(_ context.Context) (*schema.ToolInfo, error) {
 
 func (t *CommentQueueTool) InvokableRun(ctx context.Context, argumentsInJSON string, opts ...einotool.Option) (string, error) {
 	var input commentQueueInput
-	fmt.Println(argumentsInJSON)
 	if err := json.Unmarshal([]byte(argumentsInJSON), &input); err != nil {
 		return "", err
 	}

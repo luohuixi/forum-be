@@ -7,47 +7,42 @@ import (
 	"forum-agent/core"
 	pb "forum-agent/proto"
 	"forum/log"
+	"forum/pkg/agentctx"
+	"forum/pkg/tracer"
 
 	"go.uber.org/zap"
 )
 
 func (a *AgentService) GiveAnswer(ctx context.Context, req *pb.GiveAnswerRequest, _ *pb.Response) error {
-	log.Info(fmt.Sprintf("Receive request to give answer for post(%v)", req.PostId))
+	log.Info(fmt.Sprintf("Receive request to give answer for post(%v)", req.PostId), zap.String("trace_id", tracer.GetTraceId(ctx)))
 
 	// 不等待
 	go func() {
+		baseCtx := context.WithoutCancel(ctx)
+		newCtx := agentctx.WithTokenUsage(baseCtx)
 		content, err := a.formatRequest(req)
 		if err != nil {
-			log.Error(fmt.Sprintf("Failed to format request for post(%v)", req.PostId), zap.Error(err))
+			log.Error(fmt.Sprintf("Failed to format request for post(%v)", req.PostId), zap.String("trace_id", tracer.GetTraceId(newCtx)), zap.Error(err))
 			return
 		}
 
-		ans, err := a.run(string(content))
+		prompt, err := core.CommentPrompt(string(content))
 		if err != nil {
-			log.Error(fmt.Sprintf("Failed to give answer for post(%v)", req.PostId), zap.Error(err))
+			log.Error(fmt.Sprintf("Failed to create prompt for post(%v)", req.PostId), zap.String("trace_id", tracer.GetTraceId(newCtx)), zap.Error(err))
 			return
 		}
 
-		log.Info(fmt.Sprintf("Successfully generate answer for post(%v)", req.PostId), zap.Any("final_reply", ans))
+		_, err = a.agent.Generate(newCtx, prompt)
+		if err != nil {
+			log.Error(fmt.Sprintf("Failed to give answer for post(%v)", req.PostId), zap.String("trace_id", tracer.GetTraceId(newCtx)), zap.Error(err))
+			log.Info("agent token summary", zap.Any("summary", agentctx.FinalTokenLogFields(newCtx)), zap.String("trace_id", tracer.GetTraceId(newCtx)))
+			return
+		}
+
+		log.Info("agent token summary", zap.Any("summary", agentctx.FinalTokenLogFields(newCtx)), zap.String("trace_id", tracer.GetTraceId(newCtx)))
 	}()
 
 	return nil
-}
-
-func (a *AgentService) run(content string) (string, error) {
-	ctx := context.Background()
-
-	prompt, err := core.CommentPrompt(content)
-	if err != nil {
-		return "", err
-	}
-
-	ans, err := a.agent.Generate(ctx, prompt)
-	if err != nil {
-		return "", err
-	}
-
-	return ans.Content, nil
 }
 
 func (a *AgentService) formatRequest(req *pb.GiveAnswerRequest) ([]byte, error) {

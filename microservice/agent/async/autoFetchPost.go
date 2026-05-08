@@ -6,6 +6,7 @@ import (
 	"forum-agent/core"
 	"forum-agent/dao"
 	"forum/log"
+	"forum/pkg/agentctx"
 	"forum/util"
 	"time"
 
@@ -47,7 +48,7 @@ func (a *AsyncManager) fetch(t string) string {
 }
 
 func (a *AsyncManager) Run(postJson string) {
-	ctx := context.Background()
+	ctx := agentctx.WithTokenUsage(context.Background())
 	prompt, err := core.StorePrompt(postJson)
 	if err != nil {
 		log.Error("Failed to store post", zap.Error(err))
@@ -57,6 +58,6 @@ func (a *AsyncManager) Run(postJson string) {
 	if err != nil {
 		log.Error("Failed to generate post", zap.Error(err))
 	} else {
-		log.Info("Successfully store post into es", zap.Any("final_reply", ans.Content))
+		log.Info("Successfully store post into es", zap.Any("final_reply", ans.Content), zap.Any("summary", agentctx.FinalTokenLogFields(ctx)))
 	}
 }
