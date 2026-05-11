@@ -6,11 +6,6 @@ type PostModel struct {
 	Title   string
 }
 
-// todo：change
-func (d *Dao) GetValuablePost() (*[]PostModel, error) {
-	return nil, nil
-}
-
 func (d *Dao) GetPostById(id uint32) (*PostModel, error) {
 	var post PostModel
 	if err := d.DB.Table("posts").Where("id = ?", id).First(&post).Error; err != nil {

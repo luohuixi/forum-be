@@ -17,6 +17,8 @@ go 1.24.7
 require (
 	forum v0.0.0-00010101000000-000000000000
 	github.com/cloudwego/eino v0.7.13
+	github.com/cloudwego/eino-ext/components/document/transformer/splitter/markdown v0.0.0-20260509111509-dbda66119839
+	github.com/cloudwego/eino-ext/components/document/transformer/splitter/semantic v0.0.0-20260509111509-dbda66119839
 	github.com/cloudwego/eino-ext/components/embedding/dashscope v0.0.0-20260416081055-0ebab92e14f2
 	github.com/cloudwego/eino-ext/components/indexer/es8 v0.0.0-20260422030438-09c530946953
 	github.com/cloudwego/eino-ext/components/model/openai v0.1.13
@@ -25,13 +27,12 @@ require (
 	github.com/elastic/go-elasticsearch/v8 v8.16.0
 	github.com/go-micro/plugins/v4/registry/etcd v1.2.0
 	github.com/go-micro/plugins/v4/wrapper/trace/opentracing v1.2.0
-	github.com/google/uuid v1.6.0
 	github.com/joho/godotenv v1.5.1
 	github.com/mark3labs/mcp-go v0.48.0
 	github.com/opentracing/opentracing-go v1.2.0
-	github.com/robfig/cron/v3 v3.0.1
 	github.com/segmentio/kafka-go v0.4.38
 	github.com/spf13/viper v1.12.0
+	github.com/yuin/goldmark v1.4.13
 	go-micro.dev/v4 v4.11.0
 	go.uber.org/zap v1.21.0
 	google.golang.org/protobuf v1.36.2
@@ -100,6 +101,7 @@ require (
 	github.com/golang/groupcache v0.0.0-20241129210726-2c02b8208cf8 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/jsonschema-go v0.4.2 // indirect
+	github.com/google/uuid v1.6.0 // indirect
 	github.com/goph/emperror v0.17.2 // indirect
 	github.com/gorilla/handlers v1.5.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

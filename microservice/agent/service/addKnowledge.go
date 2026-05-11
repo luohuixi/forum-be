@@ -2,41 +2,37 @@ package service
 
 import (
 	"context"
-	"encoding/json"
+	"fmt"
+
 	"forum-agent/core"
 	pb "forum-agent/proto"
 
 	"forum/log"
-	"forum/pkg/agentctx"
-	"forum/pkg/tracer"
 
-	"go.uber.org/zap"
+	"github.com/cloudwego/eino/schema"
 )
 
 func (a *AgentService) AddKnowledge(ctx context.Context, req *pb.AddKnowledgeRequest, resp *pb.Response) error {
-	log.Info("Receive request to add knowledge", zap.Any("knowledge", req.PostId))
-	ctx = agentctx.WithTokenUsage(ctx)
+	log.Info("Receive request to add knowledge")
 
-	post, err := a.Dao.GetPostById(req.PostId)
+	var docs []*schema.Document
+	var err error
+	if req.SplitType == "markdown" {
+		docs, err = core.MarkdownSplitter(ctx, req.PostId, req.Content, req.SplitSize)
+	} else {
+		docs, err = core.SemanticSpliter(ctx, req.PostId, req.Content, req.SplitSize)
+	}
 	if err != nil {
 		return err
 	}
-	postJson, err := json.Marshal(post)
+	if len(docs) == 0 {
+		return fmt.Errorf("empty markdown content")
+	}
+
+	indexer, err := core.NewIndexer(ctx)
 	if err != nil {
 		return err
 	}
-
-	prompt, err := core.StorePrompt(string(postJson))
-	if err != nil {
-		return err
-	}
-
-	_, err = a.agent.Generate(ctx, prompt)
-	if err != nil {
-		log.Info("agent token summary", zap.Any("summary", agentctx.FinalTokenLogFields(ctx)), zap.String("trace_id", tracer.GetTraceId(ctx)))
-		return err
-	}
-
-	log.Info("agent token summary", zap.Any("summary", agentctx.FinalTokenLogFields(ctx)), zap.String("trace_id", tracer.GetTraceId(ctx)))
-	return nil
+	_, err = indexer.Store(ctx, docs)
+	return err
 }

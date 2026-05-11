@@ -23,7 +23,10 @@ const (
 
 type AddKnowledgeRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	PostId        uint32                 `protobuf:"varint,1,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`
+	Content       string                 `protobuf:"bytes,1,opt,name=content,proto3" json:"content,omitempty"`
+	PostId        uint32                 `protobuf:"varint,2,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`
+	SplitType     string                 `protobuf:"bytes,3,opt,name=split_type,json=splitType,proto3" json:"split_type,omitempty"`
+	SplitSize     uint32                 `protobuf:"varint,4,opt,name=split_size,json=splitSize,proto3" json:"split_size,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -58,9 +61,30 @@ func (*AddKnowledgeRequest) Descriptor() ([]byte, []int) {
 	return file_proto_agent_proto_rawDescGZIP(), []int{0}
 }
 
+func (x *AddKnowledgeRequest) GetContent() string {
+	if x != nil {
+		return x.Content
+	}
+	return ""
+}
+
 func (x *AddKnowledgeRequest) GetPostId() uint32 {
 	if x != nil {
 		return x.PostId
+	}
+	return 0
+}
+
+func (x *AddKnowledgeRequest) GetSplitType() string {
+	if x != nil {
+		return x.SplitType
+	}
+	return ""
+}
+
+func (x *AddKnowledgeRequest) GetSplitSize() uint32 {
+	if x != nil {
+		return x.SplitSize
 	}
 	return 0
 }
@@ -157,9 +181,14 @@ var File_proto_agent_proto protoreflect.FileDescriptor
 
 const file_proto_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x11proto/agent.proto\x12\x05agent\".\n" +
-	"\x13AddKnowledgeRequest\x12\x17\n" +
-	"\apost_id\x18\x01 \x01(\rR\x06postId\"Q\n" +
+	"\x11proto/agent.proto\x12\x05agent\"\x86\x01\n" +
+	"\x13AddKnowledgeRequest\x12\x18\n" +
+	"\acontent\x18\x01 \x01(\tR\acontent\x12\x17\n" +
+	"\apost_id\x18\x02 \x01(\rR\x06postId\x12\x1d\n" +
+	"\n" +
+	"split_type\x18\x03 \x01(\tR\tsplitType\x12\x1d\n" +
+	"\n" +
+	"split_size\x18\x04 \x01(\rR\tsplitSize\"Q\n" +
 	"\x11GiveAnswerRequest\x12\x17\n" +
 	"\apost_id\x18\x01 \x01(\rR\x06postId\x12#\n" +
 	"\rextra_content\x18\x02 \x01(\tR\fextraContent\"\n" +

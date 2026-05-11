@@ -10,7 +10,10 @@ service AgentService {
 }
 
 message AddKnowledgeRequest {
-  uint32 post_id = 1;
+  string content = 1;
+  uint32 post_id = 2;
+  string split_type = 3;
+  uint32 split_size = 4;
 }
 
 message GiveAnswerRequest {

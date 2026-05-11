@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
+// todo: 加审核？
 func (a *AsyncManager) CreateCommentFromKafka(ctx context.Context) {
 	reader := core.KafkaReader()
 	defer reader.Close()

@@ -1,9 +1,10 @@
 package agent
 
 import (
-	pb "forum-agent/proto"
+	apb "forum-agent/proto"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
+	ppb "forum-post/proto"
 	"forum/client"
 	"forum/log"
 	"forum/model"
@@ -16,8 +17,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// AddKnowledge ... 将帖子加入知识库
-// @Summary 将帖子加入知识库
+// AddKnowledge ... 将 Markdown 内容加入知识库
+// @Summary 将 Markdown 内容加入知识库
 // @Tags agent
 // @Accept application/json
 // @Produce application/json
@@ -38,6 +39,7 @@ func (a *Api) AddKnowledge(c *gin.Context) {
 
 	if !ok {
 		SendError(c, errno.ErrPermissionDenied, nil, "permission denied", GetLine())
+		return
 	}
 
 	var req AddKnowledgeRequest
@@ -46,7 +48,22 @@ func (a *Api) AddKnowledge(c *gin.Context) {
 		return
 	}
 
-	addReq := &pb.AddKnowledgeRequest{PostId: req.PostId}
+	if req.Content == "" {
+		resp, err := client.PostClient.GetPost(c.Request.Context(), &ppb.Request{Id: req.PostId})
+		if err != nil {
+			SendError(c, err, nil, "", GetLine())
+			return
+		}
+
+		req.Content = resp.Content
+	}
+
+	addReq := &apb.AddKnowledgeRequest{
+		Content:   req.Content,
+		SplitType: req.SplitType,
+		SplitSize: req.SplitSize,
+		PostId:    req.PostId,
+	}
 	_, err = client.AgentClient.AddKnowledge(c.Request.Context(),
 		addReq,
 		mclient.WithRequestTimeout(5*time.Minute),

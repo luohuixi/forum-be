@@ -13,7 +13,6 @@ type Dao struct {
 }
 
 type Interface interface {
-	GetValuablePost() (*[]PostModel, error)
 	GetPostById(id uint32) (*PostModel, error)
 }
 

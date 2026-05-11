@@ -33,6 +33,7 @@ require (
 require (
 	dario.cat/mergo v1.0.0 // indirect
 	filippo.io/edwards25519 v1.1.0 // indirect
+	forum-agent v0.0.0-00010101000000-000000000000 // indirect
 	forum-chat v0.0.0-00010101000000-000000000000 // indirect
 	forum-feed v0.0.0-00010101000000-000000000000 // indirect
 	forum-ocr v0.0.0-00010101000000-000000000000 // indirect

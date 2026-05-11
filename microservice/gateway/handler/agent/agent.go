@@ -15,7 +15,10 @@ func New(i dao.Interface) *Api {
 }
 
 type AddKnowledgeRequest struct {
-	PostId uint32 `json:"post_id" binding:"required"`
+	Content   string `json:"content"`
+	PostId    uint32 `json:"post_id" binding:"required"`
+	SplitType string `json:"split_type" binding:"required"`
+	SplitSize uint32 `json:"split_size" binding:"required"`
 }
 
 type GiveAnswerRequest struct {
