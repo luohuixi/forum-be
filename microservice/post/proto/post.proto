@@ -27,6 +27,8 @@ service PostService {
     rpc CreateSipScoreEntryCommentRating(CreateSipScoreEntryCommentRatingRequest) returns (Response) {}
 
     rpc GetComment(Request) returns (CommentInfo) {}
+    // 通用创建评论（target_type + target_id）
+    rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse) {}
     rpc CreatePostComment(CreatePostCommentRequest) returns (CreatePostCommentResponse) {}
 
     rpc DeleteItem(DeleteItemRequest) returns (Response) {}
@@ -206,6 +208,16 @@ message CommentInfo {
 
 // ---- request ----
 
+message CreateCommentRequest {
+    string target_type = 1;
+    uint32 target_id = 2;
+    string type_name = 3;
+    uint32  father_id = 4;
+    string content = 5;
+    uint32 creator_id = 6;
+    string img_url = 7;
+}
+
 message CreatePostCommentRequest {
     uint32 post_id = 1;
     string type_name = 2;
@@ -216,6 +228,20 @@ message CreatePostCommentRequest {
 }
 
 // ---- response ----
+
+message CreateCommentResponse {
+    uint32 id = 1;
+    // 通知目标用户
+    uint32 user_id = 2;
+    uint32 father_user_id = 3;
+    string father_content = 4;
+    string create_time = 5;
+    string creator_name = 6;
+    string creator_avatar = 7;
+    string target_type = 8;
+    uint32 target_id = 9;
+    string type_name = 10;
+}
 
 message CreatePostCommentResponse {
     uint32 id = 1;
