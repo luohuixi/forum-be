@@ -226,7 +226,7 @@ func (d *Dao) DeleteComment(id uint32, tx ...*gorm.DB) error {
 		return err
 	}
 
-	if comment.TargetType != constvar.Post {
+	if comment.TargetType != "" && comment.TargetType != constvar.Post {
 		return nil
 	}
 
