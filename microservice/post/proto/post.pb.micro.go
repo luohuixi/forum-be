@@ -5,16 +5,18 @@ package proto
 
 import (
 	fmt "fmt"
+	math "math"
+
 	proto "google.golang.org/protobuf/proto"
 	_ "google.golang.org/protobuf/types/known/fieldmaskpb"
 	_ "google.golang.org/protobuf/types/known/timestamppb"
-	math "math"
 )
 
 import (
 	context "context"
-	client "go-micro.dev/v5/client"
-	server "go-micro.dev/v5/server"
+
+	client "go-micro.dev/v4/client"
+	server "go-micro.dev/v4/server"
 )
 
 // Reference imports to suppress errors if they are not otherwise used.

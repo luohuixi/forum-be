@@ -16,7 +16,7 @@ func (s *PostService) CreateOrRemoveCollection(_ context.Context, req *pb.Toggle
 
 	collection := &dao.CollectionModel{
 		UserID:      req.GetUserId(),
-		ContentID:   req.GetTargetType(),
+		ContentID:   req.GetTargetId(),
 		ContentType: req.GetTargetType(),
 	}
 

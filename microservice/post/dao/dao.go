@@ -77,7 +77,9 @@ type Interface interface {
 	CreateComment(comment *CommentModel, tx ...*gorm.DB) (uint32, error)
 	GetCommentInfo(uint32) (*CommentInfo, error)
 	GetComment(uint32) (*CommentModel, error)
+	ListCommentByTarget(targetID uint32, targetType string) ([]*CommentInfo, error)
 	ListCommentByPostId(postId uint32) ([]*CommentInfo, error)
+	GetCommentNumByTarget(targetID uint32, targetType string) (uint32, error)
 	GetCommentNumByPostId(uint32) (uint32, error)
 	DeleteComment(uint32, ...*gorm.DB) error
 
@@ -214,17 +216,18 @@ func (d *Dao) DeletePost(id uint32, tx ...*gorm.DB) error {
 }
 
 func (d *Dao) DeleteComment(id uint32, tx ...*gorm.DB) error {
-	db := d.DB
-	if len(tx) == 1 {
-		db = tx[0]
-	}
+	db := d.getDB(tx...)
 
-	comment := &CommentModel{}
-	if err := comment.Get(id); err != nil {
+	var comment CommentModel
+	if err := db.Where("id = ? AND deleted_at = 0", id).First(&comment).Error; err != nil {
 		return err
 	}
 	if err := comment.Delete(db); err != nil {
 		return err
+	}
+
+	if comment.TargetType != constvar.Post {
+		return nil
 	}
 
 	return d.ChangePostScore(comment.TargetID, -constvar.CommentScore)

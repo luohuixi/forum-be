@@ -48,12 +48,13 @@ func (s *PostService) CreatePostComment(_ context.Context, req *pb.CreatePostCom
 	}
 
 	data := &dao.CommentModel{
-		TypeName:  req.TypeName,
-		Content:   req.Content,
-		FatherId:  req.FatherId,
-		CreatorId: req.CreatorId,
-		TargetID:  post.Id,
-		ImgUrl:    req.ImgUrl,
+		TypeName:   req.TypeName,
+		Content:    req.Content,
+		FatherId:   req.FatherId,
+		CreatorId:  req.CreatorId,
+		TargetID:   post.Id,
+		TargetType: constvar.Post,
+		ImgUrl:     req.ImgUrl,
 	}
 
 	commentId, err := s.Dao.CreateComment(data)

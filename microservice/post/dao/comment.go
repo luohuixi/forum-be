@@ -8,6 +8,22 @@ import (
 	"gorm.io/plugin/soft_delete"
 )
 
+//   1. CommentModel 虽有 TargetID/TargetType（microservice/post/dao/comment.go），但接口和业务仍是“帖子评论专用”：
+//   - CreatePostCommentRequest 只有 post_id（proto/post.proto:209）
+//   - gateway 的创建参数也是 post_id（gateway/handler/comment/comment.go:17-23）
+//   - 查询/统计只提供 ListCommentByPostId、GetCommentNumByPostId，并硬编码 target_type = post（dao/comment.go:84-109,151-163）
+//   2. 创建帖子评论时字段赋值不完整：
+//   - CreatePostComment 里创建 CommentModel 只写了 TargetID，没写 TargetType（service/createPostComment.go:50-57）。
+//   - 这会和按 target_type = post 的查询条件冲突。
+//   3. 删除逻辑绑定“帖子积分”：
+//   - DeleteComment 删除后固定调用 ChangePostScore(comment.TargetID, -CommentScore)（dao/dao.go:216-231）。
+//   - 若评论目标不是 post（比如你们已在 create_sip_score_entry_rating.go 用评论表给 SipScoreEntry 存评论），这个操作就不正确。
+//   4. 读评论 SQL 有旧字段痕迹：
+//   - GetCommentInfo 还在 Select 里取 post_id（dao/comment.go:127-140），而模型已转向 target_id/target_type。
+//   - db.sql 的 comments 结构也是旧版（post_id/create_time/re），和代码里的 target_type/deleted_at/created_at 不一致（db.sql:62-78）。
+
+// todo 索引
+
 type CommentModel struct {
 	Id         uint32
 	TargetID   uint32
@@ -68,7 +84,8 @@ type CommentInfo struct {
 	FatherId      uint32
 	CreateTime    time.Time
 	CreatorId     uint32
-	PostId        uint32
+	TargetID      uint32
+	TargetType    string
 	CreatorName   string
 	CreatorAvatar string
 	LikeNum       uint32
@@ -77,11 +94,18 @@ type CommentInfo struct {
 
 func (d *Dao) CreateComment(comment *CommentModel, tx ...*gorm.DB) (uint32, error) {
 	db := d.getDB(tx...)
+	if comment.TargetType == "" {
+		comment.TargetType = constvar.Post
+	}
 	err := db.Create(comment).Error
 	return comment.Id, err
 }
 
 func (d *Dao) ListCommentByPostId(postId uint32) ([]*CommentInfo, error) {
+	return d.ListCommentByTarget(postId, constvar.Post)
+}
+
+func (d *Dao) ListCommentByTarget(targetId uint32, targetType string) ([]*CommentInfo, error) {
 	var comments []*CommentInfo
 
 	err := d.DB.Table("comments").
@@ -100,8 +124,8 @@ func (d *Dao) ListCommentByPostId(postId uint32) ([]*CommentInfo, error) {
 		Joins("join users u on u.id = comments.creator_id").
 		Where(
 			"target_id = ? AND target_type = ? AND deleted_at = 0 AND is_report = 0",
-			postId,
-			constvar.Post,
+			targetId,
+			targetType,
 		).
 		Find(&comments).Error
 
@@ -132,7 +156,8 @@ func (d *Dao) GetCommentInfo(commentId uint32) (*CommentInfo, error) {
 			father_id,
 			created_at,
 			comments.creator_id,
-			post_id,
+			target_id,
+			target_type,
 			u.name creator_name,
 			u.avatar creator_avatar,
 			like_num,
@@ -149,13 +174,17 @@ func (d *Dao) GetCommentInfo(commentId uint32) (*CommentInfo, error) {
 }
 
 func (d *Dao) GetCommentNumByPostId(postId uint32) (uint32, error) {
+	return d.GetCommentNumByTarget(postId, constvar.Post)
+}
+
+func (d *Dao) GetCommentNumByTarget(targetID uint32, targetType string) (uint32, error) {
 	var count int64
 
 	err := d.DB.Model(&CommentModel{}).
 		Where(
 			"target_id = ? AND target_type = ? AND deleted_at = 0",
-			postId,
-			constvar.Post,
+			targetID,
+			targetType,
 		).
 		Count(&count).Error
 
