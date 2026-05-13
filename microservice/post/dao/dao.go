@@ -71,6 +71,11 @@ type Interface interface {
 	BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32, tx ...*gorm.DB) (map[uint32][]*SipScoreEntryModel, error)
 	GetSipScoreEntry(sipScoreID, entryID uint32, tx ...*gorm.DB) (*SipScoreEntryModel, error)
 	CreateSipScoreEntryCommentRating(rating *SipScoreEntryCommentRating, tx ...*gorm.DB) (uint32, error)
+	GetSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error)
+	GetSipScoreEntryCommentRatingByUser(sipScoreID, entryID, userID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error)
+	ListSipScoreEntryCommentRatings(sipScoreID, entryID, offset, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error)
+	UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, update map[string]interface{}, tx ...*gorm.DB) error
+	DeleteSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
 	IncrSipScoreParticipantCount(sipScoreID uint32, incr int64, tx ...*gorm.DB) error
 	IncrSipScoreEntryScore(sipScoreID, entryID uint32, scoreIncr uint32, participantIncr uint32, tx ...*gorm.DB) error
 

@@ -1,6 +1,7 @@
 package dao
 
 import (
+	"errors"
 	"time"
 
 	"gorm.io/gorm"
@@ -134,8 +135,12 @@ func (d *Dao) DecrSipScoreCollectCount(sipScoreID uint32, tx ...*gorm.DB) error 
 
 func (d *Dao) IncrSipScoreParticipantCount(sipScoreID uint32, incr int64, tx ...*gorm.DB) error {
 	db := d.getDB(tx...)
-	return db.Model(&SipScoreModel{}).Where("id = ?", sipScoreID).
-		UpdateColumn("participant_count", gorm.Expr("participant_count + ?", incr)).Error
+	result := db.Model(&SipScoreModel{}).Where("id = ?", sipScoreID).
+		UpdateColumn("participant_count", gorm.Expr("participant_count + ?", incr))
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
 }
 
 func (d *Dao) DeleteSipScore(id uint32, tx ...*gorm.DB) error {
@@ -309,7 +314,7 @@ func (d *Dao) BatchCreateSipScoreEntries(entries []*SipScoreEntryModel, tx ...*g
 func (d *Dao) IncrSipScoreEntryScore(sipScoreID, entryID uint32, scoreIncr uint32, participantIncr uint32, tx ...*gorm.DB) error {
 	db := d.getDB(tx...)
 
-	return db.Model(&SipScoreEntryModel{}).
+	result := db.Model(&SipScoreEntryModel{}).
 		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
 		UpdateColumns(map[string]interface{}{
 			"score_total":       gorm.Expr("score_total + ?", scoreIncr),
@@ -319,7 +324,11 @@ func (d *Dao) IncrSipScoreEntryScore(sipScoreID, entryID uint32, scoreIncr uint3
 				scoreIncr,
 				participantIncr,
 			),
-		}).Error
+		})
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
 }
 
 func (d *Dao) UpdateSipScoreEntry(sipScoreID, entryID uint32, update map[string]interface{}, tx ...*gorm.DB) error {
@@ -564,16 +573,20 @@ func (d *Dao) BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32
 //	return result, nil
 //}
 
+// todo 添加唯一索引
+
 type SipScoreEntryCommentRating struct {
-	ID             uint32 `gorm:"primarykey"`
-	CreatedAt      time.Time
-	UpdatedAt      time.Time
-	DeletedAt      soft_delete.DeletedAt `gorm:"index;softDelete:nano"`
-	CreatorID      uint32
+	ID        uint32 `gorm:"primarykey"`
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt soft_delete.DeletedAt `gorm:"index;softDelete:nano"`
+
+	CreatorID      uint32 `gorm:"index:idx_sip_score_entry_ratings_user,priority:3"`
 	LastModifiedBy uint32
-	SipScoreID     uint32
-	EntryID        uint32
-	CommentID      uint32
+	SipScoreID     uint32 `gorm:"index:idx_sip_score_entry_ratings_target,priority:1;index:idx_sip_score_entry_ratings_user,priority:1"`
+	EntryID        uint32 `gorm:"index:idx_sip_score_entry_ratings_target,priority:2;index:idx_sip_score_entry_ratings_user,priority:2"`
+	Rating         uint32 `gorm:"type:tinyint unsigned;not null"`
+	Content        string `gorm:"type:varchar(2000);not null"`
 	LikeNum        uint32
 }
 
@@ -585,4 +598,61 @@ func (d *Dao) CreateSipScoreEntryCommentRating(rating *SipScoreEntryCommentRatin
 	db := d.getDB(tx...)
 	err := db.Create(rating).Error
 	return rating.ID, err
+}
+
+func (d *Dao) GetSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+
+	var rating SipScoreEntryCommentRating
+	err := db.Where("id = ? AND sip_score_id = ? AND entry_id = ?", ratingID, sipScoreID, entryID).First(&rating).Error
+	if err == gorm.ErrRecordNotFound {
+		return nil, nil
+	}
+	return &rating, err
+}
+
+func (d *Dao) GetSipScoreEntryCommentRatingByUser(sipScoreID, entryID, userID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+
+	var rating SipScoreEntryCommentRating
+	err := db.Where("sip_score_id = ? AND entry_id = ? AND creator_id = ?", sipScoreID, entryID, userID).First(&rating).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &rating, err
+}
+
+func (d *Dao) ListSipScoreEntryCommentRatings(sipScoreID, entryID, offset, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+
+	var ratings []*SipScoreEntryCommentRating
+	err := db.Where("sip_score_id = ? AND entry_id = ?", sipScoreID, entryID).
+		Offset(int(offset)).
+		Order("id DESC").
+		Limit(int(limit)).
+		Find(&ratings).Error
+
+	return ratings, err
+}
+
+func (d *Dao) UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, update map[string]interface{}, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	result := db.Model(&SipScoreEntryCommentRating{}).
+		Where("id = ? AND sip_score_id = ? AND entry_id = ?", ratingID, sipScoreID, entryID).
+		Updates(update)
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
+func (d *Dao) DeleteSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+	result := db.Where("id = ? AND sip_score_id = ? AND entry_id = ?", ratingID, sipScoreID, entryID).
+		Delete(&SipScoreEntryCommentRating{})
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
 }

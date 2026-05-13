@@ -2,10 +2,10 @@ package service
 
 import (
 	"context"
+	"errors"
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
-	"forum/pkg/constvar"
 	"forum/pkg/errno"
 
 	"gorm.io/gorm"
@@ -19,55 +19,42 @@ func (s *PostService) CreateSipScoreEntryCommentRating(ctx context.Context, req 
 		return errno.ServerErr(errno.ErrBadRequest, "rating must be between 1 and 5")
 	}
 
-	return s.Dao.Transaction(func(tx *gorm.DB) error {
-		// 1. 检查 entry 是否存在
-		_, err := s.Dao.GetSipScoreEntry(req.GetSipScoreId(), req.GetSipScoreEntryId(), tx)
-		if err != nil {
-			return err
-		}
-
-		// 2. 创建评论
-		comment := &dao.CommentModel{
-			TargetID:   req.GetSipScoreEntryId(),
-			TargetType: constvar.SipScoreEntry,
-			TypeName:   constvar.FirstLevelComment,
-			Content:    req.GetComment(),
-			FatherId:   0,
-			CreatorId:  req.GetUserId(),
-			LikeNum:    0,
-			ImgUrl:     req.GetImgUrl(),
-			IsReport:   false,
-		}
-
-		commentID, err := s.Dao.CreateComment(comment, tx)
-		if err != nil {
-			return err
-		}
-
-		// 3. 创建评分记录
+	fc := func(tx *gorm.DB) error {
+		// 1. 尝试创建评分记录，判断用户是否已经评分过
 		data := &dao.SipScoreEntryCommentRating{
 			CreatorID:      req.GetUserId(),
 			LastModifiedBy: req.GetUserId(),
 			SipScoreID:     req.GetSipScoreId(),
 			EntryID:        req.GetSipScoreEntryId(),
-			CommentID:      commentID,
+			Rating:         rating,
+			Content:        req.GetComment(),
 			LikeNum:        0,
 		}
 
-		_, err = s.Dao.CreateSipScoreEntryCommentRating(data, tx)
+		_, err := s.Dao.CreateSipScoreEntryCommentRating(data, tx)
 		if err != nil {
 			return err
 		}
 
-		// 4. 更新 SipScore participant_count
+		// 2. 尝试更新 SipScore participant_count，判断 SipScore 是否存在
 		err = s.Dao.IncrSipScoreParticipantCount(req.GetSipScoreId(), 1, tx)
 		if err != nil {
 			return err
 		}
 
-		// 5. 更新 entry 统计字段
-		err = s.Dao.IncrSipScoreEntryScore(req.GetSipScoreId(), req.GetSipScoreId(), rating, 1, tx)
+		// 3. 尝试更新 entry 统计字段，判断 entry 是否存在
+		return s.Dao.IncrSipScoreEntryScore(req.GetSipScoreId(), req.GetSipScoreEntryId(), rating, 1, tx)
+	}
 
-		return err
-	})
+	err := s.Dao.Transaction(fc)
+	switch {
+	case err == nil:
+		return nil
+	case errors.Is(err, gorm.ErrRecordNotFound):
+		return errno.ServerErr(errno.ErrItemNotFound, "sip score or entry not found")
+	case errors.Is(err, gorm.ErrDuplicatedKey):
+		return errno.ServerErr(errno.ErrDatabase, "duplicate entry name")
+	default:
+		return errno.ServerErr(errno.ErrDatabase, "database transaction error")
+	}
 }
