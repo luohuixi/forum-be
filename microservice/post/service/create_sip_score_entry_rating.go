@@ -11,6 +11,10 @@ import (
 	"gorm.io/gorm"
 )
 
+// Note: 目前评分是强一致性
+// 后续可以在引入任务队列后改为最终一致性
+// todo 将 平均分 单独拎出来异步刷新，crud 的时候都需要异步一下
+
 func (s *PostService) CreateSipScoreEntryCommentRating(ctx context.Context, req *pb.CreateSipScoreEntryCommentRatingRequest, resp *pb.Response) error {
 	logger.Info("PostService CreateSipScoreEntryCommentRating")
 
@@ -20,6 +24,19 @@ func (s *PostService) CreateSipScoreEntryCommentRating(ctx context.Context, req 
 	}
 
 	fc := func(tx *gorm.DB) error {
+		// 锁住 entry，串行化同一 entry 的评分创建，避免并发下 participant_count 被放大。
+		if err := s.Dao.LockSipScoreEntryForUpdate(req.GetSipScoreId(), req.GetSipScoreEntryId(), tx); err != nil {
+			return err
+		}
+
+		existedRating, err := s.Dao.GetSipScoreEntryCommentRatingByUserForUpdate(req.GetSipScoreId(), req.GetSipScoreEntryId(), req.GetUserId(), tx)
+		if err != nil {
+			return err
+		}
+		if existedRating != nil {
+			return gorm.ErrDuplicatedKey
+		}
+
 		// 1. 尝试创建评分记录，判断用户是否已经评分过
 		data := &dao.SipScoreEntryCommentRating{
 			CreatorID:      req.GetUserId(),
@@ -29,9 +46,10 @@ func (s *PostService) CreateSipScoreEntryCommentRating(ctx context.Context, req 
 			Rating:         rating,
 			Content:        req.GetComment(),
 			LikeNum:        0,
+			ImgURL:         req.GetImgUrl(),
 		}
 
-		_, err := s.Dao.CreateSipScoreEntryCommentRating(data, tx)
+		_, err = s.Dao.CreateSipScoreEntryCommentRating(data, tx)
 		if err != nil {
 			return err
 		}
@@ -53,7 +71,7 @@ func (s *PostService) CreateSipScoreEntryCommentRating(ctx context.Context, req 
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		return errno.ServerErr(errno.ErrItemNotFound, "sip score or entry not found")
 	case errors.Is(err, gorm.ErrDuplicatedKey):
-		return errno.ServerErr(errno.ErrDatabase, "duplicate entry name")
+		return errno.ServerErr(errno.ErrBadRequest, "user has already rated this entry")
 	default:
 		return errno.ServerErr(errno.ErrDatabase, "database transaction error")
 	}

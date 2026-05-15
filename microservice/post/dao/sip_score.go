@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 	"gorm.io/plugin/soft_delete"
 )
 
@@ -306,6 +307,21 @@ func (d *Dao) GetSipScoreEntry(sipScoreID, entryID uint32, tx ...*gorm.DB) (*Sip
 	return &entry, err
 }
 
+func (d *Dao) LockSipScoreEntryForUpdate(sipScoreID, entryID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	var entry SipScoreEntryModel
+	result := db.Model(&SipScoreEntryModel{}).
+		Clauses(clause.Locking{Strength: "UPDATE"}).
+		Select("id").
+		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
+		Take(&entry)
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
 func (d *Dao) BatchCreateSipScoreEntries(entries []*SipScoreEntryModel, tx ...*gorm.DB) error {
 	db := d.getDB(tx...)
 	return db.Create(entries).Error
@@ -573,7 +589,8 @@ func (d *Dao) BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32
 //	return result, nil
 //}
 
-// todo 添加唯一索引
+// todo 添加唯一约束
+// todo 图片可以再开一个 image 的表，暂时一个评分一张图片吧
 
 type SipScoreEntryCommentRating struct {
 	ID        uint32 `gorm:"primarykey"`
@@ -587,7 +604,9 @@ type SipScoreEntryCommentRating struct {
 	EntryID        uint32 `gorm:"index:idx_sip_score_entry_ratings_target,priority:2;index:idx_sip_score_entry_ratings_user,priority:2"`
 	Rating         uint32 `gorm:"type:tinyint unsigned;not null"`
 	Content        string `gorm:"type:varchar(2000);not null"`
-	LikeNum        uint32
+	ImgURL         string `gorm:"type:varchar(255);not null"`
+
+	LikeNum uint32
 }
 
 func (SipScoreEntryCommentRating) TableName() string {
@@ -605,7 +624,20 @@ func (d *Dao) GetSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32
 
 	var rating SipScoreEntryCommentRating
 	err := db.Where("id = ? AND sip_score_id = ? AND entry_id = ?", ratingID, sipScoreID, entryID).First(&rating).Error
-	if err == gorm.ErrRecordNotFound {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &rating, err
+}
+
+func (d *Dao) GetSipScoreEntryCommentRatingForUpdate(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+
+	var rating SipScoreEntryCommentRating
+	err := db.Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("id = ? AND sip_score_id = ? AND entry_id = ?", ratingID, sipScoreID, entryID).
+		First(&rating).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
 	return &rating, err
@@ -616,6 +648,19 @@ func (d *Dao) GetSipScoreEntryCommentRatingByUser(sipScoreID, entryID, userID ui
 
 	var rating SipScoreEntryCommentRating
 	err := db.Where("sip_score_id = ? AND entry_id = ? AND creator_id = ?", sipScoreID, entryID, userID).First(&rating).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &rating, err
+}
+
+func (d *Dao) GetSipScoreEntryCommentRatingByUserForUpdate(sipScoreID, entryID, userID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+
+	var rating SipScoreEntryCommentRating
+	err := db.Clauses(clause.Locking{Strength: "UPDATE"}).
+		Where("sip_score_id = ? AND entry_id = ? AND creator_id = ?", sipScoreID, entryID, userID).
+		First(&rating).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return nil, nil
 	}
@@ -633,6 +678,27 @@ func (d *Dao) ListSipScoreEntryCommentRatings(sipScoreID, entryID, offset, limit
 		Find(&ratings).Error
 
 	return ratings, err
+}
+
+func (d *Dao) UpdateSipScoreEntryScoreByRatingDelta(sipScoreID, entryID uint32, delta int, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	result := db.Model(&SipScoreEntryModel{}).
+		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
+		UpdateColumns(map[string]interface{}{
+			"score_total": gorm.Expr("GREATEST(score_total + ?, 0)", delta),
+			"score_avg": gorm.Expr(
+				`CASE 
+					WHEN participant_count = 0 THEN 0 
+					ELSE (GREATEST(score_total + ?, 0) * 100) / participant_count 
+				END`,
+				delta,
+			),
+		})
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
 }
 
 func (d *Dao) UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, update map[string]interface{}, tx ...*gorm.DB) error {

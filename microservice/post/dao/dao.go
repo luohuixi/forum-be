@@ -72,12 +72,16 @@ type Interface interface {
 	GetSipScoreEntry(sipScoreID, entryID uint32, tx ...*gorm.DB) (*SipScoreEntryModel, error)
 	CreateSipScoreEntryCommentRating(rating *SipScoreEntryCommentRating, tx ...*gorm.DB) (uint32, error)
 	GetSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error)
+	GetSipScoreEntryCommentRatingForUpdate(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error)
 	GetSipScoreEntryCommentRatingByUser(sipScoreID, entryID, userID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error)
+	GetSipScoreEntryCommentRatingByUserForUpdate(sipScoreID, entryID, userID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error)
 	ListSipScoreEntryCommentRatings(sipScoreID, entryID, offset, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error)
+	UpdateSipScoreEntryScoreByRatingDelta(sipScoreID, entryID uint32, delta int, tx ...*gorm.DB) error
 	UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, update map[string]interface{}, tx ...*gorm.DB) error
 	DeleteSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
 	IncrSipScoreParticipantCount(sipScoreID uint32, incr int64, tx ...*gorm.DB) error
 	IncrSipScoreEntryScore(sipScoreID, entryID uint32, scoreIncr uint32, participantIncr uint32, tx ...*gorm.DB) error
+	LockSipScoreEntryForUpdate(sipScoreID, entryID uint32, tx ...*gorm.DB) error
 
 	CreateComment(comment *CommentModel, tx ...*gorm.DB) (uint32, error)
 	GetCommentInfo(uint32) (*CommentInfo, error)

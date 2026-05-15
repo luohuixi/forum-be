@@ -25,6 +25,8 @@ service PostService {
     rpc ListSipScore(ListSipScoreRequest) returns (ListSipScoreResponse) {}
 
     rpc CreateSipScoreEntryCommentRating(CreateSipScoreEntryCommentRatingRequest) returns (Response) {}
+    rpc UpdateSipScoreEntryCommentRatingInfo(UpdateSipScoreEntryCommentRatingInfoRequest) returns (Response) {}
+
 
     rpc GetComment(Request) returns (CommentInfo) {}
     // 通用创建评论（target_type + target_id）
@@ -564,6 +566,24 @@ message ListSipScoreEntryResponse {
 // =================================
 
 // ---- model ----
+
+message SipScoreEntryCommentRating {
+    uint32 id = 1;
+    uint32 sip_score_id = 2;
+    uint32 sip_score_entry_id = 3;
+    uint32 creator_id = 4;
+    uint32 last_modified_by = 5;
+    uint32 rating = 6;
+    string content = 7;
+    uint32 comment_id = 8;
+    uint32 like_num = 9;
+    string img_url = 10;
+    google.protobuf.Timestamp created_at = 11;
+    google.protobuf.Timestamp updated_at = 12;
+}
+
+// ---- request ----
+
 message CreateSipScoreEntryCommentRatingRequest {
     uint32 sip_score_id = 1;
     uint32 sip_score_entry_id = 2;
@@ -573,7 +593,17 @@ message CreateSipScoreEntryCommentRatingRequest {
     string img_url = 6;
 }
 
+message UpdateSipScoreEntryCommentRatingInfoRequest {
+    uint32 sip_score_id = 1;
+    uint32 sip_score_entry_id = 2;
+    uint32 rating_id = 3;
+    uint32 last_modified_by = 4;
 
-// ---- request ----
+    uint32 rating = 5;
+    string content = 6;
+    string img_url = 7;
+
+    google.protobuf.FieldMask update_mask = 10;
+}
 
 // ---- response ----
