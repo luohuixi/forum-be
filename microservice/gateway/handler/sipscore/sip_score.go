@@ -160,6 +160,42 @@ type ListSipScoreEntriesResponse struct {
 
 // ---- model ----
 
+type SipScoreEntryCommentRatingInfo struct {
+	ID              uint32         `json:"id"`
+	SipScoreID      uint32         `json:"sip_score_id"`
+	SipScoreEntryID uint32         `json:"sip_score_entry_id"`
+	Creator         *userInfo      `json:"creator"`
+	LastModifiedBy  *userInfo      `json:"last_modified_by"`
+	Rating          uint32         `json:"rating"`
+	Content         string         `json:"content"`
+	CommentID       uint32         `json:"comment_id"`
+	LikeNum         uint32         `json:"like_num"`
+	ImgUrl          string         `json:"img_url"`
+	CreatedAt       string         `json:"created_at"`
+	UpdatedAt       string         `json:"updated_at"`
+	CommentNum      uint32         `json:"comment_num"`
+	Comments        []*CommentInfo `json:"comments"`
+}
+
+type CommentInfo struct {
+	ID              uint32 `json:"id"`
+	TypeName        string `json:"type_name"`
+	Content         string `json:"content"`
+	FatherID        uint32 `json:"father_id"`
+	CreateTime      string `json:"create_time"`
+	CreatorID       uint32 `json:"creator_id"`
+	CreatorName     string `json:"creator_name"`
+	CreatorAvatar   string `json:"creator_avatar"`
+	LikeNum         uint32 `json:"like_num"`
+	IsLiked         bool   `json:"is_liked"`
+	BeRepliedUserID uint32 `json:"be_replied_user_id"`
+	BeRepliedName   string `json:"be_replied_user_name"`
+	FatherContent   string `json:"father_content"`
+	ImgUrl          string `json:"img_url"`
+	TargetID        uint32 `json:"target_id"`
+	TargetType      string `json:"target_type"`
+}
+
 // ---- request ----
 
 type CreateSipScoreEntryRatingRequest struct {
@@ -169,4 +205,27 @@ type CreateSipScoreEntryRatingRequest struct {
 	Comment    string `json:"comment" binding:"required"`
 	ImgUrl     string `json:"img_url" binding:"required"`
 	Rating     uint32 `json:"rating" binding:"required"`
+}
+
+type UpdateSipScoreEntryRatingRequest struct {
+	SipScoreID uint32  `json:"sip_score_id" binding:"required"`
+	EntryID    uint32  `json:"entry_id" binding:"required"`
+	RatingID   uint32  `json:"rating_id" binding:"required"`
+	Rating     uint32  `json:"rating"`
+	Content    *string `json:"content"`
+	ImgUrl     string  `json:"img_url"`
+}
+
+type DeleteSipScoreEntryRatingRequest struct {
+	SipScoreID uint32 `json:"sip_score_id" binding:"required"`
+	EntryID    uint32 `json:"entry_id" binding:"required"`
+	RatingID   uint32 `json:"rating_id" binding:"required"`
+}
+
+// ---- response ----
+
+type ListSipScoreEntryRatingsResponse struct {
+	Ratings   []*SipScoreEntryCommentRatingInfo `json:"ratings"`
+	PageToken string                            `json:"page_token"`
+	HasMore   bool                              `json:"has_more"`
 }

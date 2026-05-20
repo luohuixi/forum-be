@@ -6,6 +6,8 @@ import (
 	"forum-post/dao"
 	pb "forum-post/proto"
 	logger "forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 
 	"gorm.io/gorm"
@@ -22,6 +24,14 @@ func (s *PostService) CreateSipScoreEntryCommentRating(ctx context.Context, req 
 	if rating < 1 || rating > 5 {
 		return errno.ServerErr(errno.ErrBadRequest, "rating must be between 1 and 5")
 	}
+
+	// 获取榜单 domain，用于后续权限设置
+	sipScore, err := s.Dao.GetSipScore(req.GetSipScoreId())
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+
+	var ratingID uint32
 
 	fc := func(tx *gorm.DB) error {
 		// 锁住 entry，串行化同一 entry 的评分创建，避免并发下 participant_count 被放大。
@@ -49,7 +59,7 @@ func (s *PostService) CreateSipScoreEntryCommentRating(ctx context.Context, req 
 			ImgURL:         req.GetImgUrl(),
 		}
 
-		_, err = s.Dao.CreateSipScoreEntryCommentRating(data, tx)
+		ratingID, err = s.Dao.CreateSipScoreEntryCommentRating(data, tx)
 		if err != nil {
 			return err
 		}
@@ -64,9 +74,16 @@ func (s *PostService) CreateSipScoreEntryCommentRating(ctx context.Context, req 
 		return s.Dao.IncrSipScoreEntryScore(req.GetSipScoreId(), req.GetSipScoreEntryId(), rating, 1, tx)
 	}
 
-	err := s.Dao.Transaction(fc)
+	err = s.Dao.Transaction(fc)
 	switch {
 	case err == nil:
+		// 创建者具有写权限
+		if err = model.AddPolicy(req.GetUserId(), constvar.SipScoreEntryCommentRating, ratingID, constvar.Write); err != nil {
+			return errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
+		if err = model.AddResourceRole(constvar.SipScoreEntryCommentRating, ratingID, sipScore.Domain); err != nil {
+			return errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
 		return nil
 	case errors.Is(err, gorm.ErrRecordNotFound):
 		return errno.ServerErr(errno.ErrItemNotFound, "sip score or entry not found")

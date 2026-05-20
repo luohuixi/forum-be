@@ -105,6 +105,11 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		sipScoreRouter.GET("/list", sipScoreApi.ListSipScores)
 		sipScoreRouter.DELETE("/:sip_score_id", sipScoreApi.DeleteSipScore)
 		sipScoreRouter.DELETE("/entries", sipScoreApi.DeleteSipScoreEntries)
+
+		// entry-rating
+		sipScoreRouter.PUT("/entry-rating", sipScoreApi.UpdateEntryRating)
+		sipScoreRouter.DELETE("/entry-rating", sipScoreApi.DeleteEntryRating)
+		sipScoreRouter.GET("/entry-rating/list/:sip_score_id/:entry_id", sipScoreApi.ListEntryRatings)
 	}
 
 	commentRouter := g.Group("api/v1/comment")

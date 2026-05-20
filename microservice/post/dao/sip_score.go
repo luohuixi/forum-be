@@ -590,7 +590,7 @@ func (d *Dao) BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32
 //}
 
 // todo 添加唯一约束
-// todo 图片可以再开一个 image 的表，暂时一个评分一张图片吧
+// todo 图片可以再开一个 image 的表，暂时和和评论的都是一句话一张图
 
 type SipScoreEntryCommentRating struct {
 	ID        uint32 `gorm:"primarykey"`
