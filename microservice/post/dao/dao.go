@@ -81,6 +81,7 @@ type Interface interface {
 	DeleteSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
 	IncrSipScoreParticipantCount(sipScoreID uint32, incr int64, tx ...*gorm.DB) error
 	IncrSipScoreEntryScore(sipScoreID, entryID uint32, scoreIncr uint32, participantIncr uint32, tx ...*gorm.DB) error
+	DecrSipScoreEntryScore(sipScoreID, entryID uint32, rating uint32, tx ...*gorm.DB) error
 	LockSipScoreEntryForUpdate(sipScoreID, entryID uint32, tx ...*gorm.DB) error
 
 	CreateComment(comment *CommentModel, tx ...*gorm.DB) (uint32, error)

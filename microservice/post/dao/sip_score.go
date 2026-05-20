@@ -701,6 +701,28 @@ func (d *Dao) UpdateSipScoreEntryScoreByRatingDelta(sipScoreID, entryID uint32, 
 	return result.Error
 }
 
+func (d *Dao) DecrSipScoreEntryScore(sipScoreID, entryID uint32, rating uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	result := db.Model(&SipScoreEntryModel{}).
+		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
+		UpdateColumns(map[string]interface{}{
+			"score_total":       gorm.Expr("GREATEST(score_total - ?, 0)", rating),
+			"participant_count": gorm.Expr("GREATEST(participant_count - 1, 0)"),
+			"score_avg": gorm.Expr(
+				`CASE 
+					WHEN participant_count <= 1 THEN 0 
+					ELSE (GREATEST(score_total - ?, 0) * 100) / (participant_count - 1) 
+				END`,
+				rating,
+			),
+		})
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
 func (d *Dao) UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, update map[string]interface{}, tx ...*gorm.DB) error {
 	db := d.getDB(tx...)
 

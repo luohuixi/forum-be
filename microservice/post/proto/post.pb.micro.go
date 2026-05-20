@@ -56,6 +56,7 @@ type PostService interface {
 	ListSipScore(ctx context.Context, in *ListSipScoreRequest, opts ...client.CallOption) (*ListSipScoreResponse, error)
 	CreateSipScoreEntryCommentRating(ctx context.Context, in *CreateSipScoreEntryCommentRatingRequest, opts ...client.CallOption) (*Response, error)
 	UpdateSipScoreEntryCommentRatingInfo(ctx context.Context, in *UpdateSipScoreEntryCommentRatingInfoRequest, opts ...client.CallOption) (*Response, error)
+	DeleteSipScoreEntryCommentRating(ctx context.Context, in *DeleteSipScoreEntryCommentRatingRequest, opts ...client.CallOption) (*Response, error)
 	GetComment(ctx context.Context, in *Request, opts ...client.CallOption) (*CommentInfo, error)
 	// 通用创建评论（target_type + target_id）
 	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...client.CallOption) (*CreateCommentResponse, error)
@@ -263,6 +264,16 @@ func (c *postService) UpdateSipScoreEntryCommentRatingInfo(ctx context.Context, 
 	return out, nil
 }
 
+func (c *postService) DeleteSipScoreEntryCommentRating(ctx context.Context, in *DeleteSipScoreEntryCommentRatingRequest, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "PostService.DeleteSipScoreEntryCommentRating", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *postService) GetComment(ctx context.Context, in *Request, opts ...client.CallOption) (*CommentInfo, error) {
 	req := c.c.NewRequest(c.name, "PostService.GetComment", in)
 	out := new(CommentInfo)
@@ -404,6 +415,7 @@ type PostServiceHandler interface {
 	ListSipScore(context.Context, *ListSipScoreRequest, *ListSipScoreResponse) error
 	CreateSipScoreEntryCommentRating(context.Context, *CreateSipScoreEntryCommentRatingRequest, *Response) error
 	UpdateSipScoreEntryCommentRatingInfo(context.Context, *UpdateSipScoreEntryCommentRatingInfoRequest, *Response) error
+	DeleteSipScoreEntryCommentRating(context.Context, *DeleteSipScoreEntryCommentRatingRequest, *Response) error
 	GetComment(context.Context, *Request, *CommentInfo) error
 	// 通用创建评论（target_type + target_id）
 	CreateComment(context.Context, *CreateCommentRequest, *CreateCommentResponse) error
@@ -439,6 +451,7 @@ func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts .
 		ListSipScore(ctx context.Context, in *ListSipScoreRequest, out *ListSipScoreResponse) error
 		CreateSipScoreEntryCommentRating(ctx context.Context, in *CreateSipScoreEntryCommentRatingRequest, out *Response) error
 		UpdateSipScoreEntryCommentRatingInfo(ctx context.Context, in *UpdateSipScoreEntryCommentRatingInfoRequest, out *Response) error
+		DeleteSipScoreEntryCommentRating(ctx context.Context, in *DeleteSipScoreEntryCommentRatingRequest, out *Response) error
 		GetComment(ctx context.Context, in *Request, out *CommentInfo) error
 		CreateComment(ctx context.Context, in *CreateCommentRequest, out *CreateCommentResponse) error
 		CreatePostComment(ctx context.Context, in *CreatePostCommentRequest, out *CreatePostCommentResponse) error
@@ -533,6 +546,10 @@ func (h *postServiceHandler) CreateSipScoreEntryCommentRating(ctx context.Contex
 
 func (h *postServiceHandler) UpdateSipScoreEntryCommentRatingInfo(ctx context.Context, in *UpdateSipScoreEntryCommentRatingInfoRequest, out *Response) error {
 	return h.PostServiceHandler.UpdateSipScoreEntryCommentRatingInfo(ctx, in, out)
+}
+
+func (h *postServiceHandler) DeleteSipScoreEntryCommentRating(ctx context.Context, in *DeleteSipScoreEntryCommentRatingRequest, out *Response) error {
+	return h.PostServiceHandler.DeleteSipScoreEntryCommentRating(ctx, in, out)
 }
 
 func (h *postServiceHandler) GetComment(ctx context.Context, in *Request, out *CommentInfo) error {

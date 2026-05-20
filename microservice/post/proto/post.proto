@@ -26,6 +26,7 @@ service PostService {
 
     rpc CreateSipScoreEntryCommentRating(CreateSipScoreEntryCommentRatingRequest) returns (Response) {}
     rpc UpdateSipScoreEntryCommentRatingInfo(UpdateSipScoreEntryCommentRatingInfoRequest) returns (Response) {}
+    rpc DeleteSipScoreEntryCommentRating(DeleteSipScoreEntryCommentRatingRequest) returns (Response){}
 
 
     rpc GetComment(Request) returns (CommentInfo) {}
@@ -604,6 +605,13 @@ message UpdateSipScoreEntryCommentRatingInfoRequest {
     string img_url = 7;
 
     google.protobuf.FieldMask update_mask = 10;
+}
+
+message DeleteSipScoreEntryCommentRatingRequest{
+    uint32 sip_score_id = 1;
+    uint32 sip_score_entry_id = 2;
+    uint32 rating_id = 3;
+    uint32 last_modified_by = 4;
 }
 
 // ---- response ----
