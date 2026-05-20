@@ -76,6 +76,10 @@ type Interface interface {
 	GetSipScoreEntryCommentRatingByUser(sipScoreID, entryID, userID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error)
 	GetSipScoreEntryCommentRatingByUserForUpdate(sipScoreID, entryID, userID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error)
 	ListSipScoreEntryCommentRatings(sipScoreID, entryID, offset, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error)
+	ListSipScoreEntryCommentRatingsNewest(sipScoreID, entryID, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error)
+	ListSipScoreEntryCommentRatingsNewestWithCursor(sipScoreID, entryID, lastID uint32, lastCreatedAt time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error)
+	ListSipScoreEntryCommentRatingsHottest(sipScoreID, entryID, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error)
+	ListSipScoreEntryCommentRatingsHottestWithCursor(sipScoreID, entryID, lastID uint32, lastLikeNum uint32, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error)
 	UpdateSipScoreEntryScoreByRatingDelta(sipScoreID, entryID uint32, delta int, tx ...*gorm.DB) error
 	UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, update map[string]interface{}, tx ...*gorm.DB) error
 	DeleteSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
@@ -91,6 +95,8 @@ type Interface interface {
 	ListCommentByPostId(postId uint32) ([]*CommentInfo, error)
 	GetCommentNumByTarget(targetID uint32, targetType string) (uint32, error)
 	GetCommentNumByPostId(uint32) (uint32, error)
+	BatchListCommentsByTargets(targetIDs []uint32, targetType string, limit int) (map[uint32][]*CommentInfo, error)
+	BatchGetCommentNumByTargets(targetIDs []uint32, targetType string) (map[uint32]uint32, error)
 	DeleteComment(uint32, ...*gorm.DB) error
 
 	AddLike(uint32, Item) error

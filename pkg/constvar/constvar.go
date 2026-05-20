@@ -21,11 +21,12 @@ const (
 	SuperAdminRole  = "SuperAdmin"
 
 	// item.TypeName
-	Post          = "post"
-	QualityPost   = "quality-post"
-	Comment       = "comment"
-	SipScore      = "sip-score"
-	SipScoreEntry = "sip-score-entry"
+	Post                       = "post"
+	QualityPost                = "quality-post"
+	Comment                    = "comment"
+	SipScore                   = "sip-score"
+	SipScoreEntry              = "sip-score-entry"
+	SipScoreEntryCommentRating = "sip-score-entry-comment-rating"
 
 	Collection        = "collection"
 	CollectionAndLike = "collection-like"

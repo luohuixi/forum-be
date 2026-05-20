@@ -606,7 +606,8 @@ type SipScoreEntryCommentRating struct {
 	Content        string `gorm:"type:varchar(2000);not null"`
 	ImgURL         string `gorm:"type:varchar(255);not null"`
 
-	LikeNum uint32
+	LikeNum    uint32
+	CommentNum uint32
 }
 
 func (SipScoreEntryCommentRating) TableName() string {
@@ -677,6 +678,86 @@ func (d *Dao) ListSipScoreEntryCommentRatings(sipScoreID, entryID, offset, limit
 		Limit(int(limit)).
 		Find(&ratings).Error
 
+	return ratings, err
+}
+
+func (d *Dao) ListSipScoreEntryCommentRatingsNewest(sipScoreID, entryID, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error) {
+	return d.listSipScoreEntryCommentRatingsByTimeField(sipScoreID, entryID, "created_at", "DESC", limit, tx...)
+}
+
+func (d *Dao) ListSipScoreEntryCommentRatingsNewestWithCursor(sipScoreID, entryID, lastID uint32, lastCreatedAt time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error) {
+	return d.listSipScoreEntryCommentRatingsByTimeFieldWithCursor(sipScoreID, entryID, "created_at", "DESC", lastID, lastCreatedAt, limit, tx...)
+}
+
+func (d *Dao) ListSipScoreEntryCommentRatingsHottest(sipScoreID, entryID, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error) {
+	return d.listSipScoreEntryCommentRatingsByUintField(sipScoreID, entryID, "like_num", "DESC", limit, tx...)
+}
+
+func (d *Dao) ListSipScoreEntryCommentRatingsHottestWithCursor(sipScoreID, entryID, lastID uint32, lastLikeNum uint32, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error) {
+	return d.listSipScoreEntryCommentRatingsByUintFieldWithCursor(sipScoreID, entryID, "like_num", "DESC", lastID, lastLikeNum, limit, tx...)
+}
+
+func (d *Dao) listSipScoreEntryCommentRatingsByTimeField(sipScoreID, entryID uint32, field string, orderDir string, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+	order := field + " ASC, id ASC"
+	if orderDir == "DESC" {
+		order = field + " DESC, id DESC"
+	}
+
+	var ratings []*SipScoreEntryCommentRating
+	err := db.Where("sip_score_id = ? AND entry_id = ?", sipScoreID, entryID).
+		Order(order).Limit(int(limit)).Find(&ratings).Error
+	return ratings, err
+}
+
+func (d *Dao) listSipScoreEntryCommentRatingsByTimeFieldWithCursor(sipScoreID, entryID uint32, field string, orderDir string, lastID uint32, lastTime time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+
+	whereOp := ">"
+	idOp := ">"
+	order := field + " ASC, id ASC"
+	if orderDir == "DESC" {
+		whereOp = "<"
+		idOp = "<"
+		order = field + " DESC, id DESC"
+	}
+
+	var ratings []*SipScoreEntryCommentRating
+	err := db.Where("sip_score_id = ? AND entry_id = ? AND ("+field+" "+whereOp+" ? OR ("+field+" = ? AND id "+idOp+" ?))",
+		sipScoreID, entryID, lastTime, lastTime, lastID,
+	).Order(order).Limit(int(limit)).Find(&ratings).Error
+	return ratings, err
+}
+
+func (d *Dao) listSipScoreEntryCommentRatingsByUintField(sipScoreID, entryID uint32, field string, orderDir string, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+	order := field + " ASC, id ASC"
+	if orderDir == "DESC" {
+		order = field + " DESC, id DESC"
+	}
+
+	var ratings []*SipScoreEntryCommentRating
+	err := db.Where("sip_score_id = ? AND entry_id = ?", sipScoreID, entryID).
+		Order(order).Limit(int(limit)).Find(&ratings).Error
+	return ratings, err
+}
+
+func (d *Dao) listSipScoreEntryCommentRatingsByUintFieldWithCursor(sipScoreID, entryID uint32, field string, orderDir string, lastID uint32, lastValue uint32, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+
+	whereOp := ">"
+	idOp := ">"
+	order := field + " ASC, id ASC"
+	if orderDir == "DESC" {
+		whereOp = "<"
+		idOp = "<"
+		order = field + " DESC, id DESC"
+	}
+
+	var ratings []*SipScoreEntryCommentRating
+	err := db.Where("sip_score_id = ? AND entry_id = ? AND ("+field+" "+whereOp+" ? OR ("+field+" = ? AND id "+idOp+" ?))",
+		sipScoreID, entryID, lastValue, lastValue, lastID,
+	).Order(order).Limit(int(limit)).Find(&ratings).Error
 	return ratings, err
 }
 

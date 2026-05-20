@@ -209,3 +209,77 @@ func (d *Dao) GetCommentNumByTarget(targetID uint32, targetType string) (uint32,
 
 	return uint32(count), err
 }
+
+// BatchListCommentsByTargets 批量获取每个 target 的前 limit 条评论
+func (d *Dao) BatchListCommentsByTargets(targetIDs []uint32, targetType string, limit int) (map[uint32][]*CommentInfo, error) {
+	if len(targetIDs) == 0 {
+		return map[uint32][]*CommentInfo{}, nil
+	}
+
+	var all []*CommentInfo
+	err := d.DB.Table("comments").
+		Select(`
+			comments.id id,
+			type_name,
+			content,
+			father_id,
+			created_at,
+			creator_id,
+			target_id,
+			u.name creator_name,
+			u.avatar creator_avatar,
+			like_num,
+			img_url
+		`).
+		Joins("join users u on u.id = comments.creator_id").
+		Where(
+			"target_id IN ? AND target_type = ? AND deleted_at = 0 AND is_report = 0",
+			targetIDs,
+			targetType,
+		).
+		Order("target_id ASC, created_at DESC").
+		Find(&all).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[uint32][]*CommentInfo)
+	for _, c := range all {
+		list := result[c.TargetID]
+		if len(list) >= limit {
+			continue
+		}
+		result[c.TargetID] = append(list, c)
+	}
+	return result, nil
+}
+
+// BatchGetCommentNumByTargets 批量获取多个 target 的评论数
+func (d *Dao) BatchGetCommentNumByTargets(targetIDs []uint32, targetType string) (map[uint32]uint32, error) {
+	if len(targetIDs) == 0 {
+		return map[uint32]uint32{}, nil
+	}
+
+	type row struct {
+		TargetID uint32
+		Count    uint32
+	}
+
+	var rows []row
+	err := d.DB.Model(&CommentModel{}).
+		Select("target_id, COUNT(*) as count").
+		Where("target_id IN ? AND target_type = ? AND deleted_at = 0", targetIDs, targetType).
+		Group("target_id").
+		Find(&rows).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	result := make(map[uint32]uint32)
+	for _, r := range rows {
+		result[r.TargetID] = r.Count
+	}
+	return result, nil
+}

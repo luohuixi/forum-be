@@ -27,7 +27,7 @@ service PostService {
     rpc CreateSipScoreEntryCommentRating(CreateSipScoreEntryCommentRatingRequest) returns (Response) {}
     rpc UpdateSipScoreEntryCommentRatingInfo(UpdateSipScoreEntryCommentRatingInfoRequest) returns (Response) {}
     rpc DeleteSipScoreEntryCommentRating(DeleteSipScoreEntryCommentRatingRequest) returns (Response){}
-
+    rpc ListSipScoreEntryCommentRating(ListSipScoreEntryCommentRatingInfoRequest) returns (ListSipScoreEntryCommentRatingInfoResponse) {}
 
     rpc GetComment(Request) returns (CommentInfo) {}
     // 通用创建评论（target_type + target_id）
@@ -197,7 +197,7 @@ message CommentInfo {
     string type_name = 2;
     string content = 3;
     uint32 father_id = 4;
-    string time = 5;
+    google.protobuf.Timestamp create_time = 5;
     uint32 creator_id = 6;
     string creator_name = 7;
     string creator_avatar = 8;
@@ -207,6 +207,8 @@ message CommentInfo {
     string be_replied_user_name = 12;
     string father_content = 13;
     string img_url = 14;
+    uint32 target_id = 15;
+    string target_type = 16;
 }
 
 // ---- request ----
@@ -581,6 +583,21 @@ message SipScoreEntryCommentRating {
     string img_url = 10;
     google.protobuf.Timestamp created_at = 11;
     google.protobuf.Timestamp updated_at = 12;
+
+    uint32 comment_num = 13;
+    repeated CommentInfo comments = 14;
+}
+
+message SipScoreEntryCommentPageToken {
+    uint32 rating_id = 1;
+    // time newest oldest
+    google.protobuf.Timestamp updated_at = 2;
+    // top like_num
+    uint32 like_num = 3;
+    // top comment_num
+    uint32 comment_num = 4;
+
+    uint32 sort_type = 5;
 }
 
 // ---- request ----
@@ -614,4 +631,18 @@ message DeleteSipScoreEntryCommentRatingRequest{
     uint32 last_modified_by = 4;
 }
 
+message ListSipScoreEntryCommentRatingInfoRequest {
+    uint32 sip_score_id = 1;
+    uint32 entry_id = 2;
+    string page_token = 3;
+    uint32 page_size = 4;
+    uint32 sort_type = 5;
+}
+
 // ---- response ----
+
+message ListSipScoreEntryCommentRatingInfoResponse {
+    repeated SipScoreEntryCommentRating ratings = 1;
+    string page_token = 2;
+    bool has_more = 3;
+}

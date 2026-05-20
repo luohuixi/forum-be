@@ -8,7 +8,8 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"strconv"
-	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.CommentInfo) error {
@@ -38,7 +39,7 @@ func (s *PostService) GetComment(_ context.Context, req *pb.Request, resp *pb.Co
 	resp.TypeName = comment.TypeName
 	resp.Id = comment.Id
 	resp.Content = comment.Content
-	resp.Time = comment.CreateTime.Format(time.DateTime)
+	resp.CreateTime = timestamppb.New(comment.CreateTime)
 	resp.CreatorId = comment.CreatorId
 	resp.CreatorAvatar = comment.CreatorAvatar
 	resp.CreatorName = comment.CreatorName

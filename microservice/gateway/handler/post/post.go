@@ -5,6 +5,9 @@ import (
 	"forum-gateway/handler/comment"
 	pb "forum-post/proto"
 	"reflect"
+	"time"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 type Api struct {
@@ -21,14 +24,14 @@ func New(i dao.Interface) *Api {
 // Common
 // =====================
 type info struct {
-	Id            uint32 `json:"id"`
-	Content       string `json:"content"`
-	Time          string `json:"time"`
-	CreatorId     uint32 `json:"creator_id"`
-	CreatorName   string `json:"creator_name"`
-	CreatorAvatar string `json:"creator_avatar"`
-	LikeNum       uint32 `json:"like_num"`
-	IsLiked       bool   `json:"is_liked"`
+	Id            uint32                 `json:"id"`
+	Content       string                 `json:"content"`
+	CreateTime    *timestamppb.Timestamp `json:"create_time"`
+	CreatorId     uint32                 `json:"creator_id"`
+	CreatorName   string                 `json:"creator_name"`
+	CreatorAvatar string                 `json:"creator_avatar"`
+	LikeNum       uint32                 `json:"like_num"`
+	IsLiked       bool                   `json:"is_liked"`
 }
 
 // =====================
@@ -193,7 +196,10 @@ func setInfo[T pb.CommentInfo | pb.Post](info *info, comment *T) {
 		case "CreatorAvatar":
 			info.CreatorAvatar = v.String()
 		case "Time", "CreateTime":
-			info.Time = v.String()
+			t, err := time.Parse(time.RFC3339, v.String())
+			if err == nil {
+				info.CreateTime = timestamppb.New(t)
+			}
 		}
 	}
 }

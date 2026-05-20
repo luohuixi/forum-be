@@ -11,9 +11,9 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"sync"
-	"time"
 
 	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // PostService ... 帖子服务
@@ -64,7 +64,7 @@ func (s *PostService) processComments(userId uint32, commentInfos []*dao.Comment
 				TypeName:      comment.TypeName,
 				Content:       comment.Content,
 				FatherId:      comment.FatherId,
-				Time:          comment.CreateTime.Format(time.DateTime),
+				CreateTime:    timestamppb.New(comment.CreateTime),
 				CreatorId:     comment.CreatorId,
 				CreatorName:   comment.CreatorName,
 				CreatorAvatar: comment.CreatorAvatar,
