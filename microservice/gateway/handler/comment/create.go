@@ -9,6 +9,7 @@ import (
 	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
+	"time"
 
 	"forum/client"
 
@@ -57,16 +58,17 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	createReq := pb.CreatePostCommentRequest{
-		PostId:    req.PostId,
-		TypeName:  req.TypeName,
-		FatherId:  req.FatherId,
-		Content:   req.Content,
-		CreatorId: userId,
-		ImgUrl:    req.ImgUrl,
+	createReq := pb.CreateCommentRequest{
+		TargetType: constvar.Post,
+		TargetId:   req.PostId,
+		TypeName:   req.TypeName,
+		FatherId:   req.FatherId,
+		Content:    req.Content,
+		CreatorId:  userId,
+		ImgUrl:     req.ImgUrl,
 	}
 
-	createResp, err := client.PostClient.CreatePostComment(c.Request.Context(), &createReq)
+	createResp, err := client.PostClient.CreateComment(c.Request.Context(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -91,7 +93,7 @@ func (a *Api) Create(c *gin.Context) {
 		Content:       req.Content,
 		TypeName:      req.TypeName,
 		FatherId:      req.FatherId,
-		CreateTime:    createResp.CreateTime,
+		CreateTime:    createResp.CreatedAt.AsTime().Format(time.DateTime),
 		CreatorId:     userId,
 		CreatorName:   createResp.CreatorName,
 		CreatorAvatar: createResp.CreatorAvatar,
@@ -102,7 +104,7 @@ func (a *Api) Create(c *gin.Context) {
 
 	if req.TypeName == constvar.SecondLevelComment {
 		resp.BeRepliedContent = createResp.FatherContent
-		resp.BeRepliedUserId = createResp.FatherUserId
+		resp.BeRepliedUserId = createResp.BeRepliedUserId
 	}
 
 	SendResponse(c, err, resp)
