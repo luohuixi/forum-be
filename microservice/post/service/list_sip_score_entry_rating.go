@@ -157,7 +157,7 @@ func sipScoreEntryCommentRatingToPB(r *dao.SipScoreEntryCommentRating, commentNu
 			TypeName:      c.TypeName,
 			Content:       c.Content,
 			FatherId:      c.FatherId,
-			CreateTime:    timestamppb.New(c.CreateTime),
+			CreateTime:    timestamppb.New(c.CreatedAt),
 			CreatorId:     c.CreatorId,
 			TargetId:      c.TargetID,
 			TargetType:    c.TargetType,

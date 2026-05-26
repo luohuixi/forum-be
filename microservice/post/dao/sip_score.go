@@ -644,6 +644,18 @@ func (d *Dao) GetSipScoreEntryCommentRatingForUpdate(sipScoreID, entryID, rating
 	return &rating, err
 }
 
+// GetSipScoreEntryCommentRatingByID 仅通过 rating ID 获取评分（用于通用评论创建等场景）
+func (d *Dao) GetSipScoreEntryCommentRatingByID(ratingID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error) {
+	db := d.getDB(tx...)
+
+	var rating SipScoreEntryCommentRating
+	err := db.Where("id = ? AND deleted_at = 0", ratingID).First(&rating).Error
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return nil, nil
+	}
+	return &rating, err
+}
+
 func (d *Dao) GetSipScoreEntryCommentRatingByUser(sipScoreID, entryID, userID uint32, tx ...*gorm.DB) (*SipScoreEntryCommentRating, error) {
 	db := d.getDB(tx...)
 
@@ -798,6 +810,19 @@ func (d *Dao) DecrSipScoreEntryScore(sipScoreID, entryID uint32, rating uint32, 
 				rating,
 			),
 		})
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
+// IncrSipScoreEntryCommentRatingCommentNum 原子递增评分的评论数
+func (d *Dao) IncrSipScoreEntryCommentRatingCommentNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	result := db.Model(&SipScoreEntryCommentRating{}).
+		Where("id = ? AND sip_score_id = ? AND entry_id = ? AND deleted_at = 0", ratingID, sipScoreID, entryID).
+		UpdateColumn("comment_num", gorm.Expr("comment_num + 1"))
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}

@@ -64,7 +64,7 @@ func (s *PostService) processComments(userId uint32, commentInfos []*dao.Comment
 				TypeName:      comment.TypeName,
 				Content:       comment.Content,
 				FatherId:      comment.FatherId,
-				CreateTime:    timestamppb.New(comment.CreateTime),
+				CreateTime:    timestamppb.New(comment.CreatedAt),
 				CreatorId:     comment.CreatorId,
 				CreatorName:   comment.CreatorName,
 				CreatorAvatar: comment.CreatorAvatar,

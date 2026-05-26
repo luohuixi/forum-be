@@ -238,9 +238,9 @@ message CreateCommentResponse {
     uint32 id = 1;
     // 通知目标用户
     uint32 user_id = 2;
-    uint32 father_user_id = 3;
+    uint32 be_replied_user_id = 3;
     string father_content = 4;
-    string create_time = 5;
+    google.protobuf.Timestamp created_at = 5;
     string creator_name = 6;
     string creator_avatar = 7;
     string target_type = 8;

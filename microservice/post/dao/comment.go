@@ -65,17 +65,17 @@ func (c *CommentModel) CancelReported() error {
 
 type CommentInfo struct {
 	Id            uint32
+	TargetID      uint32
+	TargetType    string
+	CreatedAt     time.Time
 	TypeName      string
 	Content       string
 	FatherId      uint32
-	CreateTime    time.Time
 	CreatorId     uint32
-	TargetID      uint32
-	TargetType    string
-	CreatorName   string
-	CreatorAvatar string
 	LikeNum       uint32
 	ImgUrl        string
+	CreatorName   string
+	CreatorAvatar string
 }
 
 func (d *Dao) CreateComment(comment *CommentModel, tx ...*gorm.DB) (uint32, error) {
