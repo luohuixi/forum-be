@@ -54,6 +54,7 @@ type PostService interface {
 	// 通用创建评论（target_type + target_id）
 	CreateComment(ctx context.Context, in *CreateCommentRequest, opts ...client.CallOption) (*CreateCommentResponse, error)
 	CreatePostComment(ctx context.Context, in *CreatePostCommentRequest, opts ...client.CallOption) (*CreatePostCommentResponse, error)
+	ListComments(ctx context.Context, in *ListCommentRequest, opts ...client.CallOption) (*ListCommentResponse, error)
 	DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...client.CallOption) (*Response, error)
 	CreateOrRemoveLike(ctx context.Context, in *LikeRequest, opts ...client.CallOption) (*Response, error)
 	ListLikeByUserId(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListPostPartInfoResponse, error)
@@ -307,6 +308,16 @@ func (c *postService) CreatePostComment(ctx context.Context, in *CreatePostComme
 	return out, nil
 }
 
+func (c *postService) ListComments(ctx context.Context, in *ListCommentRequest, opts ...client.CallOption) (*ListCommentResponse, error) {
+	req := c.c.NewRequest(c.name, "PostService.ListComments", in)
+	out := new(ListCommentResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *postService) DeleteItem(ctx context.Context, in *DeleteItemRequest, opts ...client.CallOption) (*Response, error) {
 	req := c.c.NewRequest(c.name, "PostService.DeleteItem", in)
 	out := new(Response)
@@ -424,6 +435,7 @@ type PostServiceHandler interface {
 	// 通用创建评论（target_type + target_id）
 	CreateComment(context.Context, *CreateCommentRequest, *CreateCommentResponse) error
 	CreatePostComment(context.Context, *CreatePostCommentRequest, *CreatePostCommentResponse) error
+	ListComments(context.Context, *ListCommentRequest, *ListCommentResponse) error
 	DeleteItem(context.Context, *DeleteItemRequest, *Response) error
 	CreateOrRemoveLike(context.Context, *LikeRequest, *Response) error
 	ListLikeByUserId(context.Context, *ListPostPartInfoRequest, *ListPostPartInfoResponse) error
@@ -460,6 +472,7 @@ func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts .
 		GetComment(ctx context.Context, in *Request, out *CommentInfo) error
 		CreateComment(ctx context.Context, in *CreateCommentRequest, out *CreateCommentResponse) error
 		CreatePostComment(ctx context.Context, in *CreatePostCommentRequest, out *CreatePostCommentResponse) error
+		ListComments(ctx context.Context, in *ListCommentRequest, out *ListCommentResponse) error
 		DeleteItem(ctx context.Context, in *DeleteItemRequest, out *Response) error
 		CreateOrRemoveLike(ctx context.Context, in *LikeRequest, out *Response) error
 		ListLikeByUserId(ctx context.Context, in *ListPostPartInfoRequest, out *ListPostPartInfoResponse) error
@@ -571,6 +584,10 @@ func (h *postServiceHandler) CreateComment(ctx context.Context, in *CreateCommen
 
 func (h *postServiceHandler) CreatePostComment(ctx context.Context, in *CreatePostCommentRequest, out *CreatePostCommentResponse) error {
 	return h.PostServiceHandler.CreatePostComment(ctx, in, out)
+}
+
+func (h *postServiceHandler) ListComments(ctx context.Context, in *ListCommentRequest, out *ListCommentResponse) error {
+	return h.PostServiceHandler.ListComments(ctx, in, out)
 }
 
 func (h *postServiceHandler) DeleteItem(ctx context.Context, in *DeleteItemRequest, out *Response) error {

@@ -33,6 +33,7 @@ service PostService {
     // 通用创建评论（target_type + target_id）
     rpc CreateComment(CreateCommentRequest) returns (CreateCommentResponse) {}
     rpc CreatePostComment(CreatePostCommentRequest) returns (CreatePostCommentResponse) {}
+    rpc ListComments(ListCommentRequest) returns (ListCommentResponse) {}
 
     rpc DeleteItem(DeleteItemRequest) returns (Response) {}
 
@@ -209,6 +210,18 @@ message CommentInfo {
     string img_url = 14;
     uint32 target_id = 15;
     string target_type = 16;
+    uint32 sub_num = 17;
+    repeated CommentInfo sub_comments = 18;
+}
+
+message CommentPageToken {
+    uint32 id = 1;
+    // time newest oldest
+    google.protobuf.Timestamp create_time = 2;
+    // top like_num
+    uint32 like_num = 3;
+
+    uint32 sort_type = 4;
 }
 
 // ---- request ----
@@ -230,6 +243,16 @@ message CreatePostCommentRequest {
     string content = 4;
     uint32 creator_id = 5;
     string img_url = 6;
+}
+
+message ListCommentRequest {
+    uint32 target_id = 1;
+    string target_type = 2;
+    string page_token = 3;
+    uint32 page_size = 4;
+    uint32 user_id = 5;
+    uint32 sort_type = 6;
+    uint32 father_id = 7;   // 可选：按父评论 ID 列出子评论（二级评论分页）
 }
 
 // ---- response ----
@@ -257,6 +280,12 @@ message CreatePostCommentResponse {
     string creator_name = 6;
     string creator_avatar = 7;
     string type_name = 8;
+}
+
+message ListCommentResponse {
+    repeated CommentInfo comments = 1;
+    string page_token = 2;
+    bool has_more = 3;
 }
 
 // =====================

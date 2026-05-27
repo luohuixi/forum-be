@@ -99,6 +99,16 @@ type Interface interface {
 	GetCommentNumByPostId(uint32) (uint32, error)
 	BatchListCommentsByTargets(targetIDs []uint32, targetType string, limit int) (map[uint32][]*CommentInfo, error)
 	BatchGetCommentNumByTargets(targetIDs []uint32, targetType string) (map[uint32]uint32, error)
+	ListPrimaryCommentsNewest(targetID uint32, targetType string, limit uint32) ([]*CommentInfo, error)
+	ListPrimaryCommentsNewestWithCursor(targetID uint32, targetType string, lastID uint32, lastTime time.Time, limit uint32) ([]*CommentInfo, error)
+	ListPrimaryCommentsHottest(targetID uint32, targetType string, limit uint32) ([]*CommentInfo, error)
+	ListPrimaryCommentsHottestWithCursor(targetID uint32, targetType string, lastID uint32, lastLikeNum uint32, limit uint32) ([]*CommentInfo, error)
+	BatchListCommentsByFatherIDs(fatherIDs []uint32, limit int) (map[uint32][]*CommentInfo, error)
+	BatchGetCommentNumByFatherIDs(fatherIDs []uint32) (map[uint32]uint32, error)
+	ListSubCommentsNewest(fatherID, limit uint32) ([]*CommentInfo, error)
+	ListSubCommentsNewestWithCursor(fatherID, lastID uint32, lastTime time.Time, limit uint32) ([]*CommentInfo, error)
+	ListSubCommentsHottest(fatherID, limit uint32) ([]*CommentInfo, error)
+	ListSubCommentsHottestWithCursor(fatherID, lastID uint32, lastLikeNum, limit uint32) ([]*CommentInfo, error)
 	DeleteComment(uint32, ...*gorm.DB) error
 
 	AddLike(uint32, Item) error
