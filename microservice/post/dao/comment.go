@@ -141,10 +141,11 @@ func (d *Dao) ListCommentByTarget(targetId uint32, targetType string) ([]*Commen
 	return comments, err
 }
 
-func (d *Dao) GetComment(id uint32) (*CommentModel, error) {
+func (d *Dao) GetComment(id uint32, tx ...*gorm.DB) (*CommentModel, error) {
+	db := d.getDB(tx...)
 	var comment CommentModel
 
-	err := d.DB.
+	err := db.
 		Where("id = ? AND deleted_at = 0", id).
 		First(&comment).Error
 

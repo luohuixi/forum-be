@@ -4,7 +4,6 @@ import (
 	pb "forum-post/proto"
 	"forum/log"
 	"forum/model"
-	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"time"
 
@@ -84,6 +83,7 @@ type Interface interface {
 	UpdateSipScoreEntryScoreByRatingDelta(sipScoreID, entryID uint32, delta int, tx ...*gorm.DB) error
 	UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, update map[string]interface{}, tx ...*gorm.DB) error
 	IncrSipScoreEntryCommentRatingCommentNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
+	DecrSipScoreEntryCommentRatingCommentNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
 	DeleteSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
 	IncrSipScoreParticipantCount(sipScoreID uint32, incr int64, tx ...*gorm.DB) error
 	IncrSipScoreEntryScore(sipScoreID, entryID uint32, scoreIncr uint32, participantIncr uint32, tx ...*gorm.DB) error
@@ -92,7 +92,7 @@ type Interface interface {
 
 	CreateComment(comment *CommentModel, tx ...*gorm.DB) (uint32, error)
 	GetCommentInfo(uint32) (*CommentInfo, error)
-	GetComment(uint32) (*CommentModel, error)
+	GetComment(uint32, ...*gorm.DB) (*CommentModel, error)
 	ListCommentByTarget(targetID uint32, targetType string) ([]*CommentInfo, error)
 	ListCommentByPostId(postId uint32) ([]*CommentInfo, error)
 	GetCommentNumByTarget(targetID uint32, targetType string) (uint32, error)
@@ -240,15 +240,7 @@ func (d *Dao) DeleteComment(id uint32, tx ...*gorm.DB) error {
 	if err := db.Where("id = ? AND deleted_at = 0", id).First(&comment).Error; err != nil {
 		return err
 	}
-	if err := comment.Delete(db); err != nil {
-		return err
-	}
-
-	if comment.TargetType != "" && comment.TargetType != constvar.Post {
-		return nil
-	}
-
-	return d.ChangePostScore(comment.TargetID, -constvar.CommentScore)
+	return comment.Delete(db)
 }
 
 func (d *Dao) Transaction(fc func(tx *gorm.DB) error) error {

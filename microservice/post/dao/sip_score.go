@@ -829,6 +829,19 @@ func (d *Dao) IncrSipScoreEntryCommentRatingCommentNum(sipScoreID, entryID, rati
 	return result.Error
 }
 
+// DecrSipScoreEntryCommentRatingCommentNum 原子递减评分的评论数
+func (d *Dao) DecrSipScoreEntryCommentRatingCommentNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	result := db.Model(&SipScoreEntryCommentRating{}).
+		Where("id = ? AND sip_score_id = ? AND entry_id = ? AND deleted_at = 0 AND comment_num > 0", ratingID, sipScoreID, entryID).
+		UpdateColumn("comment_num", gorm.Expr("comment_num - 1"))
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
 func (d *Dao) UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, update map[string]interface{}, tx ...*gorm.DB) error {
 	db := d.getDB(tx...)
 

@@ -19,7 +19,7 @@ func (s *PostService) DeleteSipScoreEntryCommentRating(_ context.Context, req *p
 	}
 
 	fc := func(tx *gorm.DB) error {
-		// 与创建/更新保持一致：先锁 entry，串行化同一 entry 操作
+		// 先锁 entry，串行化同一 entry 操作
 		if err := s.Dao.LockSipScoreEntryForUpdate(req.GetSipScoreId(), req.GetSipScoreEntryId(), tx); err != nil {
 			return err
 		}
