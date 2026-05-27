@@ -200,7 +200,7 @@ func (s *PostService) listCommentsCommon(
 		resp.PageToken = ""
 	}
 
-	// 批量获取每个主评论的子评论数和前3条子评论
+	// 批量获取每个主评论的前3条子评论
 	commentIDs := make([]uint32, len(comments))
 	for i, c := range comments {
 		commentIDs[i] = c.Id
@@ -211,14 +211,9 @@ func (s *PostService) listCommentsCommon(
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
-	subNumsMap, err := s.Dao.BatchGetCommentNumByFatherIDs(commentIDs)
-	if err != nil {
-		logger.Error("batch get sub comment num error", logger.String(err.Error()))
-	}
-
 	resp.Comments = make([]*pb.CommentInfo, len(comments))
 	for i, c := range comments {
-		resp.Comments[i] = commentInfoToPB(c, subNumsMap[c.Id], subCommentsMap[c.Id])
+		resp.Comments[i] = commentInfoToPB(c, c.SubNum, subCommentsMap[c.Id])
 	}
 	return nil
 }

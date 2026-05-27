@@ -64,6 +64,20 @@ func (c *CommentModel) CancelReported() error {
 	return c.Save()
 }
 
+// IncrSubNum 原子递增子评论数
+func (d *Dao) IncrCommentSubNum(commentID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+	return db.Model(&CommentModel{}).Where("id = ?", commentID).
+		UpdateColumn("sub_num", gorm.Expr("sub_num + 1")).Error
+}
+
+// DecrSubNum 原子递减子评论数
+func (d *Dao) DecrCommentSubNum(commentID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+	return db.Model(&CommentModel{}).Where("id = ? AND sub_num > 0", commentID).
+		UpdateColumn("sub_num", gorm.Expr("sub_num - 1")).Error
+}
+
 type CommentInfo struct {
 	Id            uint32
 	TargetID      uint32
@@ -302,6 +316,7 @@ const commentInfoSelect = `
 	u.name creator_name,
 	u.avatar creator_avatar,
 	like_num,
+	sub_num,
 	img_url
 `
 

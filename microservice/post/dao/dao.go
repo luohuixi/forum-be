@@ -109,6 +109,8 @@ type Interface interface {
 	ListSubCommentsNewestWithCursor(fatherID, lastID uint32, lastTime time.Time, limit uint32) ([]*CommentInfo, error)
 	ListSubCommentsHottest(fatherID, limit uint32) ([]*CommentInfo, error)
 	ListSubCommentsHottestWithCursor(fatherID, lastID uint32, lastLikeNum, limit uint32) ([]*CommentInfo, error)
+	IncrCommentSubNum(commentID uint32, tx ...*gorm.DB) error
+	DecrCommentSubNum(commentID uint32, tx ...*gorm.DB) error
 	DeleteComment(uint32, ...*gorm.DB) error
 
 	AddLike(uint32, Item) error

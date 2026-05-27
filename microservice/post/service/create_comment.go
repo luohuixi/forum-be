@@ -76,6 +76,13 @@ func (s *PostService) createPostComment(req *pb.CreateCommentRequest, resp *pb.C
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
 
+	// 二级评论需要递增父评论的子评论数
+	if req.TypeName == constvar.SecondLevelComment {
+		if err := s.Dao.IncrCommentSubNum(req.FatherId); err != nil {
+			logger.Error("incr comment sub_num error", logger.String(err.Error()))
+		}
+	}
+
 	if err := model.AddPolicy(req.CreatorId, constvar.Comment, commentId, constvar.Write); err != nil {
 		return errno.ServerErr(errno.ErrCasbin, err.Error())
 	}

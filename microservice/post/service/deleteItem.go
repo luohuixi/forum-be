@@ -65,16 +65,23 @@ func (s *PostService) deleteComment(id uint32) error {
 		return nil // 评论已不存在，幂等处理
 	}
 
-	// 2. 查看对应的targetType
+	// 2. 删除评论前，如果是二级评论则递减父评论的 sub_num
+	if comment.TypeName == constvar.SecondLevelComment && comment.FatherId != comment.TargetID {
+		if err := s.Dao.DecrCommentSubNum(comment.FatherId); err != nil {
+			logger.Error("decr comment sub_num error", logger.String(err.Error()))
+		}
+	}
+
+	// 3. 查看对应的targetType
 	switch comment.TargetType {
-	// 3. post 则根据之前的直接写（删除评论 + 减少 post score）
+	// 4. post 则根据之前有的直接写（删除评论 + 减少 post score）
 	case constvar.Post, "":
 		if err := s.Dao.DeleteComment(id); err != nil {
 			return err
 		}
 		return s.Dao.ChangePostScore(comment.TargetID, -constvar.CommentScore)
 
-	// 4. SipScoreEntryCommentRating 则需要减小对应 SipScoreEntryCommentRating 的 commentNum
+	// 5. SipScoreEntryCommentRating 则需要减小对应 SipScoreEntryCommentRating 的 commentNum
 	case constvar.SipScoreEntryCommentRating:
 		rating, err := s.Dao.GetSipScoreEntryCommentRatingByID(comment.TargetID)
 		if err != nil {
