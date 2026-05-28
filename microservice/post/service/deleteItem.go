@@ -66,6 +66,7 @@ func (s *PostService) deleteComment(id uint32) error {
 	}
 
 	// 2. 删除评论前，如果是二级评论则递减父评论的 sub_num
+	// todo 这里需要事物，后续修改一下post对应的代码，然后都用事务
 	if comment.TypeName == constvar.SecondLevelComment && comment.FatherId != comment.TargetID {
 		if err := s.Dao.DecrCommentSubNum(comment.FatherId); err != nil {
 			logger.Error("decr comment sub_num error", logger.String(err.Error()))

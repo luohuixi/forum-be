@@ -21,7 +21,7 @@ func (s *PostService) CreateSipScoreEntry(_ context.Context, req *pb.CreateSipSc
 		return errno.ServerErr(errno.ErrBadRequest, "entries required")
 	}
 
-	// todo 这里随便写的 100，之后压测
+	// todo 这里随便写的 100
 	if len(entries) > 100 {
 		return errno.ServerErr(errno.ErrBadRequest, "too many entries, maximum is 100")
 	}

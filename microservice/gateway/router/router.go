@@ -119,6 +119,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		commentRouter.GET("/:comment_id", commentApi.Get)
 		commentRouter.POST("", commentApi.Create)
 		commentRouter.DELETE("/:comment_id", commentApi.Delete)
+		commentRouter.POST("/list", commentApi.List)
 	}
 
 	likeRouter := g.Group("api/v1/like")
