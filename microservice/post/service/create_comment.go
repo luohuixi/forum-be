@@ -15,9 +15,11 @@ import (
 
 func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequest, resp *pb.CreateCommentResponse) error {
 	logger.Info("PostService CreateComment")
-
 	if req.TargetType == "" {
 		return errno.ServerErr(errno.ErrBadRequest, "target_type is required")
+	}
+	if req.TargetId == 0 {
+		return errno.ServerErr(errno.ErrBadRequest, "target_id is required")
 	}
 
 	switch req.TargetType {

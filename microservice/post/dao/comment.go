@@ -92,7 +92,7 @@ type CommentInfo struct {
 	CreatorName   string
 	CreatorAvatar string
 	SubNum        uint32
-	SubComments   []*CommentInfo
+	SubComments   []*CommentInfo `gorm:"-"`
 }
 
 func (d *Dao) CreateComment(comment *CommentModel, tx ...*gorm.DB) (uint32, error) {

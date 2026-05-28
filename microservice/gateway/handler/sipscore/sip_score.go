@@ -201,7 +201,6 @@ type CommentInfo struct {
 type CreateSipScoreEntryRatingRequest struct {
 	SipScoreID uint32 `json:"sip_score_id" binding:"required"`
 	EntryID    uint32 `json:"entry_id" binding:"required"`
-	Score      uint32 `json:"score" binding:"required"`
 	Comment    string `json:"comment" binding:"required"`
 	ImgUrl     string `json:"img_url" binding:"required"`
 	Rating     uint32 `json:"rating" binding:"required"`

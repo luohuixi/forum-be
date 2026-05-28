@@ -61,11 +61,12 @@ type CommentItem struct {
 // ----------
 
 type CreateRequest struct {
-	TypeName string `json:"type_name" binding:"required"` // sub-post -> 从帖; first-level -> 一级评论; second-level -> 其它级
-	Content  string `json:"content" binding:"required"`
-	FatherId uint32 `json:"father_id" binding:"required"`
-	PostId   uint32 `json:"post_id" binding:"required"`
-	ImgUrl   string `json:"img_url"`
+	TargetId   uint32 `json:"target_id" binding:"required"`
+	TargetType string `json:"target_type" binding:"required"`
+	TypeName   string `json:"type_name" binding:"required"`
+	FatherId   uint32 `json:"father_id"`
+	Content    string `json:"content" binding:"required"`
+	ImgUrl     string `json:"img_url"`
 }
 
 type ListRequest struct {

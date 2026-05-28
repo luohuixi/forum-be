@@ -21,7 +21,7 @@ import (
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body UpdateSipScoreEntryRatingRequest true "update_sip_score_entry_rating_request"
 // @Success 200 {object} handler.Response
-// @Router /sip-score/entry-rating [put]
+// @Router /sip-score/entry/rating [put]
 func (a *Api) UpdateEntryRating(c *gin.Context) {
 	log.Info("SipScore UpdateEntryRating function called.")
 

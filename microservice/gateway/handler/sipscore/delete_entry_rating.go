@@ -20,7 +20,7 @@ import (
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body DeleteSipScoreEntryRatingRequest true "delete_sip_score_entry_rating_request"
 // @Success 200 {object} handler.Response
-// @Router /sip-score/entry-rating [delete]
+// @Router /sip-score/entry/rating [delete]
 func (a *Api) DeleteEntryRating(c *gin.Context) {
 	log.Info("SipScore DeleteEntryRating function called.")
 

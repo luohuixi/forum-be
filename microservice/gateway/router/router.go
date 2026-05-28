@@ -107,8 +107,9 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		sipScoreRouter.DELETE("/entries", sipScoreApi.DeleteSipScoreEntries)
 
 		// entry-rating
-		sipScoreRouter.PUT("/entry-rating", sipScoreApi.UpdateEntryRating)
-		sipScoreRouter.DELETE("/entry-rating", sipScoreApi.DeleteEntryRating)
+		sipScoreRouter.POST("/entry/rating", sipScoreApi.CreateEntryRating)
+		sipScoreRouter.PUT("/entry/rating", sipScoreApi.UpdateEntryRating)
+		sipScoreRouter.DELETE("/entry/rating", sipScoreApi.DeleteEntryRating)
 		sipScoreRouter.GET("/entry-rating/list/:sip_score_id/:entry_id", sipScoreApi.ListEntryRatings)
 	}
 
