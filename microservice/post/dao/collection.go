@@ -8,8 +8,6 @@ import (
 	"gorm.io/plugin/soft_delete"
 )
 
-// todo 修改 db.sql
-
 type CollectionModel struct {
 	ID          uint32 `gorm:"primaryKey"`
 	UserID      uint32 `gorm:"uniqueIndex:idx_user_target,priority:1"`

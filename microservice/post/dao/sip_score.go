@@ -16,22 +16,18 @@ const (
 	orderDirAsc  = "ASC"
 )
 
-// todo 创建索引
-// todo 1. tag - content 二级索引
-// todo 2.
-
 type SipScoreModel struct {
-	ID             uint32    `gorm:"primarykey;index:idx_rank,priority:3;index:idx_latest,priority:2;index:idx_creator,priority:2"`
-	CreatedAt      time.Time `gorm:"index:idx_latest,priority:1"`
-	UpdatedAt      time.Time
+	ID             uint32 `gorm:"primarykey;index:idx_rank,priority:2;index:idx_latest,priority:2;index:idx_creator,priority:2"`
+	CreatedAt      time.Time
+	UpdatedAt      time.Time             `gorm:"index:idx_latest,priority:1"`
 	DeletedAt      soft_delete.DeletedAt `gorm:"index;softDelete:nano"`
 	LastModifiedBy uint32
 	CreatorID      uint32 `gorm:"index:idx_creator,priority:1"`
 	EntryCount     uint32 `gorm:"type:int unsigned;default:0"`
 
 	// 冗余字段，用于排序
-	CollectCount     uint32 `gorm:"type:int unsigned;default:0;index:idx_rank,priority:1"`
-	ParticipantCount uint32 `gorm:"type:int unsigned;default:0;index:idx_rank,priority:2"`
+	CollectCount     uint32 `gorm:"type:int unsigned;default:0"`
+	ParticipantCount uint32 `gorm:"type:int unsigned;default:0;index:idx_rank,priority:1"`
 
 	// 是否被举报过多而被 ban 了
 	IsReport bool `gorm:"index"`
@@ -240,29 +236,21 @@ func (d *Dao) DecrSipScoreStats(sipScoreID uint32, entryCount uint32, participan
 		}).Error
 }
 
-// todo sipScoreID + name deletedAt 唯一索引，确保同一榜单内条目名称唯一
-// todo sipScoreID ID 联合索引
-// todo sipScoreID + UpdatedAt id 联合索引
-// todo sipScoreID + participantCount id 联合索引
-// todo sipScoreID + scoreAvg id 联合索引
-// todo deletedAt 纳秒级别
-// todo sipScoreID id participantCount 联合索引
-
 type SipScoreEntryModel struct {
-	ID             uint32 `gorm:"primarykey"`
+	ID             uint32 `gorm:"primarykey;index:idx_hottest,priority:3;index:idx_newest,priority:3;index:idx_score,priority:3"`
 	CreatedAt      time.Time
-	UpdatedAt      time.Time
+	UpdatedAt      time.Time             `gorm:"index:idx_newest,priority:2"`
 	DeletedAt      soft_delete.DeletedAt `gorm:"index;softDelete:nano"`
-	SipScoreID     uint32
+	SipScoreID     uint32                `gorm:"index:idx_hottest,priority:1;index:idx_newest,priority:1;index:idx_score,priority:1"`
 	LastModifiedBy uint32
 	CreatorID      uint32
 	IsReport       bool
 
 	// 冗余统计字段 - 用于排序
-	ParticipantCount uint32
+	ParticipantCount uint32 `gorm:"index:idx_hottest,priority:2"`
 	CommentCount     uint32
 	ScoreTotal       uint32
-	ScoreAvg         uint32 // 实际是 ScoreAvg * 100 保留两位小数
+	ScoreAvg         uint32 `gorm:"index:idx_score,priority:2"` // 实际是 ScoreAvg * 100 保留两位小数
 
 	// 用户可编辑字段
 	Name        string `gorm:"type:varchar(100);not null;index:,class:FULLTEXT,option:WITH PARSER ngram"`
@@ -589,24 +577,21 @@ func (d *Dao) BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32
 //	return result, nil
 //}
 
-// todo 添加唯一约束
-// todo 图片可以再开一个 image 的表，暂时和和评论的都是一句话一张图
-
 type SipScoreEntryCommentRating struct {
-	ID        uint32 `gorm:"primarykey"`
-	CreatedAt time.Time
+	ID        uint32    `gorm:"primarykey;index:idx_newest,priority:4;index:idx_hottest,priority:4"`
+	CreatedAt time.Time `gorm:"index:idx_newest,priority:3"`
 	UpdatedAt time.Time
 	DeletedAt soft_delete.DeletedAt `gorm:"index;softDelete:nano"`
 
-	CreatorID      uint32 `gorm:"index:idx_sip_score_entry_ratings_user,priority:3"`
+	CreatorID      uint32 `gorm:"index:idx_user,priority:3"`
 	LastModifiedBy uint32
-	SipScoreID     uint32 `gorm:"index:idx_sip_score_entry_ratings_target,priority:1;index:idx_sip_score_entry_ratings_user,priority:1"`
-	EntryID        uint32 `gorm:"index:idx_sip_score_entry_ratings_target,priority:2;index:idx_sip_score_entry_ratings_user,priority:2"`
+	SipScoreID     uint32 `gorm:"index:idx_newest,priority:1;index:idx_hottest,priority:1;index:idx_user,priority:1"`
+	EntryID        uint32 `gorm:"index:idx_newest,priority:2;index:idx_hottest,priority:2;index:idx_user,priority:2"`
 	Rating         uint32 `gorm:"type:tinyint unsigned;not null"`
 	Content        string `gorm:"type:varchar(2000);not null"`
 	ImgURL         string `gorm:"type:varchar(255);not null"`
 
-	LikeNum    uint32
+	LikeNum    uint32 `gorm:"index:idx_hottest,priority:3"`
 	CommentNum uint32
 }
 

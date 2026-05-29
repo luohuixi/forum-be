@@ -8,20 +8,18 @@ import (
 	"gorm.io/plugin/soft_delete"
 )
 
-// todo 索引
-
 type CommentModel struct {
-	Id         uint32
-	TargetID   uint32
-	TargetType string
-	CreatedAt  time.Time
+	Id         uint32                `gorm:"primarykey;index:idx_target_newest,priority:4;index:idx_target_hottest,priority:4;index:idx_father_newest,priority:3;index:idx_father_hottest,priority:3"`
+	TargetID   uint32                `gorm:"index:idx_target_newest,priority:2;index:idx_target_hottest,priority:2"`
+	TargetType string                `gorm:"index:idx_target_newest,priority:1;index:idx_target_hottest,priority:1;type:varchar(32)"`
+	CreatedAt  time.Time             `gorm:"index:idx_target_newest,priority:3;index:idx_father_newest,priority:2"`
 	DeletedAt  soft_delete.DeletedAt `gorm:"softDelete:nano"`
 
-	TypeName  string // constvar.FirstLevelComment or constvar.SecondLevelComment
+	TypeName  string
 	Content   string
-	FatherId  uint32
+	FatherId  uint32 `gorm:"index:idx_father_newest,priority:1;index:idx_father_hottest,priority:1"`
 	CreatorId uint32
-	LikeNum   uint32
+	LikeNum   uint32 `gorm:"index:idx_target_hottest,priority:3;index:idx_father_hottest,priority:2"`
 	SubNum    uint32 // 子评论数
 	ImgUrl    string
 	IsReport  bool
