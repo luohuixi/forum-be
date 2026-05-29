@@ -23,6 +23,7 @@ service PostService {
     rpc ListSipScoreEntry(ListSipScoreEntryRequest) returns (ListSipScoreEntryResponse) {}
     rpc DeleteSipScoreEntries(DeleteSipScoreEntriesRequest) returns (Response) {}
     rpc ListSipScore(ListSipScoreRequest) returns (ListSipScoreResponse) {}
+    rpc SearchSipScore(SearchSipScoreRequest) returns (SearchSipScoreResponse) {}
 
     rpc CreateSipScoreEntryCommentRating(CreateSipScoreEntryCommentRatingRequest) returns (Response) {}
     rpc UpdateSipScoreEntryCommentRatingInfo(UpdateSipScoreEntryCommentRatingInfoRequest) returns (Response) {}
@@ -495,6 +496,8 @@ message ListSipScoreRequest {
     uint32 user_id = 4;
 }
 
+
+
 // ---- response ----
 
 message CreateSipScoreResponse {
@@ -505,6 +508,20 @@ message ListSipScoreResponse  {
    repeated SipScoreWithEntries  sip_scores = 1;
    string page_token = 2;
    bool has_more = 3;
+}
+
+// ---- search ----
+
+message SearchSipScoreRequest {
+    string keyword = 1;
+    string page_token = 2;
+    uint32 page_size = 3;
+}
+
+message SearchSipScoreResponse {
+    repeated SipScoreWithEntries sip_scores = 1;
+    string page_token = 2;
+    bool has_more = 3;
 }
 
 // =====================

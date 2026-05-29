@@ -46,6 +46,7 @@ type PostService interface {
 	ListSipScoreEntry(ctx context.Context, in *ListSipScoreEntryRequest, opts ...client.CallOption) (*ListSipScoreEntryResponse, error)
 	DeleteSipScoreEntries(ctx context.Context, in *DeleteSipScoreEntriesRequest, opts ...client.CallOption) (*Response, error)
 	ListSipScore(ctx context.Context, in *ListSipScoreRequest, opts ...client.CallOption) (*ListSipScoreResponse, error)
+	SearchSipScore(ctx context.Context, in *SearchSipScoreRequest, opts ...client.CallOption) (*SearchSipScoreResponse, error)
 	CreateSipScoreEntryCommentRating(ctx context.Context, in *CreateSipScoreEntryCommentRatingRequest, opts ...client.CallOption) (*Response, error)
 	UpdateSipScoreEntryCommentRatingInfo(ctx context.Context, in *UpdateSipScoreEntryCommentRatingInfoRequest, opts ...client.CallOption) (*Response, error)
 	DeleteSipScoreEntryCommentRating(ctx context.Context, in *DeleteSipScoreEntryCommentRatingRequest, opts ...client.CallOption) (*Response, error)
@@ -231,6 +232,16 @@ func (c *postService) DeleteSipScoreEntries(ctx context.Context, in *DeleteSipSc
 func (c *postService) ListSipScore(ctx context.Context, in *ListSipScoreRequest, opts ...client.CallOption) (*ListSipScoreResponse, error) {
 	req := c.c.NewRequest(c.name, "PostService.ListSipScore", in)
 	out := new(ListSipScoreResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postService) SearchSipScore(ctx context.Context, in *SearchSipScoreRequest, opts ...client.CallOption) (*SearchSipScoreResponse, error) {
+	req := c.c.NewRequest(c.name, "PostService.SearchSipScore", in)
+	out := new(SearchSipScoreResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -427,6 +438,7 @@ type PostServiceHandler interface {
 	ListSipScoreEntry(context.Context, *ListSipScoreEntryRequest, *ListSipScoreEntryResponse) error
 	DeleteSipScoreEntries(context.Context, *DeleteSipScoreEntriesRequest, *Response) error
 	ListSipScore(context.Context, *ListSipScoreRequest, *ListSipScoreResponse) error
+	SearchSipScore(context.Context, *SearchSipScoreRequest, *SearchSipScoreResponse) error
 	CreateSipScoreEntryCommentRating(context.Context, *CreateSipScoreEntryCommentRatingRequest, *Response) error
 	UpdateSipScoreEntryCommentRatingInfo(context.Context, *UpdateSipScoreEntryCommentRatingInfoRequest, *Response) error
 	DeleteSipScoreEntryCommentRating(context.Context, *DeleteSipScoreEntryCommentRatingRequest, *Response) error
@@ -465,6 +477,7 @@ func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts .
 		ListSipScoreEntry(ctx context.Context, in *ListSipScoreEntryRequest, out *ListSipScoreEntryResponse) error
 		DeleteSipScoreEntries(ctx context.Context, in *DeleteSipScoreEntriesRequest, out *Response) error
 		ListSipScore(ctx context.Context, in *ListSipScoreRequest, out *ListSipScoreResponse) error
+		SearchSipScore(ctx context.Context, in *SearchSipScoreRequest, out *SearchSipScoreResponse) error
 		CreateSipScoreEntryCommentRating(ctx context.Context, in *CreateSipScoreEntryCommentRatingRequest, out *Response) error
 		UpdateSipScoreEntryCommentRatingInfo(ctx context.Context, in *UpdateSipScoreEntryCommentRatingInfoRequest, out *Response) error
 		DeleteSipScoreEntryCommentRating(ctx context.Context, in *DeleteSipScoreEntryCommentRatingRequest, out *Response) error
@@ -556,6 +569,10 @@ func (h *postServiceHandler) DeleteSipScoreEntries(ctx context.Context, in *Dele
 
 func (h *postServiceHandler) ListSipScore(ctx context.Context, in *ListSipScoreRequest, out *ListSipScoreResponse) error {
 	return h.PostServiceHandler.ListSipScore(ctx, in, out)
+}
+
+func (h *postServiceHandler) SearchSipScore(ctx context.Context, in *SearchSipScoreRequest, out *SearchSipScoreResponse) error {
+	return h.PostServiceHandler.SearchSipScore(ctx, in, out)
 }
 
 func (h *postServiceHandler) CreateSipScoreEntryCommentRating(ctx context.Context, in *CreateSipScoreEntryCommentRatingRequest, out *Response) error {

@@ -33,11 +33,11 @@ type SipScoreModel struct {
 	IsReport bool `gorm:"index"`
 
 	// 用户可编辑的字段
-	Name        string `gorm:"type:varchar(100);not null;index:,class:FULLTEXT,option:WITH PARSER ngram"`
-	Description string `gorm:"type:varchar(500)"`
+	Name        string `gorm:"index:idx_ft_search,class:FULLTEXT,option:WITH PARSER ngram,priority:1;type:varchar(100);not null"`
+	Description string `gorm:"index:idx_ft_search,class:FULLTEXT,option:WITH PARSER ngram,priority:2;type:varchar(500)"`
 	CoverImg    string `gorm:"type:varchar(255)"`
 	Domain      string `gorm:"type:varchar(20);not null;index"`
-	Category    string `gorm:"type:varchar(20);not null;index"`
+	Category    string `gorm:"index:idx_ft_search,class:FULLTEXT,option:WITH PARSER ngram,priority:3;type:varchar(20);not null;index"`
 }
 
 func (SipScoreModel) TableName() string {
@@ -155,6 +155,29 @@ func (d *Dao) ListSipScoreNewestWithCursor(lastID uint32, lastUpdatedAt time.Tim
 
 func (d *Dao) ListSipScoreHottest(limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
 	return d.listSipScoreByUintField("participant_count", orderDirDesc, limit, tx...)
+}
+
+func (d *Dao) SearchSipScore(keyword string, limit uint32) ([]*SipScoreModel, error) {
+	var sipScores []*SipScoreModel
+	err := d.DB.
+		Where("MATCH(name, description, category) AGAINST(? IN BOOLEAN MODE)", keyword).
+		Where("deleted_at = 0").
+		Order("created_at DESC, id DESC").
+		Limit(int(limit)).
+		Find(&sipScores).Error
+	return sipScores, err
+}
+
+func (d *Dao) SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32) ([]*SipScoreModel, error) {
+	var sipScores []*SipScoreModel
+	err := d.DB.
+		Where("MATCH(name, description, category) AGAINST(? IN BOOLEAN MODE)", keyword).
+		Where("deleted_at = 0").
+		Where("(created_at, id) < (?, ?)", lastCreatedAt, lastID).
+		Order("created_at DESC, id DESC").
+		Limit(int(limit)).
+		Find(&sipScores).Error
+	return sipScores, err
 }
 
 func (d *Dao) ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {

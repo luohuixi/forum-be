@@ -67,6 +67,8 @@ type Interface interface {
 	ListSipScoreNewestWithCursor(lastID uint32, lastUpdatedAt time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error)
 	ListSipScoreHottest(limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error)
 	ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error)
+	SearchSipScore(keyword string, limit uint32) ([]*SipScoreModel, error)
+	SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32) ([]*SipScoreModel, error)
 	BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32, tx ...*gorm.DB) (map[uint32][]*SipScoreEntryModel, error)
 	GetSipScoreEntry(sipScoreID, entryID uint32, tx ...*gorm.DB) (*SipScoreEntryModel, error)
 	CreateSipScoreEntryCommentRating(rating *SipScoreEntryCommentRating, tx ...*gorm.DB) (uint32, error)
