@@ -880,6 +880,32 @@ func (d *Dao) DecrSipScoreEntryCommentRatingLikeNum(sipScoreID, entryID, ratingI
 	return result.Error
 }
 
+// IncrSipScoreEntryCommentCount 原子递增 Entry 的评论数
+func (d *Dao) IncrSipScoreEntryCommentCount(sipScoreID, entryID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	result := db.Model(&SipScoreEntryModel{}).
+		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
+		UpdateColumn("comment_count", gorm.Expr("comment_count + 1"))
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
+// DecrSipScoreEntryCommentCount 原子递减 Entry 的评论数
+func (d *Dao) DecrSipScoreEntryCommentCount(sipScoreID, entryID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	result := db.Model(&SipScoreEntryModel{}).
+		Where("id = ? AND sip_score_id = ? AND comment_count > 0", entryID, sipScoreID).
+		UpdateColumn("comment_count", gorm.Expr("comment_count - 1"))
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
 func (d *Dao) DeleteSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error {
 	db := d.getDB(tx...)
 	result := db.Where("id = ? AND sip_score_id = ? AND entry_id = ?", ratingID, sipScoreID, entryID).

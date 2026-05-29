@@ -96,7 +96,10 @@ func (s *PostService) deleteComment(id uint32) error {
 			if err := s.Dao.DeleteComment(id, tx); err != nil {
 				return err
 			}
-			return s.Dao.DecrSipScoreEntryCommentRatingCommentNum(rating.SipScoreID, rating.EntryID, rating.ID, tx)
+			if err := s.Dao.DecrSipScoreEntryCommentRatingCommentNum(rating.SipScoreID, rating.EntryID, rating.ID, tx); err != nil {
+				return err
+			}
+			return s.Dao.DecrSipScoreEntryCommentCount(rating.SipScoreID, rating.EntryID, tx)
 		})
 
 	default:

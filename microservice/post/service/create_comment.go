@@ -147,6 +147,10 @@ func (s *PostService) createSipScoreEntryCommentRatingComment(req *pb.CreateComm
 			return err
 		}
 
+		if err := s.Dao.IncrSipScoreEntryCommentCount(rating.SipScoreID, rating.EntryID, tx); err != nil {
+			return err
+		}
+
 		return nil
 	})
 	if err != nil {
