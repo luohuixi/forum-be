@@ -276,8 +276,8 @@ type SipScoreEntryModel struct {
 	ScoreAvg         uint32 `gorm:"index:idx_score,priority:2"` // 实际是 ScoreAvg * 100 保留两位小数
 
 	// 用户可编辑字段
-	Name        string `gorm:"type:varchar(100);not null;index:,class:FULLTEXT,option:WITH PARSER ngram"`
-	Description string `gorm:"type:varchar(500)"`
+	Name        string `gorm:"index:idx_ft_entry_search,class:FULLTEXT,option:WITH PARSER ngram,priority:1;type:varchar(100);not null"`
+	Description string `gorm:"index:idx_ft_entry_search,class:FULLTEXT,option:WITH PARSER ngram,priority:2;type:varchar(500)"`
 	CoverImg    string `gorm:"type:varchar(255)"`
 }
 
@@ -407,6 +407,31 @@ func (d *Dao) GetSipScoreEntryStats(sipScoreID uint32, entryIDs []uint32, tx ...
 
 func (d *Dao) ListSipScoreEntriesNewest(sipScoreID, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryModel, error) {
 	return d.listSipScoreEntriesByTimeField(sipScoreID, "updated_at", orderDirDesc, limit, tx...)
+}
+
+func (d *Dao) SearchSipScoreEntry(sipScoreID uint32, keyword string, limit uint32) ([]*SipScoreEntryModel, error) {
+	var entries []*SipScoreEntryModel
+	err := d.DB.
+		Where("sip_score_id = ?", sipScoreID).
+		Where("MATCH(name, description) AGAINST(? IN BOOLEAN MODE)", keyword).
+		Where("deleted_at = 0").
+		Order("created_at DESC, id DESC").
+		Limit(int(limit)).
+		Find(&entries).Error
+	return entries, err
+}
+
+func (d *Dao) SearchSipScoreEntryWithCursor(sipScoreID uint32, keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32) ([]*SipScoreEntryModel, error) {
+	var entries []*SipScoreEntryModel
+	err := d.DB.
+		Where("sip_score_id = ?", sipScoreID).
+		Where("MATCH(name, description) AGAINST(? IN BOOLEAN MODE)", keyword).
+		Where("deleted_at = 0").
+		Where("(created_at, id) < (?, ?)", lastCreatedAt, lastID).
+		Order("created_at DESC, id DESC").
+		Limit(int(limit)).
+		Find(&entries).Error
+	return entries, err
 }
 
 func (d *Dao) ListSipScoreEntriesNewestWithCursor(sipScoreID, lastID uint32, lastUpdatedAt time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryModel, error) {

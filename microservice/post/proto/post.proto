@@ -21,6 +21,7 @@ service PostService {
     rpc UpdateSipScoreEntryInfo(UpdateSipScoreEntryInfoRequest) returns (Response) {}
     rpc GetSipScore(Request) returns (SipScore) {}
     rpc ListSipScoreEntry(ListSipScoreEntryRequest) returns (ListSipScoreEntryResponse) {}
+    rpc SearchSipScoreEntry(SearchSipScoreEntryRequest) returns (ListSipScoreEntryResponse) {}
     rpc DeleteSipScoreEntries(DeleteSipScoreEntriesRequest) returns (Response) {}
     rpc ListSipScore(ListSipScoreRequest) returns (ListSipScoreResponse) {}
     rpc SearchSipScore(SearchSipScoreRequest) returns (SearchSipScoreResponse) {}
@@ -608,6 +609,15 @@ message ListSipScoreEntryResponse {
     repeated SipScoreEntry entries = 1;
     string page_token = 2;
     bool has_more = 3;
+}
+
+// ---- search ----
+
+message SearchSipScoreEntryRequest {
+    uint32 sip_score_id = 1;
+    string keyword = 2;
+    string page_token = 3;
+    uint32 page_size = 4;
 }
 
 // =================================

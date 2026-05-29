@@ -50,6 +50,9 @@ type Interface interface {
 	UpdateSipScoreEntry(sipScoreID, entryID uint32, update map[string]interface{}, tx ...*gorm.DB) error
 	IncrSipScoreCollectCount(sipScoreID uint32, tx ...*gorm.DB) error
 	DecrSipScoreCollectCount(sipScoreID uint32, tx ...*gorm.DB) error
+	SearchSipScoreEntry(sipScoreID uint32, keyword string, limit uint32) ([]*SipScoreEntryModel, error)
+	SearchSipScoreEntryWithCursor(sipScoreID uint32, keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32) ([]*SipScoreEntryModel, error)
+
 	ListSipScoreEntriesNewest(sipScoreID, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryModel, error)
 	ListSipScoreEntriesNewestWithCursor(sipScoreID, lastEntryID uint32, lastUpdatedAt time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryModel, error)
 	ListSipScoreEntriesHottest(sipScoreID, limit uint32, tx ...*gorm.DB) ([]*SipScoreEntryModel, error)
