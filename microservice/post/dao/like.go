@@ -1,9 +1,10 @@
 package dao
 
 import (
-	"github.com/go-redis/redis"
 	"strconv"
 	"strings"
+
+	"github.com/go-redis/redis"
 )
 
 type Item struct {

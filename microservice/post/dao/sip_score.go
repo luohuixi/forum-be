@@ -854,6 +854,32 @@ func (d *Dao) UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uin
 	return result.Error
 }
 
+// IncrSipScoreEntryCommentRatingLikeNum 原子递增评分的点赞数
+func (d *Dao) IncrSipScoreEntryCommentRatingLikeNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	result := db.Model(&SipScoreEntryCommentRating{}).
+		Where("id = ? AND sip_score_id = ? AND entry_id = ? AND deleted_at = 0", ratingID, sipScoreID, entryID).
+		UpdateColumn("like_num", gorm.Expr("like_num + 1"))
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
+// DecrSipScoreEntryCommentRatingLikeNum 原子递减评分的点赞数
+func (d *Dao) DecrSipScoreEntryCommentRatingLikeNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	result := db.Model(&SipScoreEntryCommentRating{}).
+		Where("id = ? AND sip_score_id = ? AND entry_id = ? AND deleted_at = 0 AND like_num > 0", ratingID, sipScoreID, entryID).
+		UpdateColumn("like_num", gorm.Expr("like_num - 1"))
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return result.Error
+}
+
 func (d *Dao) DeleteSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error {
 	db := d.getDB(tx...)
 	result := db.Where("id = ? AND sip_score_id = ? AND entry_id = ?", ratingID, sipScoreID, entryID).

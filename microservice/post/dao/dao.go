@@ -84,6 +84,8 @@ type Interface interface {
 	UpdateSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, update map[string]interface{}, tx ...*gorm.DB) error
 	IncrSipScoreEntryCommentRatingCommentNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
 	DecrSipScoreEntryCommentRatingCommentNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
+	IncrSipScoreEntryCommentRatingLikeNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
+	DecrSipScoreEntryCommentRatingLikeNum(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
 	DeleteSipScoreEntryCommentRating(sipScoreID, entryID, ratingID uint32, tx ...*gorm.DB) error
 	IncrSipScoreParticipantCount(sipScoreID uint32, incr int64, tx ...*gorm.DB) error
 	IncrSipScoreEntryScore(sipScoreID, entryID uint32, scoreIncr uint32, participantIncr uint32, tx ...*gorm.DB) error
