@@ -65,7 +65,7 @@ func (a *Api) CreateOrRemove(c *gin.Context) {
 	// 调用 RPC
 	createReq := &pb.ToggleTargetRequest{
 		UserId:     userID,
-		TargetId:   uint32(req.TargetID),
+		TargetId:   req.TargetID,
 		TargetType: req.TargetType,
 	}
 

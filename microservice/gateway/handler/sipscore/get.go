@@ -1,7 +1,6 @@
 package sipscore
 
 import (
-	"fmt"
 	. "forum-gateway/handler"
 	"forum-gateway/util"
 	pb "forum-post/proto"
@@ -33,7 +32,6 @@ import (
 // @Router /sip-score/{sip_score_id} [get]
 func (a *Api) GetSipScore(c *gin.Context) {
 	log.Info("GetSipScore called.", zap.String("X-Request-Id", util.GetReqID(c)))
-	fmt.Println(1)
 	sipScoreID, err := strconv.Atoi(c.Param("sip_score_id"))
 	if err != nil {
 		SendError(c, errno.ErrPathParam, &EmptyResponse{}, err.Error(), GetLine())
@@ -60,11 +58,8 @@ func (a *Api) GetSipScore(c *gin.Context) {
 		UserId: userID,
 		Id:     uint32(sipScoreID),
 	}
-	fmt.Println(2)
 
 	sipScoreResp, err := client.PostClient.GetSipScore(c.Request.Context(), req)
-	fmt.Println(2.5)
-	fmt.Println(err)
 	if err != nil {
 		SendError(c, err, &EmptyResponse{}, "", GetLine())
 		return

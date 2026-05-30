@@ -38,6 +38,7 @@ func (a *Api) DeleteSipScoreEntries(c *gin.Context) {
 
 	if len(req.EntryIDs) == 0 {
 		SendError(c, errno.ErrBadRequest, &EmptyResponse{}, "entry ids not legal", GetLine())
+		return
 	}
 
 	userID := c.MustGet("userId").(uint32)
