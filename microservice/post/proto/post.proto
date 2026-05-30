@@ -517,6 +517,7 @@ message SearchSipScoreRequest {
     string keyword = 1;
     string page_token = 2;
     uint32 page_size = 3;
+    uint32 user_id = 4;
 }
 
 message SearchSipScoreResponse {

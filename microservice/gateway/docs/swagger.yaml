@@ -260,7 +260,6 @@ definitions:
         type: string
     required:
     - content
-    - father_id
     - target_id
     - target_type
     - type_name
@@ -2005,6 +2004,44 @@ paths:
       summary: list 获取榜单条目 api
       tags:
       - sipscore
+  /sip-score/entries/search/{sip_score_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: sip_score_id
+        in: path
+        name: sip_score_id
+        required: true
+        type: integer
+      - description: keyword
+        in: query
+        name: keyword
+        required: true
+        type: string
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: page_token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.ListSipScoreEntriesResponse'
+      summary: search 搜索榜单条目 api
+      tags:
+      - sipscore
   /sip-score/entry:
     put:
       consumes:
@@ -2179,6 +2216,39 @@ paths:
           schema:
             $ref: '#/definitions/sipscore.ListSipScoresResponse'
       summary: list 批量获取榜单 api
+      tags:
+      - sipscore
+  /sip-score/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: keyword
+        in: query
+        name: keyword
+        required: true
+        type: string
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: page_token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.ListSipScoresResponse'
+      summary: search 搜索榜单 api
       tags:
       - sipscore
   /user:

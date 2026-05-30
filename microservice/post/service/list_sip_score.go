@@ -61,6 +61,18 @@ func (s *PostService) ListSipScore(ctx context.Context, req *pb.ListSipScoreRequ
 	}
 }
 
+// resolveListDomain 根据用户角色决定是否过滤 domain
+func (s *PostService) resolveListDomain(ctx context.Context, userID uint32) string {
+	domain, err := s.GetUserDomain(ctx, userID)
+	if err != nil {
+		return ""
+	}
+	if domain == constvar.NormalDomain {
+		return constvar.NormalDomain
+	}
+	return "" // MuxiDomain 及以上可见全部
+}
+
 func (s *PostService) listSipScoreCommon(
 	ctx context.Context, userID uint32, pageToken *pb.SipScorePageToken, limit uint32, resp *pb.ListSipScoreResponse,
 	fetch func(token *pb.SipScorePageToken, limit uint32) ([]*dao.SipScoreModel, error),
@@ -131,16 +143,18 @@ func (s *PostService) listSipScoreCommon(
 }
 
 func (s *PostService) listSipScoreNewest(ctx context.Context, userID uint32, pageToken *pb.SipScorePageToken, limit uint32, resp *pb.ListSipScoreResponse) error {
+	domain := s.resolveListDomain(ctx, userID)
 	return s.listSipScoreCommon(
 		ctx, userID, pageToken, limit, resp,
 		func(token *pb.SipScorePageToken, limit uint32) ([]*dao.SipScoreModel, error) {
 			if token == nil {
-				return s.Dao.ListSipScoreNewest(limit)
+				return s.Dao.ListSipScoreNewest(limit, domain)
 			}
 			return s.Dao.ListSipScoreNewestWithCursor(
 				token.GetId(),
 				token.GetUpdatedAt().AsTime(),
 				limit,
+				domain,
 			)
 		},
 		func(last *dao.SipScoreModel) *pb.SipScorePageToken {
@@ -154,16 +168,18 @@ func (s *PostService) listSipScoreNewest(ctx context.Context, userID uint32, pag
 }
 
 func (s *PostService) listSipScoreHottest(ctx context.Context, userID uint32, pageToken *pb.SipScorePageToken, limit uint32, resp *pb.ListSipScoreResponse) error {
+	domain := s.resolveListDomain(ctx, userID)
 	return s.listSipScoreCommon(
 		ctx, userID, pageToken, limit, resp,
 		func(token *pb.SipScorePageToken, limit uint32) ([]*dao.SipScoreModel, error) {
 			if token == nil {
-				return s.Dao.ListSipScoreHottest(limit)
+				return s.Dao.ListSipScoreHottest(limit, domain)
 			}
 			return s.Dao.ListSipScoreHottestWithCursor(
 				token.GetId(),
 				token.GetParticipantCount(),
 				limit,
+				domain,
 			)
 		},
 		func(last *dao.SipScoreModel) *pb.SipScorePageToken {

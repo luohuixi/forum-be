@@ -103,6 +103,8 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		sipScoreRouter.GET("/:sip_score_id", sipScoreApi.GetSipScore)
 		sipScoreRouter.GET("/entries/list/:sip_score_id", sipScoreApi.ListEntries)
 		sipScoreRouter.GET("/list", sipScoreApi.ListSipScores)
+		sipScoreRouter.GET("/search", sipScoreApi.SearchSipScores)
+		sipScoreRouter.GET("/entries/search/:sip_score_id", sipScoreApi.SearchEntries)
 		sipScoreRouter.DELETE("/:sip_score_id", sipScoreApi.DeleteSipScore)
 		sipScoreRouter.DELETE("/entries", sipScoreApi.DeleteSipScoreEntries)
 

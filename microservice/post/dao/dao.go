@@ -66,12 +66,12 @@ type Interface interface {
 	DeleteSipScoreEntries(sipScoreID uint32, entryIDs []uint32, tx ...*gorm.DB) error
 	GetSipScoreEntryStats(sipScoreID uint32, entryIDs []uint32, tx ...*gorm.DB) (entryCount uint32, participantCount uint32, err error)
 	DecrSipScoreStats(sipScoreID uint32, entryCount uint32, participantCount uint32, tx ...*gorm.DB) error
-	ListSipScoreNewest(limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error)
-	ListSipScoreNewestWithCursor(lastID uint32, lastUpdatedAt time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error)
-	ListSipScoreHottest(limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error)
-	ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error)
-	SearchSipScore(keyword string, limit uint32) ([]*SipScoreModel, error)
-	SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32) ([]*SipScoreModel, error)
+	ListSipScoreNewest(limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error)
+	ListSipScoreNewestWithCursor(lastID uint32, lastUpdatedAt time.Time, limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error)
+	ListSipScoreHottest(limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error)
+	ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error)
+	SearchSipScore(keyword string, limit uint32, domain string) ([]*SipScoreModel, error)
+	SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32, domain string) ([]*SipScoreModel, error)
 	BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32, tx ...*gorm.DB) (map[uint32][]*SipScoreEntryModel, error)
 	GetSipScoreEntry(sipScoreID, entryID uint32, tx ...*gorm.DB) (*SipScoreEntryModel, error)
 	CreateSipScoreEntryCommentRating(rating *SipScoreEntryCommentRating, tx ...*gorm.DB) (uint32, error)

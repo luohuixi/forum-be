@@ -3390,6 +3390,7 @@ type SearchSipScoreRequest struct {
 	Keyword       string                 `protobuf:"bytes,1,opt,name=keyword,proto3" json:"keyword,omitempty"`
 	PageToken     string                 `protobuf:"bytes,2,opt,name=page_token,json=pageToken,proto3" json:"page_token,omitempty"`
 	PageSize      uint32                 `protobuf:"varint,3,opt,name=page_size,json=pageSize,proto3" json:"page_size,omitempty"`
+	UserId        uint32                 `protobuf:"varint,4,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -3441,6 +3442,13 @@ func (x *SearchSipScoreRequest) GetPageToken() string {
 func (x *SearchSipScoreRequest) GetPageSize() uint32 {
 	if x != nil {
 		return x.PageSize
+	}
+	return 0
+}
+
+func (x *SearchSipScoreRequest) GetUserId() uint32 {
+	if x != nil {
+		return x.UserId
 	}
 	return 0
 }
@@ -5170,12 +5178,13 @@ const file_proto_post_proto_rawDesc = "" +
 	"sip_scores\x18\x01 \x03(\v2\x19.post.SipScoreWithEntriesR\tsipScores\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\x12\x19\n" +
-	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"m\n" +
+	"\bhas_more\x18\x03 \x01(\bR\ahasMore\"\x86\x01\n" +
 	"\x15SearchSipScoreRequest\x12\x18\n" +
 	"\akeyword\x18\x01 \x01(\tR\akeyword\x12\x1d\n" +
 	"\n" +
 	"page_token\x18\x02 \x01(\tR\tpageToken\x12\x1b\n" +
-	"\tpage_size\x18\x03 \x01(\rR\bpageSize\"\x8c\x01\n" +
+	"\tpage_size\x18\x03 \x01(\rR\bpageSize\x12\x17\n" +
+	"\auser_id\x18\x04 \x01(\rR\x06userId\"\x8c\x01\n" +
 	"\x16SearchSipScoreResponse\x128\n" +
 	"\n" +
 	"sip_scores\x18\x01 \x03(\v2\x19.post.SipScoreWithEntriesR\tsipScores\x12\x1d\n" +

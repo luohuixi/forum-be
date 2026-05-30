@@ -145,46 +145,52 @@ func (d *Dao) DeleteSipScore(id uint32, tx ...*gorm.DB) error {
 	return db.Delete(&SipScoreModel{}, id).Error
 }
 
-func (d *Dao) ListSipScoreNewest(limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
-	return d.listSipScoreByTimeField("updated_at", orderDirDesc, limit, tx...)
+func (d *Dao) ListSipScoreNewest(limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error) {
+	return d.listSipScoreByTimeField(domain, "updated_at", orderDirDesc, limit, tx...)
 }
 
-func (d *Dao) ListSipScoreNewestWithCursor(lastID uint32, lastUpdatedAt time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
-	return d.listSipScoreByTimeFieldWithCursor("updated_at", orderDirDesc, lastID, lastUpdatedAt, limit, tx...)
+func (d *Dao) ListSipScoreNewestWithCursor(lastID uint32, lastUpdatedAt time.Time, limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error) {
+	return d.listSipScoreByTimeFieldWithCursor(domain, "updated_at", orderDirDesc, lastID, lastUpdatedAt, limit, tx...)
 }
 
-func (d *Dao) ListSipScoreHottest(limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
-	return d.listSipScoreByUintField("participant_count", orderDirDesc, limit, tx...)
+func (d *Dao) ListSipScoreHottest(limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error) {
+	return d.listSipScoreByUintField(domain, "participant_count", orderDirDesc, limit, tx...)
 }
 
-func (d *Dao) SearchSipScore(keyword string, limit uint32) ([]*SipScoreModel, error) {
+func (d *Dao) SearchSipScore(keyword string, limit uint32, domain string) ([]*SipScoreModel, error) {
 	var sipScores []*SipScoreModel
-	err := d.DB.
+	db := d.DB.
 		Where("MATCH(name, description, category) AGAINST(? IN BOOLEAN MODE)", keyword).
-		Where("deleted_at = 0").
+		Where("deleted_at = 0")
+	if domain != "" {
+		db = db.Where("domain = ?", domain)
+	}
+	err := db.Order("created_at DESC, id DESC").
+		Limit(int(limit)).
+		Find(&sipScores).Error
+	return sipScores, err
+}
+
+func (d *Dao) SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32, domain string) ([]*SipScoreModel, error) {
+	var sipScores []*SipScoreModel
+	db := d.DB.
+		Where("MATCH(name, description, category) AGAINST(? IN BOOLEAN MODE)", keyword).
+		Where("deleted_at = 0")
+	if domain != "" {
+		db = db.Where("domain = ?", domain)
+	}
+	err := db.Where("(created_at, id) < (?, ?)", lastCreatedAt, lastID).
 		Order("created_at DESC, id DESC").
 		Limit(int(limit)).
 		Find(&sipScores).Error
 	return sipScores, err
 }
 
-func (d *Dao) SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32) ([]*SipScoreModel, error) {
-	var sipScores []*SipScoreModel
-	err := d.DB.
-		Where("MATCH(name, description, category) AGAINST(? IN BOOLEAN MODE)", keyword).
-		Where("deleted_at = 0").
-		Where("(created_at, id) < (?, ?)", lastCreatedAt, lastID).
-		Order("created_at DESC, id DESC").
-		Limit(int(limit)).
-		Find(&sipScores).Error
-	return sipScores, err
+func (d *Dao) ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error) {
+	return d.listSipScoreByUintFieldWithCursor(domain, "participant_count", orderDirDesc, lastID, lastCount, limit, tx...)
 }
 
-func (d *Dao) ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
-	return d.listSipScoreByUintFieldWithCursor("participant_count", orderDirDesc, lastID, lastCount, limit, tx...)
-}
-
-func (d *Dao) listSipScoreByTimeFieldWithCursor(field string, orderDir string, lastID uint32, lastTime time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
+func (d *Dao) listSipScoreByTimeFieldWithCursor(domain string, field string, orderDir string, lastID uint32, lastTime time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
 	db := d.getDB(tx...)
 
 	whereOp := ">"
@@ -194,6 +200,10 @@ func (d *Dao) listSipScoreByTimeFieldWithCursor(field string, orderDir string, l
 		whereOp = "<"
 		idOp = "<"
 		order = field + " DESC, id DESC"
+	}
+
+	if domain != "" {
+		db = db.Where("domain = ?", domain)
 	}
 
 	var sipScores []*SipScoreModel
@@ -203,11 +213,15 @@ func (d *Dao) listSipScoreByTimeFieldWithCursor(field string, orderDir string, l
 	return sipScores, err
 }
 
-func (d *Dao) listSipScoreByTimeField(field string, orderDir string, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
+func (d *Dao) listSipScoreByTimeField(domain string, field string, orderDir string, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
 	db := d.getDB(tx...)
 	order := field + " ASC, id ASC"
 	if orderDir == orderDirDesc {
 		order = field + " DESC, id DESC"
+	}
+
+	if domain != "" {
+		db = db.Where("domain = ?", domain)
 	}
 
 	var sipScores []*SipScoreModel
@@ -216,7 +230,7 @@ func (d *Dao) listSipScoreByTimeField(field string, orderDir string, limit uint3
 	return sipScores, err
 }
 
-func (d *Dao) listSipScoreByUintFieldWithCursor(field string, orderDir string, lastID uint32, lastValue uint32, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
+func (d *Dao) listSipScoreByUintFieldWithCursor(domain string, field string, orderDir string, lastID uint32, lastValue uint32, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
 	db := d.getDB(tx...)
 	whereOp := ">"
 	idOp := ">"
@@ -227,6 +241,10 @@ func (d *Dao) listSipScoreByUintFieldWithCursor(field string, orderDir string, l
 		order = field + " DESC, id DESC"
 	}
 
+	if domain != "" {
+		db = db.Where("domain = ?", domain)
+	}
+
 	var sipScores []*SipScoreModel
 	err := db.Where(field+" "+whereOp+" ? OR ("+field+" = ? AND id "+idOp+" ?)", lastValue, lastValue, lastID).
 		Order(order).Limit(int(limit)).Find(&sipScores).Error
@@ -234,11 +252,15 @@ func (d *Dao) listSipScoreByUintFieldWithCursor(field string, orderDir string, l
 	return sipScores, err
 }
 
-func (d *Dao) listSipScoreByUintField(field string, orderDir string, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
+func (d *Dao) listSipScoreByUintField(domain string, field string, orderDir string, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
 	db := d.getDB(tx...)
 	order := field + " ASC, id ASC"
 	if orderDir == orderDirDesc {
 		order = field + " DESC, id DESC"
+	}
+
+	if domain != "" {
+		db = db.Where("domain = ?", domain)
 	}
 
 	var sipScores []*SipScoreModel

@@ -28,11 +28,13 @@ func (s *PostService) SearchSipScore(ctx context.Context, req *pb.SearchSipScore
 	}
 	limit := pageSize + 1
 
+	domain := s.resolveListDomain(ctx, req.GetUserId())
+
 	var sipScores []*dao.SipScoreModel
 	var err error
 
 	if req.GetPageToken() == "" {
-		sipScores, err = s.Dao.SearchSipScore(keyword, limit)
+		sipScores, err = s.Dao.SearchSipScore(keyword, limit, domain)
 	} else {
 		var pageToken pb.SipScorePageToken
 		if err = pagetoken.DecodePageToken(req.GetPageToken(), &pageToken); err != nil {
@@ -44,6 +46,7 @@ func (s *PostService) SearchSipScore(ctx context.Context, req *pb.SearchSipScore
 			pageToken.GetId(),
 			pageToken.GetUpdatedAt().AsTime(),
 			limit,
+			domain,
 		)
 	}
 	if err != nil {
