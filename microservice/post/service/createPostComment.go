@@ -11,8 +11,8 @@ import (
 	"forum/util"
 )
 
-func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequest, resp *pb.CreateCommentResponse) error {
-	logger.Info("PostService CreateComment")
+func (s *PostService) CreatePostComment(_ context.Context, req *pb.CreatePostCommentRequest, resp *pb.CreatePostCommentResponse) error {
+	logger.Info("PostService CreatPostComment")
 
 	post, err := s.Dao.GetPost(req.PostId)
 	if err != nil {
@@ -21,22 +21,19 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 
 	// check if the FatherId is valid
 	switch req.TypeName {
-	case constvar.SubPost:
+	case constvar.FirstLevelComment:
+		// 一级评论直接回复帖子
 		req.FatherId = req.PostId
 		resp.UserId = post.CreatorId
 		resp.FatherContent = post.Title
 
-	case constvar.FirstLevelComment, constvar.SecondLevelComment:
+	case constvar.SecondLevelComment:
 		comment, err := s.Dao.GetComment(req.FatherId)
 		if err != nil {
 			return errno.ServerErr(errno.ErrDatabase, err.Error())
 		}
 		if comment == nil {
 			return errno.ServerErr(errno.ErrBadRequest, "the comment not found")
-		}
-
-		if (req.TypeName == constvar.FirstLevelComment && comment.TypeName != constvar.SubPost) || (req.TypeName == constvar.SecondLevelComment && comment.TypeName == constvar.SubPost) {
-			return errno.ServerErr(errno.ErrBadRequest, "type_name of father not legal")
 		}
 
 		resp.FatherUserId = comment.CreatorId
@@ -47,22 +44,26 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 		return errno.ServerErr(errno.ErrBadRequest, "type_name not legal")
 	}
 
-	createTime := util.GetCurrentTime()
-
 	data := &dao.CommentModel{
 		TypeName:   req.TypeName,
 		Content:    req.Content,
 		FatherId:   req.FatherId,
-		CreateTime: createTime,
-		Re:         false,
 		CreatorId:  req.CreatorId,
-		PostId:     req.PostId,
+		TargetID:   post.Id,
+		TargetType: constvar.Post,
 		ImgUrl:     req.ImgUrl,
 	}
 
 	commentId, err := s.Dao.CreateComment(data)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+
+	// 二级评论需要递增父评论的子评论数
+	if req.TypeName == constvar.SecondLevelComment {
+		if err := s.Dao.IncrCommentSubNum(req.FatherId); err != nil {
+			logger.Error("incr comment sub_num error", logger.String(err.Error()))
+		}
 	}
 
 	if err := model.AddPolicy(req.CreatorId, constvar.Comment, commentId, constvar.Write); err != nil {
@@ -86,7 +87,7 @@ func (s *PostService) CreateComment(_ context.Context, req *pb.CreateCommentRequ
 
 	resp.Id = commentId
 	resp.TypeName = post.Domain
-	resp.CreateTime = createTime
+	resp.CreateTime = util.GetCurrentTime()
 	resp.CreatorName = commentInfo.CreatorName
 	resp.CreatorAvatar = commentInfo.CreatorAvatar
 

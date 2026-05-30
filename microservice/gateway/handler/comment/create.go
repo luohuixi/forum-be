@@ -9,6 +9,7 @@ import (
 	"forum/model"
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
+	"time"
 
 	"forum/client"
 
@@ -41,7 +42,14 @@ func (a *Api) Create(c *gin.Context) {
 
 	userId := c.MustGet("userId").(uint32)
 
-	ok, err := model.Enforce(userId, constvar.Post, req.PostId, constvar.Read)
+	switch req.TargetType {
+	case constvar.Post, constvar.SipScoreEntryCommentRating:
+	default:
+		SendError(c, errno.ErrBadRequest, nil, "target_type must be "+constvar.Post+" or "+constvar.SipScoreEntryCommentRating, GetLine())
+		return
+	}
+
+	ok, err := model.Enforce(userId, req.TargetType, req.TargetId, constvar.Read)
 	if err != nil {
 		SendError(c, errno.ErrCasbin, nil, err.Error(), GetLine())
 		return
@@ -58,14 +66,14 @@ func (a *Api) Create(c *gin.Context) {
 	}
 
 	createReq := pb.CreateCommentRequest{
-		PostId:    req.PostId,
-		TypeName:  req.TypeName,
-		FatherId:  req.FatherId,
-		Content:   req.Content,
-		CreatorId: userId,
-		ImgUrl:    req.ImgUrl,
+		TargetType: req.TargetType,
+		TargetId:   req.TargetId,
+		TypeName:   req.TypeName,
+		FatherId:   req.FatherId,
+		Content:    req.Content,
+		CreatorId:  userId,
+		ImgUrl:     req.ImgUrl,
 	}
-
 	createResp, err := client.PostClient.CreateComment(c.Request.Context(), &createReq)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
@@ -77,21 +85,23 @@ func (a *Api) Create(c *gin.Context) {
 		Action: "评论",
 		UserId: userId,
 		Source: &pbf.Source{
-			Id:       req.PostId,
+			Id:       req.TargetId,
 			TypeName: createResp.TypeName,
 			Name:     createResp.FatherContent,
 		},
 		TargetUserId: createResp.UserId,
 		Content:      req.Content,
 	}
-	_, err = client.FeedClient.Push(c.Request.Context(), pushReq)
+	if _, err := client.FeedClient.Push(c.Request.Context(), pushReq); err != nil {
+		log.Info("Failed to push feed", zap.String("X-Request-Id", util.GetReqID(c)), zap.Error(err))
+	}
 
 	resp := &Comment{
 		Id:            createResp.Id,
 		Content:       req.Content,
 		TypeName:      req.TypeName,
 		FatherId:      req.FatherId,
-		CreateTime:    createResp.CreateTime,
+		CreateTime:    createResp.CreatedAt.AsTime().Format(time.DateTime),
 		CreatorId:     userId,
 		CreatorName:   createResp.CreatorName,
 		CreatorAvatar: createResp.CreatorAvatar,
@@ -102,7 +112,7 @@ func (a *Api) Create(c *gin.Context) {
 
 	if req.TypeName == constvar.SecondLevelComment {
 		resp.BeRepliedContent = createResp.FatherContent
-		resp.BeRepliedUserId = createResp.FatherUserId
+		resp.BeRepliedUserId = createResp.BeRepliedUserId
 	}
 
 	SendResponse(c, err, resp)

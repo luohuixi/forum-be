@@ -59,7 +59,26 @@ func (d Dao) ValidReport(typeName string, targetId uint32) error {
 	if typeName == constvar.Post {
 		err = d.DeletePost(targetId, tx)
 	} else if typeName == constvar.Comment {
-		err = d.DeleteComment(targetId, tx)
+		comment, findErr := d.GetComment(targetId, tx)
+		if findErr != nil {
+			tx.Rollback()
+			return findErr
+		}
+		if comment == nil {
+			tx.Rollback()
+			return errors.New("comment not found")
+		}
+		if err = comment.Delete(tx); err != nil {
+			tx.Rollback()
+			return err
+		}
+		// post 类型的评论才需要减少 post score
+		if comment.TargetType == "" || comment.TargetType == constvar.Post {
+			if err = d.ChangePostScore(comment.TargetID, -constvar.CommentScore); err != nil {
+				tx.Rollback()
+				return err
+			}
+		}
 	} else {
 		err = errors.New("wrong TypeName")
 	}
