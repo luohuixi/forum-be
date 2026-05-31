@@ -1,0 +1,63 @@
+wing: forum_be
+rooms:
+- name: frontend
+  description: Files from client/
+  keywords:
+  - frontend
+  - client
+- name: configuration
+  description: Files from config/
+  keywords:
+  - configuration
+  - config
+- name: log
+  description: Files from log/
+  keywords:
+  - log
+  - log
+- name: model
+  description: Files from model/
+  keywords:
+  - model
+  - model
+- name: pkg
+  description: Files from pkg/
+  keywords:
+  - pkg
+  - pkg
+- name: util
+  description: Files from util/
+  keywords:
+  - util
+  - util
+- name: general
+  description: Files that don't fit other rooms
+  keywords: []
+- name: gateway
+  description: "\u7F51\u5173"
+  keywords:
+  - gateway
+- name: chat
+  description: "\u804A\u5929"
+  keywords:
+  - chat
+- name: feed
+  description: "\u52A8\u6001"
+  keywords:
+  - feed
+- name: ocr
+  description: ocr
+  keywords:
+  - ocr
+- name: post
+  description: "\u5E16\u5B50"
+  keywords:
+  - post
+- name: user
+  description: "\u7528\u6237"
+  keywords:
+  - user
+- name: agent
+  description: "\u95EE\u7B54agent"
+  keywords:
+  - agent
