@@ -76,6 +76,9 @@ message StudentLoginRequest {
   string captcha = 5;
   string second_auth_method = 6;
   string second_auth_code = 7;
+  string provider = 8;
+  string oauth_code = 9;
+  string callback_url = 10;
 }
 
 message UpdateInfoRequest {

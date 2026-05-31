@@ -40,6 +40,9 @@ func StudentLogin(c *gin.Context) {
 		Captcha:          req.Captcha,
 		SecondAuthMethod: req.SecondAuthMethod,
 		SecondAuthCode:   req.SecondAuthCode,
+		Provider:         req.Provider,
+		OauthCode:        req.OauthCode,
+		CallbackUrl:      req.CallbackURL,
 	}
 
 	loginResp, err := client.UserClient.StudentLogin(c.Request.Context(), loginReq)

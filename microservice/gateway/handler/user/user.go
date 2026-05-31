@@ -14,6 +14,9 @@ type StudentLoginRequest struct {
 	Captcha          string `json:"captcha"`
 	SecondAuthMethod string `json:"second_auth_method"`
 	SecondAuthCode   string `json:"second_auth_code"`
+	Provider         string `json:"provider"`
+	OauthCode        string `json:"oauth_code"`
+	CallbackURL      string `json:"callback_url"`
 } // @name StudentLoginRequest
 
 // TeamLoginResponse login 请求响应
@@ -24,6 +27,7 @@ type TeamLoginResponse struct {
 
 // StudentLoginResponse login 请求响应
 type StudentLoginResponse struct {
+	RedirectURL                string   `json:"redirect_url"`
 	Token                      string   `json:"token"`
 	SessionId                  string   `json:"session_id"`
 	Status                     string   `json:"status"`

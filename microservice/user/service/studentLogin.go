@@ -20,6 +20,22 @@ import (
 func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginRequest, resp *pb.LoginResponse) error {
 	logger.Info("UserService StudentLogin")
 
+	provider := strings.TrimSpace(req.GetProvider())
+	if provider == "" {
+		provider = auth.StudentLoginProviderLegacy
+	}
+
+	switch provider {
+	case auth.StudentLoginProviderLegacy:
+		return s.legacyStudentLogin(req, resp)
+	case auth.StudentLoginProviderOAuth:
+		return s.oauthStudentLogin(req, resp)
+	default:
+		return errno.ServerErr(errno.ErrBadRequest, "unsupported student login provider")
+	}
+}
+
+func (s *UserService) legacyStudentLogin(req *pb.StudentLoginRequest, resp *pb.LoginResponse) error {
 	if strings.TrimSpace(req.GetAction()) == "" || strings.TrimSpace(req.GetAction()) == "start" {
 		if strings.TrimSpace(req.GetStudentId()) == "" || strings.TrimSpace(req.GetPassword()) == "" {
 			return errno.ServerErr(errno.ErrBind, "student_id and password are required")
@@ -44,6 +60,32 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 	}
 
 	Token, err := s.issueStudentToken(loginResult.StudentID, loginResult.Password)
+	if err != nil {
+		return err
+	}
+	resp.Token = Token
+	return nil
+}
+
+func (s *UserService) oauthStudentLogin(req *pb.StudentLoginRequest, resp *pb.LoginResponse) error {
+	oauthCode := strings.TrimSpace(req.GetOauthCode())
+	cfg := auth.LoadStudentOAuthConfig()
+
+	if oauthCode == "" {
+		redirectURL, err := auth.BuildStudentOAuthLoginURL(cfg, req.GetCallbackUrl())
+		if err != nil {
+			return errno.ServerErr(errno.ErrBadRequest, err.Error())
+		}
+		resp.RedirectUrl = redirectURL
+		return nil
+	}
+
+	userInfo, err := auth.ExchangeStudentOAuthCode(cfg, oauthCode)
+	if err != nil {
+		return errno.ServerErr(errno.ErrGetUserInfo, err.Error())
+	}
+
+	Token, err := s.issueOAuthStudentToken(userInfo)
 	if err != nil {
 		return err
 	}
@@ -106,12 +148,75 @@ func (s *UserService) issueStudentToken(studentID string, password string) (stri
 		}
 	}
 
+	return issueForumTokenForUser(user)
+}
+
+func (s *UserService) issueOAuthStudentToken(userInfo *auth.StudentOAuthUserInfo) (string, error) {
+	studentID := strings.TrimSpace(userInfo.StudentID)
+	email := strings.TrimSpace(userInfo.Email)
+
+	var (
+		user *dao.UserModel
+		err  error
+	)
+
+	if studentID != "" {
+		user, err = s.Dao.GetUserByStudentId(studentID)
+		if err != nil {
+			return "", errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
+	}
+
+	if user == nil && email != "" {
+		user, err = s.Dao.GetUserByEmail(email)
+		if err != nil {
+			return "", errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
+	}
+
+	if user == nil {
+		name := strings.TrimSpace(userInfo.Username)
+		if name == "" {
+			name = firstNonEmpty(studentID, email)
+		}
+
+		info := &dao.RegisterInfo{
+			StudentId: studentID,
+			Email:     email,
+			Role:      constvar.NormalRole,
+			Name:      name,
+		}
+		if err := s.Dao.RegisterUser(info); err != nil {
+			return "", errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
+
+		if studentID != "" {
+			user, err = s.Dao.GetUserByStudentId(studentID)
+		} else {
+			user, err = s.Dao.GetUserByEmail(email)
+		}
+		if err != nil {
+			return "", errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
+
+		if err := s.Dao.AddPublicPolicy(constvar.NormalRole, user.Id); err != nil {
+			return "", errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
+		if err := model.AddRole("user", user.Id, constvar.NormalRole); err != nil {
+			return "", errno.ServerErr(errno.ErrCasbin, err.Error())
+		}
+	}
+
+	return issueForumTokenForUser(user)
+}
+
+func issueForumTokenForUser(user *dao.UserModel) (string, error) {
+	var err error
 	user.Role, err = resolveRoleByUserID(user.Id)
 	if err != nil {
 		return "", err
 	}
 
-	// 根据权限生成 token
 	role := uint32(constvar.Normal)
 	if user.Role == constvar.NormalAdminRole || user.Role == constvar.MuxiAdminRole {
 		role = constvar.Admin
@@ -119,7 +224,6 @@ func (s *UserService) issueStudentToken(studentID string, password string) (stri
 		role = constvar.SuperAdmin
 	}
 
-	// 生成 auth token
 	Token, err := token.GenerateToken(&token.TokenPayload{
 		Id:      user.Id,
 		Role:    role,
@@ -130,4 +234,13 @@ func (s *UserService) issueStudentToken(studentID string, password string) (stri
 	}
 
 	return Token, nil
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		if strings.TrimSpace(value) != "" {
+			return strings.TrimSpace(value)
+		}
+	}
+	return ""
 }

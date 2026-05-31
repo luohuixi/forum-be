@@ -2309,10 +2309,19 @@ const docTemplate = `{
                 "action": {
                     "type": "string"
                 },
+                "callback_url": {
+                    "type": "string"
+                },
                 "captcha": {
                     "type": "string"
                 },
+                "oauth_code": {
+                    "type": "string"
+                },
                 "password": {
+                    "type": "string"
+                },
+                "provider": {
                     "type": "string"
                 },
                 "second_auth_code": {
@@ -2345,6 +2354,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                },
+                "redirect_url": {
                     "type": "string"
                 },
                 "second_auth_email_target": {
