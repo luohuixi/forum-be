@@ -14,21 +14,21 @@ const (
 	StudentLoginProviderLegacy = "legacy"
 	StudentLoginProviderOAuth  = "oauth"
 
-	defaultStudentOAuthCASLoginURL      = "https://account.ccnu.edu.cn/cas/login"
-	defaultStudentOAuthCallbackURL      = "https://pass.muxixyz.com/auth/api/oauth/cas/callback"
-	defaultStudentOAuthTokenPath        = "/auth/api/oauth/token"
-	defaultStudentOAuthUserInfoPath     = "/auth/api/user"
-	defaultStudentOAuthForumCallbackURL = "http://localhost:8081/login?student_oauth=1"
+	defaultStudentOAuthCASLoginURL         = "https://account.ccnu.edu.cn/cas/login"
+	defaultStudentOAuthCASCallbackURL      = "https://pass.muxixyz.com/auth/api/oauth/cas/callback"
+	defaultStudentOAuthTokenPath           = "/auth/api/oauth/token"
+	defaultStudentOAuthUserInfoPath        = "/auth/api/user"
+	defaultStudentOAuthBusinessCallbackURL = "http://localhost:8081/login?student_oauth=1"
 )
 
 type StudentOAuthConfig struct {
-	ClientID         string
-	ClientSecret     string
-	CASLoginURL      string
-	OAuthCallbackURL string
-	TokenURL         string
-	UserInfoURL      string
-	DefaultCallback  string
+	ClientID            string
+	ClientSecret        string
+	CASLoginURL         string
+	OAuthCASCallbackURL string
+	TokenURL            string
+	UserInfoURL         string
+	BusinessCallbackURL string
 }
 
 type StudentOAuthUserInfo struct {
@@ -67,13 +67,13 @@ func LoadStudentOAuthConfig() StudentOAuthConfig {
 	}
 
 	return StudentOAuthConfig{
-		ClientID:         strings.TrimSpace(viper.GetString("student_oauth.client_id")),
-		ClientSecret:     strings.TrimSpace(viper.GetString("student_oauth.client_secret")),
-		CASLoginURL:      stringWithDefault(viper.GetString("student_oauth.cas_login_url"), defaultStudentOAuthCASLoginURL),
-		OAuthCallbackURL: stringWithDefault(viper.GetString("student_oauth.oauth_callback_url"), defaultStudentOAuthCallbackURL),
-		TokenURL:         tokenURL,
-		UserInfoURL:      userInfoURL,
-		DefaultCallback:  stringWithDefault(viper.GetString("student_oauth.default_callback_url"), defaultStudentOAuthForumCallbackURL),
+		ClientID:            strings.TrimSpace(viper.GetString("student_oauth.client_id")),
+		ClientSecret:        strings.TrimSpace(viper.GetString("student_oauth.client_secret")),
+		CASLoginURL:         stringWithDefault(viper.GetString("student_oauth.cas_login_url"), defaultStudentOAuthCASLoginURL),
+		OAuthCASCallbackURL: stringWithDefault(viper.GetString("student_oauth.oauth_cas_callback_url"), defaultStudentOAuthCASCallbackURL),
+		TokenURL:            tokenURL,
+		UserInfoURL:         userInfoURL,
+		BusinessCallbackURL: stringWithDefault(viper.GetString("student_oauth.business_callback_url"), defaultStudentOAuthBusinessCallbackURL),
 	}
 }
 
@@ -84,18 +84,18 @@ func BuildStudentOAuthLoginURL(cfg StudentOAuthConfig, callbackURL string) (stri
 	if cfg.CASLoginURL == "" {
 		return "", errors.New("student oauth cas_login_url is blank")
 	}
-	if cfg.OAuthCallbackURL == "" {
-		return "", errors.New("student oauth callback url is blank")
+	if cfg.OAuthCASCallbackURL == "" {
+		return "", errors.New("student oauth cas callback url is blank")
 	}
 
 	if strings.TrimSpace(callbackURL) == "" {
-		callbackURL = cfg.DefaultCallback
+		callbackURL = cfg.BusinessCallbackURL
 	}
 
 	inner := url.Values{}
 	inner.Set("callback_url", callbackURL)
 	inner.Set("client_id", cfg.ClientID)
-	serviceURL := cfg.OAuthCallbackURL + "?" + inner.Encode()
+	serviceURL := cfg.OAuthCASCallbackURL + "?" + inner.Encode()
 
 	outer := url.Values{}
 	outer.Set("service", serviceURL)

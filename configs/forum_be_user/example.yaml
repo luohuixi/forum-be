@@ -12,10 +12,10 @@ student_oauth:
   client_id: 51f03389-2a18-4941-ba73-c85d08201d42
   client_secret: 1234567890
   cas_login_url: "https://account.ccnu.edu.cn/cas/login"
-  oauth_callback_url: "https://pass.muxixyz.com/auth/api/oauth/cas/callback"
+  oauth_cas_callback_url: "https://pass.muxixyz.com/auth/api/oauth/cas/callback"
   token_url: "https://pass.muxixyz.com/auth/api/oauth/token"
   userinfo_url: "https://pass.muxixyz.com/auth/api/user"
-  default_callback_url: "http://localhost:8081/login?student_oauth=1"
+  business_callback_url: "http://localhost:8081/login?student_oauth=1"
 
 ccnu_login:
   captcha_auto_retry: 3

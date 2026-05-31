@@ -7,9 +7,9 @@ import (
 
 func TestBuildStudentOAuthLoginURL(t *testing.T) {
 	cfg := StudentOAuthConfig{
-		ClientID:         "51f03389-2a18-4941-ba73-c85d08201d42",
-		CASLoginURL:      "https://account.ccnu.edu.cn/cas/login",
-		OAuthCallbackURL: "https://pass.muxixyz.com/auth/api/oauth/cas/callback",
+		ClientID:            "51f03389-2a18-4941-ba73-c85d08201d42",
+		CASLoginURL:         "https://account.ccnu.edu.cn/cas/login",
+		OAuthCASCallbackURL: "https://pass.muxixyz.com/auth/api/oauth/cas/callback",
 	}
 
 	loginURL, err := BuildStudentOAuthLoginURL(cfg, "http://localhost:8081/login")
@@ -34,7 +34,7 @@ func TestBuildStudentOAuthLoginURL(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse service url: %v", err)
 	}
-	if parsedService.Scheme+"://"+parsedService.Host+parsedService.Path != cfg.OAuthCallbackURL {
+	if parsedService.Scheme+"://"+parsedService.Host+parsedService.Path != cfg.OAuthCASCallbackURL {
 		t.Fatalf("unexpected service url: %s", serviceURL)
 	}
 	if got := parsedService.Query().Get("callback_url"); got != "http://localhost:8081/login" {
