@@ -18,7 +18,7 @@ const (
 	defaultStudentOAuthCASCallbackURL      = "https://pass.muxixyz.com/auth/api/oauth/cas/callback"
 	defaultStudentOAuthTokenPath           = "/auth/api/oauth/token"
 	defaultStudentOAuthUserInfoPath        = "/auth/api/user"
-	defaultStudentOAuthBusinessCallbackURL = "http://localhost:8081/login?student_oauth=1"
+	defaultStudentOAuthBusinessCallbackURL = "http://localhost:3000/login/student-oauth"
 )
 
 type StudentOAuthConfig struct {

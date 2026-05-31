@@ -15,7 +15,7 @@ student_oauth:
   oauth_cas_callback_url: "https://pass.muxixyz.com/auth/api/oauth/cas/callback"
   token_url: "https://pass.muxixyz.com/auth/api/oauth/token"
   userinfo_url: "https://pass.muxixyz.com/auth/api/user"
-  business_callback_url: "http://localhost:8081/login?student_oauth=1"
+  business_callback_url: "http://localhost:3000/login/student-oauth"
 
 ccnu_login:
   captcha_auto_retry: 3
