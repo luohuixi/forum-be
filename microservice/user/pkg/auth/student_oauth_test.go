@@ -17,6 +17,11 @@ func TestBuildStudentOAuthLoginURL(t *testing.T) {
 		t.Fatalf("BuildStudentOAuthLoginURL() error = %v", err)
 	}
 
+	expectedURL := "https://account.ccnu.edu.cn/cas/login?service=https%3A%2F%2Fpass.muxixyz.com%2Fauth%2Fapi%2Foauth%2Fcas%2Fcallback%3Fcallback_url%3Dhttp%253A%252F%252Flocalhost%253A8081%252Flogin%26client_id%3D51f03389-2a18-4941-ba73-c85d08201d42"
+	if loginURL != expectedURL {
+		t.Fatalf("login url must keep nested service encoding\nwant: %s\n got: %s", expectedURL, loginURL)
+	}
+
 	parsedLogin, err := url.Parse(loginURL)
 	if err != nil {
 		t.Fatalf("parse login url: %v", err)
