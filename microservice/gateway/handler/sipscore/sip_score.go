@@ -70,7 +70,7 @@ type SipScoreWithEntries struct {
 type CreateSipScoreRequest struct {
 	Name        string   `json:"name" binding:"required"`
 	Description string   `json:"description" binding:"required"`
-	CoverImg    string   `json:"cover_img" binding:"required"`
+	CoverImg    string   `json:"cover_img"`
 	Domain      string   `json:"domain" binding:"required"`
 	Category    string   `json:"category" binding:"required"`
 	Tags        []string `json:"tags" binding:"required"`
@@ -112,7 +112,7 @@ type ListSipScoresResponse struct {
 type SipScoreEntryCreateInfo struct {
 	Name        string `json:"name" binding:"required"`
 	Description string `json:"description"`
-	CoverImg    string `json:"cover_img" binding:"required"`
+	CoverImg    string `json:"cover_img"`
 }
 
 type SipScoreEntry struct {
