@@ -1,6 +1,9 @@
 package auth
 
 import (
+	"errors"
+	"strings"
+
 	"github.com/spf13/viper"
 )
 
@@ -12,8 +15,6 @@ const (
 	tokenPath        = "/oauth/token"
 	refreshTokenPath = "/oauth/token/refresh"
 	clientStorePath  = "/oauth/store"
-
-	defaultAuthHost = "localhost:8083"
 )
 
 var (
@@ -29,13 +30,13 @@ var (
 	clientSecret string
 )
 
-func InitVar() {
-	authHost := viper.GetString("auth_server.host")
+func InitVar() error {
+	authHost := strings.TrimSpace(viper.GetString("auth_server.host"))
 	if authHost == "" {
-		authHost = defaultAuthHost
+		return errors.New("auth_server.host is blank")
 	}
 
-	basicURL := "http://" + authHost + authBasicPath
+	basicURL := withHTTP(authHost) + authBasicPath
 	RegisterURL = basicURL + registerPath
 	UserInfoURL = basicURL + userInfoPath
 	OauthURL = basicURL + authPath
@@ -43,6 +44,14 @@ func InitVar() {
 	OauthRefreshURL = basicURL + refreshTokenPath
 	ClientStoreURL = basicURL + clientStorePath
 
-	clientID = viper.GetString("auth_server.client_id")
-	clientSecret = viper.GetString("auth_server.client_secret")
+	clientID = strings.TrimSpace(viper.GetString("auth_server.client_id"))
+	clientSecret = strings.TrimSpace(viper.GetString("auth_server.client_secret"))
+	return nil
+}
+
+func withHTTP(host string) string {
+	if strings.HasPrefix(host, "http://") || strings.HasPrefix(host, "https://") {
+		return strings.TrimRight(host, "/")
+	}
+	return "https://" + strings.TrimRight(host, "/")
 }

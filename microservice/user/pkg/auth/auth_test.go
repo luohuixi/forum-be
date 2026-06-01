@@ -1,13 +1,19 @@
 package auth
 
 import (
+	"os"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
 
 func TestAuthRequest(t *testing.T) {
-	InitVar()
+	if os.Getenv("FORUM_AUTH_INTEGRATION") != "1" {
+		t.Skip("set FORUM_AUTH_INTEGRATION=1 to run external auth integration test")
+	}
+	if err := InitVar(); err != nil {
+		t.Fatal(err)
+	}
 	var (
 		code    = "XEYDGF0ZPH-SRY2P7O5VRW"
 		token   string

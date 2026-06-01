@@ -49,7 +49,9 @@ func main() {
 	opentracing.SetGlobalTracer(t)
 
 	// init oauth-manager and some variables
-	auth.InitVar()
+	if err := auth.InitVar(); err != nil {
+		log.Fatal(err)
+	}
 	auth.OauthManager.Init()
 	client.OCRInit()
 	r := etcd.NewRegistry(

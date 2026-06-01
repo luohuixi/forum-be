@@ -4,7 +4,7 @@ tracing:
 
 auth_server:
 
-  host: "pass.muxi-tech.xyz"
+  host: "pass.muxixyz.com"
   client_id: 123456789
   client_secret: 1234567890
 
