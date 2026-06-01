@@ -12,6 +12,7 @@ import (
 	"forum-gateway/handler/post"
 	"forum-gateway/handler/report"
 	"forum-gateway/handler/sd"
+	"forum-gateway/handler/sipscore"
 	"forum-gateway/handler/user"
 	"forum-gateway/router/middleware"
 	"forum/pkg/constvar"
@@ -91,6 +92,29 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		postRouter.PATCH("/set_quality/:post_id", postApi.SetQualityPost)
 	}
 
+	sipScoreRouter := g.Group("api/v1/sip-score")
+	sipScoreApi := sipscore.New(dao.GetDao())
+	sipScoreRouter.Use(normalRequired)
+	{
+		sipScoreRouter.POST("", sipScoreApi.CreateSipScore)
+		sipScoreRouter.PUT("", sipScoreApi.UpdateSipScore)
+		sipScoreRouter.POST("/entries", sipScoreApi.CreateSipScoreEntries)
+		sipScoreRouter.PUT("/entry", sipScoreApi.UpdateSipScoreEntry)
+		sipScoreRouter.GET("/:sip_score_id", sipScoreApi.GetSipScore)
+		sipScoreRouter.GET("/entries/list/:sip_score_id", sipScoreApi.ListEntries)
+		sipScoreRouter.GET("/list", sipScoreApi.ListSipScores)
+		sipScoreRouter.GET("/search", sipScoreApi.SearchSipScores)
+		sipScoreRouter.GET("/entries/search/:sip_score_id", sipScoreApi.SearchEntries)
+		sipScoreRouter.DELETE("/:sip_score_id", sipScoreApi.DeleteSipScore)
+		sipScoreRouter.DELETE("/entries", sipScoreApi.DeleteSipScoreEntries)
+
+		// entry-rating
+		sipScoreRouter.POST("/entry/rating", sipScoreApi.CreateEntryRating)
+		sipScoreRouter.PUT("/entry/rating", sipScoreApi.UpdateEntryRating)
+		sipScoreRouter.DELETE("/entry/rating", sipScoreApi.DeleteEntryRating)
+		sipScoreRouter.GET("/entry-rating/list/:sip_score_id/:entry_id", sipScoreApi.ListEntryRatings)
+	}
+
 	commentRouter := g.Group("api/v1/comment")
 	commentApi := comment.New(dao.GetDao())
 	commentRouter.Use(normalRequired)
@@ -98,6 +122,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		commentRouter.GET("/:comment_id", commentApi.Get)
 		commentRouter.POST("", commentApi.Create)
 		commentRouter.DELETE("/:comment_id", commentApi.Delete)
+		commentRouter.POST("/list", commentApi.List)
 	}
 
 	likeRouter := g.Group("api/v1/like")
@@ -122,7 +147,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	collectionRouter.Use(normalRequired)
 	{
 		collectionRouter.GET("/list/:user_id", collectionApi.List)
-		collectionRouter.POST("/:post_id", collectionApi.CreateOrRemove)
+		collectionRouter.POST("", collectionApi.CreateOrRemove)
 	}
 
 	// report

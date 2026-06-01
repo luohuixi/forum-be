@@ -51,16 +51,41 @@ definitions:
     type: object
   StudentLoginRequest:
     properties:
+      action:
+        type: string
+      captcha:
+        type: string
       password:
+        type: string
+      second_auth_code:
+        type: string
+      second_auth_method:
+        type: string
+      session_id:
         type: string
       student_id:
         type: string
-    required:
-    - password
-    - student_id
     type: object
   StudentLoginResponse:
     properties:
+      available_second_auth_methods:
+        items:
+          type: string
+        type: array
+      captcha_image_base64:
+        type: string
+      current_second_auth_method:
+        type: string
+      message:
+        type: string
+      second_auth_email_target:
+        type: string
+      second_auth_sms_target:
+        type: string
+      session_id:
+        type: string
+      status:
+        type: string
       token:
         type: string
     type: object
@@ -133,9 +158,20 @@ definitions:
       avatar:
         type: string
       id:
+        format: int32
         type: integer
       name:
         type: string
+    type: object
+  collection.CreateRequest:
+    properties:
+      target_id:
+        type: integer
+      target_type:
+        type: integer
+    required:
+    - target_id
+    - target_type
     type: object
   comment.Comment:
     properties:
@@ -167,6 +203,47 @@ definitions:
         description: first-level -> 一级评论; second-level -> 其它级
         type: string
     type: object
+  comment.CommentItem:
+    properties:
+      be_replied_user_id:
+        type: integer
+      be_replied_user_name:
+        type: string
+      content:
+        type: string
+      create_time:
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      father_content:
+        type: string
+      father_id:
+        type: integer
+      id:
+        type: integer
+      img_url:
+        type: string
+      is_liked:
+        type: boolean
+      like_num:
+        type: integer
+      sub_comments:
+        items:
+          $ref: '#/definitions/comment.CommentItem'
+        type: array
+      sub_num:
+        type: integer
+      target_id:
+        type: integer
+      target_type:
+        type: string
+      type_name:
+        type: string
+    type: object
   comment.CreateRequest:
     properties:
       content:
@@ -175,16 +252,44 @@ definitions:
         type: integer
       img_url:
         type: string
-      post_id:
+      target_id:
         type: integer
+      target_type:
+        type: string
       type_name:
-        description: sub-post -> 从帖; first-level -> 一级评论; second-level -> 其它级
         type: string
     required:
     - content
-    - father_id
-    - post_id
+    - target_id
+    - target_type
     - type_name
+    type: object
+  comment.ListRequest:
+    properties:
+      father_id:
+        description: 可选：按父评论 ID 列出子评论（二级评论分页）
+        type: integer
+      page_size:
+        type: integer
+      page_token:
+        type: string
+      sort_type:
+        type: integer
+      target_id:
+        type: integer
+      target_type:
+        type: string
+    type: object
+  comment.ListResponse:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/comment.CommentItem'
+        type: array
+      has_more:
+        type: boolean
+      page_token:
+        type: string
     type: object
   like.Item:
     properties:
@@ -209,6 +314,8 @@ definitions:
         type: string
       content:
         type: string
+      create_time:
+        type: string
       creator_avatar:
         type: string
       creator_id:
@@ -221,8 +328,6 @@ definitions:
         type: boolean
       like_num:
         type: integer
-      time:
-        type: string
     type: object
   post.CreateRequest:
     properties:
@@ -270,6 +375,8 @@ definitions:
       content_type:
         description: md or rtf
         type: string
+      create_time:
+        type: string
       creator_avatar:
         type: string
       creator_id:
@@ -294,8 +401,6 @@ definitions:
         items:
           type: string
         type: array
-      time:
-        type: string
       title:
         type: string
     type: object
@@ -402,6 +507,8 @@ definitions:
         type: array
       content:
         type: string
+      create_time:
+        type: string
       creator_avatar:
         type: string
       creator_id:
@@ -416,8 +523,6 @@ definitions:
         type: boolean
       like_num:
         type: integer
-      time:
-        type: string
     type: object
   post.UnReadNum:
     properties:
@@ -524,6 +629,356 @@ definitions:
       user_name:
         type: string
     type: object
+  sipscore.CommentInfo:
+    properties:
+      be_replied_user_id:
+        type: integer
+      be_replied_user_name:
+        type: string
+      content:
+        type: string
+      create_time:
+        type: string
+      creator_avatar:
+        type: string
+      creator_id:
+        type: integer
+      creator_name:
+        type: string
+      father_content:
+        type: string
+      father_id:
+        type: integer
+      id:
+        type: integer
+      img_url:
+        type: string
+      is_liked:
+        type: boolean
+      like_num:
+        type: integer
+      target_id:
+        type: integer
+      target_type:
+        type: string
+      type_name:
+        type: string
+    type: object
+  sipscore.CreateSipScoreEntryRatingRequest:
+    properties:
+      comment:
+        type: string
+      entry_id:
+        type: integer
+      img_url:
+        type: string
+      rating:
+        type: integer
+      sip_score_id:
+        type: integer
+    required:
+    - comment
+    - entry_id
+    - img_url
+    - rating
+    - sip_score_id
+    type: object
+  sipscore.CreateSipScoreEntryRequest:
+    properties:
+      entries:
+        items:
+          $ref: '#/definitions/sipscore.SipScoreEntryCreateInfo'
+        type: array
+      sip_score_id:
+        type: integer
+    required:
+    - entries
+    - sip_score_id
+    type: object
+  sipscore.CreateSipScoreRequest:
+    properties:
+      category:
+        type: string
+      cover_img:
+        type: string
+      description:
+        type: string
+      domain:
+        type: string
+      name:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    required:
+    - category
+    - cover_img
+    - description
+    - domain
+    - name
+    - tags
+    type: object
+  sipscore.DeleteSipScoreEntriesRequest:
+    properties:
+      entry_ids:
+        items:
+          type: integer
+        type: array
+      sip_score_id:
+        type: integer
+    required:
+    - entry_ids
+    - sip_score_id
+    type: object
+  sipscore.DeleteSipScoreEntryRatingRequest:
+    properties:
+      entry_id:
+        type: integer
+      rating_id:
+        type: integer
+      sip_score_id:
+        type: integer
+    required:
+    - entry_id
+    - rating_id
+    - sip_score_id
+    type: object
+  sipscore.EmptyResponse:
+    type: object
+  sipscore.GetSipScoreResponse:
+    properties:
+      sip_score:
+        $ref: '#/definitions/sipscore.SipScore'
+    type: object
+  sipscore.IdResponse:
+    properties:
+      id:
+        type: integer
+    type: object
+  sipscore.IdsResponse:
+    properties:
+      ids:
+        items:
+          type: integer
+        type: array
+    type: object
+  sipscore.ListSipScoreEntriesResponse:
+    properties:
+      entries:
+        items:
+          $ref: '#/definitions/sipscore.SipScoreEntry'
+        type: array
+      has_more:
+        type: boolean
+      page_token:
+        type: string
+    type: object
+  sipscore.ListSipScoreEntryRatingsResponse:
+    properties:
+      has_more:
+        type: boolean
+      page_token:
+        type: string
+      ratings:
+        items:
+          $ref: '#/definitions/sipscore.SipScoreEntryCommentRatingInfo'
+        type: array
+    type: object
+  sipscore.ListSipScoresResponse:
+    properties:
+      has_more:
+        type: boolean
+      page_token:
+        type: string
+      sip_scores:
+        items:
+          $ref: '#/definitions/sipscore.SipScoreWithEntries'
+        type: array
+    type: object
+  sipscore.SipScore:
+    properties:
+      category:
+        type: string
+      collect_count:
+        type: integer
+      cover_img:
+        type: string
+      created_at:
+        type: string
+      creator:
+        $ref: '#/definitions/sipscore.userInfo'
+      description:
+        type: string
+      domain:
+        type: string
+      entry_count:
+        type: integer
+      id:
+        type: integer
+      is_collected:
+        type: boolean
+      last_modified_by:
+        $ref: '#/definitions/sipscore.userInfo'
+      name:
+        type: string
+      participant_count:
+        type: integer
+      tags:
+        items:
+          type: string
+        type: array
+      updated_at:
+        type: string
+    type: object
+  sipscore.SipScoreEntry:
+    properties:
+      comment_num:
+        type: integer
+      cover_img:
+        type: string
+      created_at:
+        type: string
+      creator:
+        $ref: '#/definitions/sipscore.userInfo'
+      description:
+        type: string
+      id:
+        type: integer
+      last_modified_by:
+        $ref: '#/definitions/sipscore.userInfo'
+      name:
+        type: string
+      participant_num:
+        type: integer
+      score_avg:
+        type: integer
+      score_total:
+        type: integer
+      sip_score_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  sipscore.SipScoreEntryCommentRatingInfo:
+    properties:
+      comment_id:
+        type: integer
+      comment_num:
+        type: integer
+      comments:
+        items:
+          $ref: '#/definitions/sipscore.CommentInfo'
+        type: array
+      content:
+        type: string
+      created_at:
+        type: string
+      creator:
+        $ref: '#/definitions/sipscore.userInfo'
+      id:
+        type: integer
+      img_url:
+        type: string
+      last_modified_by:
+        $ref: '#/definitions/sipscore.userInfo'
+      like_num:
+        type: integer
+      rating:
+        type: integer
+      sip_score_entry_id:
+        type: integer
+      sip_score_id:
+        type: integer
+      updated_at:
+        type: string
+    type: object
+  sipscore.SipScoreEntryCreateInfo:
+    properties:
+      cover_img:
+        type: string
+      description:
+        type: string
+      name:
+        type: string
+    required:
+    - cover_img
+    - name
+    type: object
+  sipscore.SipScoreWithEntries:
+    properties:
+      entries:
+        items:
+          $ref: '#/definitions/sipscore.SipScoreEntry'
+        type: array
+      sip_score:
+        $ref: '#/definitions/sipscore.SipScore'
+    type: object
+  sipscore.UpdateSipScoreEntryRatingRequest:
+    properties:
+      content:
+        type: string
+      entry_id:
+        type: integer
+      img_url:
+        type: string
+      rating:
+        type: integer
+      rating_id:
+        type: integer
+      sip_score_id:
+        type: integer
+    required:
+    - entry_id
+    - rating_id
+    - sip_score_id
+    type: object
+  sipscore.UpdateSipScoreEntryRequest:
+    properties:
+      cover_img:
+        type: string
+      description:
+        type: string
+      entry_id:
+        type: integer
+      name:
+        type: string
+      sip_score_id:
+        type: integer
+    required:
+    - entry_id
+    - sip_score_id
+    type: object
+  sipscore.UpdateSipScoreRequest:
+    properties:
+      category:
+        type: string
+      cover_img:
+        type: string
+      description:
+        type: string
+      domain:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
+    required:
+    - id
+    type: object
+  sipscore.userInfo:
+    properties:
+      avatar:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
   user:
     properties:
       avatar:
@@ -625,6 +1080,27 @@ paths:
       summary: 团队登录 api
       tags:
       - auth
+  /auth/set_role/{id}:
+    post:
+      consumes:
+      - application/json
+      description: 前端无需接此接口，casbin只会在启动时读取一遍数据库，因此改权限不能直接修改数据库，故写一个接口
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 设置权限
+      tags:
+      - user
   /chat/history/{id}:
     get:
       consumes:
@@ -709,7 +1185,7 @@ paths:
       summary: 建立 WebSocket 连接
       tags:
       - chat
-  /collection/{post_id}:
+  /collection:
     post:
       consumes:
       - application/json
@@ -719,11 +1195,12 @@ paths:
         name: Authorization
         required: true
         type: string
-      - description: post_id
-        in: path
-        name: post_id
+      - description: create_request
+        in: body
+        name: object
         required: true
-        type: integer
+        schema:
+          $ref: '#/definitions/collection.CreateRequest'
       produces:
       - application/json
       responses:
@@ -844,6 +1321,32 @@ paths:
           schema:
             $ref: '#/definitions/comment.Comment'
       summary: 获取评论 api
+      tags:
+      - comment
+  /comment/list:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: list_comment_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/comment.ListRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/comment.ListResponse'
+      summary: 批量获取评论列表 api
       tags:
       - comment
   /feed/list/{user_id}:
@@ -1313,6 +1816,441 @@ paths:
       summary: list举报 api
       tags:
       - report
+  /sip-score:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_sip_score_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/sipscore.CreateSipScoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.IdResponse'
+      summary: 创建榜单 api
+      tags:
+      - sipscore
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: update_sip_score_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/sipscore.UpdateSipScoreRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 修改榜单信息 api
+      tags:
+      - sipscore
+  /sip-score/{sip_score_id}:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: sip_score_id
+        in: path
+        name: sip_score_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 删除榜单 api
+      tags:
+      - sipscore
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: sip_score_id
+        in: path
+        name: post_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.GetSipScoreResponse'
+      summary: 获取榜单元数据 api
+      tags:
+      - sipscore
+  /sip-score/entries:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: delete_sip_score_entries_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/sipscore.DeleteSipScoreEntriesRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 批量删除榜单条目 api
+      tags:
+      - sipscore
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_sip_score_entry_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/sipscore.CreateSipScoreEntryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.IdsResponse'
+      summary: 创建榜单条目 api
+      tags:
+      - sipscore
+  /sip-score/entries/list/{sip_score_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: sip_score_id
+        in: path
+        name: sip_score_id
+        required: true
+        type: integer
+      - description: sort_type
+        in: query
+        name: sort_type
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: page_token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.ListSipScoreEntriesResponse'
+      summary: list 获取榜单条目 api
+      tags:
+      - sipscore
+  /sip-score/entries/search/{sip_score_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: sip_score_id
+        in: path
+        name: sip_score_id
+        required: true
+        type: integer
+      - description: keyword
+        in: query
+        name: keyword
+        required: true
+        type: string
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: page_token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.ListSipScoreEntriesResponse'
+      summary: search 搜索榜单条目 api
+      tags:
+      - sipscore
+  /sip-score/entry:
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: update_sip_score_entry_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/sipscore.UpdateSipScoreEntryRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 修改榜单条目信息 api
+      tags:
+      - sipscore
+  /sip-score/entry-rating/list/{sip_score_id}/{entry_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: sip_score_id
+        in: path
+        name: sip_score_id
+        required: true
+        type: integer
+      - description: entry_id
+        in: path
+        name: entry_id
+        required: true
+        type: integer
+      - description: sort_type
+        in: query
+        name: sort_type
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: page_token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.ListSipScoreEntryRatingsResponse'
+      summary: list 获取评分列表 api
+      tags:
+      - sipscore
+  /sip-score/entry/rating:
+    delete:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: delete_sip_score_entry_rating_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/sipscore.DeleteSipScoreEntryRatingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 删除评分 api
+      tags:
+      - sipscore
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_sip_score_entry_rating_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/sipscore.CreateSipScoreEntryRatingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.EmptyResponse'
+      summary: 创建榜单条目评分 api
+      tags:
+      - sipscore
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: update_sip_score_entry_rating_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/sipscore.UpdateSipScoreEntryRatingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 修改评分 api
+      tags:
+      - sipscore
+  /sip-score/list:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: sort_type
+        in: query
+        name: sort_type
+        type: integer
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: page_token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.ListSipScoresResponse'
+      summary: list 批量获取榜单 api
+      tags:
+      - sipscore
+  /sip-score/search:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: keyword
+        in: query
+        name: keyword
+        required: true
+        type: string
+      - description: page_size
+        in: query
+        name: page_size
+        type: integer
+      - description: page_token
+        in: query
+        name: page_token
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.ListSipScoresResponse'
+      summary: search 搜索榜单 api
+      tags:
+      - sipscore
   /user:
     put:
       consumes:

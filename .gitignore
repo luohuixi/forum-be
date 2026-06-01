@@ -33,4 +33,6 @@ configs/forum_be_feed/config.yaml
 configs/forum_be_gateway/config.yaml
 configs/forum_be_post/config.yaml
 
+# Agent
+.github/copilot-instructions.md
 AGENTS.md
