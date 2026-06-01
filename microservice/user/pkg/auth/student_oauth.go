@@ -178,6 +178,9 @@ func getStudentOAuthUserInfo(accessToken, userInfoURL string) (*StudentOAuthUser
 	rp.Data.Email = strings.TrimSpace(rp.Data.Email)
 	rp.Data.Username = strings.TrimSpace(rp.Data.Username)
 	rp.Data.Name = strings.TrimSpace(rp.Data.Name)
+	if rp.Data.StudentID == "" {
+		rp.Data.StudentID = rp.Data.Username
+	}
 	if rp.Data.Username == "" {
 		rp.Data.Username = rp.Data.Name
 	}
