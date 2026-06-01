@@ -102,7 +102,7 @@ func BuildStudentOAuthLoginURL(cfg StudentOAuthConfig, callbackURL string) (stri
 	return cfg.CASLoginURL + "?" + outer.Encode(), nil
 }
 
-func ExchangeStudentOAuthCode(cfg StudentOAuthConfig, code string) (*StudentOAuthUserInfo, error) {
+func ExchangeStudentOAuthCode(cfg StudentOAuthConfig, code, callbackURL string) (*StudentOAuthUserInfo, error) {
 	if cfg.ClientID == "" || cfg.ClientSecret == "" {
 		return nil, errors.New("student oauth client info is blank")
 	}
@@ -112,8 +112,11 @@ func ExchangeStudentOAuthCode(cfg StudentOAuthConfig, code string) (*StudentOAut
 	if cfg.UserInfoURL == "" {
 		return nil, errors.New("student oauth userinfo_url is blank")
 	}
+	if strings.TrimSpace(callbackURL) == "" {
+		callbackURL = cfg.BusinessCallbackURL
+	}
 
-	token, err := getStudentOAuthToken(code, cfg.ClientID, cfg.ClientSecret, cfg.TokenURL)
+	token, err := getStudentOAuthToken(code, cfg.ClientID, cfg.ClientSecret, cfg.TokenURL, callbackURL)
 	if err != nil {
 		return nil, err
 	}
@@ -121,7 +124,7 @@ func ExchangeStudentOAuthCode(cfg StudentOAuthConfig, code string) (*StudentOAut
 	return getStudentOAuthUserInfo(token.AccessToken, cfg.UserInfoURL)
 }
 
-func getStudentOAuthToken(code, clientID, clientSecret, tokenURL string) (*TokenItem, error) {
+func getStudentOAuthToken(code, clientID, clientSecret, tokenURL, callbackURL string) (*TokenItem, error) {
 	query := map[string]string{
 		"client_id":     clientID,
 		"response_type": "token",
@@ -130,6 +133,7 @@ func getStudentOAuthToken(code, clientID, clientSecret, tokenURL string) (*Token
 	bodyData := map[string]string{
 		"code":          code,
 		"client_secret": clientSecret,
+		"redirect_uri":  callbackURL,
 	}
 
 	body, err := util.SendHTTPRequest(tokenURL, "POST", &util.RequestData{

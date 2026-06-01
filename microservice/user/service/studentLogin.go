@@ -80,7 +80,7 @@ func (s *UserService) oauthStudentLogin(req *pb.StudentLoginRequest, resp *pb.Lo
 		return nil
 	}
 
-	userInfo, err := auth.ExchangeStudentOAuthCode(cfg, oauthCode)
+	userInfo, err := auth.ExchangeStudentOAuthCode(cfg, oauthCode, req.GetCallbackUrl())
 	if err != nil {
 		return errno.ServerErr(errno.ErrGetUserInfo, err.Error())
 	}
