@@ -22,7 +22,7 @@ func (s *UserService) StudentLogin(_ context.Context, req *pb.StudentLoginReques
 
 	provider := strings.TrimSpace(req.GetProvider())
 	if provider == "" {
-		provider = auth.StudentLoginProviderLegacy
+		provider = auth.StudentLoginProviderOAuth
 	}
 
 	switch provider {

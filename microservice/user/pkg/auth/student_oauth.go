@@ -53,7 +53,7 @@ func LoadStudentOAuthConfig() StudentOAuthConfig {
 	host := strings.TrimSpace(viper.GetString("auth_server.host"))
 	basicURL := ""
 	if host != "" {
-		basicURL = "http://" + host
+		basicURL = withHTTP(host)
 	}
 
 	tokenURL := strings.TrimSpace(viper.GetString("student_oauth.token_url"))
