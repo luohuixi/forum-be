@@ -1,6 +1,8 @@
 package dao
 
 import (
+	"time"
+
 	"github.com/ShiinaOrez/GoSecurity/security"
 )
 
@@ -51,4 +53,15 @@ func generatePasswordHash(password string) string {
 
 func (u *UserModel) CheckPassword(password string) bool {
 	return security.CheckPasswordHash(password, u.HashPassword)
+}
+
+type UserFollowModel struct {
+	Id         uint32    `gorm:"column:id;primaryKey"`
+	FollowerID uint32    `gorm:"column:follower_id;uniqueIndex:idx_user_follow,priority:1;index"`
+	FolloweeID uint32    `gorm:"column:followee_id;uniqueIndex:idx_user_follow,priority:2;index"`
+	CreatedAt  time.Time `gorm:"column:created_at"`
+}
+
+func (UserFollowModel) TableName() string {
+	return "user_follows"
 }

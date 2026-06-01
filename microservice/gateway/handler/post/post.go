@@ -4,7 +4,6 @@ import (
 	"forum-gateway/dao"
 	"forum-gateway/handler/comment"
 	pb "forum-post/proto"
-	"reflect"
 )
 
 type Api struct {
@@ -168,32 +167,24 @@ type UnReadNumResponse struct {
 // internal util
 // =====================
 
-// 这里用了 generics and reflect, 更一般的写法应该是用interface
-func setInfo[T pb.CommentInfo | pb.Post](info *info, comment *T) {
-	typeT := reflect.TypeOf(*comment)
-	value := reflect.ValueOf(comment).Elem()
+func setCommentInfo(info *info, comment *pb.CommentInfo) {
+	info.Id = comment.Id
+	info.Content = comment.Content
+	info.CreateTime = comment.CreateTime.AsTime().Format("2006-01-02 15:04:05")
+	info.CreatorId = comment.CreatorId
+	info.CreatorName = comment.CreatorName
+	info.CreatorAvatar = comment.CreatorAvatar
+	info.LikeNum = comment.LikeNum
+	info.IsLiked = comment.IsLiked
+}
 
-	for i := 0; i < typeT.NumField(); i++ {
-		v := value.Field(i)
-		field := typeT.Field(i)
-
-		switch field.Name {
-		case "Id":
-			info.Id = uint32(v.Uint())
-		case "Content":
-			info.Content = v.String()
-		case "IsLiked":
-			info.IsLiked = v.Bool()
-		case "CreatorName":
-			info.CreatorName = v.String()
-		case "CreatorId":
-			info.CreatorId = uint32(v.Uint())
-		case "LikeNum":
-			info.LikeNum = uint32(v.Uint())
-		case "CreatorAvatar":
-			info.CreatorAvatar = v.String()
-		case "Time", "CreateTime":
-			info.Content = v.String()
-		}
-	}
+func setPostInfo(info *info, post *pb.Post) {
+	info.Id = post.Id
+	info.Content = post.Content
+	info.CreateTime = post.Time
+	info.CreatorId = post.CreatorId
+	info.CreatorName = post.CreatorName
+	info.CreatorAvatar = post.CreatorAvatar
+	info.LikeNum = post.LikeNum
+	info.IsLiked = post.IsLiked
 }

@@ -190,6 +190,44 @@ func (d *Dao) ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, lim
 	return d.listSipScoreByUintFieldWithCursor(domain, "participant_count", orderDirDesc, lastID, lastCount, limit, tx...)
 }
 
+func (d *Dao) ListSipScoreByCreator(userID uint32, offset uint32, limit uint32, lastID uint32, pagination bool) ([]*SipScoreModel, error) {
+	if limit == 0 {
+		limit = 20
+	}
+
+	db := d.DB.Model(&SipScoreModel{}).Where("creator_id = ?", userID).Order("id DESC")
+	if pagination {
+		db = db.Offset(int(offset)).Limit(int(limit))
+		if lastID != 0 {
+			db = db.Where("id < ?", lastID)
+		}
+	}
+
+	var sipScores []*SipScoreModel
+	err := db.Find(&sipScores).Error
+	return sipScores, err
+}
+
+func (d *Dao) ListCollectedSipScoreByUser(userID uint32, offset uint32, limit uint32, lastID uint32, pagination bool) ([]*SipScoreModel, error) {
+	if limit == 0 {
+		limit = 20
+	}
+
+	db := d.DB.Model(&SipScoreModel{}).
+		Joins("JOIN collections ON collections.content_id = sip_scores.id AND collections.content_type = ? AND collections.user_id = ? AND collections.deleted_at = 0", 2, userID).
+		Order("sip_scores.id DESC")
+	if pagination {
+		db = db.Offset(int(offset)).Limit(int(limit))
+		if lastID != 0 {
+			db = db.Where("sip_scores.id < ?", lastID)
+		}
+	}
+
+	var sipScores []*SipScoreModel
+	err := db.Find(&sipScores).Error
+	return sipScores, err
+}
+
 func (d *Dao) listSipScoreByTimeFieldWithCursor(domain string, field string, orderDir string, lastID uint32, lastTime time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
 	db := d.getDB(tx...)
 
@@ -659,7 +697,7 @@ type SipScoreEntryCommentRating struct {
 	EntryID        uint32 `gorm:"index:idx_newest,priority:2;index:idx_hottest,priority:2;index:idx_user,priority:2"`
 	Rating         uint32 `gorm:"type:tinyint unsigned;not null"`
 	Content        string `gorm:"type:varchar(2000);not null"`
-	ImgURL         string `gorm:"type:varchar(255);not null"`
+	ImgURL         string `gorm:"type:varchar(255)"`
 
 	LikeNum    uint32 `gorm:"index:idx_hottest,priority:3"`
 	CommentNum uint32

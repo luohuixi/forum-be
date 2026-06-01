@@ -13,6 +13,7 @@ import (
 
 import (
 	context "context"
+	api "go-micro.dev/v4/api"
 	client "go-micro.dev/v4/client"
 	server "go-micro.dev/v4/server"
 )
@@ -23,9 +24,16 @@ var _ = fmt.Errorf
 var _ = math.Inf
 
 // Reference imports to suppress errors if they are not otherwise used.
+var _ api.Endpoint
 var _ context.Context
 var _ client.Option
 var _ server.Option
+
+// Api Endpoints for PostService service
+
+func NewPostServiceEndpoints() []*api.Endpoint {
+	return []*api.Endpoint{}
+}
 
 // Client API for PostService service
 
@@ -43,11 +51,14 @@ type PostService interface {
 	CreateSipScoreEntry(ctx context.Context, in *CreateSipScoreEntryRequest, opts ...client.CallOption) (*CreateSipScoreEntryResponse, error)
 	UpdateSipScoreEntryInfo(ctx context.Context, in *UpdateSipScoreEntryInfoRequest, opts ...client.CallOption) (*Response, error)
 	GetSipScore(ctx context.Context, in *Request, opts ...client.CallOption) (*SipScore, error)
+	GetSipScoreEntryDetail(ctx context.Context, in *GetSipScoreEntryRequest, opts ...client.CallOption) (*SipScoreEntryDetail, error)
 	ListSipScoreEntry(ctx context.Context, in *ListSipScoreEntryRequest, opts ...client.CallOption) (*ListSipScoreEntryResponse, error)
 	SearchSipScoreEntry(ctx context.Context, in *SearchSipScoreEntryRequest, opts ...client.CallOption) (*ListSipScoreEntryResponse, error)
 	DeleteSipScoreEntries(ctx context.Context, in *DeleteSipScoreEntriesRequest, opts ...client.CallOption) (*Response, error)
 	ListSipScore(ctx context.Context, in *ListSipScoreRequest, opts ...client.CallOption) (*ListSipScoreResponse, error)
 	SearchSipScore(ctx context.Context, in *SearchSipScoreRequest, opts ...client.CallOption) (*SearchSipScoreResponse, error)
+	ListUserCreatedSipScore(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListSipScoreResponse, error)
+	ListUserCollectedSipScore(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListSipScoreResponse, error)
 	CreateSipScoreEntryCommentRating(ctx context.Context, in *CreateSipScoreEntryCommentRatingRequest, opts ...client.CallOption) (*Response, error)
 	UpdateSipScoreEntryCommentRatingInfo(ctx context.Context, in *UpdateSipScoreEntryCommentRatingInfoRequest, opts ...client.CallOption) (*Response, error)
 	DeleteSipScoreEntryCommentRating(ctx context.Context, in *DeleteSipScoreEntryCommentRatingRequest, opts ...client.CallOption) (*Response, error)
@@ -66,6 +77,7 @@ type PostService interface {
 	CreateReport(ctx context.Context, in *CreateReportRequest, opts ...client.CallOption) (*Response, error)
 	ListReport(ctx context.Context, in *ListReportRequest, opts ...client.CallOption) (*ListReportResponse, error)
 	HandleReport(ctx context.Context, in *HandleReportRequest, opts ...client.CallOption) (*Response, error)
+	CreateFeedback(ctx context.Context, in *CreateFeedbackRequest, opts ...client.CallOption) (*Response, error)
 }
 
 type postService struct {
@@ -210,6 +222,16 @@ func (c *postService) GetSipScore(ctx context.Context, in *Request, opts ...clie
 	return out, nil
 }
 
+func (c *postService) GetSipScoreEntryDetail(ctx context.Context, in *GetSipScoreEntryRequest, opts ...client.CallOption) (*SipScoreEntryDetail, error) {
+	req := c.c.NewRequest(c.name, "PostService.GetSipScoreEntryDetail", in)
+	out := new(SipScoreEntryDetail)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *postService) ListSipScoreEntry(ctx context.Context, in *ListSipScoreEntryRequest, opts ...client.CallOption) (*ListSipScoreEntryResponse, error) {
 	req := c.c.NewRequest(c.name, "PostService.ListSipScoreEntry", in)
 	out := new(ListSipScoreEntryResponse)
@@ -253,6 +275,26 @@ func (c *postService) ListSipScore(ctx context.Context, in *ListSipScoreRequest,
 func (c *postService) SearchSipScore(ctx context.Context, in *SearchSipScoreRequest, opts ...client.CallOption) (*SearchSipScoreResponse, error) {
 	req := c.c.NewRequest(c.name, "PostService.SearchSipScore", in)
 	out := new(SearchSipScoreResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postService) ListUserCreatedSipScore(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListSipScoreResponse, error) {
+	req := c.c.NewRequest(c.name, "PostService.ListUserCreatedSipScore", in)
+	out := new(ListSipScoreResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *postService) ListUserCollectedSipScore(ctx context.Context, in *ListPostPartInfoRequest, opts ...client.CallOption) (*ListSipScoreResponse, error) {
+	req := c.c.NewRequest(c.name, "PostService.ListUserCollectedSipScore", in)
+	out := new(ListSipScoreResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -430,6 +472,16 @@ func (c *postService) HandleReport(ctx context.Context, in *HandleReportRequest,
 	return out, nil
 }
 
+func (c *postService) CreateFeedback(ctx context.Context, in *CreateFeedbackRequest, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "PostService.CreateFeedback", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // Server API for PostService service
 
 type PostServiceHandler interface {
@@ -446,11 +498,14 @@ type PostServiceHandler interface {
 	CreateSipScoreEntry(context.Context, *CreateSipScoreEntryRequest, *CreateSipScoreEntryResponse) error
 	UpdateSipScoreEntryInfo(context.Context, *UpdateSipScoreEntryInfoRequest, *Response) error
 	GetSipScore(context.Context, *Request, *SipScore) error
+	GetSipScoreEntryDetail(context.Context, *GetSipScoreEntryRequest, *SipScoreEntryDetail) error
 	ListSipScoreEntry(context.Context, *ListSipScoreEntryRequest, *ListSipScoreEntryResponse) error
 	SearchSipScoreEntry(context.Context, *SearchSipScoreEntryRequest, *ListSipScoreEntryResponse) error
 	DeleteSipScoreEntries(context.Context, *DeleteSipScoreEntriesRequest, *Response) error
 	ListSipScore(context.Context, *ListSipScoreRequest, *ListSipScoreResponse) error
 	SearchSipScore(context.Context, *SearchSipScoreRequest, *SearchSipScoreResponse) error
+	ListUserCreatedSipScore(context.Context, *ListPostPartInfoRequest, *ListSipScoreResponse) error
+	ListUserCollectedSipScore(context.Context, *ListPostPartInfoRequest, *ListSipScoreResponse) error
 	CreateSipScoreEntryCommentRating(context.Context, *CreateSipScoreEntryCommentRatingRequest, *Response) error
 	UpdateSipScoreEntryCommentRatingInfo(context.Context, *UpdateSipScoreEntryCommentRatingInfoRequest, *Response) error
 	DeleteSipScoreEntryCommentRating(context.Context, *DeleteSipScoreEntryCommentRatingRequest, *Response) error
@@ -469,6 +524,7 @@ type PostServiceHandler interface {
 	CreateReport(context.Context, *CreateReportRequest, *Response) error
 	ListReport(context.Context, *ListReportRequest, *ListReportResponse) error
 	HandleReport(context.Context, *HandleReportRequest, *Response) error
+	CreateFeedback(context.Context, *CreateFeedbackRequest, *Response) error
 }
 
 func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts ...server.HandlerOption) error {
@@ -486,11 +542,14 @@ func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts .
 		CreateSipScoreEntry(ctx context.Context, in *CreateSipScoreEntryRequest, out *CreateSipScoreEntryResponse) error
 		UpdateSipScoreEntryInfo(ctx context.Context, in *UpdateSipScoreEntryInfoRequest, out *Response) error
 		GetSipScore(ctx context.Context, in *Request, out *SipScore) error
+		GetSipScoreEntryDetail(ctx context.Context, in *GetSipScoreEntryRequest, out *SipScoreEntryDetail) error
 		ListSipScoreEntry(ctx context.Context, in *ListSipScoreEntryRequest, out *ListSipScoreEntryResponse) error
 		SearchSipScoreEntry(ctx context.Context, in *SearchSipScoreEntryRequest, out *ListSipScoreEntryResponse) error
 		DeleteSipScoreEntries(ctx context.Context, in *DeleteSipScoreEntriesRequest, out *Response) error
 		ListSipScore(ctx context.Context, in *ListSipScoreRequest, out *ListSipScoreResponse) error
 		SearchSipScore(ctx context.Context, in *SearchSipScoreRequest, out *SearchSipScoreResponse) error
+		ListUserCreatedSipScore(ctx context.Context, in *ListPostPartInfoRequest, out *ListSipScoreResponse) error
+		ListUserCollectedSipScore(ctx context.Context, in *ListPostPartInfoRequest, out *ListSipScoreResponse) error
 		CreateSipScoreEntryCommentRating(ctx context.Context, in *CreateSipScoreEntryCommentRatingRequest, out *Response) error
 		UpdateSipScoreEntryCommentRatingInfo(ctx context.Context, in *UpdateSipScoreEntryCommentRatingInfoRequest, out *Response) error
 		DeleteSipScoreEntryCommentRating(ctx context.Context, in *DeleteSipScoreEntryCommentRatingRequest, out *Response) error
@@ -508,6 +567,7 @@ func RegisterPostServiceHandler(s server.Server, hdlr PostServiceHandler, opts .
 		CreateReport(ctx context.Context, in *CreateReportRequest, out *Response) error
 		ListReport(ctx context.Context, in *ListReportRequest, out *ListReportResponse) error
 		HandleReport(ctx context.Context, in *HandleReportRequest, out *Response) error
+		CreateFeedback(ctx context.Context, in *CreateFeedbackRequest, out *Response) error
 	}
 	type PostService struct {
 		postService
@@ -572,6 +632,10 @@ func (h *postServiceHandler) GetSipScore(ctx context.Context, in *Request, out *
 	return h.PostServiceHandler.GetSipScore(ctx, in, out)
 }
 
+func (h *postServiceHandler) GetSipScoreEntryDetail(ctx context.Context, in *GetSipScoreEntryRequest, out *SipScoreEntryDetail) error {
+	return h.PostServiceHandler.GetSipScoreEntryDetail(ctx, in, out)
+}
+
 func (h *postServiceHandler) ListSipScoreEntry(ctx context.Context, in *ListSipScoreEntryRequest, out *ListSipScoreEntryResponse) error {
 	return h.PostServiceHandler.ListSipScoreEntry(ctx, in, out)
 }
@@ -590,6 +654,14 @@ func (h *postServiceHandler) ListSipScore(ctx context.Context, in *ListSipScoreR
 
 func (h *postServiceHandler) SearchSipScore(ctx context.Context, in *SearchSipScoreRequest, out *SearchSipScoreResponse) error {
 	return h.PostServiceHandler.SearchSipScore(ctx, in, out)
+}
+
+func (h *postServiceHandler) ListUserCreatedSipScore(ctx context.Context, in *ListPostPartInfoRequest, out *ListSipScoreResponse) error {
+	return h.PostServiceHandler.ListUserCreatedSipScore(ctx, in, out)
+}
+
+func (h *postServiceHandler) ListUserCollectedSipScore(ctx context.Context, in *ListPostPartInfoRequest, out *ListSipScoreResponse) error {
+	return h.PostServiceHandler.ListUserCollectedSipScore(ctx, in, out)
 }
 
 func (h *postServiceHandler) CreateSipScoreEntryCommentRating(ctx context.Context, in *CreateSipScoreEntryCommentRatingRequest, out *Response) error {
@@ -658,4 +730,8 @@ func (h *postServiceHandler) ListReport(ctx context.Context, in *ListReportReque
 
 func (h *postServiceHandler) HandleReport(ctx context.Context, in *HandleReportRequest, out *Response) error {
 	return h.PostServiceHandler.HandleReport(ctx, in, out)
+}
+
+func (h *postServiceHandler) CreateFeedback(ctx context.Context, in *CreateFeedbackRequest, out *Response) error {
+	return h.PostServiceHandler.CreateFeedback(ctx, in, out)
 }

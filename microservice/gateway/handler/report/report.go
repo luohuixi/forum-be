@@ -19,6 +19,8 @@ type CreateRequest struct {
 	Category string `json:"category"`                     //可选参数
 	Cause    string `json:"cause" binding:"required"`
 	Id       uint32 `json:"id" binding:"required"` //post的id或者是comment的id
+	Contact  string `json:"contact"`
+	ImgURL   string `json:"img_url"`
 }
 
 type HandleRequest struct {
@@ -44,4 +46,6 @@ type Report struct {
 	BeReportedContent  string `json:"be_reported_content"`
 	Category           string `json:"category"`
 	TargetId           uint32 `json:"target_id"`
+	Contact            string `json:"contact"`
+	ImgURL             string `json:"img_url"`
 }

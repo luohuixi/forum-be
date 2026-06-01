@@ -23,7 +23,7 @@ func GetMyProfile(c *gin.Context) {
 
 	userId := c.MustGet("userId").(uint32)
 
-	user, err := GetUserProfile(c.Request.Context(), userId)
+	user, err := GetUserProfile(c.Request.Context(), userId, userId)
 
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())

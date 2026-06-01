@@ -40,6 +40,7 @@ type UserService interface {
 	StudentLogin(ctx context.Context, in *StudentLoginRequest, opts ...client.CallOption) (*LoginResponse, error)
 	GetInfo(ctx context.Context, in *GetInfoRequest, opts ...client.CallOption) (*UserInfoResponse, error)
 	GetProfile(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*UserProfile, error)
+	ToggleFollow(ctx context.Context, in *FollowRequest, opts ...client.CallOption) (*FollowResponse, error)
 	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 	ListMessage(ctx context.Context, in *ListMessageRequest, opts ...client.CallOption) (*ListMessageResponse, error)
 	ListPrivateMessage(ctx context.Context, in *ListMessageRequest, opts ...client.CallOption) (*ListPrivateMessageResponse, error)
@@ -94,6 +95,16 @@ func (c *userService) GetInfo(ctx context.Context, in *GetInfoRequest, opts ...c
 func (c *userService) GetProfile(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*UserProfile, error) {
 	req := c.c.NewRequest(c.name, "UserService.GetProfile", in)
 	out := new(UserProfile)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) ToggleFollow(ctx context.Context, in *FollowRequest, opts ...client.CallOption) (*FollowResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.ToggleFollow", in)
+	out := new(FollowResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -178,6 +189,7 @@ type UserServiceHandler interface {
 	StudentLogin(context.Context, *StudentLoginRequest, *LoginResponse) error
 	GetInfo(context.Context, *GetInfoRequest, *UserInfoResponse) error
 	GetProfile(context.Context, *GetRequest, *UserProfile) error
+	ToggleFollow(context.Context, *FollowRequest, *FollowResponse) error
 	List(context.Context, *ListRequest, *ListResponse) error
 	ListMessage(context.Context, *ListMessageRequest, *ListMessageResponse) error
 	ListPrivateMessage(context.Context, *ListMessageRequest, *ListPrivateMessageResponse) error
@@ -193,6 +205,7 @@ func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts .
 		StudentLogin(ctx context.Context, in *StudentLoginRequest, out *LoginResponse) error
 		GetInfo(ctx context.Context, in *GetInfoRequest, out *UserInfoResponse) error
 		GetProfile(ctx context.Context, in *GetRequest, out *UserProfile) error
+		ToggleFollow(ctx context.Context, in *FollowRequest, out *FollowResponse) error
 		List(ctx context.Context, in *ListRequest, out *ListResponse) error
 		ListMessage(ctx context.Context, in *ListMessageRequest, out *ListMessageResponse) error
 		ListPrivateMessage(ctx context.Context, in *ListMessageRequest, out *ListPrivateMessageResponse) error
@@ -226,6 +239,10 @@ func (h *userServiceHandler) GetInfo(ctx context.Context, in *GetInfoRequest, ou
 
 func (h *userServiceHandler) GetProfile(ctx context.Context, in *GetRequest, out *UserProfile) error {
 	return h.UserServiceHandler.GetProfile(ctx, in, out)
+}
+
+func (h *userServiceHandler) ToggleFollow(ctx context.Context, in *FollowRequest, out *FollowResponse) error {
+	return h.UserServiceHandler.ToggleFollow(ctx, in, out)
 }
 
 func (h *userServiceHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {

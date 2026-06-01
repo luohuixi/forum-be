@@ -127,3 +127,52 @@ func (Dao) AddPublicPolicy(role string, userId uint32) error {
 	}
 	return nil
 }
+
+func (d *Dao) ToggleFollow(followerID, followeeID uint32) (bool, error) {
+	var isFollowing bool
+	err := d.DB.Transaction(func(tx *gorm.DB) error {
+		var follow UserFollowModel
+		err := tx.Where("follower_id = ? AND followee_id = ?", followerID, followeeID).First(&follow).Error
+		if err == nil {
+			if err = tx.Delete(&follow).Error; err != nil {
+				return err
+			}
+			isFollowing = false
+			return nil
+		}
+		if err != gorm.ErrRecordNotFound {
+			return err
+		}
+
+		if err = tx.Create(&UserFollowModel{
+			FollowerID: followerID,
+			FolloweeID: followeeID,
+		}).Error; err != nil {
+			return err
+		}
+		isFollowing = true
+		return nil
+	})
+	return isFollowing, err
+}
+
+func (d *Dao) CountFollowing(userID uint32) (uint32, error) {
+	var count int64
+	err := d.DB.Model(&UserFollowModel{}).Where("follower_id = ?", userID).Count(&count).Error
+	return uint32(count), err
+}
+
+func (d *Dao) CountFollowers(userID uint32) (uint32, error) {
+	var count int64
+	err := d.DB.Model(&UserFollowModel{}).Where("followee_id = ?", userID).Count(&count).Error
+	return uint32(count), err
+}
+
+func (d *Dao) IsFollowing(followerID, followeeID uint32) (bool, error) {
+	var follow UserFollowModel
+	err := d.DB.Select("id").Where("follower_id = ? AND followee_id = ?", followerID, followeeID).First(&follow).Error
+	if err == gorm.ErrRecordNotFound {
+		return false, nil
+	}
+	return err == nil, err
+}

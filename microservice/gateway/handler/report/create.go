@@ -62,6 +62,8 @@ func (a *Api) Create(c *gin.Context) {
 		TypeName: req.TypeName,
 		Category: req.Category,
 		Cause:    req.Cause,
+		Contact:  req.Contact,
+		ImgUrl:   req.ImgURL,
 	}
 
 	_, err = client.PostClient.CreateReport(c.Request.Context(), &createReq)

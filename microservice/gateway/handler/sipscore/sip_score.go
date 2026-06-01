@@ -92,6 +92,11 @@ type GetSipScoreResponse struct {
 	SipScore *SipScore `json:"sip_score"`
 }
 
+type GetSipScoreEntryResponse struct {
+	Entry    *SipScoreEntry                  `json:"entry"`
+	MyRating *SipScoreEntryCommentRatingInfo `json:"my_rating"`
+}
+
 type ListSipScoresResponse struct {
 	SipScores []*SipScoreWithEntries `json:"sip_scores"`
 	PageToken string                 `json:"page_token"`
@@ -202,7 +207,7 @@ type CreateSipScoreEntryRatingRequest struct {
 	SipScoreID uint32 `json:"sip_score_id" binding:"required"`
 	EntryID    uint32 `json:"entry_id" binding:"required"`
 	Comment    string `json:"comment" binding:"required"`
-	ImgUrl     string `json:"img_url" binding:"required"`
+	ImgUrl     string `json:"img_url"`
 	Rating     uint32 `json:"rating" binding:"required"`
 }
 

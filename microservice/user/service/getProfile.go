@@ -31,6 +31,20 @@ func (s *UserService) GetProfile(_ context.Context, req *pb.GetRequest, resp *pb
 	resp.Signature = user.Signature
 	resp.IsPublicCollectionAndLike = user.IsPublicCollectionAndLike
 	resp.IsPublicFeed = user.IsPublicFeed
+	resp.FollowingCount, err = s.Dao.CountFollowing(user.Id)
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+	resp.FollowerCount, err = s.Dao.CountFollowers(user.Id)
+	if err != nil {
+		return errno.ServerErr(errno.ErrDatabase, err.Error())
+	}
+	if req.ViewerId != 0 && req.ViewerId != user.Id {
+		resp.IsFollowing, err = s.Dao.IsFollowing(req.ViewerId, user.Id)
+		if err != nil {
+			return errno.ServerErr(errno.ErrDatabase, err.Error())
+		}
+	}
 
 	return nil
 }

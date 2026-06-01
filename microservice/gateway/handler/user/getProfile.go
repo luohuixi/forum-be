@@ -35,7 +35,8 @@ func GetProfile(c *gin.Context) {
 		return
 	}
 
-	user, err := GetUserProfile(c.Request.Context(), uint32(id))
+	userID := c.MustGet("userId").(uint32)
+	user, err := GetUserProfile(c.Request.Context(), uint32(id), userID)
 
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
@@ -45,8 +46,8 @@ func GetProfile(c *gin.Context) {
 	SendMicroServiceResponse(c, nil, user, UserProfile{})
 }
 
-func GetUserProfile(ctx context.Context, id uint32) (*pb.UserProfile, error) {
-	getProfileReq := &pb.GetRequest{Id: id}
+func GetUserProfile(ctx context.Context, id uint32, viewerID uint32) (*pb.UserProfile, error) {
+	getProfileReq := &pb.GetRequest{Id: id, ViewerId: viewerID}
 
 	getProfileResp, err := client.UserClient.GetProfile(ctx, getProfileReq)
 	if err != nil {

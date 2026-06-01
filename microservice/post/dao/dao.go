@@ -72,6 +72,8 @@ type Interface interface {
 	ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error)
 	SearchSipScore(keyword string, limit uint32, domain string) ([]*SipScoreModel, error)
 	SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32, domain string) ([]*SipScoreModel, error)
+	ListSipScoreByCreator(userID uint32, offset uint32, limit uint32, lastID uint32, pagination bool) ([]*SipScoreModel, error)
+	ListCollectedSipScoreByUser(userID uint32, offset uint32, limit uint32, lastID uint32, pagination bool) ([]*SipScoreModel, error)
 	BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32, tx ...*gorm.DB) (map[uint32][]*SipScoreEntryModel, error)
 	GetSipScoreEntry(sipScoreID, entryID uint32, tx ...*gorm.DB) (*SipScoreEntryModel, error)
 	CreateSipScoreEntryCommentRating(rating *SipScoreEntryCommentRating, tx ...*gorm.DB) (uint32, error)
@@ -155,6 +157,7 @@ type Interface interface {
 	ValidReport(string, uint32) error
 	InValidReport(uint32, string, uint32) error
 	IsUserHadReportTarget(uint32, string, uint32) (bool, error)
+	CreateFeedback(*FeedbackModel) error
 
 	UpdateLastRead(uint32, string, string) error
 }

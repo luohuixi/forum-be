@@ -9,6 +9,7 @@ service UserService {
   rpc StudentLogin(StudentLoginRequest) returns (LoginResponse) {}
   rpc GetInfo(GetInfoRequest) returns (UserInfoResponse) {}
   rpc GetProfile(GetRequest) returns (UserProfile) {}
+  rpc ToggleFollow(FollowRequest) returns (FollowResponse) {}
   rpc List(ListRequest) returns (ListResponse) {}
 
   rpc ListMessage(ListMessageRequest)returns (ListMessageResponse) {}
@@ -88,6 +89,18 @@ message UpdateInfoRequest {
 
 message GetRequest {
   uint32 id = 1;
+  uint32 viewer_id = 2;
+}
+
+message FollowRequest {
+  uint32 user_id = 1;
+  uint32 target_user_id = 2;
+}
+
+message FollowResponse {
+  bool is_following = 1;
+  uint32 following_count = 2;
+  uint32 follower_count = 3;
 }
 
 message GetInfoRequest {
@@ -140,6 +153,9 @@ message UserProfile {
   string signature = 6;
   bool is_public_feed = 7;
   bool is_public_collection_and_like = 8;
+  uint32 following_count = 9;
+  uint32 follower_count = 10;
+  bool is_following = 11;
 }
 
 message ListRequest {

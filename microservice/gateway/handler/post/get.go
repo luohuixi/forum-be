@@ -73,7 +73,7 @@ func (a *Api) Get(c *gin.Context) {
 
 			subPostCommentsMap[comment.Id] = &subPost.Comments
 
-			setInfo(&subPost.info, comment)
+			setCommentInfo(&subPost.info, comment)
 
 			subPosts = append(subPosts, subPost)
 		}
@@ -91,7 +91,7 @@ func (a *Api) Get(c *gin.Context) {
 				continue
 			}
 
-			setInfo(&subPostComment.info, comment)
+			setCommentInfo(&subPostComment.info, comment)
 
 			*subPostComments = append(*subPostComments, subPostComment)
 
@@ -105,7 +105,7 @@ func (a *Api) Get(c *gin.Context) {
 				BeRepliedUserId:   beRepliedComment.CreatorId,
 			}
 
-			setInfo(&commentReply.info, comment)
+			setCommentInfo(&commentReply.info, comment)
 
 			subPostComments, ok := subPostCommentsMap[beRepliedComment.FatherId]
 
@@ -137,7 +137,7 @@ func (a *Api) Get(c *gin.Context) {
 		CollectionNum:   getResp.CollectionNum,
 	}
 
-	setInfo(&resp.info, getResp)
+	setPostInfo(&resp.info, getResp)
 
 	SendResponse(c, nil, resp)
 }

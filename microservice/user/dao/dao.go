@@ -28,6 +28,10 @@ type Interface interface {
 	GetUserByStudentId(studentId string) (*UserModel, error)
 	RegisterUser(info *RegisterInfo) error
 	AddPublicPolicy(string, uint32) error
+	ToggleFollow(uint32, uint32) (bool, error)
+	CountFollowing(uint32) (uint32, error)
+	CountFollowers(uint32) (uint32, error)
+	IsFollowing(uint32, uint32) (bool, error)
 
 	ListMessage() ([]string, error)
 	ListPrivateMessage(uint32) ([]string, error)
