@@ -170,3 +170,9 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 
 	return g
 }
+
+// LoadMetrics loads only the metrics endpoint on a dedicated engine (internal port).
+func LoadMetrics(g *gin.Engine) *gin.Engine {
+	g.GET("/metrics", middleware.MetricsHandler())
+	return g
+}

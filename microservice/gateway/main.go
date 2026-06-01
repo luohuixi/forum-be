@@ -123,7 +123,15 @@ func main() {
 		middleware.Logging(),
 		ginhttp.Middleware(opentracing.GlobalTracer()),
 		middleware.RequestId(),
+		middleware.Metrics(),
 	)
+
+	// Start metrics server on internal port (not exposed to public).
+	metricsG := gin.New()
+	router.LoadMetrics(metricsG)
+	go func() {
+		log.Info(http.ListenAndServe(":9091", metricsG).Error())
+	}()
 
 	// Ping the server to make sure the router is working.
 	go func() {

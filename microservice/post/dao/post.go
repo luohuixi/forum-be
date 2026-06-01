@@ -312,10 +312,10 @@ func (d Dao) syncItemLike() error {
 		}
 	}
 
-	if err := d.Redis.SRem("changed_posts").Err(); err != nil {
+	if err := d.Redis.Del("changed_posts").Err(); err != nil {
 		return err
 	}
-	if err := d.Redis.SRem("changed_comments").Err(); err != nil {
+	if err := d.Redis.Del("changed_comments").Err(); err != nil {
 		return err
 	}
 

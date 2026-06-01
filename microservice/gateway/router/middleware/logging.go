@@ -36,16 +36,19 @@ func Logging() gin.HandlerFunc {
 
 		reg := regexp.MustCompile("swagger")
 		if reg.MatchString(path) {
+			c.Next()
 			return
 		}
 
 		// Skip for the health check requests.
 		if path == "/sd/health" || path == "/sd/ram" || path == "/sd/cpu" || path == "/sd/disk" {
+			c.Next()
 			return
 		}
 
 		// Skip for the websocket requests.
 		if len(path) >= 3 && path[len(path)-3:] == "/ws" {
+			c.Next()
 			return
 		}
 
