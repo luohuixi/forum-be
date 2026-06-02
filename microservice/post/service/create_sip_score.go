@@ -9,9 +9,11 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"forum/pkg/unique"
+	"strings"
 	"time"
 
 	"go.uber.org/zap"
+	"gorm.io/gorm"
 )
 
 // todo 可以进一步优化 - 将 tag 放到消息队列
@@ -30,8 +32,7 @@ func (s *PostService) CreateSipScore(_ context.Context, req *pb.CreateSipScoreRe
 	logger.Info("check domain cost:", zap.String("time", time.Since(t1).String()))
 
 	t2 := time.Now()
-	tags := req.GetTags()
-	uniqueTags := unique.UniqueStrings(tags)
+	uniqueTags := normalizeSipScoreTags(req.GetTags())
 	for _, content := range uniqueTags {
 		if content == "" {
 			return errno.ServerErr(errno.ErrBadRequest, "tag content cannot be empty")
@@ -51,11 +52,57 @@ func (s *PostService) CreateSipScore(_ context.Context, req *pb.CreateSipScoreRe
 		LastModifiedBy: creatorID,
 	}
 
-	sipScoreID, err := s.Dao.CreateSipScore(data)
+	var (
+		sipScoreID uint32
+		tagIDs     []uint32
+	)
+
+	err := s.Dao.Transaction(func(tx *gorm.DB) error {
+		var err error
+		sipScoreID, err = s.Dao.CreateSipScore(data, tx)
+		if err != nil {
+			return err
+		}
+		logger.Info("CreateSipScore cost:", zap.String("time", time.Since(t3).String()))
+
+		// sip_score_tags 没有外键时，历史脏数据可能提前占用未来的 sip_score_id。
+		// 新建榜单拿到自增 ID 后先清一遍，避免把非本次请求的标签带进新榜单。
+		if err = s.Dao.DeleteSipScoreTagsBySipScoreId(sipScoreID, tx); err != nil {
+			return err
+		}
+
+		// 获取 tagID
+		t5 := time.Now()
+		tagsModel, err := s.Dao.BatchGetOrCreateTags(uniqueTags)
+		if err != nil {
+			return err
+		}
+
+		sipScoreTags := make([]*dao.SipScoreTagModel, 0, len(tagsModel))
+		tagIDs = make([]uint32, 0, len(tagsModel))
+		for _, tag := range tagsModel {
+			if tag == nil || tag.Id == 0 {
+				continue
+			}
+			tagIDs = append(tagIDs, tag.Id)
+			sipScoreTags = append(sipScoreTags, &dao.SipScoreTagModel{
+				TagID:      tag.Id,
+				SipScoreID: sipScoreID,
+			})
+		}
+		logger.Info("BatchGetOrCreateTags cost:", zap.String("time", time.Since(t5).String()))
+
+		t6 := time.Now()
+		if err = s.Dao.BatchCreateSipScoreTags(sipScoreTags, tx); err != nil {
+			return err
+		}
+		logger.Info("BatchCreateSipScore cost:", zap.String("time", time.Since(t6).String()))
+
+		return nil
+	})
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
-	logger.Info("CreateSipScore cost:", zap.String("time", time.Since(t3).String()))
 
 	// 创建者具有写权限
 	t4 := time.Now()
@@ -68,42 +115,27 @@ func (s *PostService) CreateSipScore(_ context.Context, req *pb.CreateSipScoreRe
 	}
 	logger.Info("add casbin policy cost:", zap.String("time", time.Since(t4).String()))
 
-	// 获取 tagID
-	t5 := time.Now()
-	tagsModel, err := s.Dao.BatchGetOrCreateTags(uniqueTags)
-	if err != nil {
-		return errno.ServerErr(errno.ErrDatabase, err.Error())
-	}
-
-	// 顺序一样，直接构建
-	sipScoreTags := make([]*dao.SipScoreTagModel, 0, len(uniqueTags))
-	tagIDs := make([]uint32, 0, len(tagsModel))
-	for _, tag := range tagsModel {
-		tagIDs = append(tagIDs, tag.Id)
-
-		sipScoreTags = append(sipScoreTags, &dao.SipScoreTagModel{
-			TagID:      tag.Id,
-			SipScoreID: sipScoreID,
-		})
-	}
-	logger.Info("BatchGetOrCreateTags cost:", zap.String("time", time.Since(t5).String()))
-
-	t6 := time.Now()
-	err = s.Dao.BatchCreateSipScoreTags(sipScoreTags)
-	if err != nil {
-		return errno.ServerErr(errno.ErrDatabase, err.Error())
-	}
-
 	category := req.GetCategory()
-	logger.Info("BatchCreateSipScore cost:", zap.String("time", time.Since(t6).String()))
-
-	go func(tagIDs []uint32, category string) {
-		if err := s.Dao.BatchAddTagsToSortedSet(tagIDs, category); err != nil {
-			logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
-		}
-	}(tagIDs, category)
+	if len(tagIDs) != 0 {
+		go func(tagIDs []uint32, category string) {
+			if err := s.Dao.BatchAddTagsToSortedSet(tagIDs, category); err != nil {
+				logger.Error(errno.ErrRedis.Error(), logger.String(err.Error()))
+			}
+		}(tagIDs, category)
+	}
 
 	resp.Id = sipScoreID
 	logger.Info("PostService CreateSipScore cost:", zap.String("time", time.Since(start).String()))
 	return nil
+}
+
+func normalizeSipScoreTags(tags []string) []string {
+	trimmed := make([]string, 0, len(tags))
+	for _, tag := range tags {
+		tag = strings.TrimSpace(strings.TrimPrefix(tag, "#"))
+		if tag != "" {
+			trimmed = append(trimmed, tag)
+		}
+	}
+	return unique.UniqueStrings(trimmed)
 }

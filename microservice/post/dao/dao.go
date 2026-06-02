@@ -35,7 +35,7 @@ type Interface interface {
 	ChangeQualityPost(uint32, bool) error
 	CountPostByTime(string, string) (int, error)
 
-	CreateSipScore(sipScore *SipScoreModel) (uint32, error)
+	CreateSipScore(sipScore *SipScoreModel, tx ...*gorm.DB) (uint32, error)
 	BatchGetOrCreateTags(tags []string) ([]*TagModel, error)
 	BatchCreateSipScoreTags(items []*SipScoreTagModel, tx ...*gorm.DB) error
 	BatchAddTagsToSortedSet(tagIDs []uint32, category string) error

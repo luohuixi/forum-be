@@ -88,8 +88,9 @@ type SipScoreInfo struct {
 	ParticipantCount uint32
 }
 
-func (d *Dao) CreateSipScore(sipScore *SipScoreModel) (uint32, error) {
-	err := sipScore.Create()
+func (d *Dao) CreateSipScore(sipScore *SipScoreModel, tx ...*gorm.DB) (uint32, error) {
+	db := d.getDB(tx...)
+	err := db.Create(sipScore).Error
 	return sipScore.ID, err
 }
 
@@ -298,11 +299,11 @@ func (d *Dao) listSipScoreByUintFieldWithCursor(domain string, field string, ord
 	db := d.getDB(tx...)
 	whereOp := ">"
 	idOp := ">"
-	order := field + " ASC, id ASC"
+	order := field + " ASC, updated_at ASC, id ASC"
 	if orderDir == orderDirDesc {
 		whereOp = "<"
 		idOp = "<"
-		order = field + " DESC, id DESC"
+		order = field + " DESC, updated_at DESC, id DESC"
 	}
 
 	if domain != "" {
@@ -318,9 +319,9 @@ func (d *Dao) listSipScoreByUintFieldWithCursor(domain string, field string, ord
 
 func (d *Dao) listSipScoreByUintField(domain string, field string, orderDir string, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
 	db := d.getDB(tx...)
-	order := field + " ASC, id ASC"
+	order := field + " ASC, updated_at ASC, id ASC"
 	if orderDir == orderDirDesc {
-		order = field + " DESC, id DESC"
+		order = field + " DESC, updated_at DESC, id DESC"
 	}
 
 	if domain != "" {
@@ -432,16 +433,14 @@ func (d *Dao) IncrSipScoreEntryScore(sipScoreID, entryID uint32, scoreIncr uint3
 		UpdateColumns(map[string]interface{}{
 			"score_total":       gorm.Expr("score_total + ?", scoreIncr),
 			"participant_count": gorm.Expr("participant_count + ?", participantIncr),
-			"score_avg": gorm.Expr(
-				"((score_total + ?) * 100) / (participant_count + ?)",
-				scoreIncr,
-				participantIncr,
-			),
 		})
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
-	return result.Error
+	if result.Error != nil {
+		return result.Error
+	}
+	return d.refreshSipScoreEntryScoreAvg(sipScoreID, entryID, tx...)
 }
 
 func (d *Dao) UpdateSipScoreEntry(sipScoreID, entryID uint32, update map[string]interface{}, tx ...*gorm.DB) error {
@@ -652,7 +651,7 @@ func (d *Dao) BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32
 	// 按热门排序查全部
 	err := db.
 		Where("sip_score_id IN ?", sipScoreIDs).
-		Order("sip_score_id ASC, participant_count DESC, id DESC").
+		Order("sip_score_id ASC, participant_count DESC, updated_at DESC, id DESC").
 		Find(&entries).Error
 
 	if err != nil {
@@ -898,19 +897,15 @@ func (d *Dao) UpdateSipScoreEntryScoreByRatingDelta(sipScoreID, entryID uint32, 
 	result := db.Model(&SipScoreEntryModel{}).
 		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
 		UpdateColumns(map[string]interface{}{
-			"score_total": gorm.Expr("GREATEST(score_total + ?, 0)", delta),
-			"score_avg": gorm.Expr(
-				`CASE 
-					WHEN participant_count = 0 THEN 0 
-					ELSE (GREATEST(score_total + ?, 0) * 100) / participant_count 
-				END`,
-				delta,
-			),
+			"score_total": gorm.Expr("GREATEST(CAST(score_total AS SIGNED) + ?, 0)", delta),
 		})
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
-	return result.Error
+	if result.Error != nil {
+		return result.Error
+	}
+	return d.refreshSipScoreEntryScoreAvg(sipScoreID, entryID, tx...)
 }
 
 func (d *Dao) DecrSipScoreEntryScore(sipScoreID, entryID uint32, rating uint32, tx ...*gorm.DB) error {
@@ -919,20 +914,27 @@ func (d *Dao) DecrSipScoreEntryScore(sipScoreID, entryID uint32, rating uint32, 
 	result := db.Model(&SipScoreEntryModel{}).
 		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
 		UpdateColumns(map[string]interface{}{
-			"score_total":       gorm.Expr("GREATEST(score_total - ?, 0)", rating),
+			"score_total":       gorm.Expr("GREATEST(CAST(score_total AS SIGNED) - ?, 0)", rating),
 			"participant_count": gorm.Expr("GREATEST(participant_count - 1, 0)"),
-			"score_avg": gorm.Expr(
-				`CASE 
-					WHEN participant_count <= 1 THEN 0 
-					ELSE (GREATEST(score_total - ?, 0) * 100) / (participant_count - 1) 
-				END`,
-				rating,
-			),
 		})
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
-	return result.Error
+	if result.Error != nil {
+		return result.Error
+	}
+	return d.refreshSipScoreEntryScoreAvg(sipScoreID, entryID, tx...)
+}
+
+func (d *Dao) refreshSipScoreEntryScoreAvg(sipScoreID, entryID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	return db.Model(&SipScoreEntryModel{}).
+		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
+		UpdateColumn(
+			"score_avg",
+			gorm.Expr("CASE WHEN participant_count = 0 THEN 0 ELSE (score_total * 100) / participant_count END"),
+		).Error
 }
 
 // IncrSipScoreEntryCommentRatingCommentNum 原子递增评分的评论数

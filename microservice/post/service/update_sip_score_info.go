@@ -7,8 +7,6 @@ import (
 	pb "forum-post/proto"
 	logger "forum/log"
 	"forum/pkg/errno"
-	"forum/pkg/unique"
-	"strings"
 
 	"gorm.io/gorm"
 )
@@ -56,9 +54,9 @@ func (s *PostService) UpdateSipScoreInfo(_ context.Context, req *pb.UpdateSipSco
 	isTagsUpdate := false
 
 	for _, path := range req.UpdateMask.Paths {
-		if strings.Compare(path, "tags") == 0 {
+		if path == "tags" {
 			isTagsUpdate = true
-			uniqueTags = unique.UniqueStrings(req.GetTags())
+			uniqueTags = normalizeSipScoreTags(req.GetTags())
 			for _, content := range uniqueTags {
 				if content == "" {
 					return errno.ServerErr(errno.ErrBadRequest, "tag content cannot be empty")
@@ -72,10 +70,6 @@ func (s *PostService) UpdateSipScoreInfo(_ context.Context, req *pb.UpdateSipSco
 		} else {
 			return errno.ServerErr(errno.ErrBadRequest, "invalid update_mask path: "+path)
 		}
-	}
-
-	if isTagsUpdate && len(uniqueTags) == 0 {
-		return errno.ServerErr(errno.ErrBadRequest, "tags required")
 	}
 
 	var (

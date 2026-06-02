@@ -69,6 +69,10 @@ func (a *Api) CreateSipScore(c *gin.Context) {
 		SendError(c, err, &EmptyResponse{}, "", GetLine())
 		return
 	}
+	if err = model.LoadPolicy(); err != nil {
+		SendError(c, errno.ErrCasbin, &EmptyResponse{}, err.Error(), GetLine())
+		return
+	}
 
 	SendResponse(c, nil, &IdResponse{ID: resp.Id})
 }

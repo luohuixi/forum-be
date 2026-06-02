@@ -159,6 +159,10 @@ func Enforce(userId uint32, typeName string, data interface{}, act string) (bool
 	return CB.Self.Enforce("user:"+strconv.Itoa(int(userId)), object, act)
 }
 
+func LoadPolicy() error {
+	return CB.Self.LoadPolicy()
+}
+
 func AddPolicy(userId uint32, typeName string, id uint32, act string) error {
 	ok, err := CB.Self.AddPolicy("user:"+strconv.Itoa(int(userId)), typeName+":"+strconv.Itoa(int(id)), act)
 	if err != nil {
