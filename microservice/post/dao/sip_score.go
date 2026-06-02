@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -159,13 +160,8 @@ func (d *Dao) ListSipScoreHottest(limit uint32, domain string, tx ...*gorm.DB) (
 
 func (d *Dao) SearchSipScore(keyword string, limit uint32, domain string) ([]*SipScoreModel, error) {
 	var sipScores []*SipScoreModel
-	db := d.DB.
-		Where("MATCH(name, description, category) AGAINST(? IN BOOLEAN MODE)", keyword).
-		Where("deleted_at = 0")
-	if domain != "" {
-		db = db.Where("domain = ?", domain)
-	}
-	err := db.Order("created_at DESC, id DESC").
+	db := d.applySipScoreSearch(d.DB.Model(&SipScoreModel{}), keyword, domain)
+	err := db.Order("sip_scores.created_at DESC, sip_scores.id DESC").
 		Limit(int(limit)).
 		Find(&sipScores).Error
 	return sipScores, err
@@ -173,17 +169,47 @@ func (d *Dao) SearchSipScore(keyword string, limit uint32, domain string) ([]*Si
 
 func (d *Dao) SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32, domain string) ([]*SipScoreModel, error) {
 	var sipScores []*SipScoreModel
-	db := d.DB.
-		Where("MATCH(name, description, category) AGAINST(? IN BOOLEAN MODE)", keyword).
-		Where("deleted_at = 0")
-	if domain != "" {
-		db = db.Where("domain = ?", domain)
-	}
-	err := db.Where("(created_at, id) < (?, ?)", lastCreatedAt, lastID).
-		Order("created_at DESC, id DESC").
+	db := d.applySipScoreSearch(d.DB.Model(&SipScoreModel{}), keyword, domain)
+	err := db.Where("(sip_scores.created_at, sip_scores.id) < (?, ?)", lastCreatedAt, lastID).
+		Order("sip_scores.created_at DESC, sip_scores.id DESC").
 		Limit(int(limit)).
 		Find(&sipScores).Error
 	return sipScores, err
+}
+
+func (d *Dao) applySipScoreSearch(db *gorm.DB, keyword string, domain string) *gorm.DB {
+	keyword = strings.TrimSpace(keyword)
+	escapedKeyword := escapeLike(keyword)
+	likeKeyword := "%" + escapedKeyword + "%"
+
+	db = db.
+		Distinct("sip_scores.*").
+		Joins("LEFT JOIN sip_score_tags ON sip_score_tags.sip_score_id = sip_scores.id").
+		Joins("LEFT JOIN tags ON tags.id = sip_score_tags.tag_id").
+		Joins("LEFT JOIN sip_score_entries ON sip_score_entries.sip_score_id = sip_scores.id AND sip_score_entries.deleted_at = 0").
+		Where("sip_scores.deleted_at = 0").
+		Where(
+			d.DB.
+				Where("MATCH(sip_scores.name, sip_scores.description, sip_scores.category) AGAINST(? IN BOOLEAN MODE)", keyword).
+				Or("sip_scores.name LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("sip_scores.description LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("sip_scores.category LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("tags.content LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("sip_score_entries.name LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("sip_score_entries.description LIKE ? ESCAPE '\\\\'", likeKeyword),
+		)
+	if domain != "" {
+		db = db.Where("sip_scores.domain = ?", domain)
+	}
+
+	return db
+}
+
+func escapeLike(value string) string {
+	value = strings.ReplaceAll(value, "\\", "\\\\")
+	value = strings.ReplaceAll(value, "%", "\\%")
+	value = strings.ReplaceAll(value, "_", "\\_")
+	return value
 }
 
 func (d *Dao) ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error) {
