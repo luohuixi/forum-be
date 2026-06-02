@@ -175,6 +175,7 @@ type SipScoreEntryCommentRatingInfo struct {
 	Content         string         `json:"content"`
 	CommentID       uint32         `json:"comment_id"`
 	LikeNum         uint32         `json:"like_num"`
+	IsLiked         bool           `json:"is_liked"`
 	ImgUrl          string         `json:"img_url"`
 	CreatedAt       string         `json:"created_at"`
 	UpdatedAt       string         `json:"updated_at"`

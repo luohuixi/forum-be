@@ -96,6 +96,7 @@ func sipScoreEntryRatingFromPB(r *pb.SipScoreEntryCommentRating) *SipScoreEntryC
 		Content:         r.Content,
 		CommentID:       r.CommentId,
 		LikeNum:         r.LikeNum,
+		IsLiked:         false,
 		ImgUrl:          r.ImgUrl,
 		CreatedAt:       r.CreatedAt.AsTime().Format(time.DateTime),
 		UpdatedAt:       r.UpdatedAt.AsTime().Format(time.DateTime),
