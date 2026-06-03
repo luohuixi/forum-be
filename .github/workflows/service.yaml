@@ -61,9 +61,11 @@ jobs:
       - name: SSH into server and deploy
         run: |
           echo "Will deploy: forum_be_${{ inputs.service }}:${{ inputs.image_tag }}"
-          ssh -i ~/.ssh/id_rsa \
-              -o StrictHostKeyChecking=no \
-              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} bash -s <<EOF
+          for attempt in 1 2 3; do
+            if ssh -i ~/.ssh/id_rsa \
+                -o StrictHostKeyChecking=no \
+                -o ConnectTimeout=15 \
+                ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} bash -s <<EOF
           set -e
           echo "SSH Success!"
           cd ${{ inputs.deploy_dir }}
@@ -73,3 +75,10 @@ jobs:
           docker rm -f ${{ inputs.compose_service }} || true
           BE_IMAGE_TAG=${{ inputs.image_tag }} docker compose up -d ${{ inputs.compose_service }}
           EOF
+            then
+              exit 0
+            fi
+            echo "SSH deploy attempt $attempt failed"
+            sleep 5
+          done
+          exit 1
