@@ -26,7 +26,8 @@ type Interface interface {
 	Transaction(fc func(tx *gorm.DB) error) error
 
 	CreatePost(*PostModel) (uint32, error)
-	ListUserCreatedPost(uint32) ([]uint32, error)
+	ListUserCreatedPost(uint32, uint32, uint32, uint32, bool) ([]uint32, error)
+	ListCollectionPostIDsByUser(uint32, uint32, uint32, uint32, bool) ([]uint32, error)
 	ListMainPost(*PostModel, string, uint32, uint32, uint32, bool, string, uint32) ([]*PostInfo, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)

@@ -27,6 +27,17 @@ type PostModel struct {
 	Quality         bool
 }
 
+type postPartInfoRow struct {
+	Id            uint32
+	Title         string
+	Summary       string
+	Category      string
+	Time          string
+	CreatorId     uint32
+	CreatorName   string
+	CreatorAvatar string
+}
+
 func (PostModel) TableName() string {
 	return "posts"
 }
@@ -145,9 +156,20 @@ func (d *Dao) ListMainPost(filter *PostModel, typeName string, offset, limit, la
 	return posts, err
 }
 
-func (d *Dao) ListUserCreatedPost(creatorId uint32) ([]uint32, error) {
+func (d *Dao) ListUserCreatedPost(creatorId, offset, limit, lastId uint32, pagination bool) ([]uint32, error) {
 	var postIds []uint32
-	err := d.DB.Table("posts").Select("id").Where("creator_id = ? AND re = 0", creatorId).Find(&postIds).Error
+	query := d.DB.Table("posts").Select("id").Where("creator_id = ? AND re = 0", creatorId)
+	if lastId != 0 {
+		query = query.Where("id < ?", lastId)
+	}
+	query = query.Order("id DESC")
+	if pagination {
+		if limit == 0 {
+			limit = constvar.DefaultLimit
+		}
+		query = query.Offset(int(offset)).Limit(int(limit))
+	}
+	err := query.Find(&postIds).Error
 
 	return postIds, err
 }
@@ -215,7 +237,12 @@ func (d Dao) AddChangeRecord(postId uint32) error {
 
 func (d Dao) ListPostInfoByPostIds(postIds []uint32, filter *PostModel, offset, limit, lastId uint32, pagination bool) ([]*pb.PostPartInfo, error) {
 	var posts []*pb.PostPartInfo
-	query := d.DB.Table("posts").Select("posts.id id, title, category, summary, content, last_edit_time time, creator_id, u.name creator_name, u.avatar creator_avatar, content_type").Joins("join users u on u.id = posts.creator_id").Where("posts.re = 0").Where("posts.id IN ?", postIds).Order("posts.id DESC")
+	if len(postIds) == 0 {
+		return posts, nil
+	}
+
+	var rows []*postPartInfoRow
+	query := d.DB.Table("posts").Select("posts.id id, title, category, summary, last_edit_time time, creator_id, u.name creator_name, u.avatar creator_avatar").Joins("join users u on u.id = posts.creator_id").Where("posts.re = 0").Where("posts.id IN ?", postIds)
 
 	if pagination {
 		if limit == 0 {
@@ -229,8 +256,29 @@ func (d Dao) ListPostInfoByPostIds(postIds []uint32, filter *PostModel, offset, 
 		}
 	}
 
-	if err := query.Scan(&posts).Error; err != nil {
+	if err := query.Scan(&rows).Error; err != nil {
 		return nil, err
+	}
+
+	rowByID := make(map[uint32]*postPartInfoRow, len(rows))
+	for _, row := range rows {
+		rowByID[row.Id] = row
+	}
+	for _, id := range postIds {
+		row, ok := rowByID[id]
+		if !ok {
+			continue
+		}
+		posts = append(posts, &pb.PostPartInfo{
+			Id:            row.Id,
+			Title:         row.Title,
+			Summary:       row.Summary,
+			Category:      row.Category,
+			Time:          row.Time,
+			CreatorId:     row.CreatorId,
+			CreatorName:   row.CreatorName,
+			CreatorAvatar: row.CreatorAvatar,
+		})
 	}
 
 	for _, post := range posts {

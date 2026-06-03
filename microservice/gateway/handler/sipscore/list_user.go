@@ -2,9 +2,12 @@ package sipscore
 
 import (
 	. "forum-gateway/handler"
+	"forum-gateway/handler/user"
 	pb "forum-post/proto"
 	"forum/client"
 	"forum/log"
+	"forum/model"
+	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"strconv"
 
@@ -16,6 +19,26 @@ func (a *Api) listUserSipScores(c *gin.Context, collected bool) {
 	if err != nil {
 		SendError(c, errno.ErrPathParam, &EmptyResponse{}, err.Error(), GetLine())
 		return
+	}
+	viewerID := c.MustGet("userId").(uint32)
+	if collected && int(viewerID) != targetUserID {
+		ok, err := model.Enforce(viewerID, constvar.CollectionAndLike, targetUserID, constvar.Read)
+		if err != nil {
+			SendError(c, errno.ErrCasbin, &EmptyResponse{}, err.Error(), GetLine())
+			return
+		}
+		if !ok {
+			public, err := user.IsCollectionAndLikePublic(c.Request.Context(), uint32(targetUserID))
+			if err != nil {
+				SendError(c, err, &EmptyResponse{}, "", GetLine())
+				return
+			}
+			ok = public
+		}
+		if !ok {
+			SendResponse(c, errno.ErrPrivacyInfo, nil)
+			return
+		}
 	}
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "20"))
 	if err != nil {
@@ -34,7 +57,7 @@ func (a *Api) listUserSipScores(c *gin.Context, collected bool) {
 	}
 
 	req := &pb.ListPostPartInfoRequest{
-		UserId:       c.MustGet("userId").(uint32),
+		UserId:       viewerID,
 		TargetUserId: uint32(targetUserID),
 		LastId:       uint32(lastID),
 		Offset:       uint32(page * limit),

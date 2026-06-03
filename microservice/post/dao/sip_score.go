@@ -242,7 +242,7 @@ func (d *Dao) ListCollectedSipScoreByUser(userID uint32, offset uint32, limit ui
 
 	db := d.DB.Model(&SipScoreModel{}).
 		Joins("JOIN collections ON collections.content_id = sip_scores.id AND collections.content_type = ? AND collections.user_id = ? AND collections.deleted_at = 0", 2, userID).
-		Order("sip_scores.id DESC")
+		Order("collections.created_at DESC, collections.id DESC")
 	if pagination {
 		db = db.Offset(int(offset)).Limit(int(limit))
 		if lastID != 0 {

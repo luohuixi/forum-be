@@ -87,6 +87,21 @@ type FollowResponse struct {
 	FollowerCount  uint32 `json:"follower_count"`
 } // @name FollowResponse
 
+type FollowListUser struct {
+	Id             uint32 `json:"id"`
+	Name           string `json:"name"`
+	Avatar         string `json:"avatar"`
+	Role           string `json:"role"`
+	Signature      string `json:"signature"`
+	FollowingCount uint32 `json:"following_count"`
+	FollowerCount  uint32 `json:"follower_count"`
+	IsFollowing    bool   `json:"is_following"`
+} // @name FollowListUser
+
+type FollowListResponse struct {
+	Users []FollowListUser `json:"users"`
+} // @name FollowListResponse
+
 // ListRequest 获取 userList 请求
 type ListRequest struct {
 	Team  uint32 `json:"team"`

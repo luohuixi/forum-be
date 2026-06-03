@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"forum/pkg/constvar"
 	"time"
 
 	"gorm.io/gorm"
@@ -75,6 +76,26 @@ func (d *Dao) ListCollectionByUserId(userId uint32, contentType uint32) ([]uint3
 	var ids []uint32
 	err := d.DB.Model(&CollectionModel{}).
 		Select("content_id").Where("user_id = ? AND content_type = ?", userId, contentType).Find(&ids).Error
+
+	return ids, err
+}
+
+func (d *Dao) ListCollectionPostIDsByUser(userId, offset, limit, lastId uint32, pagination bool) ([]uint32, error) {
+	var ids []uint32
+	query := d.DB.Model(&CollectionModel{}).
+		Select("content_id").
+		Where("user_id = ? AND content_type = ?", userId, constvar.CollectionPost)
+	if lastId != 0 {
+		query = query.Where("content_id < ?", lastId)
+	}
+	query = query.Order("created_at DESC, id DESC")
+	if pagination {
+		if limit == 0 {
+			limit = constvar.DefaultLimit
+		}
+		query = query.Offset(int(offset)).Limit(int(limit))
+	}
+	err := query.Find(&ids).Error
 
 	return ids, err
 }

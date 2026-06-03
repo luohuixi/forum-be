@@ -12,7 +12,7 @@ import (
 func (s *PostService) ListUserCreatedPost(ctx context.Context, req *pb.ListPostPartInfoRequest, resp *pb.ListPostPartInfoResponse) error {
 	logger.Info("PostService ListUserCreatedPost")
 
-	postIds, err := s.Dao.ListUserCreatedPost(req.UserId)
+	postIds, err := s.Dao.ListUserCreatedPost(req.UserId, req.Offset, req.Limit, req.LastId, req.Pagination)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
@@ -27,7 +27,7 @@ func (s *PostService) ListUserCreatedPost(ctx context.Context, req *pb.ListPostP
 		filter.Domain = domain
 	}
 
-	posts, err := s.Dao.ListPostInfoByPostIds(postIds, filter, req.Offset, req.Limit, req.LastId, req.Pagination)
+	posts, err := s.Dao.ListPostInfoByPostIds(postIds, filter, 0, 0, 0, false)
 	if err != nil {
 		return errno.ServerErr(errno.ErrListPostInfoByPostIds, err.Error())
 	}
