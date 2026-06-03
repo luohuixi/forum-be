@@ -104,6 +104,7 @@ type GetPostResponse struct {
 	CommentNum      uint32     `json:"comment_num"`
 	Title           string     `json:"title"`
 	Category        string     `json:"category"`
+	Time            string     `json:"time"`
 	IsCollection    bool       `json:"is_collection"`
 	SubPosts        []*SubPost `json:"sub_posts"`
 	Tags            []string   `json:"tags"`

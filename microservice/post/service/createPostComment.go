@@ -21,11 +21,31 @@ func (s *PostService) CreatePostComment(_ context.Context, req *pb.CreatePostCom
 
 	// check if the FatherId is valid
 	switch req.TypeName {
-	case constvar.FirstLevelComment:
-		// 一级评论直接回复帖子
+	case constvar.SubPost:
 		req.FatherId = req.PostId
 		resp.UserId = post.CreatorId
 		resp.FatherContent = post.Title
+
+	case constvar.FirstLevelComment:
+		if req.FatherId == 0 {
+			req.FatherId = req.PostId
+		}
+		if req.FatherId == req.PostId {
+			resp.UserId = post.CreatorId
+			resp.FatherContent = post.Title
+		} else {
+			comment, err := s.Dao.GetComment(req.FatherId)
+			if err != nil {
+				return errno.ServerErr(errno.ErrDatabase, err.Error())
+			}
+			if comment == nil {
+				return errno.ServerErr(errno.ErrBadRequest, "the comment not found")
+			}
+
+			resp.FatherUserId = comment.CreatorId
+			resp.UserId = comment.CreatorId
+			resp.FatherContent = comment.Content
+		}
 
 	case constvar.SecondLevelComment:
 		comment, err := s.Dao.GetComment(req.FatherId)
