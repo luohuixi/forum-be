@@ -38,7 +38,13 @@ func (s *UserService) CreatePrivateMessage(_ context.Context, req *pb.CreatePriv
 		"comment_content": req.CommentContent,
 	})
 
-	if err := s.Dao.CreateMessage(req.ReceiveUserId, string(message)); err != nil {
+	var err error
+	if req.Type == "like" || req.Type == "collection" {
+		err = s.Dao.CreateOrUpdateInteractionMessage(req.ReceiveUserId, string(message))
+	} else {
+		err = s.Dao.CreateMessage(req.ReceiveUserId, string(message))
+	}
+	if err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
 
