@@ -46,23 +46,24 @@ jobs:
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             REQUESTED="${{ github.event.inputs.services }}"
             if [ "$REQUESTED" = "all" ] || [ -z "$REQUESTED" ]; then
-              SERVICES="chat feed gateway ocr post user"
+              SERVICES="chat feed gateway post user"
             else
               SERVICES="$REQUESTED"
             fi
           else
             if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
-              SERVICES="chat feed gateway ocr post user"
+              SERVICES="chat feed gateway post user"
             else
               CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
               SERVICES=$(echo "$CHANGED" \
-                | awk -F/ '/^microservice\/[^\/]+/ {print $2}' \
+                | awk -F/ '/^microservice\/[^\/]+/ && $2 != "ocr" {print $2}' \
                 | sort -u)
               if [ -z "$SERVICES" ] && echo "$CHANGED" | grep -qE '^(Dockerfile|Makefile|go\\.(mod|sum)|pkg/|model/|client/|config/|log/|util/|\\.github/workflows/)'; then
-                SERVICES="chat feed gateway ocr post user"
+                SERVICES="chat feed gateway post user"
               fi
             fi
           fi
+          SERVICES=$(echo "$SERVICES" | tr ' ' '\n' | awk 'NF && $0 != "ocr"' | sort -u | paste -sd ' ')
           if [ -n "$SERVICES" ]; then
             ONE_LINE=$(echo "$SERVICES" | paste -sd ' ')
             echo "list=$ONE_LINE" >> $GITHUB_OUTPUT
@@ -119,22 +120,6 @@ jobs:
       image_tag: ${{ needs.find_changed_services.outputs.image_tag }}
       deploy_dir: ${{ needs.find_changed_services.outputs.deploy_dir }}
       compose_service: forum_be_gateway${{ needs.find_changed_services.outputs.suffix }}
-    secrets:
-      SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-      SERVER_USER: ${{ secrets.SERVER_USER }}
-      SERVER_ADDR: ${{ secrets.SERVER_ADDR }}
-      ALIYUN_USERNAME: ${{ secrets.ALIYUN_USERNAME }}
-      ALIYUN_PASSWORD: ${{ secrets.ALIYUN_PASSWORD }}
-
-  deploy_ocr:
-    needs: find_changed_services
-    if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'ocr')
-    uses: ./.github/workflows/service.yaml
-    with:
-      service: ocr
-      image_tag: ${{ needs.find_changed_services.outputs.image_tag }}
-      deploy_dir: ${{ needs.find_changed_services.outputs.deploy_dir }}
-      compose_service: forum_be_ocr${{ needs.find_changed_services.outputs.suffix }}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
