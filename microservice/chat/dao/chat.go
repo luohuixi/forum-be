@@ -7,7 +7,6 @@ import (
 	pb "forum-chat/proto"
 	"forum/log"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -21,15 +20,6 @@ const (
 
 func GetKey(id uint32) string {
 	return RedisPrefixKey + ":" + Chat + ":" + strconv.Itoa(int(id))
-}
-
-func (d *Dao) ensureMessageReadColumn() {
-	if d.DB == nil || d.DB.Migrator().HasColumn(&DBdata{}, "read") {
-		return
-	}
-	if err := d.DB.Exec("ALTER TABLE messages ADD COLUMN `read` tinyint(1) NOT NULL DEFAULT 1").Error; err != nil && !strings.Contains(strings.ToLower(err.Error()), "duplicate column") {
-		log.Error("ensure message read column failed", zap.Error(err))
-	}
 }
 
 func (d *Dao) Create(data *ChatData) error {

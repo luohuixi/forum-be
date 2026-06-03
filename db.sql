@@ -187,6 +187,26 @@ CREATE TABLE `reports`
   ROW_FORMAT = DYNAMIC;
 
 -- --------------------------------------------
+-- Table structure for messages
+-- --------------------------------------------
+DROP TABLE IF EXISTS `messages`;
+CREATE TABLE `messages`
+(
+    `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
+    `sender_id`   int(11)     NOT NULL,
+    `receiver_id` int(11)     NOT NULL,
+    `content`     text                 DEFAULT NULL,
+    `time`        varchar(255)         DEFAULT NULL,
+    `type_name`   varchar(255)         DEFAULT NULL,
+    `read`        tinyint(1)  NOT NULL DEFAULT 1,
+    KEY `idx_sender_receiver` (`sender_id`, `receiver_id`),
+    KEY `idx_receiver_sender` (`receiver_id`, `sender_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
 -- Table structure for user_follows
 -- --------------------------------------------
 DROP TABLE IF EXISTS `user_follows`;

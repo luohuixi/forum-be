@@ -48,7 +48,6 @@ func Init() {
 		DB:    model.DB.Self,
 		Redis: model.RedisDB.Self,
 	}
-	dao.ensureMessageReadColumn()
 
 }
 
