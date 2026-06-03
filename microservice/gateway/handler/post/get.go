@@ -128,6 +128,7 @@ func (a *Api) Get(c *gin.Context) {
 		CommentNum:      getResp.CommentNum,
 		Title:           getResp.Title,
 		Category:        getResp.Category,
+		Time:            getResp.Time,
 		IsCollection:    getResp.IsCollection,
 		ContentType:     getResp.ContentType,
 		SubPosts:        subPosts,

@@ -96,6 +96,7 @@ type PostInfo struct {
 	Title           string
 	Category        string
 	CreatorId       uint32
+	CreateTime      string
 	LastEditTime    string
 	CreatorName     string
 	CreatorAvatar   string
@@ -176,7 +177,7 @@ func (d *Dao) ListUserCreatedPost(creatorId, offset, limit, lastId uint32, pagin
 
 func (d *Dao) GetPostInfo(postId uint32) (*PostInfo, error) {
 	var post PostInfo
-	err := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND posts.re = 0", postId).First(&post).Error
+	err := d.DB.Table("posts").Select("posts.id id, title, category, compiled_content, content, create_time, last_edit_time, creator_id, u.name creator_name, u.avatar creator_avatar, like_num, content_type, summary").Joins("join users u on u.id = posts.creator_id").Where("posts.id = ? AND posts.re = 0", postId).First(&post).Error
 	if err == gorm.ErrRecordNotFound {
 		return nil, nil
 	}

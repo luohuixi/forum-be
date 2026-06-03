@@ -35,6 +35,25 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
+	if req.TargetId == 0 && req.PostId != 0 {
+		req.TargetId = req.PostId
+	}
+	if req.TargetType == "" && req.TargetId != 0 {
+		req.TargetType = constvar.Post
+	}
+	if req.FatherId == 0 && req.TargetType == constvar.Post {
+		req.FatherId = req.TargetId
+	}
+
+	if req.TargetId == 0 {
+		SendError(c, errno.ErrBadRequest, nil, "target_id is required", GetLine())
+		return
+	}
+	if req.TargetType == "" {
+		SendError(c, errno.ErrBadRequest, nil, "target_type is required", GetLine())
+		return
+	}
+
 	if req.TypeName != constvar.SubPost && req.TypeName != constvar.FirstLevelComment && req.TypeName != constvar.SecondLevelComment {
 		SendError(c, errno.ErrBadRequest, nil, "type_name must be "+constvar.SubPost+" or "+constvar.FirstLevelComment+" or "+constvar.SecondLevelComment, GetLine())
 		return

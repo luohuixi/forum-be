@@ -41,10 +41,29 @@ func (s *PostService) createPostComment(req *pb.CreateCommentRequest, resp *pb.C
 	}
 
 	switch req.TypeName {
-	case constvar.FirstLevelComment:
+	case constvar.SubPost:
 		req.FatherId = req.TargetId
 		resp.UserId = post.CreatorId
 		resp.FatherContent = post.Title
+
+	case constvar.FirstLevelComment:
+		if req.FatherId == 0 {
+			req.FatherId = req.TargetId
+		}
+		if req.FatherId == req.TargetId {
+			resp.UserId = post.CreatorId
+			resp.FatherContent = post.Title
+		} else {
+			comment, err := s.Dao.GetComment(req.FatherId)
+			if err != nil {
+				return errno.ServerErr(errno.ErrDatabase, err.Error())
+			}
+			if comment == nil {
+				return errno.ServerErr(errno.ErrBadRequest, "the comment not found")
+			}
+			resp.UserId = comment.CreatorId
+			resp.FatherContent = comment.Content
+		}
 
 	case constvar.SecondLevelComment:
 		comment, err := s.Dao.GetComment(req.FatherId)
