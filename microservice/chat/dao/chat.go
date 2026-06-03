@@ -167,6 +167,9 @@ func (d *Dao) CreateHistory(userId uint32, list []string) error {
 		if err := json.Unmarshal([]byte(list[i-1]), &msg); err != nil {
 			return err
 		}
+		if msg.Sender == 0 {
+			msg.Sender = msg.LegacySender
+		}
 
 		data := DBdata{
 			ReceiverID: userId,
@@ -183,34 +186,42 @@ func (d *Dao) CreateHistory(userId uint32, list []string) error {
 	return nil
 }
 
-func (d *Dao) GetUserList(userId uint32, limit, page int) ([]uint32, error) {
-	var userList []uint32
+type ConversationSummary struct {
+	OtherID         uint32 `gorm:"column:other_id"`
+	LastMessageTime string `gorm:"column:last_message_time"`
+	LastMessage     string `gorm:"column:last_message"`
+}
 
-	// order by id 让最新聊天的用户排在最前面
+func (d *Dao) GetUserList(userId uint32, limit, page int) ([]*pb.UserStatus, error) {
+	var summaries []ConversationSummary
+
+	// 按最近一条消息排序，让最新聊天的用户排在最前面。
 	err := d.DB.Table("messages").
-		Select("CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS other_id", userId).
+		Select(`
+			CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS other_id,
+			MAX(time) AS last_message_time,
+			SUBSTRING_INDEX(GROUP_CONCAT(content ORDER BY time DESC SEPARATOR '\n'), '\n', 1) AS last_message
+		`, userId).
 		Where("sender_id = ? OR receiver_id = ?", userId, userId).
 		Group("other_id").
 		Order("MAX(time) DESC").
 		Offset(page * limit).
 		Limit(limit).
-		Scan(&userList).Error
+		Scan(&summaries).Error
 
 	if err != nil {
 		return nil, err
 	}
 
-	return userList, nil
-}
-
-func (d *Dao) GetUserById(userIds []uint32) ([]*pb.UserStatus, error) {
-	var usersStatus []*pb.UserStatus
-	for _, id := range userIds {
+	usersStatus := make([]*pb.UserStatus, 0, len(summaries))
+	for _, summary := range summaries {
 		var userStatus pb.UserStatus
-		err := d.DB.Table("users").Where("id = ?", id).Find(&userStatus).Error
+		err := d.DB.Table("users").Where("id = ?", summary.OtherID).Find(&userStatus).Error
 		if err != nil {
 			return nil, err
 		}
+		userStatus.LastMessageTime = &summary.LastMessageTime
+		userStatus.LastMessage = &summary.LastMessage
 
 		usersStatus = append(usersStatus, &userStatus)
 	}

@@ -68,6 +68,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		userRouter.GET("/followers/:id", user.ListFollowers)
 		userRouter.POST("/private_message", user.CreatePrivateMessage)
 		userRouter.POST("/message", adminRequired, user.CreateMessage)
+		userRouter.PATCH("/private_message/read", user.ReadPrivateMessage)
 		userRouter.DELETE("/private_message", user.DeletePrivateMessage)
 		userRouter.GET("/private_message/list", user.ListPrivateMessage)
 	}
