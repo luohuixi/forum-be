@@ -20,9 +20,11 @@ func (s *ChatService) Create(_ context.Context, req *pb.CreateRequest, _ *pb.Res
 		TypeName: req.TypeName,
 	}
 
-	err := s.Dao.Create(data)
+	if err := s.Dao.CreateMessage(data); err != nil {
+		return errno.ServerErr(errno.ErrCreateHistory, err.Error())
+	}
 
-	if err != nil {
+	if err := s.Dao.Create(data); err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}
 

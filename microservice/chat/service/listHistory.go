@@ -11,6 +11,10 @@ import (
 func (s *ChatService) ListHistory(_ context.Context, req *pb.ListHistoryRequest, resp *pb.ListHistoryResponse) error {
 	logger.Info("CharService ListHistories")
 
+	if err := s.Dao.SyncPendingHistory(req.UserId); err != nil {
+		return errno.ServerErr(errno.ErrCreateHistory, err.Error())
+	}
+
 	// get message histories of the user from redis
 	histories, err := s.Dao.ListHistory(req.UserId, req.OtherUserId, req.Offset, req.Limit, req.Pagination)
 	if err != nil {

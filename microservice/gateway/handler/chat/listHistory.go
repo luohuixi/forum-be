@@ -49,20 +49,6 @@ func ListHistory(c *gin.Context) {
 		return
 	}
 
-	// 打开聊天记录前，先把双方 Redis 队列中尚未落库的消息同步进历史表。
-	for _, pendingUserId := range []uint32{userId, uint32(otherUserId)} {
-		getListRequest := &pb.GetListRequest{
-			UserId: pendingUserId,
-			Wait:   false,
-		}
-
-		_, err = client.ChatClient.GetList(c.Request.Context(), getListRequest)
-		if err != nil {
-			SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
-			return
-		}
-	}
-
 	req := pb.ListHistoryRequest{
 		UserId:      userId,
 		Offset:      uint32(page * limit),

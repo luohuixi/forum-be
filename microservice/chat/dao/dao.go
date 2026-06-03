@@ -22,8 +22,10 @@ type Dao struct {
 // Interface dao
 type Interface interface {
 	Create(*ChatData) error
+	CreateMessage(*ChatData) error
 	GetList(uint32, time.Duration, bool) ([]string, error)
 	Rewrite(uint32, []string) error
+	SyncPendingHistory(uint32) error
 	ListHistory(uint32, uint32, uint32, uint32, bool) ([]*pb.Message, error)
 	CreateHistory(uint32, []string) error
 	GetUserList(uint32, int, int) ([]*pb.UserStatus, error)

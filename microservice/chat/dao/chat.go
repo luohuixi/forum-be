@@ -42,6 +42,33 @@ func (d *Dao) Create(data *ChatData) error {
 	return d.Redis.LPush(GetKey(data.Receiver), msg).Err()
 }
 
+func (d *Dao) CreateMessage(msg *ChatData) error {
+	if msg.Sender == 0 {
+		msg.Sender = msg.LegacySender
+	}
+	var count int64
+	err := d.DB.Table("messages").
+		Where("receiver_id = ? AND sender_id = ? AND content = ? AND type_name = ? AND time = ?", msg.Receiver, msg.Sender, msg.Content, msg.TypeName, msg.Time).
+		Count(&count).Error
+	if err != nil {
+		return err
+	}
+	if count > 0 {
+		return nil
+	}
+
+	data := DBdata{
+		ReceiverID: msg.Receiver,
+		SenderID:   msg.Sender,
+		Content:    msg.Content,
+		TypeName:   msg.TypeName,
+		Time:       msg.Time,
+		Read:       false,
+	}
+
+	return d.DB.Table("messages").Create(&data).Error
+}
+
 func (d *Dao) GetList(id uint32, expiration time.Duration, wait bool) ([]string, error) {
 	t := time.Now()
 	defer func() {
@@ -93,6 +120,14 @@ func (d *Dao) Rewrite(id uint32, list []string) error {
 	}
 
 	return nil
+}
+
+func (d *Dao) SyncPendingHistory(userId uint32) error {
+	list, err := d.Redis.LRange(GetKey(userId), 0, -1).Result()
+	if err != nil {
+		return err
+	}
+	return d.CreateHistory(userId, list)
 }
 
 //func (d *Dao) ListHistory(userId, otherUserId, offset, limit uint32, pagination bool) ([]*pb.Message, error) {
@@ -181,16 +216,10 @@ func (d *Dao) CreateHistory(userId uint32, list []string) error {
 			msg.Sender = msg.LegacySender
 		}
 
-		data := DBdata{
-			ReceiverID: userId,
-			SenderID:   msg.Sender,
-			Content:    msg.Content,
-			TypeName:   msg.TypeName,
-			Time:       msg.Time,
-			Read:       false,
+		if msg.Receiver == 0 {
+			msg.Receiver = userId
 		}
-
-		if err := d.DB.Table("messages").Create(&data).Error; err != nil {
+		if err := d.CreateMessage(&msg); err != nil {
 			return err
 		}
 	}
@@ -207,17 +236,17 @@ type ConversationSummary struct {
 func (d *Dao) GetUserList(userId uint32, limit, page int) ([]*pb.UserStatus, error) {
 	var summaries []ConversationSummary
 
-	// 按最近一条消息排序，让最新聊天的用户排在最前面。
+	// 未读会话优先，再按最近一条消息排序。
 	err := d.DB.Table("messages").
 		Select(`
 			CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS other_id,
 			MAX(time) AS last_message_time,
 			SUBSTRING_INDEX(GROUP_CONCAT(content ORDER BY time DESC SEPARATOR '\n'), '\n', 1) AS last_message,
-			SUM(CASE WHEN receiver_id = ? AND read = 0 THEN 1 ELSE 0 END) AS unread_count
+			SUM(CASE WHEN receiver_id = ? AND `+"`read`"+` = 0 THEN 1 ELSE 0 END) AS unread_count
 		`, userId, userId).
 		Where("sender_id = ? OR receiver_id = ?", userId, userId).
 		Group("other_id").
-		Order("MAX(time) DESC").
+		Order("unread_count DESC, MAX(time) DESC").
 		Offset(page * limit).
 		Limit(limit).
 		Scan(&summaries).Error
