@@ -3,6 +3,7 @@ package dao
 import (
 	"encoding/json"
 	"strconv"
+	"time"
 )
 
 const (
@@ -26,32 +27,78 @@ func (d Dao) ListPrivateMessage(userId uint32) ([]string, error) {
 }
 
 func (d Dao) CreateMessage(userId uint32, message string) error {
+	var data map[string]interface{}
+	if err := json.Unmarshal([]byte(message), &data); err == nil {
+		if _, ok := data["read"]; !ok {
+			data["read"] = false
+		}
+		if _, ok := data["created_at"]; !ok {
+			data["created_at"] = time.Now().Format("2006-01-02 15:04:05")
+		}
+		if patched, err := json.Marshal(data); err == nil {
+			message = string(patched)
+		}
+	}
 	return d.Redis.LPush(GetKey(userId), message).Err()
 }
 
-func (d Dao) DeleteOneMessage(userId uint32, uid string) error {
-	message, err := d.ListPrivateMessage(userId)
+func (d Dao) MarkOneMessageRead(userId uint32, uid string) error {
+	messages, err := d.ListPrivateMessage(userId)
 	if err != nil {
 		return err
 	}
 
-	var targetMessage string
-	for _, msg := range message {
-		var data map[string]string
+	found := false
+	for i, msg := range messages {
+		var data map[string]interface{}
 		if err := json.Unmarshal([]byte(msg), &data); err == nil && data["id"] == uid {
-			targetMessage = msg
+			data["read"] = true
+			patched, err := json.Marshal(data)
+			if err != nil {
+				return err
+			}
+			messages[i] = string(patched)
+			found = true
 			break
 		}
 	}
-
-	if targetMessage != "" {
-		_, err = d.Redis.LRem(GetKey(userId), 0, targetMessage).Result()
-		return err
+	if !found {
+		return nil
 	}
 
-	return nil
+	key := GetKey(userId)
+	pipe := d.Redis.TxPipeline()
+	pipe.Del(key)
+	for i := len(messages) - 1; i >= 0; i-- {
+		pipe.LPush(key, messages[i])
+	}
+	_, err = pipe.Exec()
+	return err
 }
 
-func (d Dao) DeleteMessage(userId uint32) error {
-	return d.Redis.Del(GetKey(userId)).Err()
+func (d Dao) MarkAllMessageRead(userId uint32) error {
+	messages, err := d.ListPrivateMessage(userId)
+	if err != nil {
+		return err
+	}
+	if len(messages) == 0 {
+		return nil
+	}
+
+	key := GetKey(userId)
+	pipe := d.Redis.TxPipeline()
+	pipe.Del(key)
+	for i := len(messages) - 1; i >= 0; i-- {
+		msg := messages[i]
+		var data map[string]interface{}
+		if err := json.Unmarshal([]byte(msg), &data); err == nil {
+			data["read"] = true
+			if patched, err := json.Marshal(data); err == nil {
+				msg = string(patched)
+			}
+		}
+		pipe.LPush(key, msg)
+	}
+	_, err = pipe.Exec()
+	return err
 }

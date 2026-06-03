@@ -59,6 +59,8 @@ message Message {
   string comment_content = 8;  // 回复评论时，显示被回复的评论内容
   string avatar = 9;
   string sender_name = 10;
+  bool read = 11;
+  string created_at = 12;
 }
 
 message ListPrivateMessageResponse {

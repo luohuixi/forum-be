@@ -12,17 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-// DeletePrivateMessage ... 删除 private message
-// @Summary 删除 个人 message api
-// @Tags user
-// @Accept application/json
-// @Produce application/json
-// @Param Authorization header string true "token 用户令牌"
-// @Success 200 {object} handler.Response
-// @Router /user/private_message [delete]
-func DeletePrivateMessage(c *gin.Context) {
-	log.Info("User DeletePrivateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
-
+func markPrivateMessageRead(c *gin.Context) {
 	userId := c.MustGet("userId").(uint32)
 	messageId := c.Query("id")
 	listReq := &pb.DeletePrivateMessageRequest{
@@ -37,4 +27,32 @@ func DeletePrivateMessage(c *gin.Context) {
 	}
 
 	SendResponse(c, nil, nil)
+}
+
+// ReadPrivateMessage ... 标记 private message 已读
+// @Summary 标记 个人 message 已读 api
+// @Tags user
+// @Accept application/json
+// @Produce application/json
+// @Param Authorization header string true "token 用户令牌"
+// @Success 200 {object} handler.Response
+// @Router /user/private_message/read [patch]
+func ReadPrivateMessage(c *gin.Context) {
+	log.Info("User ReadPrivateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+
+	markPrivateMessageRead(c)
+}
+
+// DeletePrivateMessage ... 标记 private message 已读，兼容旧前端路径
+// @Summary 标记 个人 message 已读 api
+// @Tags user
+// @Accept application/json
+// @Produce application/json
+// @Param Authorization header string true "token 用户令牌"
+// @Success 200 {object} handler.Response
+// @Router /user/private_message [delete]
+func DeletePrivateMessage(c *gin.Context) {
+	log.Info("User DeletePrivateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
+
+	markPrivateMessageRead(c)
 }

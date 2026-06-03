@@ -36,8 +36,8 @@ type Interface interface {
 	ListMessage() ([]string, error)
 	ListPrivateMessage(uint32) ([]string, error)
 	CreateMessage(uint32, string) error
-	DeleteMessage(uint32) error
-	DeleteOneMessage(uint32, string) error
+	MarkAllMessageRead(uint32) error
+	MarkOneMessageRead(uint32, string) error
 }
 
 // Init init dao
