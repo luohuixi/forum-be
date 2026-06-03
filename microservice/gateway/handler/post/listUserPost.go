@@ -34,6 +34,7 @@ func (a *Api) ListUserPost(c *gin.Context) {
 		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
 	}
+	userId := c.MustGet("userId").(uint32)
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
 	if err != nil {
@@ -54,11 +55,12 @@ func (a *Api) ListUserPost(c *gin.Context) {
 	}
 
 	listReq := &pb.ListPostPartInfoRequest{
-		UserId:     uint32(targetUserId),
-		LastId:     uint32(lastId),
-		Offset:     uint32(page * limit),
-		Limit:      uint32(limit),
-		Pagination: limit != 0 || page != 0,
+		UserId:       userId,
+		TargetUserId: uint32(targetUserId),
+		LastId:       uint32(lastId),
+		Offset:       uint32(page * limit),
+		Limit:        uint32(limit),
+		Pagination:   limit != 0 || page != 0,
 	}
 
 	postResp, err := client.PostClient.ListUserCreatedPost(c.Request.Context(), listReq)
