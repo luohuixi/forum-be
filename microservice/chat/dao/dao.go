@@ -27,6 +27,7 @@ type Interface interface {
 	ListHistory(uint32, uint32, uint32, uint32, bool) ([]*pb.Message, error)
 	CreateHistory(uint32, []string) error
 	GetUserList(uint32, int, int) ([]*pb.UserStatus, error)
+	MarkRead(uint32, uint32) error
 }
 
 // Init init dao
@@ -45,6 +46,7 @@ func Init() {
 		DB:    model.DB.Self,
 		Redis: model.RedisDB.Self,
 	}
+	dao.ensureMessageReadColumn()
 
 }
 
@@ -68,4 +70,9 @@ type DBdata struct {
 	Content    string
 	Time       string
 	TypeName   string
+	Read       bool `gorm:"column:read"`
+}
+
+func (DBdata) TableName() string {
+	return "messages"
 }

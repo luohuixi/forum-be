@@ -7,6 +7,7 @@ import (
 	pb "forum-chat/proto"
 	"forum/log"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-redis/redis"
@@ -20,6 +21,15 @@ const (
 
 func GetKey(id uint32) string {
 	return RedisPrefixKey + ":" + Chat + ":" + strconv.Itoa(int(id))
+}
+
+func (d *Dao) ensureMessageReadColumn() {
+	if d.DB == nil || d.DB.Migrator().HasColumn(&DBdata{}, "read") {
+		return
+	}
+	if err := d.DB.Exec("ALTER TABLE messages ADD COLUMN `read` tinyint(1) NOT NULL DEFAULT 1").Error; err != nil && !strings.Contains(strings.ToLower(err.Error()), "duplicate column") {
+		log.Error("ensure message read column failed", zap.Error(err))
+	}
 }
 
 func (d *Dao) Create(data *ChatData) error {
@@ -177,6 +187,7 @@ func (d *Dao) CreateHistory(userId uint32, list []string) error {
 			Content:    msg.Content,
 			TypeName:   msg.TypeName,
 			Time:       msg.Time,
+			Read:       false,
 		}
 
 		if err := d.DB.Table("messages").Create(&data).Error; err != nil {
@@ -190,6 +201,7 @@ type ConversationSummary struct {
 	OtherID         uint32 `gorm:"column:other_id"`
 	LastMessageTime string `gorm:"column:last_message_time"`
 	LastMessage     string `gorm:"column:last_message"`
+	UnreadCount     uint32 `gorm:"column:unread_count"`
 }
 
 func (d *Dao) GetUserList(userId uint32, limit, page int) ([]*pb.UserStatus, error) {
@@ -200,8 +212,9 @@ func (d *Dao) GetUserList(userId uint32, limit, page int) ([]*pb.UserStatus, err
 		Select(`
 			CASE WHEN sender_id = ? THEN receiver_id ELSE sender_id END AS other_id,
 			MAX(time) AS last_message_time,
-			SUBSTRING_INDEX(GROUP_CONCAT(content ORDER BY time DESC SEPARATOR '\n'), '\n', 1) AS last_message
-		`, userId).
+			SUBSTRING_INDEX(GROUP_CONCAT(content ORDER BY time DESC SEPARATOR '\n'), '\n', 1) AS last_message,
+			SUM(CASE WHEN receiver_id = ? AND read = 0 THEN 1 ELSE 0 END) AS unread_count
+		`, userId, userId).
 		Where("sender_id = ? OR receiver_id = ?", userId, userId).
 		Group("other_id").
 		Order("MAX(time) DESC").
@@ -222,9 +235,16 @@ func (d *Dao) GetUserList(userId uint32, limit, page int) ([]*pb.UserStatus, err
 		}
 		userStatus.LastMessageTime = &summary.LastMessageTime
 		userStatus.LastMessage = &summary.LastMessage
+		userStatus.UnreadCount = summary.UnreadCount
 
 		usersStatus = append(usersStatus, &userStatus)
 	}
 
 	return usersStatus, nil
+}
+
+func (d *Dao) MarkRead(userId, otherUserId uint32) error {
+	return d.DB.Table("messages").
+		Where("receiver_id = ? AND sender_id = ? AND `read` = ?", userId, otherUserId, false).
+		Update("read", true).Error
 }

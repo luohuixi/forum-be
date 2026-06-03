@@ -40,6 +40,15 @@ func UserList(c *gin.Context) {
 		return
 	}
 
+	_, err = client.ChatClient.GetList(c.Request.Context(), &pb.GetListRequest{
+		UserId: userId,
+		Wait:   false,
+	})
+	if err != nil {
+		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
+		return
+	}
+
 	req := &pb.UserListRequest{
 		UserId: userId,
 		Page:   uint32(page),

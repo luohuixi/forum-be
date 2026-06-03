@@ -29,11 +29,17 @@ func (s *ChatService) GetList(ctx context.Context, req *pb.GetListRequest, resp 
 		return errno.ServerErr(errno.ErrGetRedisList, err.Error())
 	}
 
-	// 异步执行 rewrite 和 create_history
 	if ctx.Err() != nil {
 		go s.Rewrite(req.UserId, list)
-	} else {
-		go s.CreateHistory(req.UserId, list)
+		resp.List = list
+		return nil
+	}
+
+	if len(list) > 0 {
+		if err := s.Dao.CreateHistory(req.UserId, list); err != nil {
+			go s.Rewrite(req.UserId, list)
+			return errno.ServerErr(errno.ErrCreateHistory, err.Error())
+		}
 	}
 
 	resp.List = list
