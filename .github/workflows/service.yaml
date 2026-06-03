@@ -1,0 +1,75 @@
+name: Deploy Backend Service
+
+on:
+  workflow_call:
+    inputs:
+      service:
+        required: true
+        type: string
+      image_tag:
+        required: true
+        type: string
+      deploy_dir:
+        required: true
+        type: string
+      compose_service:
+        required: true
+        type: string
+    secrets:
+      SSH_PRIVATE_KEY:
+        required: true
+      SERVER_USER:
+        required: true
+      SERVER_ADDR:
+        required: true
+      ALIYUN_USERNAME:
+        required: true
+      ALIYUN_PASSWORD:
+        required: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      REGISTRY: registry.cn-shenzhen.aliyuncs.com/muxi
+      IMAGE_TAG: ${{ inputs.image_tag }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Log in to Aliyun Registry
+        uses: docker/login-action@v2
+        with:
+          registry: registry.cn-shenzhen.aliyuncs.com
+          username: ${{ secrets.ALIYUN_USERNAME }}
+          password: ${{ secrets.ALIYUN_PASSWORD }}
+
+      - name: Build & push image
+        run: |
+          SERVICE=${{ inputs.service }} REGISTRY=$REGISTRY IMAGE_TAG=$IMAGE_TAG make docker-build
+          SERVICE=${{ inputs.service }} REGISTRY=$REGISTRY IMAGE_TAG=$IMAGE_TAG make docker-push
+
+      - name: Set up SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+      - name: SSH into server and deploy
+        run: |
+          echo "Will deploy: forum_be_${{ inputs.service }}:${{ inputs.image_tag }}"
+          ssh -i ~/.ssh/id_rsa \
+              -o StrictHostKeyChecking=no \
+              ${{ secrets.SERVER_USER }}@${{ secrets.SERVER_ADDR }} bash -s <<EOF
+          set -e
+          echo "SSH Success!"
+          cd ${{ inputs.deploy_dir }}
+          IMAGE=$REGISTRY/forum_be_${{ inputs.service }}:${{ inputs.image_tag }}
+          echo "» Deploying ${{ inputs.compose_service }} → \$IMAGE"
+          docker pull \$IMAGE
+          docker rm -f ${{ inputs.compose_service }} || true
+          BE_IMAGE_TAG=${{ inputs.image_tag }} docker compose up -d ${{ inputs.compose_service }}
+          EOF

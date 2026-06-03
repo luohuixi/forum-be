@@ -4,6 +4,13 @@ on:
   push:
     branches:
       - main
+      - dev
+  workflow_dispatch:
+    inputs:
+      services:
+        description: "Space-separated services, or all"
+        required: false
+        default: "all"
 
 jobs:
   find_changed_services:
@@ -11,18 +18,51 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       list: ${{ steps.detect.outputs.list }}
+      image_tag: ${{ steps.vars.outputs.image_tag }}
+      deploy_dir: ${{ steps.vars.outputs.deploy_dir }}
+      suffix: ${{ steps.vars.outputs.suffix }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      - name: Resolve deploy vars
+        id: vars
+        run: |
+          if [ "${{ github.ref_name }}" = "dev" ]; then
+            echo "image_tag=dev" >> "$GITHUB_OUTPUT"
+            echo "deploy_dir=~/forum-dev" >> "$GITHUB_OUTPUT"
+            echo "suffix=_dev" >> "$GITHUB_OUTPUT"
+          else
+            echo "image_tag=latest" >> "$GITHUB_OUTPUT"
+            echo "deploy_dir=~/forum" >> "$GITHUB_OUTPUT"
+            echo "suffix=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Detect changed back-end services
         id: detect
         run: |
-          SERVICES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} \
-            | awk -F/ '/^microservice\/[^\/]+/ {print $2}' \
-            | sort -u)
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            REQUESTED="${{ github.event.inputs.services }}"
+            if [ "$REQUESTED" = "all" ] || [ -z "$REQUESTED" ]; then
+              SERVICES="chat feed gateway ocr post user"
+            else
+              SERVICES="$REQUESTED"
+            fi
+          else
+            if [ "${{ github.event.before }}" = "0000000000000000000000000000000000000000" ]; then
+              SERVICES="chat feed gateway ocr post user"
+            else
+              CHANGED=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }})
+              SERVICES=$(echo "$CHANGED" \
+                | awk -F/ '/^microservice\/[^\/]+/ {print $2}' \
+                | sort -u)
+              if [ -z "$SERVICES" ] && echo "$CHANGED" | grep -qE '^(Dockerfile|Makefile|go\\.(mod|sum)|pkg/|model/|client/|config/|log/|util/|\\.github/workflows/)'; then
+                SERVICES="chat feed gateway ocr post user"
+              fi
+            fi
+          fi
           if [ -n "$SERVICES" ]; then
             ONE_LINE=$(echo "$SERVICES" | paste -sd ' ')
             echo "list=$ONE_LINE" >> $GITHUB_OUTPUT
@@ -41,7 +81,12 @@ jobs:
   deploy_chat:
     needs: find_changed_services
     if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'chat')
-    uses: ./.github/workflows/chat.yaml
+    uses: ./.github/workflows/service.yaml
+    with:
+      service: chat
+      image_tag: ${{ needs.find_changed_services.outputs.image_tag }}
+      deploy_dir: ${{ needs.find_changed_services.outputs.deploy_dir }}
+      compose_service: forum_be_chat${{ needs.find_changed_services.outputs.suffix }}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -52,7 +97,12 @@ jobs:
   deploy_feed:
     needs: find_changed_services
     if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'feed')
-    uses: ./.github/workflows/feed.yaml
+    uses: ./.github/workflows/service.yaml
+    with:
+      service: feed
+      image_tag: ${{ needs.find_changed_services.outputs.image_tag }}
+      deploy_dir: ${{ needs.find_changed_services.outputs.deploy_dir }}
+      compose_service: forum_be_feed${{ needs.find_changed_services.outputs.suffix }}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -63,7 +113,12 @@ jobs:
   deploy_gateway:
     needs: find_changed_services
     if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'gateway')
-    uses: ./.github/workflows/gateway.yaml
+    uses: ./.github/workflows/service.yaml
+    with:
+      service: gateway
+      image_tag: ${{ needs.find_changed_services.outputs.image_tag }}
+      deploy_dir: ${{ needs.find_changed_services.outputs.deploy_dir }}
+      compose_service: forum_be_gateway${{ needs.find_changed_services.outputs.suffix }}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -74,7 +129,12 @@ jobs:
   deploy_ocr:
     needs: find_changed_services
     if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'ocr')
-    uses: ./.github/workflows/ocr.yaml
+    uses: ./.github/workflows/service.yaml
+    with:
+      service: ocr
+      image_tag: ${{ needs.find_changed_services.outputs.image_tag }}
+      deploy_dir: ${{ needs.find_changed_services.outputs.deploy_dir }}
+      compose_service: forum_be_ocr${{ needs.find_changed_services.outputs.suffix }}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -85,7 +145,12 @@ jobs:
   deploy_post:
     needs: find_changed_services
     if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'post')
-    uses: ./.github/workflows/post.yaml
+    uses: ./.github/workflows/service.yaml
+    with:
+      service: post
+      image_tag: ${{ needs.find_changed_services.outputs.image_tag }}
+      deploy_dir: ${{ needs.find_changed_services.outputs.deploy_dir }}
+      compose_service: forum_be_post${{ needs.find_changed_services.outputs.suffix }}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
@@ -96,7 +161,12 @@ jobs:
   deploy_user:
     needs: find_changed_services
     if: github.repository == 'Muxi-X/forum-be' && contains(needs.find_changed_services.outputs.list, 'user')
-    uses: ./.github/workflows/user.yaml
+    uses: ./.github/workflows/service.yaml
+    with:
+      service: user
+      image_tag: ${{ needs.find_changed_services.outputs.image_tag }}
+      deploy_dir: ${{ needs.find_changed_services.outputs.deploy_dir }}
+      compose_service: forum_be_user${{ needs.find_changed_services.outputs.suffix }}
     secrets:
       SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
       SERVER_USER: ${{ secrets.SERVER_USER }}
