@@ -35,6 +35,7 @@ type Interface interface {
 
 	ListMessage() ([]string, error)
 	ListPrivateMessage(uint32) ([]string, error)
+	ListDeduplicatedPrivateMessage(uint32) ([]string, error)
 	CreateMessage(uint32, string) error
 	CreateOrUpdateInteractionMessage(uint32, string) error
 	MarkAllMessageRead(uint32) error
