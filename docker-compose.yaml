@@ -109,6 +109,39 @@ services:
     networks:
       - forum_network
 
+  # Prometheus 监控
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    configs:
+      - source: prometheus_config
+        target: /etc/prometheus/prometheus.yml
+    volumes:
+      - prometheus_data:/prometheus
+    networks:
+      - forum_network
+    restart: unless-stopped
+
+configs:
+  prometheus_config:
+    content: |
+      global:
+        scrape_interval: 15s
+        evaluation_interval: 15s
+      scrape_configs:
+        - job_name: 'gateway'
+          metrics_path: '/metrics'
+          static_configs:
+            - targets: ['forum_be_gateway:9091']
+
+volumes:
+  prometheus_data:
+
 networks:
   forum_network:
     driver: bridge
