@@ -112,49 +112,6 @@ func (d *Dao) Rewrite(id uint32, list []string) error {
 	return nil
 }
 
-func (d *Dao) SyncPendingHistory(userId uint32) error {
-	list, err := d.Redis.LRange(GetKey(userId), 0, -1).Result()
-	if err != nil {
-		return err
-	}
-	return d.CreateHistory(userId, list)
-}
-
-//func (d *Dao) ListHistory(userId, otherUserId, offset, limit uint32, pagination bool) ([]*pb.Message, error) {
-//	//这个地方为了保证顺序要进行交换
-//	if otherUserId < userId {
-//		otherUserId, userId = userId, otherUserId
-//	}
-//
-//	//读取这两个人的历史消息
-//	key := "history:" + strconv.Itoa(int(userId)) + "-" + strconv.Itoa(int(otherUserId)) // history:min_id-max_id
-//
-//	var start int64 = 0
-//	var end int64 = -1
-//
-//	if pagination {
-//		start = int64(offset)
-//		end = int64(offset + limit)
-//	}
-//
-//	//批量读取消息,这个地方要注意索引从小到大是从新到旧
-//	list, err := d.Redis.LRange(key, start, end).Result() // DESC
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	histories := make([]*pb.Message, len(list))
-//	for i, history := range list {
-//		var msg pb.Message
-//		if err := json.Unmarshal([]byte(history), &msg); err != nil {
-//			return nil, err
-//		}
-//		histories[i] = &msg
-//	}
-//
-//	return histories, nil
-//}
-
 func (d *Dao) ListHistory(userId, otherUserId, offset, limit uint32, pagination bool) ([]*pb.Message, error) {
 	var history []*pb.Message
 
@@ -170,50 +127,6 @@ func (d *Dao) ListHistory(userId, otherUserId, offset, limit uint32, pagination 
 	}
 
 	return history, nil
-}
-
-//func (d *Dao) CreateHistory(userId uint32, list []string) error {
-//	log.Info("CreateHistory")
-//
-//	for i := len(list); i > 0; i-- {
-//		var msg ChatData
-//		if err := json.Unmarshal([]byte(list[i-1]), &msg); err != nil {
-//			return err
-//		}
-//
-//		//调整为统一顺序,为什么要这么做呢?因为这么做首先可以保证一致性,其次可以减半存储空间
-//		minId := userId
-//		if minId > msg.Sender {
-//			minId, msg.Sender = msg.Sender, minId
-//		}
-//
-//		//推送到这两个人的历史消息里面去
-//		if err := d.Redis.LPush("history:"+strconv.Itoa(int(minId))+"-"+strconv.Itoa(int(msg.Sender)), list[i-1]).Err(); err != nil {
-//			return err
-//		}
-//	}
-//
-//	return nil
-//}
-
-func (d *Dao) CreateHistory(userId uint32, list []string) error {
-	for i := len(list); i > 0; i-- {
-		var msg ChatData
-		if err := json.Unmarshal([]byte(list[i-1]), &msg); err != nil {
-			return err
-		}
-		if msg.Sender == 0 {
-			msg.Sender = msg.LegacySender
-		}
-
-		if msg.Receiver == 0 {
-			msg.Receiver = userId
-		}
-		if err := d.CreateMessage(&msg); err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 type ConversationSummary struct {

@@ -35,13 +35,6 @@ func (s *ChatService) GetList(ctx context.Context, req *pb.GetListRequest, resp 
 		return nil
 	}
 
-	if len(list) > 0 {
-		if err := s.Dao.CreateHistory(req.UserId, list); err != nil {
-			go s.Rewrite(req.UserId, list)
-			return errno.ServerErr(errno.ErrCreateHistory, err.Error())
-		}
-	}
-
 	resp.List = list
 
 	return nil
@@ -52,16 +45,6 @@ func (s *ChatService) Rewrite(userid uint32, list []string) {
 		rewriteErr := errno.ServerErr(errno.ErrRewriteRedisList, err.Error())
 		logger.Error("Rewrite Failed",
 			zap.String("cause", rewriteErr.Error()),
-			zap.Strings("source", list),
-		)
-	}
-}
-
-func (s *ChatService) CreateHistory(userid uint32, list []string) {
-	if err := s.Dao.CreateHistory(userid, list); err != nil {
-		historyErr := errno.ServerErr(errno.ErrCreateHistory, err.Error())
-		logger.Error("Create History Failed",
-			zap.String("cause", historyErr.Error()),
 			zap.Strings("source", list),
 		)
 	}
