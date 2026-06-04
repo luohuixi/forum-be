@@ -172,7 +172,6 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 	feedbackApi := feedback.New(dao.GetDao())
 	feedbackRouter.Use(normalRequired)
 	{
-		feedbackRouter.POST("/image", feedbackApi.UploadImage)
 		feedbackRouter.POST("", feedbackApi.Create)
 	}
 

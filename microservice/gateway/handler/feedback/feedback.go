@@ -18,12 +18,8 @@ func New(i dao.Interface) *Api {
 }
 
 type CreateRequest struct {
-	Category string   `json:"category"`
-	Content  string   `json:"content" binding:"required"`
-	Contact  string   `json:"contact"`
-	Images   []string `json:"images"`
+	Category string `json:"category"`
+	Content  string `json:"content" binding:"required"`
+	Contact  string `json:"contact"`
+	ImgURL   string `json:"img_url"`
 } // @name FeedbackCreateRequest
-
-type UploadImageResponse struct {
-	FileToken string `json:"file_token"`
-} // @name FeedbackUploadImageResponse

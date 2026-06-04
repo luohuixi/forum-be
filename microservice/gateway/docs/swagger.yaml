@@ -31,17 +31,10 @@ definitions:
         type: string
       content:
         type: string
-      images:
-        items:
-          type: string
-        type: array
+      img_url:
+        type: string
     required:
     - content
-    type: object
-  FeedbackUploadImageResponse:
-    properties:
-      file_token:
-        type: string
     type: object
   FollowListResponse:
     properties:
@@ -1550,36 +1543,6 @@ paths:
           schema:
             $ref: '#/definitions/Response'
       summary: 反馈与建议 api
-      tags:
-      - feedback
-  /feedback/image:
-    post:
-      consumes:
-      - multipart/form-data
-      parameters:
-      - description: token 用户令牌
-        in: header
-        name: Authorization
-        required: true
-        type: string
-      - description: feedback_image
-        in: formData
-        name: file
-        required: true
-        type: file
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            allOf:
-            - $ref: '#/definitions/Response'
-            - properties:
-                data:
-                  $ref: '#/definitions/FeedbackUploadImageResponse'
-              type: object
-      summary: 上传反馈截图 api
       tags:
       - feedback
   /like:

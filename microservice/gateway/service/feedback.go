@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"net/textproto"
+	"net/url"
 	"path"
 	"strings"
 	"time"
@@ -19,10 +20,12 @@ import (
 )
 
 const (
+	defaultFeedbackImageHost  = "ossforum.muxixyz.com"
 	defaultFeishuUploadURL    = "https://open.feishu.cn/open-apis/drive/v1/medias/upload_all"
 	defaultFeishuUploadParent = "bitable_image"
 	feedbackServiceTimeout    = 15 * time.Second
 	maxFeedbackImageSize      = 20 << 20
+	maxFeedbackImageRedirects = 3
 )
 
 type FeedbackRecordRequest struct {
@@ -32,6 +35,7 @@ type FeedbackRecordRequest struct {
 	Images        []string       `json:"images"`
 	ContactInfo   string         `json:"contact_info"`
 	ExtraRecord   map[string]any `json:"extra_record"`
+	ImageURLs     []string       `json:"-"`
 }
 
 type feedbackEnvelope[T any] struct {
@@ -75,33 +79,14 @@ func CreateFeedbackRecord(ctx context.Context, req FeedbackRecordRequest) error 
 		return err
 	}
 
+	imageTokens, err := feedbackImageTokensFromURLs(ctx, client, baseURL, req.ImageURLs)
+	if err != nil {
+		return err
+	}
+	req.Images = append(req.Images, imageTokens...)
+
 	_, err = postFeedbackJSON[feedbackCreateRecordResp](ctx, client, baseURL+"/api/v1/sheet/records", token, req)
 	return err
-}
-
-func UploadFeedbackImage(ctx context.Context, fileHeader *multipart.FileHeader) (string, error) {
-	baseURL, err := feedbackServiceBaseURL()
-	if err != nil {
-		return "", err
-	}
-
-	parentNode := strings.TrimSpace(viper.GetString("feedback_service.upload_parent_node"))
-	if parentNode == "" {
-		return "", fmt.Errorf("feedback_service.upload_parent_node 未配置")
-	}
-
-	client := &http.Client{Timeout: feedbackServiceTimeout}
-	tenantToken, err := getFeedbackTenantToken(ctx, client, baseURL)
-	if err != nil {
-		return "", err
-	}
-
-	file, err := feedbackImageFromMultipart(fileHeader)
-	if err != nil {
-		return "", err
-	}
-
-	return uploadFeedbackImageToFeishu(ctx, client, tenantToken, parentNode, file)
 }
 
 func feedbackServiceBaseURL() (string, error) {
@@ -113,6 +98,11 @@ func feedbackServiceBaseURL() (string, error) {
 }
 
 func getFeedbackTableToken(ctx context.Context, client *http.Client, baseURL string, tableIdentify string) (string, error) {
+	tableIdentify = strings.TrimSpace(tableIdentify)
+	if tableIdentify == "" {
+		return "", fmt.Errorf("feedback_service.table_identify 未配置")
+	}
+
 	resp, err := postFeedbackJSON[feedbackTableTokenResp](ctx, client, baseURL+"/api/v1/auth/table-config/token", "", map[string]string{
 		"table_identify": tableIdentify,
 	})
@@ -136,21 +126,75 @@ func getFeedbackTenantToken(ctx context.Context, client *http.Client, baseURL st
 	return resp.AccessToken, nil
 }
 
-func feedbackImageFromMultipart(fileHeader *multipart.FileHeader) (feedbackImageFile, error) {
-	if fileHeader == nil {
-		return feedbackImageFile{}, fmt.Errorf("反馈图片不能为空")
-	}
-	if fileHeader.Size > maxFeedbackImageSize {
-		return feedbackImageFile{}, fmt.Errorf("反馈图片超过大小限制")
+func feedbackImageTokensFromURLs(ctx context.Context, client *http.Client, baseURL string, imageURLs []string) ([]string, error) {
+	if len(imageURLs) == 0 {
+		return nil, nil
 	}
 
-	src, err := fileHeader.Open()
+	parentNode := strings.TrimSpace(viper.GetString("feedback_service.upload_parent_node"))
+	if parentNode == "" {
+		return nil, fmt.Errorf("feedback_service.upload_parent_node 未配置")
+	}
+
+	tenantToken, err := getFeedbackTenantToken(ctx, client, baseURL)
+	if err != nil {
+		return nil, err
+	}
+
+	tokens := make([]string, 0, len(imageURLs))
+	for _, imageURL := range imageURLs {
+		imageURL = strings.TrimSpace(imageURL)
+		if imageURL == "" {
+			continue
+		}
+
+		file, err := feedbackImageFromURL(ctx, client, imageURL)
+		if err != nil {
+			return nil, err
+		}
+
+		token, err := uploadFeedbackImageToFeishu(ctx, client, tenantToken, parentNode, file)
+		if err != nil {
+			return nil, err
+		}
+		tokens = append(tokens, token)
+	}
+
+	return tokens, nil
+}
+
+func feedbackImageFromURL(ctx context.Context, client *http.Client, imageURL string) (feedbackImageFile, error) {
+	parsedURL, err := url.Parse(imageURL)
 	if err != nil {
 		return feedbackImageFile{}, err
 	}
-	defer src.Close()
+	if err := validateFeedbackImageURL(parsedURL); err != nil {
+		return feedbackImageFile{}, err
+	}
 
-	data, err := io.ReadAll(io.LimitReader(src, maxFeedbackImageSize+1))
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, imageURL, nil)
+	if err != nil {
+		return feedbackImageFile{}, err
+	}
+	resp, err := feedbackImageDownloadClient(client).Do(req)
+	if err != nil {
+		return feedbackImageFile{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.Request != nil && resp.Request.URL != nil {
+		if err := validateFeedbackImageURL(resp.Request.URL); err != nil {
+			return feedbackImageFile{}, err
+		}
+	}
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		return feedbackImageFile{}, fmt.Errorf("下载反馈图片失败: status=%d", resp.StatusCode)
+	}
+	if resp.ContentLength > maxFeedbackImageSize {
+		return feedbackImageFile{}, fmt.Errorf("反馈图片超过大小限制")
+	}
+
+	data, err := io.ReadAll(io.LimitReader(resp.Body, maxFeedbackImageSize+1))
 	if err != nil {
 		return feedbackImageFile{}, err
 	}
@@ -161,27 +205,64 @@ func feedbackImageFromMultipart(fileHeader *multipart.FileHeader) (feedbackImage
 		return feedbackImageFile{}, fmt.Errorf("反馈图片超过大小限制")
 	}
 
-	contentType := feedbackImageContentType(fileHeader, data)
-	if !strings.HasPrefix(contentType, "image/") {
-		return feedbackImageFile{}, fmt.Errorf("反馈图片类型不支持")
-	}
-
-	return feedbackImageFile{
-		name:        feedbackImageFileName(fileHeader.Filename, contentType),
-		contentType: contentType,
-		data:        data,
-	}, nil
-}
-
-func feedbackImageContentType(fileHeader *multipart.FileHeader, data []byte) string {
-	contentType := strings.TrimSpace(fileHeader.Header.Get("Content-Type"))
+	contentType := strings.TrimSpace(resp.Header.Get("Content-Type"))
 	if idx := strings.Index(contentType, ";"); idx >= 0 {
 		contentType = strings.TrimSpace(contentType[:idx])
 	}
 	if !strings.HasPrefix(contentType, "image/") {
 		contentType = http.DetectContentType(data)
 	}
-	return contentType
+	if !strings.HasPrefix(contentType, "image/") {
+		return feedbackImageFile{}, fmt.Errorf("反馈图片类型不支持")
+	}
+
+	return feedbackImageFile{
+		name:        feedbackImageFileName(path.Base(parsedURL.Path), contentType),
+		contentType: contentType,
+		data:        data,
+	}, nil
+}
+
+func feedbackImageDownloadClient(client *http.Client) *http.Client {
+	downloadClient := *client
+	downloadClient.CheckRedirect = func(req *http.Request, via []*http.Request) error {
+		if len(via) >= maxFeedbackImageRedirects {
+			return fmt.Errorf("反馈图片重定向次数过多")
+		}
+		return validateFeedbackImageURL(req.URL)
+	}
+	return &downloadClient
+}
+
+func validateFeedbackImageURL(imageURL *url.URL) error {
+	if imageURL == nil {
+		return fmt.Errorf("图片地址无效")
+	}
+	if imageURL.Scheme != "http" && imageURL.Scheme != "https" {
+		return fmt.Errorf("图片地址协议不支持")
+	}
+	if !isAllowedFeedbackImageHost(imageURL.Hostname()) {
+		return fmt.Errorf("图片地址域名不允许")
+	}
+	return nil
+}
+
+func isAllowedFeedbackImageHost(host string) bool {
+	host = strings.TrimSpace(host)
+	if host == "" {
+		return false
+	}
+	allowedHosts := viper.GetStringSlice("feedback_service.allowed_image_hosts")
+	if len(allowedHosts) == 0 {
+		allowedHosts = []string{defaultFeedbackImageHost}
+	}
+	for _, allowedHost := range allowedHosts {
+		allowedHost = strings.TrimSpace(allowedHost)
+		if allowedHost != "" && strings.EqualFold(host, allowedHost) {
+			return true
+		}
+	}
+	return false
 }
 
 func feedbackImageFileName(fileName string, contentType string) string {

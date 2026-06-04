@@ -609,56 +609,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/feedback/image": {
-            "post": {
-                "consumes": [
-                    "multipart/form-data"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "feedback"
-                ],
-                "summary": "上传反馈截图 api",
-                "parameters": [
-                    {
-                        "type": "string",
-                        "description": "token 用户令牌",
-                        "name": "Authorization",
-                        "in": "header",
-                        "required": true
-                    },
-                    {
-                        "type": "file",
-                        "description": "feedback_image",
-                        "name": "file",
-                        "in": "formData",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "allOf": [
-                                {
-                                    "$ref": "#/definitions/Response"
-                                },
-                                {
-                                    "type": "object",
-                                    "properties": {
-                                        "data": {
-                                            "$ref": "#/definitions/FeedbackUploadImageResponse"
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                }
-            }
-        },
         "/like": {
             "post": {
                 "consumes": [
@@ -2632,18 +2582,7 @@ const docTemplate = `{
                 "content": {
                     "type": "string"
                 },
-                "images": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    }
-                }
-            }
-        },
-        "FeedbackUploadImageResponse": {
-            "type": "object",
-            "properties": {
-                "file_token": {
+                "img_url": {
                     "type": "string"
                 }
             }
