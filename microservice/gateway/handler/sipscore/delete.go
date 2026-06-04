@@ -22,7 +22,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param sip_score_id path int true "sip_score_id"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /sip-score/{sip_score_id} [delete]
 func (a *Api) DeleteSipScore(c *gin.Context) {
 	log.Info("Post DeleteSipScore function called.", zap.String("X-Request-Id", util.GetReqID(c)))

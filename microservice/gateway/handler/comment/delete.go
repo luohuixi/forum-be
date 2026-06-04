@@ -23,7 +23,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param comment_id path int true "comment_id"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /comment/{comment_id} [delete]
 func (a *Api) Delete(c *gin.Context) {
 	log.Info("Comment Delete function called.", zap.String("X-Request-Id", util.GetReqID(c)))

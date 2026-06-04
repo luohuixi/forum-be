@@ -24,7 +24,7 @@ import (
 // @Param Authorization header string true "token 用户令牌"
 // @Param post_id path int true "post_id"
 // @Param quality query string false "quality=1表示将帖子从精华板块移除，quality=0或不传表示直接删除帖子"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /post/{post_id} [delete]
 func (a *Api) Delete(c *gin.Context) {
 	log.Info("Post Delete function called.", zap.String("X-Request-Id", util.GetReqID(c)))

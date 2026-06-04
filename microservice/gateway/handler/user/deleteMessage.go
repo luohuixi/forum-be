@@ -36,7 +36,7 @@ func markPrivateMessageRead(c *gin.Context) {
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /user/private_message/read [patch]
 func ReadPrivateMessage(c *gin.Context) {
 	log.Info("User ReadPrivateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -50,7 +50,7 @@ func ReadPrivateMessage(c *gin.Context) {
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /user/private_message [delete]
 func DeletePrivateMessage(c *gin.Context) {
 	log.Info("User DeletePrivateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))

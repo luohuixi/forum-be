@@ -23,6 +23,68 @@ definitions:
           $ref: '#/definitions/FeedItem'
         type: array
     type: object
+  FeedbackCreateRequest:
+    properties:
+      category:
+        type: string
+      contact:
+        type: string
+      content:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+    required:
+    - content
+    type: object
+  FeedbackUploadImageResponse:
+    properties:
+      file_token:
+        type: string
+    type: object
+  FollowListResponse:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/FollowListUser'
+        type: array
+    type: object
+  FollowListUser:
+    properties:
+      avatar:
+        type: string
+      follower_count:
+        type: integer
+      following_count:
+        type: integer
+      id:
+        type: integer
+      is_following:
+        type: boolean
+      name:
+        type: string
+      role:
+        type: string
+      signature:
+        type: string
+    type: object
+  FollowRequest:
+    properties:
+      target_user_id:
+        type: integer
+    required:
+    - target_user_id
+    type: object
+  FollowResponse:
+    properties:
+      follower_count:
+        type: integer
+      following_count:
+        type: integer
+      is_following:
+        type: boolean
+    type: object
   ListResponse:
     properties:
       count:
@@ -31,6 +93,33 @@ definitions:
         items:
           $ref: '#/definitions/user'
         type: array
+    type: object
+  MyProfile:
+    properties:
+      avatar:
+        type: string
+      email:
+        type: string
+      follower_count:
+        type: integer
+      following_count:
+        type: integer
+      id:
+        type: integer
+      is_following:
+        type: boolean
+      is_public_collection_and_like:
+        type: boolean
+      is_public_feed:
+        type: boolean
+      name:
+        type: string
+      role:
+        type: string
+      signature:
+        type: string
+      student_id:
+        type: string
     type: object
   Response:
     properties:
@@ -137,8 +226,14 @@ definitions:
         type: string
       email:
         type: string
+      follower_count:
+        type: integer
+      following_count:
+        type: integer
       id:
         type: integer
+      is_following:
+        type: boolean
       is_public_collection_and_like:
         type: boolean
       is_public_feed:
@@ -166,7 +261,6 @@ definitions:
       avatar:
         type: string
       id:
-        format: int32
         type: integer
       name:
         type: string
@@ -268,8 +362,6 @@ definitions:
         type: string
     required:
     - content
-    - target_id
-    - target_type
     - type_name
     type: object
   comment.ListRequest:
@@ -409,6 +501,8 @@ definitions:
         items:
           type: string
         type: array
+      time:
+        type: string
       title:
         type: string
     type: object
@@ -579,9 +673,13 @@ definitions:
         type: string
       cause:
         type: string
+      contact:
+        type: string
       id:
         description: post的id或者是comment的id
         type: integer
+      img_url:
+        type: string
       type_name:
         description: post or comment
         type: string
@@ -620,10 +718,14 @@ definitions:
         type: string
       cause:
         type: string
+      contact:
+        type: string
       create_time:
         type: string
       id:
         type: integer
+      img_url:
+        type: string
       post_id:
         type: integer
       target_id:
@@ -687,7 +789,6 @@ definitions:
     required:
     - comment
     - entry_id
-    - img_url
     - rating
     - sip_score_id
     type: object
@@ -721,11 +822,9 @@ definitions:
         type: array
     required:
     - category
-    - cover_img
     - description
     - domain
     - name
-    - tags
     type: object
   sipscore.DeleteSipScoreEntriesRequest:
     properties:
@@ -753,6 +852,13 @@ definitions:
     - sip_score_id
     type: object
   sipscore.EmptyResponse:
+    type: object
+  sipscore.GetSipScoreEntryResponse:
+    properties:
+      entry:
+        $ref: '#/definitions/sipscore.SipScoreEntry'
+      my_rating:
+        $ref: '#/definitions/sipscore.SipScoreEntryCommentRatingInfo'
     type: object
   sipscore.GetSipScoreResponse:
     properties:
@@ -888,6 +994,8 @@ definitions:
         type: integer
       img_url:
         type: string
+      is_liked:
+        type: boolean
       last_modified_by:
         $ref: '#/definitions/sipscore.userInfo'
       like_num:
@@ -910,7 +1018,6 @@ definitions:
       name:
         type: string
     required:
-    - cover_img
     - name
     type: object
   sipscore.SipScoreWithEntries:
@@ -1142,6 +1249,31 @@ paths:
               $ref: '#/definitions/chat.Message'
             type: array
       summary: 获取该用户的聊天记录
+      tags:
+      - chat
+  /chat/read/{id}:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: 聊天对象 id
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 标记与某用户的私信为已读
       tags:
       - chat
   /chat/userList:
@@ -1394,6 +1526,62 @@ paths:
       summary: list 用户的动态 api
       tags:
       - feed
+  /feedback:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: create_feedback_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/FeedbackCreateRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 反馈与建议 api
+      tags:
+      - feedback
+  /feedback/image:
+    post:
+      consumes:
+      - multipart/form-data
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: feedback_image
+        in: formData
+        name: file
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            allOf:
+            - $ref: '#/definitions/Response'
+            - properties:
+                data:
+                  $ref: '#/definitions/FeedbackUploadImageResponse'
+              type: object
+      summary: 上传反馈截图 api
+      tags:
+      - feedback
   /like:
     post:
       consumes:
@@ -1924,6 +2112,12 @@ paths:
       summary: 获取榜单元数据 api
       tags:
       - sipscore
+  /sip-score/collected/{user_id}:
+    get:
+      responses: {}
+  /sip-score/created/{user_id}:
+    get:
+      responses: {}
   /sip-score/entries:
     delete:
       consumes:
@@ -2118,6 +2312,36 @@ paths:
       summary: list 获取评分列表 api
       tags:
       - sipscore
+  /sip-score/entry/{sip_score_id}/{entry_id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: sip_score_id
+        in: path
+        name: sip_score_id
+        required: true
+        type: integer
+      - description: entry_id
+        in: path
+        name: entry_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/sipscore.GetSipScoreEntryResponse'
+      summary: 获取榜单条目详情 api
+      tags:
+      - sipscore
   /sip-score/entry/rating:
     delete:
       consumes:
@@ -2285,6 +2509,98 @@ paths:
       summary: 修改用户个人信息 api
       tags:
       - user
+  /user/follow:
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: follow_request
+        in: body
+        name: object
+        required: true
+        schema:
+          $ref: '#/definitions/FollowRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/FollowResponse'
+      summary: 关注/取关用户 api
+      tags:
+      - user
+  /user/followers/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user_id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/FollowListResponse'
+      summary: 获取用户粉丝列表 api
+      tags:
+      - user
+  /user/following/{id}:
+    get:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      - description: user_id
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: limit
+        in: query
+        name: limit
+        type: string
+      - description: page
+        in: query
+        name: page
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/FollowListResponse'
+      summary: 获取用户关注列表 api
+      tags:
+      - user
   /user/list:
     get:
       consumes:
@@ -2389,7 +2705,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/UserProfile'
+            $ref: '#/definitions/MyProfile'
       summary: get 我的 profile api
       tags:
       - user
@@ -2480,6 +2796,26 @@ paths:
           schema:
             $ref: '#/definitions/user.ListMessageResponse'
       summary: list user private_message api
+      tags:
+      - user
+  /user/private_message/read:
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: token 用户令牌
+        in: header
+        name: Authorization
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/Response'
+      summary: 标记 个人 message 已读 api
       tags:
       - user
   /user/profile/{id}:

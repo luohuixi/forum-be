@@ -7,6 +7,8 @@ import (
 	"forum/pkg/errno"
 )
 
+const placeholderStudentID = "0000000000"
+
 // GetProfile ... 获取用户个人信息
 func (s *UserService) GetProfile(_ context.Context, req *pb.GetRequest, resp *pb.UserProfile) error {
 	logger.Info("UserService GetProfile")
@@ -24,6 +26,10 @@ func (s *UserService) GetProfile(_ context.Context, req *pb.GetRequest, resp *pb
 	resp.Name = user.Name
 	resp.Avatar = user.Avatar
 	resp.Email = user.Email
+	resp.StudentId = user.StudentId
+	if len(resp.StudentId) != 10 {
+		resp.StudentId = placeholderStudentID
+	}
 	resp.Role, err = resolveRoleByUserID(user.Id)
 	if err != nil {
 		return err

@@ -20,7 +20,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body UpdateInfoRequest  true "update_info_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /user [put]
 func UpdateInfo(c *gin.Context) {
 	log.Info("User UpdateInfo function called.", zap.String("X-Request-Id", util.GetReqID(c)))

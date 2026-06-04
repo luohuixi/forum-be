@@ -3,7 +3,7 @@ package collection
 import (
 	. "forum-gateway/handler"
 	"forum-gateway/handler/post"
-	"forum-gateway/handler/user"
+	"forum-gateway/service"
 	"forum-gateway/util"
 	pb "forum-post/proto"
 	"forum/log"
@@ -51,7 +51,7 @@ func (a *Api) List(c *gin.Context) {
 		}
 
 		if !ok {
-			public, err := user.IsCollectionAndLikePublic(c.Request.Context(), uint32(targetUserId))
+			public, err := service.IsCollectionAndLikePublic(c.Request.Context(), uint32(targetUserId))
 			if err != nil {
 				SendError(c, err, nil, "", GetLine())
 				return

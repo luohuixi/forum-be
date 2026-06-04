@@ -2,7 +2,7 @@ package sipscore
 
 import (
 	. "forum-gateway/handler"
-	"forum-gateway/handler/user"
+	"forum-gateway/service"
 	pb "forum-post/proto"
 	"forum/client"
 	"forum/log"
@@ -28,7 +28,7 @@ func (a *Api) listUserSipScores(c *gin.Context, collected bool) {
 			return
 		}
 		if !ok {
-			public, err := user.IsCollectionAndLikePublic(c.Request.Context(), uint32(targetUserID))
+			public, err := service.IsCollectionAndLikePublic(c.Request.Context(), uint32(targetUserID))
 			if err != nil {
 				SendError(c, err, &EmptyResponse{}, "", GetLine())
 				return

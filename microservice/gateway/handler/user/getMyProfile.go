@@ -2,6 +2,7 @@ package user
 
 import (
 	. "forum-gateway/handler"
+	"forum-gateway/service"
 	"forum-gateway/util"
 	"forum/log"
 
@@ -16,19 +17,19 @@ import (
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
-// @Success 200 {object} UserProfile
+// @Success 200 {object} MyProfile
 // @Router /user/myprofile [get]
 func GetMyProfile(c *gin.Context) {
 	log.Info("User GetMyProfile function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
 	userId := c.MustGet("userId").(uint32)
 
-	user, err := GetUserProfile(c.Request.Context(), userId, userId)
+	user, err := service.GetUserProfile(c.Request.Context(), userId, userId)
 
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
-	SendMicroServiceResponse(c, nil, user, UserProfile{})
+	SendMicroServiceResponse(c, nil, user, MyProfile{})
 }

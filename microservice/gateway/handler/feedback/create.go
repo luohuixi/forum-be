@@ -2,11 +2,11 @@ package feedback
 
 import (
 	. "forum-gateway/handler"
+	"forum-gateway/service"
 	"forum-gateway/util"
-	pb "forum-post/proto"
-	"forum/client"
 	"forum/log"
 	"forum/pkg/errno"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -19,7 +19,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body CreateRequest true "create_feedback_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /feedback [post]
 func (a *Api) Create(c *gin.Context) {
 	log.Info("Feedback Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -29,19 +29,65 @@ func (a *Api) Create(c *gin.Context) {
 		SendError(c, errno.ErrBind, nil, err.Error(), GetLine())
 		return
 	}
+	content := strings.TrimSpace(req.Content)
+	if content == "" {
+		SendError(c, errno.ErrBind, nil, "反馈内容不能为空", GetLine())
+		return
+	}
 
 	userID := c.MustGet("userId").(uint32)
-	_, err := client.PostClient.CreateFeedback(c.Request.Context(), &pb.CreateFeedbackRequest{
-		UserId:   userID,
-		Category: req.Category,
-		Content:  req.Content,
-		Contact:  req.Contact,
-		ImgUrl:   req.ImgURL,
-	})
+	profile, err := service.GetUserProfile(c.Request.Context(), userID, userID)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
+	extraRecord := map[string]any{}
+	if category := strings.TrimSpace(req.Category); category != "" {
+		extraRecord["问题类型"] = category
+	}
+	if profile.GetEmail() != "" {
+		extraRecord["用户邮箱"] = profile.GetEmail()
+	}
+
+	studentID := strings.TrimSpace(profile.GetStudentId())
+	if len(studentID) != 10 {
+		studentID = placeholderStudentID
+	}
+
+	err = service.CreateFeedbackRecord(c.Request.Context(), service.FeedbackRecordRequest{
+		TableIdentify: defaultTableIdentify,
+		StudentID:     studentID,
+		Content:       content,
+		Images:        feedbackImageTokens(req.Images),
+		ContactInfo:   firstNonEmpty(req.Contact, profile.GetEmail()),
+		ExtraRecord:   extraRecord,
+	})
+	if err != nil {
+		SendError(c, errno.InternalServerError, nil, err.Error(), GetLine())
+		return
+	}
+
 	SendResponse(c, nil, nil)
+}
+
+func firstNonEmpty(values ...string) string {
+	for _, value := range values {
+		value = strings.TrimSpace(value)
+		if value != "" {
+			return value
+		}
+	}
+	return ""
+}
+
+func feedbackImageTokens(images []string) []string {
+	tokens := make([]string, 0, len(images))
+	for _, image := range images {
+		image = strings.TrimSpace(image)
+		if image != "" {
+			tokens = append(tokens, image)
+		}
+	}
+	return tokens
 }

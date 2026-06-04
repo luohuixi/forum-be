@@ -21,7 +21,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body HandleRequest true "handle_report_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /report [put]
 func (a *Api) Handle(c *gin.Context) {
 	log.Info("Report Handle function called.", zap.String("X-Request-Id", util.GetReqID(c)))

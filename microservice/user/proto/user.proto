@@ -183,6 +183,7 @@ message UserProfile {
   uint32 following_count = 9;
   uint32 follower_count = 10;
   bool is_following = 11;
+  string student_id = 12;
 }
 
 message ListRequest {

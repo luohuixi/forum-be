@@ -1,16 +1,13 @@
 package user
 
 import (
-	"context"
 	. "forum-gateway/handler"
+	"forum-gateway/service"
 	"strconv"
 
 	"forum-gateway/util"
-	pb "forum-user/proto"
 	"forum/log"
 	"forum/pkg/errno"
-
-	"forum/client"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
@@ -36,7 +33,7 @@ func GetProfile(c *gin.Context) {
 	}
 
 	userID := c.MustGet("userId").(uint32)
-	user, err := GetUserProfile(c.Request.Context(), uint32(id), userID)
+	user, err := service.GetUserProfile(c.Request.Context(), uint32(id), userID)
 
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
@@ -44,15 +41,4 @@ func GetProfile(c *gin.Context) {
 	}
 
 	SendMicroServiceResponse(c, nil, user, UserProfile{})
-}
-
-func GetUserProfile(ctx context.Context, id uint32, viewerID uint32) (*pb.UserProfile, error) {
-	getProfileReq := &pb.GetRequest{Id: id, ViewerId: viewerID}
-
-	getProfileResp, err := client.UserClient.GetProfile(ctx, getProfileReq)
-	if err != nil {
-		return nil, err
-	}
-
-	return getProfileResp, nil
 }

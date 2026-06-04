@@ -77,6 +77,22 @@ type UserProfile struct {
 	IsFollowing               bool   `json:"is_following"`
 } // @name UserProfile
 
+// MyProfile 获取 my profile 响应
+type MyProfile struct {
+	Id                        uint32 `json:"id"`
+	Name                      string `json:"name"`
+	Avatar                    string `json:"avatar"`
+	Email                     string `json:"email"`
+	StudentId                 string `json:"student_id"`
+	Role                      string `json:"role"`
+	Signature                 string `json:"signature"`
+	IsPublicFeed              bool   `json:"is_public_feed"`
+	IsPublicCollectionAndLike bool   `json:"is_public_collection_and_like"`
+	FollowingCount            uint32 `json:"following_count"`
+	FollowerCount             uint32 `json:"follower_count"`
+	IsFollowing               bool   `json:"is_following"`
+} // @name MyProfile
+
 type FollowRequest struct {
 	TargetUserID uint32 `json:"target_user_id" binding:"required"`
 } // @name FollowRequest
