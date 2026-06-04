@@ -3,19 +3,15 @@ package user
 import (
 	. "forum-gateway/handler"
 	"forum-gateway/util"
+	pb "forum-user/proto"
+	"forum/client"
 	"forum/log"
-	"forum/model"
 	"forum/pkg/errno"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"go.uber.org/zap"
 )
-
-type followCountRow struct {
-	Id    uint32
-	Count uint32
-}
 
 func parseFollowListQuery(c *gin.Context) (uint32, int, int, bool) {
 	id, err := strconv.Atoi(c.Param("id"))
@@ -52,95 +48,28 @@ func listFollowUsers(c *gin.Context, following bool) {
 	}
 
 	viewerID := c.MustGet("userId").(uint32)
-	db := model.GetSelfDB()
-	sqlDB, err := db.DB()
-	if err == nil {
-		defer sqlDB.Close()
+	req := &pb.FollowListRequest{
+		UserId:   targetID,
+		ViewerId: viewerID,
+		Limit:    uint32(limit),
+		Offset:   uint32(offset),
 	}
 
-	users := make([]FollowListUser, 0)
-	var query string
+	var (
+		resp *pb.FollowListResponse
+		err  error
+	)
 	if following {
-		query = `
-SELECT u.id, u.name, COALESCE(u.avatar, '') AS avatar, u.role, COALESCE(u.signature, '') AS signature
-FROM user_follows f
-JOIN users u ON u.id = f.followee_id AND COALESCE(u.re, 0) = 0
-WHERE f.follower_id = ?
-ORDER BY f.created_at DESC, f.id DESC
-LIMIT ? OFFSET ?`
+		resp, err = client.UserClient.ListFollowing(c.Request.Context(), req)
 	} else {
-		query = `
-SELECT u.id, u.name, COALESCE(u.avatar, '') AS avatar, u.role, COALESCE(u.signature, '') AS signature
-FROM user_follows f
-JOIN users u ON u.id = f.follower_id AND COALESCE(u.re, 0) = 0
-WHERE f.followee_id = ?
-ORDER BY f.created_at DESC, f.id DESC
-LIMIT ? OFFSET ?`
+		resp, err = client.UserClient.ListFollowers(c.Request.Context(), req)
 	}
-	if err := db.Raw(query, targetID, limit, offset).Scan(&users).Error; err != nil {
-		SendError(c, errno.ErrDatabase, nil, err.Error(), GetLine())
+	if err != nil {
+		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
-	if len(users) == 0 {
-		SendResponse(c, nil, FollowListResponse{Users: users})
-		return
-	}
-
-	userIDs := make([]uint32, 0, len(users))
-	for _, item := range users {
-		userIDs = append(userIDs, item.Id)
-	}
-
-	followingCounts := map[uint32]uint32{}
-	followerCounts := map[uint32]uint32{}
-	var rows []followCountRow
-	if err := db.Raw(`
-SELECT follower_id AS id, COUNT(*) AS count
-FROM user_follows
-WHERE follower_id IN ?
-GROUP BY follower_id`, userIDs).Scan(&rows).Error; err != nil {
-		SendError(c, errno.ErrDatabase, nil, err.Error(), GetLine())
-		return
-	}
-	for _, row := range rows {
-		followingCounts[row.Id] = row.Count
-	}
-	rows = nil
-	if err := db.Raw(`
-SELECT followee_id AS id, COUNT(*) AS count
-FROM user_follows
-WHERE followee_id IN ?
-GROUP BY followee_id`, userIDs).Scan(&rows).Error; err != nil {
-		SendError(c, errno.ErrDatabase, nil, err.Error(), GetLine())
-		return
-	}
-	for _, row := range rows {
-		followerCounts[row.Id] = row.Count
-	}
-
-	followingMap := map[uint32]bool{}
-	if viewerID != 0 {
-		rows = nil
-		if err := db.Raw(`
-SELECT followee_id AS id, 1 AS count
-FROM user_follows
-WHERE follower_id = ? AND followee_id IN ?`, viewerID, userIDs).Scan(&rows).Error; err != nil {
-			SendError(c, errno.ErrDatabase, nil, err.Error(), GetLine())
-			return
-		}
-		for _, row := range rows {
-			followingMap[row.Id] = true
-		}
-	}
-
-	for idx := range users {
-		users[idx].FollowingCount = followingCounts[users[idx].Id]
-		users[idx].FollowerCount = followerCounts[users[idx].Id]
-		users[idx].IsFollowing = followingMap[users[idx].Id]
-	}
-
-	SendResponse(c, nil, FollowListResponse{Users: users})
+	SendMicroServiceResponse(c, nil, resp, FollowListResponse{})
 }
 
 // ListFollowing ... 获取用户关注列表

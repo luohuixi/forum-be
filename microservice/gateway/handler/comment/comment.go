@@ -63,7 +63,6 @@ type CommentItem struct {
 type CreateRequest struct {
 	TargetId   uint32 `json:"target_id"`
 	TargetType string `json:"target_type"`
-	PostId     uint32 `json:"post_id"`
 	TypeName   string `json:"type_name" binding:"required"`
 	FatherId   uint32 `json:"father_id"`
 	Content    string `json:"content" binding:"required"`

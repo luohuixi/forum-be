@@ -12,15 +12,16 @@ import (
 	"go.uber.org/zap"
 )
 
-func markPrivateMessageRead(c *gin.Context) {
+func privateMessageRequest(c *gin.Context) *pb.DeletePrivateMessageRequest {
 	userId := c.MustGet("userId").(uint32)
-	messageId := c.Query("id")
-	listReq := &pb.DeletePrivateMessageRequest{
+	return &pb.DeletePrivateMessageRequest{
 		UserId: userId,
-		Id:     messageId,
+		Id:     c.Query("id"),
 	}
+}
 
-	_, err := client.UserClient.DeletePrivateMessage(c.Request.Context(), listReq)
+func markPrivateMessageRead(c *gin.Context) {
+	_, err := client.UserClient.MarkPrivateMessageRead(c.Request.Context(), privateMessageRequest(c))
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
@@ -43,8 +44,8 @@ func ReadPrivateMessage(c *gin.Context) {
 	markPrivateMessageRead(c)
 }
 
-// DeletePrivateMessage ... 标记 private message 已读，兼容旧前端路径
-// @Summary 标记 个人 message 已读 api
+// DeletePrivateMessage ... 删除 private message
+// @Summary 删除 个人 message api
 // @Tags user
 // @Accept application/json
 // @Produce application/json
@@ -54,5 +55,11 @@ func ReadPrivateMessage(c *gin.Context) {
 func DeletePrivateMessage(c *gin.Context) {
 	log.Info("User DeletePrivateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
 
-	markPrivateMessageRead(c)
+	_, err := client.UserClient.DeletePrivateMessage(c.Request.Context(), privateMessageRequest(c))
+	if err != nil {
+		SendError(c, err, nil, "", GetLine())
+		return
+	}
+
+	SendResponse(c, nil, nil)
 }

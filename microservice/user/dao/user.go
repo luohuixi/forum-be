@@ -176,3 +176,107 @@ func (d *Dao) IsFollowing(followerID, followeeID uint32) (bool, error) {
 	}
 	return err == nil, err
 }
+
+type FollowListUser struct {
+	Id        uint32
+	Name      string
+	Avatar    string
+	Role      string
+	Signature string
+}
+
+type followCountRow struct {
+	Id    uint32
+	Count uint32
+}
+
+func (d *Dao) ListFollowing(userID, limit, offset uint32) ([]*FollowListUser, error) {
+	var users []*FollowListUser
+	err := d.DB.Table("user_follows f").
+		Select("u.id, u.name, COALESCE(u.avatar, '') AS avatar, u.role, COALESCE(u.signature, '') AS signature").
+		Joins("JOIN users u ON u.id = f.followee_id AND COALESCE(u.re, 0) = 0").
+		Where("f.follower_id = ?", userID).
+		Order("f.created_at DESC, f.id DESC").
+		Limit(int(limit)).
+		Offset(int(offset)).
+		Scan(&users).Error
+	return users, err
+}
+
+func (d *Dao) ListFollowers(userID, limit, offset uint32) ([]*FollowListUser, error) {
+	var users []*FollowListUser
+	err := d.DB.Table("user_follows f").
+		Select("u.id, u.name, COALESCE(u.avatar, '') AS avatar, u.role, COALESCE(u.signature, '') AS signature").
+		Joins("JOIN users u ON u.id = f.follower_id AND COALESCE(u.re, 0) = 0").
+		Where("f.followee_id = ?", userID).
+		Order("f.created_at DESC, f.id DESC").
+		Limit(int(limit)).
+		Offset(int(offset)).
+		Scan(&users).Error
+	return users, err
+}
+
+func (d *Dao) BatchCountFollowing(userIDs []uint32) (map[uint32]uint32, error) {
+	counts := make(map[uint32]uint32, len(userIDs))
+	if len(userIDs) == 0 {
+		return counts, nil
+	}
+
+	var rows []followCountRow
+	err := d.DB.Table("user_follows").
+		Select("follower_id AS id, COUNT(*) AS count").
+		Where("follower_id IN ?", userIDs).
+		Group("follower_id").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	for _, row := range rows {
+		counts[row.Id] = row.Count
+	}
+	return counts, nil
+}
+
+func (d *Dao) BatchCountFollowers(userIDs []uint32) (map[uint32]uint32, error) {
+	counts := make(map[uint32]uint32, len(userIDs))
+	if len(userIDs) == 0 {
+		return counts, nil
+	}
+
+	var rows []followCountRow
+	err := d.DB.Table("user_follows").
+		Select("followee_id AS id, COUNT(*) AS count").
+		Where("followee_id IN ?", userIDs).
+		Group("followee_id").
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	for _, row := range rows {
+		counts[row.Id] = row.Count
+	}
+	return counts, nil
+}
+
+func (d *Dao) BatchIsFollowing(followerID uint32, followeeIDs []uint32) (map[uint32]bool, error) {
+	following := make(map[uint32]bool, len(followeeIDs))
+	if followerID == 0 || len(followeeIDs) == 0 {
+		return following, nil
+	}
+
+	var rows []followCountRow
+	err := d.DB.Table("user_follows").
+		Select("followee_id AS id, 1 AS count").
+		Where("follower_id = ? AND followee_id IN ?", followerID, followeeIDs).
+		Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+
+	for _, row := range rows {
+		following[row.Id] = true
+	}
+	return following, nil
+}

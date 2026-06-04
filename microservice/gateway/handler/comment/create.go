@@ -35,9 +35,6 @@ func (a *Api) Create(c *gin.Context) {
 		return
 	}
 
-	if req.TargetId == 0 && req.PostId != 0 {
-		req.TargetId = req.PostId
-	}
 	if req.TargetType == "" && req.TargetId != 0 {
 		req.TargetType = constvar.Post
 	}

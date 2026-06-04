@@ -94,6 +94,32 @@ func (d Dao) CreateOrUpdateInteractionMessage(userId uint32, message string) err
 	return redis.TxFailedErr
 }
 
+func (d Dao) DeleteOneMessage(userId uint32, uid string) error {
+	messages, err := d.ListPrivateMessage(userId)
+	if err != nil {
+		return err
+	}
+
+	var targetMessage string
+	for _, msg := range messages {
+		var data map[string]interface{}
+		if err := json.Unmarshal([]byte(msg), &data); err == nil && interfaceString(data["id"]) == uid {
+			targetMessage = msg
+			break
+		}
+	}
+	if targetMessage == "" {
+		return nil
+	}
+
+	_, err = d.Redis.LRem(GetKey(userId), 0, targetMessage).Result()
+	return err
+}
+
+func (d Dao) DeleteMessage(userId uint32) error {
+	return d.Redis.Del(GetKey(userId)).Err()
+}
+
 func deduplicateInteractionMessages(messages []string) []string {
 	result := make([]string, 0, len(messages))
 	seen := make(map[string]int)
