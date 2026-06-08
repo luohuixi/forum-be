@@ -14,7 +14,7 @@ import (
 func (s *PostService) ListCollection(ctx context.Context, req *pb.ListPostPartInfoRequest, resp *pb.ListPostPartInfoResponse) error {
 	logger.Info("PostService ListCollections")
 
-	postIds, err := s.Dao.ListCollectionByUserId(req.TargetUserId, constvar.CollectionPost)
+	postIds, err := s.Dao.ListCollectionPostIDsByUser(req.TargetUserId, req.Offset, req.Limit, req.LastId, req.Pagination)
 	if err != nil {
 		return errno.ServerErr(errno.ErrDatabase, err.Error())
 	}
@@ -29,7 +29,7 @@ func (s *PostService) ListCollection(ctx context.Context, req *pb.ListPostPartIn
 		filter.Domain = domain
 	}
 
-	posts, err := s.Dao.ListPostInfoByPostIds(postIds, filter, req.Offset, req.Limit, req.LastId, req.Pagination)
+	posts, err := s.Dao.ListPostInfoByPostIds(postIds, filter, 0, 0, 0, false)
 	if err != nil {
 		return errno.ServerErr(errno.ErrListPostInfoByPostIds, err.Error())
 	}

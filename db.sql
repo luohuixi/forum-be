@@ -62,19 +62,25 @@ DROP TABLE IF EXISTS `comments`;
 CREATE TABLE `comments`
 (
     `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
+    `target_id`   int(11)     NOT NULL DEFAULT 0,
+    `target_type` varchar(32) NOT NULL DEFAULT 'post',
+    `created_at`  datetime    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `deleted_at`  bigint      NOT NULL DEFAULT 0,
     `type_name`   varchar(30) NOT NULL,
     `content`     text        NOT NULL,
     `father_id`   int(11)     DEFAULT NULL,
-    `create_time` varchar(30) DEFAULT NULL,
-    `re`          tinyint(1)  DEFAULT NULL COMMENT '标志是否删除，0-未删除 1-删除 删除时只要将 re 置为 1',
     `creator_id`  int(11)     DEFAULT NULL,
-    `post_id`     int(11)     DEFAULT NULL,
     `like_num`    int(11)     DEFAULT 0,
+    `sub_num`     int(11)     DEFAULT 0,
+    `img_url`     varchar(255) DEFAULT NULL,
     `is_report`   tinyint(1)  NOT NULL,
+    KEY `idx_target_newest` (`target_type`, `target_id`, `created_at`, `id`),
+    KEY `idx_target_hottest` (`target_type`, `target_id`, `like_num`, `id`),
+    KEY `idx_father_newest` (`father_id`, `created_at`, `id`),
+    KEY `idx_father_hottest` (`father_id`, `like_num`, `id`),
     CONSTRAINT T_type_Chk CHECK (`type_name` = 'sub-post' OR `type_name` = 'first-level' OR
                                  `type_name` = 'second-level'),
-    FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`),
-    FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`)
+    FOREIGN KEY (`creator_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci
@@ -143,13 +149,14 @@ CREATE TABLE `feeds`
 DROP TABLE IF EXISTS `collections`;
 CREATE TABLE `collections`
 (
-    `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
-    `post_id`     int(11) NOT NULL,
-    `user_id`     int(11) NOT NULL,
-    `create_time` varchar(30) DEFAULT NULL,
-    KEY (`user_id`),
-    UNIQUE (`user_id`, `post_id`),
-    FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`),
+    `id`           int(11) AUTO_INCREMENT PRIMARY KEY,
+    `user_id`      int(11) NOT NULL,
+    `content_type` int(11) NOT NULL COMMENT '1=post, 2=sip-score',
+    `content_id`   int(11) NOT NULL,
+    `created_at`   datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `deleted_at`   bigint NOT NULL DEFAULT 0,
+    KEY `idx_target` (`content_type`, `content_id`),
+    UNIQUE KEY `idx_user_target` (`user_id`, `content_type`, `content_id`, `deleted_at`),
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
@@ -169,9 +176,184 @@ CREATE TABLE `reports`
     `type_name`   varchar(30)   DEFAULT NULL,
     `cause`       varchar(1000) DEFAULT NULL,
     `category`    varchar(30)   DEFAULT NULL,
+    `contact`     varchar(120)  DEFAULT NULL,
+    `img_url`     varchar(255)  DEFAULT NULL,
     KEY (`user_id`),
     UNIQUE (`user_id`, `target_id`, `type_name`),
     FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for messages
+-- --------------------------------------------
+DROP TABLE IF EXISTS `messages`;
+CREATE TABLE `messages`
+(
+    `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
+    `sender_id`   int(11)     NOT NULL,
+    `receiver_id` int(11)     NOT NULL,
+    `content`     text                 DEFAULT NULL,
+    `time`        varchar(255)         DEFAULT NULL,
+    `type_name`   varchar(255)         DEFAULT NULL,
+    `read`        tinyint(1)  NOT NULL DEFAULT 1,
+    KEY `idx_sender_receiver` (`sender_id`, `receiver_id`),
+    KEY `idx_receiver_sender` (`receiver_id`, `sender_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for user_follows
+-- --------------------------------------------
+DROP TABLE IF EXISTS `user_follows`;
+CREATE TABLE `user_follows`
+(
+    `id`          int(11) AUTO_INCREMENT PRIMARY KEY,
+    `follower_id` int(11) NOT NULL,
+    `followee_id` int(11) NOT NULL,
+    `created_at`  datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY `idx_user_follow` (`follower_id`, `followee_id`),
+    KEY (`follower_id`),
+    KEY (`followee_id`),
+    CONSTRAINT `chk_no_self_follow` CHECK (`follower_id` <> `followee_id`),
+    FOREIGN KEY (`follower_id`) REFERENCES `users` (`id`),
+    FOREIGN KEY (`followee_id`) REFERENCES `users` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for feedbacks
+-- --------------------------------------------
+DROP TABLE IF EXISTS `feedbacks`;
+CREATE TABLE `feedbacks`
+(
+    `id`         int(11) AUTO_INCREMENT PRIMARY KEY,
+    `user_id`    int(11) NOT NULL,
+    `category`   varchar(30) DEFAULT NULL,
+    `content`    text        NOT NULL,
+    `contact`    varchar(120) DEFAULT NULL,
+    `img_url`    varchar(255) DEFAULT NULL,
+    `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    KEY (`user_id`),
+    FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for sip_scores
+-- --------------------------------------------
+DROP TABLE IF EXISTS `sip_scores`;
+CREATE TABLE `sip_scores`
+(
+    `id`                int(11) AUTO_INCREMENT PRIMARY KEY,
+    `created_at`        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deleted_at`        bigint NOT NULL DEFAULT 0,
+    `last_modified_by`  int(11) NOT NULL,
+    `creator_id`        int(11) NOT NULL,
+    `entry_count`       int(11) unsigned NOT NULL DEFAULT 0,
+    `collect_count`     int(11) unsigned NOT NULL DEFAULT 0,
+    `participant_count` int(11) unsigned NOT NULL DEFAULT 0,
+    `is_report`         tinyint(1) NOT NULL DEFAULT 0,
+    `name`              varchar(100) NOT NULL,
+    `description`       varchar(500) DEFAULT NULL,
+    `cover_img`         varchar(255) DEFAULT NULL,
+    `domain`            varchar(20) NOT NULL,
+    `category`          varchar(20) NOT NULL,
+    KEY `idx_creator` (`creator_id`, `id`),
+    KEY `idx_latest` (`updated_at`, `id`),
+    KEY `idx_rank` (`participant_count`, `id`),
+    KEY (`domain`),
+    KEY (`category`),
+    FULLTEXT KEY `idx_ft_search` (`name`, `description`, `category`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for sip_score_entries
+-- --------------------------------------------
+DROP TABLE IF EXISTS `sip_score_entries`;
+CREATE TABLE `sip_score_entries`
+(
+    `id`                int(11) AUTO_INCREMENT PRIMARY KEY,
+    `created_at`        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`        datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deleted_at`        bigint NOT NULL DEFAULT 0,
+    `sip_score_id`      int(11) NOT NULL,
+    `last_modified_by`  int(11) NOT NULL,
+    `creator_id`        int(11) NOT NULL,
+    `is_report`         tinyint(1) NOT NULL DEFAULT 0,
+    `participant_count` int(11) unsigned NOT NULL DEFAULT 0,
+    `comment_count`     int(11) unsigned NOT NULL DEFAULT 0,
+    `score_total`       int(11) unsigned NOT NULL DEFAULT 0,
+    `score_avg`         int(11) unsigned NOT NULL DEFAULT 0,
+    `name`              varchar(100) NOT NULL,
+    `description`       varchar(500) DEFAULT NULL,
+    `cover_img`         varchar(255) DEFAULT NULL,
+    KEY `idx_hottest` (`sip_score_id`, `participant_count`, `id`),
+    KEY `idx_newest` (`sip_score_id`, `updated_at`, `id`),
+    KEY `idx_score` (`sip_score_id`, `score_avg`, `id`),
+    FULLTEXT KEY `idx_ft_entry_search` (`name`, `description`),
+    FOREIGN KEY (`sip_score_id`) REFERENCES `sip_scores` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for sip_score_entry_comment_ratings
+-- --------------------------------------------
+DROP TABLE IF EXISTS `sip_score_entry_comment_ratings`;
+CREATE TABLE `sip_score_entry_comment_ratings`
+(
+    `id`                  int(11) AUTO_INCREMENT PRIMARY KEY,
+    `created_at`          datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    `updated_at`          datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    `deleted_at`          bigint NOT NULL DEFAULT 0,
+    `creator_id`          int(11) NOT NULL,
+    `last_modified_by`    int(11) NOT NULL,
+    `sip_score_id`        int(11) NOT NULL,
+    `entry_id`            int(11) NOT NULL,
+    `rating`              tinyint unsigned NOT NULL,
+    `content`             varchar(2000) NOT NULL,
+    `img_url`             varchar(255) DEFAULT NULL,
+    `like_num`            int(11) unsigned NOT NULL DEFAULT 0,
+    `comment_num`         int(11) unsigned NOT NULL DEFAULT 0,
+    KEY `idx_newest` (`sip_score_id`, `entry_id`, `created_at`, `id`),
+    KEY `idx_hottest` (`sip_score_id`, `entry_id`, `like_num`, `id`),
+    KEY `idx_user` (`sip_score_id`, `entry_id`, `creator_id`),
+    UNIQUE KEY `uniq_user_entry_rating` (`sip_score_id`, `entry_id`, `creator_id`, `deleted_at`),
+    FOREIGN KEY (`sip_score_id`) REFERENCES `sip_scores` (`id`),
+    FOREIGN KEY (`entry_id`) REFERENCES `sip_score_entries` (`id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4
+  COLLATE = utf8mb4_unicode_ci
+  ROW_FORMAT = DYNAMIC;
+
+-- --------------------------------------------
+-- Table structure for sip_score_tags
+-- --------------------------------------------
+DROP TABLE IF EXISTS `sip_score_tags`;
+CREATE TABLE `sip_score_tags`
+(
+    `id`           int(11) AUTO_INCREMENT PRIMARY KEY,
+    `sip_score_id` int(11) NOT NULL,
+    `tag_id`       int(11) NOT NULL,
+    UNIQUE KEY `idx_rank_tag` (`sip_score_id`, `tag_id`),
+    KEY (`sip_score_id`),
+    KEY (`tag_id`),
+    FOREIGN KEY (`sip_score_id`) REFERENCES `sip_scores` (`id`),
+    FOREIGN KEY (`tag_id`) REFERENCES `tags` (`id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4
   COLLATE = utf8mb4_unicode_ci

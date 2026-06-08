@@ -7,12 +7,16 @@ import (
 	"forum/log"
 	"forum/pkg/errno"
 	"strconv"
+	"time"
 
 	"forum/client"
 
 	"github.com/gin-gonic/gin"
+	mclient "go-micro.dev/v4/client"
 	"go.uber.org/zap"
 )
+
+const listUserPostTimeout = 60 * time.Second
 
 // ListUserPost ... 获取用户发布的帖子
 // @Summary list 用户发布的帖子 api
@@ -34,6 +38,7 @@ func (a *Api) ListUserPost(c *gin.Context) {
 		SendError(c, errno.ErrPathParam, nil, err.Error(), GetLine())
 		return
 	}
+	userId := c.MustGet("userId").(uint32)
 
 	limit, err := strconv.Atoi(c.DefaultQuery("limit", "50"))
 	if err != nil {
@@ -54,18 +59,30 @@ func (a *Api) ListUserPost(c *gin.Context) {
 	}
 
 	listReq := &pb.ListPostPartInfoRequest{
-		UserId:     uint32(targetUserId),
-		LastId:     uint32(lastId),
-		Offset:     uint32(page * limit),
-		Limit:      uint32(limit),
-		Pagination: limit != 0 || page != 0,
+		UserId:       userId,
+		TargetUserId: uint32(targetUserId),
+		LastId:       uint32(lastId),
+		Offset:       uint32(page * limit),
+		Limit:        uint32(limit),
+		Pagination:   limit != 0 || page != 0,
 	}
 
-	postResp, err := client.PostClient.ListUserCreatedPost(c.Request.Context(), listReq)
+	postResp, err := client.PostClient.ListUserCreatedPost(
+		c.Request.Context(),
+		listReq,
+		mclient.WithRequestTimeout(listUserPostTimeout),
+		withListUserPostConnectionTimeout(listUserPostTimeout),
+	)
 	if err != nil {
 		SendError(c, err, nil, "", GetLine())
 		return
 	}
 
 	SendMicroServiceResponse(c, nil, postResp, PostPartInfoResponse{})
+}
+
+func withListUserPostConnectionTimeout(d time.Duration) mclient.CallOption {
+	return func(o *mclient.CallOptions) {
+		o.ConnectionTimeout = d
+	}
 }

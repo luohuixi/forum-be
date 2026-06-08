@@ -20,7 +20,7 @@ import (
 // @Accept application/json
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /post/set_quality/{post_id} [patch]
 func (a *Api) SetQualityPost(c *gin.Context) {
 	userId := c.MustGet("userId").(uint32)

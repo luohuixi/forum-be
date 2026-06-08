@@ -22,6 +22,16 @@ CI: .drone.yml
 
 Kafka: 动态功能的消息队列
 
+# 开发部署建议
+
+- 个人分支：用于日常开发与提交。
+- `dev`：用于开发环境部署与联调，对应 `forum-dev.muxistudio.xyz`。
+- `main`：用于正式环境发布，对应 `forum.muxistudio.xyz`。
+
+流程：个人分支开发完成后合入 `dev`，测试通过后再由 `dev` 合入 `main`。
+
+原则：不在 `main` 直接开发，不将未完成代码合入 `dev`。
+
 # 部署
 配置了github action(比较暴力,没有去区分版本)
 如果需要细粒度的版本控制:

@@ -22,7 +22,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body Item true "like_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /like [post]
 func (a *Api) CreateOrRemove(c *gin.Context) {
 	log.Info("Like CreateOrRemove function called.", zap.String("X-Request-Id", util.GetReqID(c)))

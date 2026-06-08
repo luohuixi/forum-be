@@ -39,7 +39,7 @@ func (s *UserService) ListMessage(_ context.Context, req *pb.ListMessageRequest,
 func (s *UserService) ListPrivateMessage(_ context.Context, req *pb.ListMessageRequest, resp *pb.ListPrivateMessageResponse) error {
 	logger.Info("UserService ListPrivateMessage")
 
-	messages, err := s.Dao.ListPrivateMessage(req.UserId)
+	messages, err := s.Dao.ListDeduplicatedPrivateMessage(req.UserId)
 	if err != nil {
 		return errno.ServerErr(errno.ErrRedis, err.Error())
 	}

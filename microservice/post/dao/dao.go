@@ -26,7 +26,8 @@ type Interface interface {
 	Transaction(fc func(tx *gorm.DB) error) error
 
 	CreatePost(*PostModel) (uint32, error)
-	ListUserCreatedPost(uint32) ([]uint32, error)
+	ListUserCreatedPost(uint32, uint32, uint32, uint32, bool) ([]uint32, error)
+	ListCollectionPostIDsByUser(uint32, uint32, uint32, uint32, bool) ([]uint32, error)
 	ListMainPost(*PostModel, string, uint32, uint32, uint32, bool, string, uint32) ([]*PostInfo, error)
 	GetPostInfo(uint32) (*PostInfo, error)
 	GetPost(uint32) (*PostModel, error)
@@ -35,7 +36,7 @@ type Interface interface {
 	ChangeQualityPost(uint32, bool) error
 	CountPostByTime(string, string) (int, error)
 
-	CreateSipScore(sipScore *SipScoreModel) (uint32, error)
+	CreateSipScore(sipScore *SipScoreModel, tx ...*gorm.DB) (uint32, error)
 	BatchGetOrCreateTags(tags []string) ([]*TagModel, error)
 	BatchCreateSipScoreTags(items []*SipScoreTagModel, tx ...*gorm.DB) error
 	BatchAddTagsToSortedSet(tagIDs []uint32, category string) error
@@ -72,6 +73,8 @@ type Interface interface {
 	ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error)
 	SearchSipScore(keyword string, limit uint32, domain string) ([]*SipScoreModel, error)
 	SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32, domain string) ([]*SipScoreModel, error)
+	ListSipScoreByCreator(userID uint32, offset uint32, limit uint32, lastID uint32, pagination bool) ([]*SipScoreModel, error)
+	ListCollectedSipScoreByUser(userID uint32, offset uint32, limit uint32, lastID uint32, pagination bool) ([]*SipScoreModel, error)
 	BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32, tx ...*gorm.DB) (map[uint32][]*SipScoreEntryModel, error)
 	GetSipScoreEntry(sipScoreID, entryID uint32, tx ...*gorm.DB) (*SipScoreEntryModel, error)
 	CreateSipScoreEntryCommentRating(rating *SipScoreEntryCommentRating, tx ...*gorm.DB) (uint32, error)
@@ -155,6 +158,7 @@ type Interface interface {
 	ValidReport(string, uint32) error
 	InValidReport(uint32, string, uint32) error
 	IsUserHadReportTarget(uint32, string, uint32) (bool, error)
+	CreateFeedback(*FeedbackModel) error
 
 	UpdateLastRead(uint32, string, string) error
 }

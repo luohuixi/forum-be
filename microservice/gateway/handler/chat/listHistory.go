@@ -49,18 +49,6 @@ func ListHistory(c *gin.Context) {
 		return
 	}
 
-	// 如果我方发送消息，对方未即使从redis读取，我方又重新刷新进入聊天页面，需要先将还没消费的消息存入数据库
-	getListRequest := &pb.GetListRequest{
-		UserId: uint32(otherUserId),
-		Wait:   false,
-	}
-
-	_, err = client.ChatClient.GetList(c.Request.Context(), getListRequest)
-	if err != nil {
-		SendError(c, errno.ErrQuery, nil, err.Error(), GetLine())
-		return
-	}
-
 	req := pb.ListHistoryRequest{
 		UserId:      userId,
 		Offset:      uint32(page * limit),

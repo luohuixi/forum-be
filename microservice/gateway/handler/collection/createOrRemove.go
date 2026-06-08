@@ -22,7 +22,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body CreateRequest true "create_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /collection [post]
 func (a *Api) CreateOrRemove(c *gin.Context) {
 	log.Info("Collection CreateOrRemove function called.", zap.String("X-Request-Id", util.GetReqID(c)))

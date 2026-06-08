@@ -9,6 +9,9 @@ service UserService {
   rpc StudentLogin(StudentLoginRequest) returns (LoginResponse) {}
   rpc GetInfo(GetInfoRequest) returns (UserInfoResponse) {}
   rpc GetProfile(GetRequest) returns (UserProfile) {}
+  rpc ToggleFollow(FollowRequest) returns (FollowResponse) {}
+  rpc ListFollowing(FollowListRequest) returns (FollowListResponse) {}
+  rpc ListFollowers(FollowListRequest) returns (FollowListResponse) {}
   rpc List(ListRequest) returns (ListResponse) {}
 
   rpc ListMessage(ListMessageRequest)returns (ListMessageResponse) {}
@@ -16,6 +19,7 @@ service UserService {
   rpc CreateMessage(CreateMessageRequest)returns (Response) {}
   rpc CreatePrivateMessage(CreatePrivateMessageRequest)returns (Response) {}
   rpc DeletePrivateMessage(DeletePrivateMessageRequest)returns (Response) {}
+  rpc MarkPrivateMessageRead(DeletePrivateMessageRequest)returns (Response) {}
 
   rpc UpdateInfo(UpdateInfoRequest) returns (Response) {}
 }
@@ -58,6 +62,8 @@ message Message {
   string comment_content = 8;  // 回复评论时，显示被回复的评论内容
   string avatar = 9;
   string sender_name = 10;
+  bool read = 11;
+  string created_at = 12;
 }
 
 message ListPrivateMessageResponse {
@@ -76,6 +82,9 @@ message StudentLoginRequest {
   string captcha = 5;
   string second_auth_method = 6;
   string second_auth_code = 7;
+  string provider = 8;
+  string oauth_code = 9;
+  string callback_url = 10;
 }
 
 message UpdateInfoRequest {
@@ -85,6 +94,40 @@ message UpdateInfoRequest {
 
 message GetRequest {
   uint32 id = 1;
+  uint32 viewer_id = 2;
+}
+
+message FollowRequest {
+  uint32 user_id = 1;
+  uint32 target_user_id = 2;
+}
+
+message FollowResponse {
+  bool is_following = 1;
+  uint32 following_count = 2;
+  uint32 follower_count = 3;
+}
+
+message FollowListRequest {
+  uint32 user_id = 1;
+  uint32 viewer_id = 2;
+  uint32 limit = 3;
+  uint32 offset = 4;
+}
+
+message FollowListUser {
+  uint32 id = 1;
+  string name = 2;
+  string avatar = 3;
+  string role = 4;
+  string signature = 5;
+  uint32 following_count = 6;
+  uint32 follower_count = 7;
+  bool is_following = 8;
+}
+
+message FollowListResponse {
+  repeated FollowListUser users = 1;
 }
 
 message GetInfoRequest {
@@ -137,6 +180,10 @@ message UserProfile {
   string signature = 6;
   bool is_public_feed = 7;
   bool is_public_collection_and_like = 8;
+  uint32 following_count = 9;
+  uint32 follower_count = 10;
+  bool is_following = 11;
+  string student_id = 12;
 }
 
 message ListRequest {

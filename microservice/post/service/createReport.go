@@ -52,6 +52,8 @@ func (s *PostService) CreateReport(_ context.Context, req *pb.CreateReportReques
 		Cause:      req.Cause,
 		Category:   req.Category,
 		TargetId:   req.Id,
+		Contact:    req.Contact,
+		ImgURL:     req.ImgUrl,
 	}
 
 	if err := s.Dao.CreateReport(report); err != nil {

@@ -216,23 +216,31 @@ func (d *Dao) BatchGetOrCreateTags(tags []string) ([]*TagModel, error) {
 
 	// 确保返回顺序一致
 	resMap := make(map[string]*TagModel, len(tags))
+	setResult := func(tag *TagModel) {
+		if tag == nil {
+			return
+		}
+		if _, ok := resMap[tag.Content]; !ok {
+			resMap[tag.Content] = tag
+		}
+	}
 
 	// redis hit
 	for content, id := range redisHit {
-		resMap[content] = &TagModel{
+		setResult(&TagModel{
 			Id:      id,
 			Content: content,
-		}
+		})
 	}
 
 	// db hit
 	for _, tag := range dbHit {
-		resMap[tag.Content] = tag
+		setResult(tag)
 	}
 
 	// db insert
 	for _, tag := range dbTags {
-		resMap[tag.Content] = tag
+		setResult(tag)
 	}
 
 	res := make([]*TagModel, len(tags))
@@ -262,7 +270,12 @@ func (d *Dao) batchGetTagIDsFromCache(contents []string) (map[string]uint32, []s
 		return nil, nil, err
 	}
 
-	pipe := d.Redis.TxPipeline()
+	type cachedTag struct {
+		content string
+		id      uint32
+		key     string
+	}
+	cached := make([]cachedTag, 0, len(contents))
 
 	for i, v := range val {
 		if v == nil {
@@ -285,10 +298,45 @@ func (d *Dao) batchGetTagIDsFromCache(contents []string) (map[string]uint32, []s
 			continue
 		}
 
-		hit[contents[i]] = uint32(id)
+		cached = append(cached, cachedTag{
+			content: contents[i],
+			id:      uint32(id),
+			key:     keys[i],
+		})
+	}
+
+	if len(cached) == 0 {
+		return hit, miss, nil
+	}
+
+	reverseKeys := make([]string, len(cached))
+	for i, item := range cached {
+		reverseKeys[i] = buildTagIDKey(item.id)
+	}
+	reverseVals, err := d.Redis.MGet(reverseKeys...).Result()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pipe := d.Redis.TxPipeline()
+	for i, item := range cached {
+		content, ok := reverseVals[i].(string)
+		if !ok || content != item.content {
+			logger.Error("Stale tag content cache",
+				zap.String("content", item.content),
+				zap.Uint32("cached_id", item.id),
+				zap.Any("reverse_content", reverseVals[i]),
+			)
+			miss = append(miss, item.content)
+			pipe.Del(item.key)
+			continue
+		}
+
+		hit[item.content] = item.id
 
 		// 刷新 TTL
-		pipe.Expire(keys[i], TagCacheTTL)
+		pipe.Expire(item.key, TagCacheTTL)
+		pipe.Expire(reverseKeys[i], TagCacheTTL)
 	}
 
 	_, err = pipe.Exec()
@@ -313,7 +361,13 @@ func (d *Dao) batchGetTagsFromCache(ids []uint32) (map[uint32]string, []uint32, 
 		return nil, nil, err
 	}
 
-	pipe := d.Redis.TxPipeline()
+	type cachedTag struct {
+		id      uint32
+		content string
+		key     string
+	}
+	cached := make([]cachedTag, 0, len(ids))
+
 	for i, v := range vals {
 		if v == nil {
 			miss = append(miss, ids[i])
@@ -326,13 +380,60 @@ func (d *Dao) batchGetTagsFromCache(ids []uint32) (map[uint32]string, []uint32, 
 			continue
 		}
 
-		hit[ids[i]] = content
-		pipe.Expire(keys[i], TagCacheTTL)
+		cached = append(cached, cachedTag{
+			id:      ids[i],
+			content: content,
+			key:     keys[i],
+		})
+	}
+
+	if len(cached) == 0 {
+		return hit, miss, nil
+	}
+
+	reverseKeys := make([]string, len(cached))
+	for i, item := range cached {
+		reverseKeys[i] = buildTagContentKey(item.content)
+	}
+	reverseVals, err := d.Redis.MGet(reverseKeys...).Result()
+	if err != nil {
+		return nil, nil, err
+	}
+
+	pipe := d.Redis.TxPipeline()
+	for i, item := range cached {
+		id, ok := parseCachedTagID(reverseVals[i])
+		if !ok || id != item.id {
+			logger.Error("Stale tag id cache",
+				zap.Uint32("id", item.id),
+				zap.String("cached_content", item.content),
+				zap.Any("reverse_id", reverseVals[i]),
+			)
+			miss = append(miss, item.id)
+			pipe.Del(item.key)
+			continue
+		}
+
+		hit[item.id] = item.content
+		pipe.Expire(item.key, TagCacheTTL)
+		pipe.Expire(reverseKeys[i], TagCacheTTL)
 	}
 
 	_, _ = pipe.Exec()
 
 	return hit, miss, nil
+}
+
+func parseCachedTagID(value interface{}) (uint32, bool) {
+	vStr, ok := value.(string)
+	if !ok {
+		return 0, false
+	}
+	id, err := strconv.Atoi(vStr)
+	if err != nil {
+		return 0, false
+	}
+	return uint32(id), true
 }
 
 func (d *Dao) batchGetTagsByContentsFromDB(contents []string) ([]*TagModel, []string, error) {
@@ -342,7 +443,7 @@ func (d *Dao) batchGetTagsByContentsFromDB(contents []string) ([]*TagModel, []st
 		return tags, miss, nil
 	}
 
-	err := d.DB.Where("content IN ?", contents).Find(&tags).Error
+	err := d.DB.Where("content IN ?", contents).Order("id ASC").Find(&tags).Error
 	if err != nil {
 		return nil, nil, err
 	}
@@ -350,7 +451,9 @@ func (d *Dao) batchGetTagsByContentsFromDB(contents []string) ([]*TagModel, []st
 	// 命中
 	hit := make(map[string]*TagModel, len(tags))
 	for _, tag := range tags {
-		hit[tag.Content] = tag
+		if _, ok := hit[tag.Content]; !ok {
+			hit[tag.Content] = tag
+		}
 	}
 
 	// 未命中
@@ -369,7 +472,7 @@ func (d *Dao) batchGetTagsByIDsFromDB(ids []uint32) ([]*TagModel, error) {
 	}
 
 	var tags []*TagModel
-	err := d.DB.Where("id IN ?", ids).Find(&tags).Error
+	err := d.DB.Where("id IN ?", ids).Order("id ASC").Find(&tags).Error
 	return tags, err
 }
 
@@ -394,7 +497,7 @@ func (d *Dao) batchInsertTagsIgnoreConflict(contents []string) ([]*TagModel, err
 
 	// 重新查询，确保拿到 ID
 	var res []*TagModel
-	err = d.DB.Where("content IN ?", contents).Find(&res).Error
+	err = d.DB.Where("content IN ?", contents).Order("id ASC").Find(&res).Error
 	return res, err
 }
 
@@ -403,10 +506,17 @@ func (d *Dao) batchSetTagsToCache(tags []*TagModel) error {
 		return nil
 	}
 	pipe := d.Redis.TxPipeline()
+	seenContents := make(map[string]struct{}, len(tags))
 
 	for _, tag := range tags {
+		if tag == nil || tag.Id == 0 || tag.Content == "" {
+			continue
+		}
 		pipe.Set(buildTagIDKey(tag.Id), tag.Content, TagCacheTTL)
-		pipe.Set(buildTagContentKey(tag.Content), tag.Id, TagCacheTTL)
+		if _, ok := seenContents[tag.Content]; !ok {
+			pipe.Set(buildTagContentKey(tag.Content), tag.Id, TagCacheTTL)
+			seenContents[tag.Content] = struct{}{}
+		}
 	}
 
 	_, err := pipe.Exec()
@@ -580,6 +690,9 @@ func (d *Dao) CreateSipScoreTag(item *SipScoreTagModel) error {
 }
 
 func (d *Dao) BatchCreateSipScoreTags(items []*SipScoreTagModel, tx ...*gorm.DB) error {
+	if len(items) == 0 {
+		return nil
+	}
 	db := d.getDB(tx...)
 	return db.Create(&items).Error
 }

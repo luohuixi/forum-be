@@ -33,9 +33,6 @@ func (s *PostService) CreateSipScoreEntry(_ context.Context, req *pb.CreateSipSc
 		if name == "" {
 			return errno.ServerErr(errno.ErrBadRequest, "entry name cannot be empty")
 		}
-		if entry.GetCoverImg() == "" {
-			return errno.ServerErr(errno.ErrBadRequest, "entry cover image cannot be empty")
-		}
 		if _, ok := seen[name]; ok {
 			return errno.ServerErr(errno.ErrBadRequest, "duplicate entry name: "+name)
 		}

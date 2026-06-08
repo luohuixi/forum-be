@@ -8,6 +8,7 @@ import (
 	"forum-gateway/handler/collection"
 	"forum-gateway/handler/comment"
 	"forum-gateway/handler/feed"
+	"forum-gateway/handler/feedback"
 	"forum-gateway/handler/like"
 	"forum-gateway/handler/post"
 	"forum-gateway/handler/report"
@@ -62,8 +63,12 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		userRouter.GET("/list", user.List)
 		userRouter.PUT("", user.UpdateInfo)
 		userRouter.GET("/message/list", user.ListMessage)
+		userRouter.POST("/follow", user.Follow)
+		userRouter.GET("/following/:id", user.ListFollowing)
+		userRouter.GET("/followers/:id", user.ListFollowers)
 		userRouter.POST("/private_message", user.CreatePrivateMessage)
 		userRouter.POST("/message", adminRequired, user.CreateMessage)
+		userRouter.PATCH("/private_message/read", user.ReadPrivateMessage)
 		userRouter.DELETE("/private_message", user.DeletePrivateMessage)
 		userRouter.GET("/private_message/list", user.ListPrivateMessage)
 	}
@@ -74,6 +79,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		chatRouter.GET("/history/:id", chat.ListHistory)
 		chatRouter.GET("/ws", chat.WsHandler)
 		chatRouter.GET("/userList", chat.UserList)
+		chatRouter.PATCH("/read/:id", chat.MarkRead)
 	}
 
 	postRouter := g.Group("api/v1/post")
@@ -100,11 +106,14 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		sipScoreRouter.PUT("", sipScoreApi.UpdateSipScore)
 		sipScoreRouter.POST("/entries", sipScoreApi.CreateSipScoreEntries)
 		sipScoreRouter.PUT("/entry", sipScoreApi.UpdateSipScoreEntry)
-		sipScoreRouter.GET("/:sip_score_id", sipScoreApi.GetSipScore)
+		sipScoreRouter.GET("/entry/:sip_score_id/:entry_id", sipScoreApi.GetSipScoreEntry)
+		sipScoreRouter.GET("/created/:user_id", sipScoreApi.ListUserCreatedSipScores)
+		sipScoreRouter.GET("/collected/:user_id", sipScoreApi.ListUserCollectedSipScores)
 		sipScoreRouter.GET("/entries/list/:sip_score_id", sipScoreApi.ListEntries)
 		sipScoreRouter.GET("/list", sipScoreApi.ListSipScores)
 		sipScoreRouter.GET("/search", sipScoreApi.SearchSipScores)
 		sipScoreRouter.GET("/entries/search/:sip_score_id", sipScoreApi.SearchEntries)
+		sipScoreRouter.GET("/:sip_score_id", sipScoreApi.GetSipScore)
 		sipScoreRouter.DELETE("/:sip_score_id", sipScoreApi.DeleteSipScore)
 		sipScoreRouter.DELETE("/entries", sipScoreApi.DeleteSipScoreEntries)
 
@@ -157,6 +166,13 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		reportRouter.POST("", normalRequired, reportApi.Create)
 		reportRouter.GET("/list", adminRequired, reportApi.List)
 		reportRouter.PUT("", adminRequired, reportApi.Handle)
+	}
+
+	feedbackRouter := g.Group("api/v1/feedback")
+	feedbackApi := feedback.New(dao.GetDao())
+	feedbackRouter.Use(normalRequired)
+	{
+		feedbackRouter.POST("", feedbackApi.Create)
 	}
 
 	// The health check handlers

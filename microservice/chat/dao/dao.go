@@ -22,12 +22,12 @@ type Dao struct {
 // Interface dao
 type Interface interface {
 	Create(*ChatData) error
+	CreateMessage(*ChatData) error
 	GetList(uint32, time.Duration, bool) ([]string, error)
 	Rewrite(uint32, []string) error
 	ListHistory(uint32, uint32, uint32, uint32, bool) ([]*pb.Message, error)
-	CreateHistory(uint32, []string) error
-	GetUserList(uint32, int, int) ([]uint32, error)
-	GetUserById([]uint32) ([]*pb.UserStatus, error)
+	GetUserList(uint32, int, int) ([]*pb.UserStatus, error)
+	MarkRead(uint32, uint32) error
 }
 
 // Init init dao
@@ -51,11 +51,12 @@ func Init() {
 
 // ChatData 发送到redis里面的数据
 type ChatData struct {
-	Content  string `json:"content"`
-	Time     string `json:"time"`
-	Receiver uint32 `json:"-"`
-	Sender   uint32 `json:"sender"`
-	TypeName string `json:"type_name"`
+	Content      string `json:"content"`
+	Time         string `json:"time"`
+	Receiver     uint32 `json:"receiver_id,omitempty"`
+	Sender       uint32 `json:"sender_id,omitempty"`
+	LegacySender uint32 `json:"sender,omitempty"`
+	TypeName     string `json:"type_name"`
 }
 
 func GetDao() *Dao {
@@ -68,4 +69,9 @@ type DBdata struct {
 	Content    string
 	Time       string
 	TypeName   string
+	Read       bool `gorm:"column:read"`
+}
+
+func (DBdata) TableName() string {
+	return "messages"
 }

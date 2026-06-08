@@ -20,11 +20,14 @@ service PostService {
     rpc CreateSipScoreEntry(CreateSipScoreEntryRequest) returns (CreateSipScoreEntryResponse) {}
     rpc UpdateSipScoreEntryInfo(UpdateSipScoreEntryInfoRequest) returns (Response) {}
     rpc GetSipScore(Request) returns (SipScore) {}
+    rpc GetSipScoreEntryDetail(GetSipScoreEntryRequest) returns (SipScoreEntryDetail) {}
     rpc ListSipScoreEntry(ListSipScoreEntryRequest) returns (ListSipScoreEntryResponse) {}
     rpc SearchSipScoreEntry(SearchSipScoreEntryRequest) returns (ListSipScoreEntryResponse) {}
     rpc DeleteSipScoreEntries(DeleteSipScoreEntriesRequest) returns (Response) {}
     rpc ListSipScore(ListSipScoreRequest) returns (ListSipScoreResponse) {}
     rpc SearchSipScore(SearchSipScoreRequest) returns (SearchSipScoreResponse) {}
+    rpc ListUserCreatedSipScore(ListPostPartInfoRequest) returns (ListSipScoreResponse) {}
+    rpc ListUserCollectedSipScore(ListPostPartInfoRequest) returns (ListSipScoreResponse) {}
 
     rpc CreateSipScoreEntryCommentRating(CreateSipScoreEntryCommentRatingRequest) returns (Response) {}
     rpc UpdateSipScoreEntryCommentRatingInfo(UpdateSipScoreEntryCommentRatingInfoRequest) returns (Response) {}
@@ -50,6 +53,7 @@ service PostService {
     rpc CreateReport(CreateReportRequest) returns (Response) {}
     rpc ListReport(ListReportRequest) returns (ListReportResponse) {}
     rpc HandleReport(HandleReportRequest) returns (Response) {}
+    rpc CreateFeedback(CreateFeedbackRequest) returns (Response) {}
 }
 
 
@@ -369,6 +373,8 @@ message Report {
     string be_reported_content = 11;
     string category = 12;
     uint32 target_id = 13;
+    string contact = 14;
+    string img_url = 15;
 }
 
 
@@ -392,6 +398,16 @@ message CreateReportRequest {
     string type_name = 3;
     string cause = 4;
     string category = 5;
+    string contact = 6;
+    string img_url = 7;
+}
+
+message CreateFeedbackRequest {
+    uint32 user_id = 1;
+    string category = 2;
+    string content = 3;
+    string contact = 4;
+    string img_url = 5;
 }
 
 // ---- response ----
@@ -556,6 +572,11 @@ message SipScoreEntry {
     uint32 ScoreAvg = 13;
 }
 
+message SipScoreEntryDetail {
+    SipScoreEntry entry = 1;
+    SipScoreEntryCommentRating my_rating = 2;
+}
+
 message SipScoreEntryPageToken {
     uint32 entry_id = 1;
     // 时间排序(最新 / 最旧 (可扩展))
@@ -585,6 +606,12 @@ message UpdateSipScoreEntryInfoRequest {
     uint32 last_modified_by = 6;
 
     google.protobuf.FieldMask update_mask = 10;
+}
+
+message GetSipScoreEntryRequest {
+    uint32 sip_score_id = 1;
+    uint32 entry_id = 2;
+    uint32 user_id = 3;
 }
 
 message ListSipScoreEntryRequest {

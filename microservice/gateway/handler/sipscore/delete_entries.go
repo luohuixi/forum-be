@@ -21,7 +21,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body DeleteSipScoreEntriesRequest true "delete_sip_score_entries_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /sip-score/entries [delete]
 func (a *Api) DeleteSipScoreEntries(c *gin.Context) {
 	log.Info("Post DeleteSipScoreEntries function called.", zap.String("X-Request-Id", util.GetReqID(c)))

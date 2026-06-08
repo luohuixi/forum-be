@@ -40,12 +40,16 @@ type UserService interface {
 	StudentLogin(ctx context.Context, in *StudentLoginRequest, opts ...client.CallOption) (*LoginResponse, error)
 	GetInfo(ctx context.Context, in *GetInfoRequest, opts ...client.CallOption) (*UserInfoResponse, error)
 	GetProfile(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*UserProfile, error)
+	ToggleFollow(ctx context.Context, in *FollowRequest, opts ...client.CallOption) (*FollowResponse, error)
+	ListFollowing(ctx context.Context, in *FollowListRequest, opts ...client.CallOption) (*FollowListResponse, error)
+	ListFollowers(ctx context.Context, in *FollowListRequest, opts ...client.CallOption) (*FollowListResponse, error)
 	List(ctx context.Context, in *ListRequest, opts ...client.CallOption) (*ListResponse, error)
 	ListMessage(ctx context.Context, in *ListMessageRequest, opts ...client.CallOption) (*ListMessageResponse, error)
 	ListPrivateMessage(ctx context.Context, in *ListMessageRequest, opts ...client.CallOption) (*ListPrivateMessageResponse, error)
 	CreateMessage(ctx context.Context, in *CreateMessageRequest, opts ...client.CallOption) (*Response, error)
 	CreatePrivateMessage(ctx context.Context, in *CreatePrivateMessageRequest, opts ...client.CallOption) (*Response, error)
 	DeletePrivateMessage(ctx context.Context, in *DeletePrivateMessageRequest, opts ...client.CallOption) (*Response, error)
+	MarkPrivateMessageRead(ctx context.Context, in *DeletePrivateMessageRequest, opts ...client.CallOption) (*Response, error)
 	UpdateInfo(ctx context.Context, in *UpdateInfoRequest, opts ...client.CallOption) (*Response, error)
 }
 
@@ -94,6 +98,36 @@ func (c *userService) GetInfo(ctx context.Context, in *GetInfoRequest, opts ...c
 func (c *userService) GetProfile(ctx context.Context, in *GetRequest, opts ...client.CallOption) (*UserProfile, error) {
 	req := c.c.NewRequest(c.name, "UserService.GetProfile", in)
 	out := new(UserProfile)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) ToggleFollow(ctx context.Context, in *FollowRequest, opts ...client.CallOption) (*FollowResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.ToggleFollow", in)
+	out := new(FollowResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) ListFollowing(ctx context.Context, in *FollowListRequest, opts ...client.CallOption) (*FollowListResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.ListFollowing", in)
+	out := new(FollowListResponse)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *userService) ListFollowers(ctx context.Context, in *FollowListRequest, opts ...client.CallOption) (*FollowListResponse, error) {
+	req := c.c.NewRequest(c.name, "UserService.ListFollowers", in)
+	out := new(FollowListResponse)
 	err := c.c.Call(ctx, req, out, opts...)
 	if err != nil {
 		return nil, err
@@ -161,6 +195,16 @@ func (c *userService) DeletePrivateMessage(ctx context.Context, in *DeletePrivat
 	return out, nil
 }
 
+func (c *userService) MarkPrivateMessageRead(ctx context.Context, in *DeletePrivateMessageRequest, opts ...client.CallOption) (*Response, error) {
+	req := c.c.NewRequest(c.name, "UserService.MarkPrivateMessageRead", in)
+	out := new(Response)
+	err := c.c.Call(ctx, req, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *userService) UpdateInfo(ctx context.Context, in *UpdateInfoRequest, opts ...client.CallOption) (*Response, error) {
 	req := c.c.NewRequest(c.name, "UserService.UpdateInfo", in)
 	out := new(Response)
@@ -178,12 +222,16 @@ type UserServiceHandler interface {
 	StudentLogin(context.Context, *StudentLoginRequest, *LoginResponse) error
 	GetInfo(context.Context, *GetInfoRequest, *UserInfoResponse) error
 	GetProfile(context.Context, *GetRequest, *UserProfile) error
+	ToggleFollow(context.Context, *FollowRequest, *FollowResponse) error
+	ListFollowing(context.Context, *FollowListRequest, *FollowListResponse) error
+	ListFollowers(context.Context, *FollowListRequest, *FollowListResponse) error
 	List(context.Context, *ListRequest, *ListResponse) error
 	ListMessage(context.Context, *ListMessageRequest, *ListMessageResponse) error
 	ListPrivateMessage(context.Context, *ListMessageRequest, *ListPrivateMessageResponse) error
 	CreateMessage(context.Context, *CreateMessageRequest, *Response) error
 	CreatePrivateMessage(context.Context, *CreatePrivateMessageRequest, *Response) error
 	DeletePrivateMessage(context.Context, *DeletePrivateMessageRequest, *Response) error
+	MarkPrivateMessageRead(context.Context, *DeletePrivateMessageRequest, *Response) error
 	UpdateInfo(context.Context, *UpdateInfoRequest, *Response) error
 }
 
@@ -193,12 +241,16 @@ func RegisterUserServiceHandler(s server.Server, hdlr UserServiceHandler, opts .
 		StudentLogin(ctx context.Context, in *StudentLoginRequest, out *LoginResponse) error
 		GetInfo(ctx context.Context, in *GetInfoRequest, out *UserInfoResponse) error
 		GetProfile(ctx context.Context, in *GetRequest, out *UserProfile) error
+		ToggleFollow(ctx context.Context, in *FollowRequest, out *FollowResponse) error
+		ListFollowing(ctx context.Context, in *FollowListRequest, out *FollowListResponse) error
+		ListFollowers(ctx context.Context, in *FollowListRequest, out *FollowListResponse) error
 		List(ctx context.Context, in *ListRequest, out *ListResponse) error
 		ListMessage(ctx context.Context, in *ListMessageRequest, out *ListMessageResponse) error
 		ListPrivateMessage(ctx context.Context, in *ListMessageRequest, out *ListPrivateMessageResponse) error
 		CreateMessage(ctx context.Context, in *CreateMessageRequest, out *Response) error
 		CreatePrivateMessage(ctx context.Context, in *CreatePrivateMessageRequest, out *Response) error
 		DeletePrivateMessage(ctx context.Context, in *DeletePrivateMessageRequest, out *Response) error
+		MarkPrivateMessageRead(ctx context.Context, in *DeletePrivateMessageRequest, out *Response) error
 		UpdateInfo(ctx context.Context, in *UpdateInfoRequest, out *Response) error
 	}
 	type UserService struct {
@@ -228,6 +280,18 @@ func (h *userServiceHandler) GetProfile(ctx context.Context, in *GetRequest, out
 	return h.UserServiceHandler.GetProfile(ctx, in, out)
 }
 
+func (h *userServiceHandler) ToggleFollow(ctx context.Context, in *FollowRequest, out *FollowResponse) error {
+	return h.UserServiceHandler.ToggleFollow(ctx, in, out)
+}
+
+func (h *userServiceHandler) ListFollowing(ctx context.Context, in *FollowListRequest, out *FollowListResponse) error {
+	return h.UserServiceHandler.ListFollowing(ctx, in, out)
+}
+
+func (h *userServiceHandler) ListFollowers(ctx context.Context, in *FollowListRequest, out *FollowListResponse) error {
+	return h.UserServiceHandler.ListFollowers(ctx, in, out)
+}
+
 func (h *userServiceHandler) List(ctx context.Context, in *ListRequest, out *ListResponse) error {
 	return h.UserServiceHandler.List(ctx, in, out)
 }
@@ -250,6 +314,10 @@ func (h *userServiceHandler) CreatePrivateMessage(ctx context.Context, in *Creat
 
 func (h *userServiceHandler) DeletePrivateMessage(ctx context.Context, in *DeletePrivateMessageRequest, out *Response) error {
 	return h.UserServiceHandler.DeletePrivateMessage(ctx, in, out)
+}
+
+func (h *userServiceHandler) MarkPrivateMessageRead(ctx context.Context, in *DeletePrivateMessageRequest, out *Response) error {
+	return h.UserServiceHandler.MarkPrivateMessageRead(ctx, in, out)
 }
 
 func (h *userServiceHandler) UpdateInfo(ctx context.Context, in *UpdateInfoRequest, out *Response) error {

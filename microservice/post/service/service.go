@@ -11,10 +11,14 @@ import (
 	"forum/pkg/constvar"
 	"forum/pkg/errno"
 	"sync"
+	"time"
 
 	_ "github.com/go-micro/plugins/v4/registry/kubernetes"
+	mclient "go-micro.dev/v4/client"
 	"google.golang.org/protobuf/types/known/timestamppb"
 )
+
+const userProfileRPCTimeout = 60 * time.Second
 
 // PostService ... 帖子服务
 type PostService struct {
@@ -123,12 +127,23 @@ func (s *PostService) getPostInfo(postId uint32, userId uint32) (bool, bool, uin
 }
 
 func (s *PostService) GetUserDomain(ctx context.Context, userId uint32) (string, error) {
-	getResp, err := client.UserClient.GetProfile(ctx, &pbu.GetRequest{Id: userId})
+	getResp, err := client.UserClient.GetProfile(
+		ctx,
+		&pbu.GetRequest{Id: userId},
+		mclient.WithRequestTimeout(userProfileRPCTimeout),
+		withUserProfileConnectionTimeout(15*time.Second),
+	)
 	if err != nil {
 		return "", err
 	}
 
 	return role.Role2Domain(getResp.Role), nil
+}
+
+func withUserProfileConnectionTimeout(d time.Duration) mclient.CallOption {
+	return func(o *mclient.CallOptions) {
+		o.ConnectionTimeout = d
+	}
 }
 
 func (s *PostService) CreateMessage(ctx context.Context, userId uint32, message string) {

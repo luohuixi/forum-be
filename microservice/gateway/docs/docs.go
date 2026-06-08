@@ -168,6 +168,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/chat/read/{id}": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "chat"
+                ],
+                "summary": "标记与某用户的私信为已读",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "聊天对象 id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            }
+        },
         "/chat/userList": {
             "get": {
                 "description": "获取该用户的聊天列表，包括每个聊天对象的名字和图片",
@@ -526,6 +564,46 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/FeedListResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/feedback": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "feedback"
+                ],
+                "summary": "反馈与建议 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "create_feedback_request",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FeedbackCreateRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Response"
                         }
                     }
                 }
@@ -1263,6 +1341,16 @@ const docTemplate = `{
                 }
             }
         },
+        "/sip-score/collected/{user_id}": {
+            "get": {
+                "responses": {}
+            }
+        },
+        "/sip-score/created/{user_id}": {
+            "get": {
+                "responses": {}
+            }
+        },
         "/sip-score/entries": {
             "post": {
                 "consumes": [
@@ -1673,6 +1761,51 @@ const docTemplate = `{
                 }
             }
         },
+        "/sip-score/entry/{sip_score_id}/{entry_id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "sipscore"
+                ],
+                "summary": "获取榜单条目详情 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "sip_score_id",
+                        "name": "sip_score_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "entry_id",
+                        "name": "entry_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/sipscore.GetSipScoreEntryResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/sip-score/list": {
             "get": {
                 "consumes": [
@@ -1886,6 +2019,146 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/follow": {
+            "post": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "关注/取关用户 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "description": "follow_request",
+                        "name": "object",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/FollowRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FollowResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/followers/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "获取用户粉丝列表 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FollowListResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/following/{id}": {
+            "get": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "获取用户关注列表 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "user_id",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "limit",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "page",
+                        "name": "page",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/FollowListResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/user/list": {
             "get": {
                 "consumes": [
@@ -2044,7 +2317,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/UserProfile"
+                            "$ref": "#/definitions/MyProfile"
                         }
                     }
                 }
@@ -2187,6 +2460,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/user/private_message/read": {
+            "patch": {
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "user"
+                ],
+                "summary": "标记 个人 message 已读 api",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "token 用户令牌",
+                        "name": "Authorization",
+                        "in": "header",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/Response"
+                        }
+                    }
+                }
+            }
+        },
         "/user/profile/{id}": {
             "get": {
                 "description": "通过 userId 获取完整 user 信息（权限 role: Normal-普通学生用户; NormalAdmin-学生管理员; Muxi-团队成员; MuxiAdmin-团队管理员; SuperAdmin-超级管理员）",
@@ -2263,6 +2567,91 @@ const docTemplate = `{
                 }
             }
         },
+        "FeedbackCreateRequest": {
+            "type": "object",
+            "required": [
+                "content"
+            ],
+            "properties": {
+                "category": {
+                    "type": "string"
+                },
+                "contact": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "img_url": {
+                    "type": "string"
+                }
+            }
+        },
+        "FollowListResponse": {
+            "type": "object",
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/FollowListUser"
+                    }
+                }
+            }
+        },
+        "FollowListUser": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "follower_count": {
+                    "type": "integer"
+                },
+                "following_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_following": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "signature": {
+                    "type": "string"
+                }
+            }
+        },
+        "FollowRequest": {
+            "type": "object",
+            "required": [
+                "target_user_id"
+            ],
+            "properties": {
+                "target_user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "FollowResponse": {
+            "type": "object",
+            "properties": {
+                "follower_count": {
+                    "type": "integer"
+                },
+                "following_count": {
+                    "type": "integer"
+                },
+                "is_following": {
+                    "type": "boolean"
+                }
+            }
+        },
         "ListResponse": {
             "type": "object",
             "properties": {
@@ -2274,6 +2663,47 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/user"
                     }
+                }
+            }
+        },
+        "MyProfile": {
+            "type": "object",
+            "properties": {
+                "avatar": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "follower_count": {
+                    "type": "integer"
+                },
+                "following_count": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_following": {
+                    "type": "boolean"
+                },
+                "is_public_collection_and_like": {
+                    "type": "boolean"
+                },
+                "is_public_feed": {
+                    "type": "boolean"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "role": {
+                    "type": "string"
+                },
+                "signature": {
+                    "type": "string"
+                },
+                "student_id": {
+                    "type": "string"
                 }
             }
         },
@@ -2309,10 +2739,19 @@ const docTemplate = `{
                 "action": {
                     "type": "string"
                 },
+                "callback_url": {
+                    "type": "string"
+                },
                 "captcha": {
                     "type": "string"
                 },
+                "oauth_code": {
+                    "type": "string"
+                },
                 "password": {
+                    "type": "string"
+                },
+                "provider": {
                     "type": "string"
                 },
                 "second_auth_code": {
@@ -2345,6 +2784,9 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "message": {
+                    "type": "string"
+                },
+                "redirect_url": {
                     "type": "string"
                 },
                 "second_auth_email_target": {
@@ -2426,8 +2868,17 @@ const docTemplate = `{
                 "email": {
                     "type": "string"
                 },
+                "follower_count": {
+                    "type": "integer"
+                },
+                "following_count": {
+                    "type": "integer"
+                },
                 "id": {
                     "type": "integer"
+                },
+                "is_following": {
+                    "type": "boolean"
                 },
                 "is_public_collection_and_like": {
                     "type": "boolean"
@@ -2470,8 +2921,7 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "id": {
-                    "type": "integer",
-                    "format": "int32"
+                    "type": "integer"
                 },
                 "name": {
                     "type": "string"
@@ -2604,8 +3054,6 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "content",
-                "target_id",
-                "target_type",
                 "type_name"
             ],
             "properties": {
@@ -2830,6 +3278,9 @@ const docTemplate = `{
                     "items": {
                         "type": "string"
                     }
+                },
+                "time": {
+                    "type": "string"
                 },
                 "title": {
                     "type": "string"
@@ -3093,9 +3544,15 @@ const docTemplate = `{
                 "cause": {
                     "type": "string"
                 },
+                "contact": {
+                    "type": "string"
+                },
                 "id": {
                     "description": "post的id或者是comment的id",
                     "type": "integer"
+                },
+                "img_url": {
+                    "type": "string"
                 },
                 "type_name": {
                     "description": "post or comment",
@@ -3148,11 +3605,17 @@ const docTemplate = `{
                 "cause": {
                     "type": "string"
                 },
+                "contact": {
+                    "type": "string"
+                },
                 "create_time": {
                     "type": "string"
                 },
                 "id": {
                     "type": "integer"
+                },
+                "img_url": {
+                    "type": "string"
                 },
                 "post_id": {
                     "type": "integer"
@@ -3232,7 +3695,6 @@ const docTemplate = `{
             "required": [
                 "comment",
                 "entry_id",
-                "img_url",
                 "rating",
                 "sip_score_id"
             ],
@@ -3276,11 +3738,9 @@ const docTemplate = `{
             "type": "object",
             "required": [
                 "category",
-                "cover_img",
                 "description",
                 "domain",
-                "name",
-                "tags"
+                "name"
             ],
             "properties": {
                 "category": {
@@ -3345,6 +3805,17 @@ const docTemplate = `{
         },
         "sipscore.EmptyResponse": {
             "type": "object"
+        },
+        "sipscore.GetSipScoreEntryResponse": {
+            "type": "object",
+            "properties": {
+                "entry": {
+                    "$ref": "#/definitions/sipscore.SipScoreEntry"
+                },
+                "my_rating": {
+                    "$ref": "#/definitions/sipscore.SipScoreEntryCommentRatingInfo"
+                }
+            }
         },
         "sipscore.GetSipScoreResponse": {
             "type": "object",
@@ -3551,6 +4022,9 @@ const docTemplate = `{
                 "img_url": {
                     "type": "string"
                 },
+                "is_liked": {
+                    "type": "boolean"
+                },
                 "last_modified_by": {
                     "$ref": "#/definitions/sipscore.userInfo"
                 },
@@ -3574,7 +4048,6 @@ const docTemplate = `{
         "sipscore.SipScoreEntryCreateInfo": {
             "type": "object",
             "required": [
-                "cover_img",
                 "name"
             ],
             "properties": {

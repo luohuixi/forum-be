@@ -2,6 +2,7 @@ package dao
 
 import (
 	"errors"
+	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -87,8 +88,9 @@ type SipScoreInfo struct {
 	ParticipantCount uint32
 }
 
-func (d *Dao) CreateSipScore(sipScore *SipScoreModel) (uint32, error) {
-	err := sipScore.Create()
+func (d *Dao) CreateSipScore(sipScore *SipScoreModel, tx ...*gorm.DB) (uint32, error) {
+	db := d.getDB(tx...)
+	err := db.Create(sipScore).Error
 	return sipScore.ID, err
 }
 
@@ -159,13 +161,8 @@ func (d *Dao) ListSipScoreHottest(limit uint32, domain string, tx ...*gorm.DB) (
 
 func (d *Dao) SearchSipScore(keyword string, limit uint32, domain string) ([]*SipScoreModel, error) {
 	var sipScores []*SipScoreModel
-	db := d.DB.
-		Where("MATCH(name, description, category) AGAINST(? IN BOOLEAN MODE)", keyword).
-		Where("deleted_at = 0")
-	if domain != "" {
-		db = db.Where("domain = ?", domain)
-	}
-	err := db.Order("created_at DESC, id DESC").
+	db := d.applySipScoreSearch(d.DB.Model(&SipScoreModel{}), keyword, domain)
+	err := db.Order("sip_scores.created_at DESC, sip_scores.id DESC").
 		Limit(int(limit)).
 		Find(&sipScores).Error
 	return sipScores, err
@@ -173,21 +170,89 @@ func (d *Dao) SearchSipScore(keyword string, limit uint32, domain string) ([]*Si
 
 func (d *Dao) SearchSipScoreWithCursor(keyword string, lastID uint32, lastCreatedAt time.Time, limit uint32, domain string) ([]*SipScoreModel, error) {
 	var sipScores []*SipScoreModel
-	db := d.DB.
-		Where("MATCH(name, description, category) AGAINST(? IN BOOLEAN MODE)", keyword).
-		Where("deleted_at = 0")
-	if domain != "" {
-		db = db.Where("domain = ?", domain)
-	}
-	err := db.Where("(created_at, id) < (?, ?)", lastCreatedAt, lastID).
-		Order("created_at DESC, id DESC").
+	db := d.applySipScoreSearch(d.DB.Model(&SipScoreModel{}), keyword, domain)
+	err := db.Where("(sip_scores.created_at, sip_scores.id) < (?, ?)", lastCreatedAt, lastID).
+		Order("sip_scores.created_at DESC, sip_scores.id DESC").
 		Limit(int(limit)).
 		Find(&sipScores).Error
 	return sipScores, err
 }
 
+func (d *Dao) applySipScoreSearch(db *gorm.DB, keyword string, domain string) *gorm.DB {
+	keyword = strings.TrimSpace(keyword)
+	escapedKeyword := escapeLike(keyword)
+	likeKeyword := "%" + escapedKeyword + "%"
+
+	db = db.
+		Distinct("sip_scores.*").
+		Joins("LEFT JOIN sip_score_tags ON sip_score_tags.sip_score_id = sip_scores.id").
+		Joins("LEFT JOIN tags ON tags.id = sip_score_tags.tag_id").
+		Joins("LEFT JOIN sip_score_entries ON sip_score_entries.sip_score_id = sip_scores.id AND sip_score_entries.deleted_at = 0").
+		Where("sip_scores.deleted_at = 0").
+		Where(
+			d.DB.
+				Where("MATCH(sip_scores.name, sip_scores.description, sip_scores.category) AGAINST(? IN BOOLEAN MODE)", keyword).
+				Or("sip_scores.name LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("sip_scores.description LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("sip_scores.category LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("tags.content LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("sip_score_entries.name LIKE ? ESCAPE '\\\\'", likeKeyword).
+				Or("sip_score_entries.description LIKE ? ESCAPE '\\\\'", likeKeyword),
+		)
+	if domain != "" {
+		db = db.Where("sip_scores.domain = ?", domain)
+	}
+
+	return db
+}
+
+func escapeLike(value string) string {
+	value = strings.ReplaceAll(value, "\\", "\\\\")
+	value = strings.ReplaceAll(value, "%", "\\%")
+	value = strings.ReplaceAll(value, "_", "\\_")
+	return value
+}
+
 func (d *Dao) ListSipScoreHottestWithCursor(lastID uint32, lastCount uint32, limit uint32, domain string, tx ...*gorm.DB) ([]*SipScoreModel, error) {
 	return d.listSipScoreByUintFieldWithCursor(domain, "participant_count", orderDirDesc, lastID, lastCount, limit, tx...)
+}
+
+func (d *Dao) ListSipScoreByCreator(userID uint32, offset uint32, limit uint32, lastID uint32, pagination bool) ([]*SipScoreModel, error) {
+	if limit == 0 {
+		limit = 20
+	}
+
+	db := d.DB.Model(&SipScoreModel{}).Where("creator_id = ?", userID).Order("id DESC")
+	if pagination {
+		db = db.Offset(int(offset)).Limit(int(limit))
+		if lastID != 0 {
+			db = db.Where("id < ?", lastID)
+		}
+	}
+
+	var sipScores []*SipScoreModel
+	err := db.Find(&sipScores).Error
+	return sipScores, err
+}
+
+func (d *Dao) ListCollectedSipScoreByUser(userID uint32, offset uint32, limit uint32, lastID uint32, pagination bool) ([]*SipScoreModel, error) {
+	if limit == 0 {
+		limit = 20
+	}
+
+	db := d.DB.Model(&SipScoreModel{}).
+		Joins("JOIN collections ON collections.content_id = sip_scores.id AND collections.content_type = ? AND collections.user_id = ? AND collections.deleted_at = 0", 2, userID).
+		Order("collections.created_at DESC, collections.id DESC")
+	if pagination {
+		db = db.Offset(int(offset)).Limit(int(limit))
+		if lastID != 0 {
+			db = db.Where("sip_scores.id < ?", lastID)
+		}
+	}
+
+	var sipScores []*SipScoreModel
+	err := db.Find(&sipScores).Error
+	return sipScores, err
 }
 
 func (d *Dao) listSipScoreByTimeFieldWithCursor(domain string, field string, orderDir string, lastID uint32, lastTime time.Time, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
@@ -234,11 +299,11 @@ func (d *Dao) listSipScoreByUintFieldWithCursor(domain string, field string, ord
 	db := d.getDB(tx...)
 	whereOp := ">"
 	idOp := ">"
-	order := field + " ASC, id ASC"
+	order := field + " ASC, updated_at ASC, id ASC"
 	if orderDir == orderDirDesc {
 		whereOp = "<"
 		idOp = "<"
-		order = field + " DESC, id DESC"
+		order = field + " DESC, updated_at DESC, id DESC"
 	}
 
 	if domain != "" {
@@ -254,9 +319,9 @@ func (d *Dao) listSipScoreByUintFieldWithCursor(domain string, field string, ord
 
 func (d *Dao) listSipScoreByUintField(domain string, field string, orderDir string, limit uint32, tx ...*gorm.DB) ([]*SipScoreModel, error) {
 	db := d.getDB(tx...)
-	order := field + " ASC, id ASC"
+	order := field + " ASC, updated_at ASC, id ASC"
 	if orderDir == orderDirDesc {
-		order = field + " DESC, id DESC"
+		order = field + " DESC, updated_at DESC, id DESC"
 	}
 
 	if domain != "" {
@@ -368,16 +433,14 @@ func (d *Dao) IncrSipScoreEntryScore(sipScoreID, entryID uint32, scoreIncr uint3
 		UpdateColumns(map[string]interface{}{
 			"score_total":       gorm.Expr("score_total + ?", scoreIncr),
 			"participant_count": gorm.Expr("participant_count + ?", participantIncr),
-			"score_avg": gorm.Expr(
-				"((score_total + ?) * 100) / (participant_count + ?)",
-				scoreIncr,
-				participantIncr,
-			),
 		})
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
-	return result.Error
+	if result.Error != nil {
+		return result.Error
+	}
+	return d.refreshSipScoreEntryScoreAvg(sipScoreID, entryID, tx...)
 }
 
 func (d *Dao) UpdateSipScoreEntry(sipScoreID, entryID uint32, update map[string]interface{}, tx ...*gorm.DB) error {
@@ -588,7 +651,7 @@ func (d *Dao) BatchListSipScoreEntriesHottest(sipScoreIDs []uint32, limit uint32
 	// 按热门排序查全部
 	err := db.
 		Where("sip_score_id IN ?", sipScoreIDs).
-		Order("sip_score_id ASC, participant_count DESC, id DESC").
+		Order("sip_score_id ASC, participant_count DESC, updated_at DESC, id DESC").
 		Find(&entries).Error
 
 	if err != nil {
@@ -659,7 +722,7 @@ type SipScoreEntryCommentRating struct {
 	EntryID        uint32 `gorm:"index:idx_newest,priority:2;index:idx_hottest,priority:2;index:idx_user,priority:2"`
 	Rating         uint32 `gorm:"type:tinyint unsigned;not null"`
 	Content        string `gorm:"type:varchar(2000);not null"`
-	ImgURL         string `gorm:"type:varchar(255);not null"`
+	ImgURL         string `gorm:"type:varchar(255)"`
 
 	LikeNum    uint32 `gorm:"index:idx_hottest,priority:3"`
 	CommentNum uint32
@@ -834,19 +897,15 @@ func (d *Dao) UpdateSipScoreEntryScoreByRatingDelta(sipScoreID, entryID uint32, 
 	result := db.Model(&SipScoreEntryModel{}).
 		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
 		UpdateColumns(map[string]interface{}{
-			"score_total": gorm.Expr("GREATEST(score_total + ?, 0)", delta),
-			"score_avg": gorm.Expr(
-				`CASE 
-					WHEN participant_count = 0 THEN 0 
-					ELSE (GREATEST(score_total + ?, 0) * 100) / participant_count 
-				END`,
-				delta,
-			),
+			"score_total": gorm.Expr("GREATEST(CAST(score_total AS SIGNED) + ?, 0)", delta),
 		})
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
-	return result.Error
+	if result.Error != nil {
+		return result.Error
+	}
+	return d.refreshSipScoreEntryScoreAvg(sipScoreID, entryID, tx...)
 }
 
 func (d *Dao) DecrSipScoreEntryScore(sipScoreID, entryID uint32, rating uint32, tx ...*gorm.DB) error {
@@ -855,20 +914,27 @@ func (d *Dao) DecrSipScoreEntryScore(sipScoreID, entryID uint32, rating uint32, 
 	result := db.Model(&SipScoreEntryModel{}).
 		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
 		UpdateColumns(map[string]interface{}{
-			"score_total":       gorm.Expr("GREATEST(score_total - ?, 0)", rating),
+			"score_total":       gorm.Expr("GREATEST(CAST(score_total AS SIGNED) - ?, 0)", rating),
 			"participant_count": gorm.Expr("GREATEST(participant_count - 1, 0)"),
-			"score_avg": gorm.Expr(
-				`CASE 
-					WHEN participant_count <= 1 THEN 0 
-					ELSE (GREATEST(score_total - ?, 0) * 100) / (participant_count - 1) 
-				END`,
-				rating,
-			),
 		})
 	if result.RowsAffected == 0 {
 		return gorm.ErrRecordNotFound
 	}
-	return result.Error
+	if result.Error != nil {
+		return result.Error
+	}
+	return d.refreshSipScoreEntryScoreAvg(sipScoreID, entryID, tx...)
+}
+
+func (d *Dao) refreshSipScoreEntryScoreAvg(sipScoreID, entryID uint32, tx ...*gorm.DB) error {
+	db := d.getDB(tx...)
+
+	return db.Model(&SipScoreEntryModel{}).
+		Where("id = ? AND sip_score_id = ?", entryID, sipScoreID).
+		UpdateColumn(
+			"score_avg",
+			gorm.Expr("CASE WHEN participant_count = 0 THEN 0 ELSE (score_total * 100) / participant_count END"),
+		).Error
 }
 
 // IncrSipScoreEntryCommentRatingCommentNum 原子递增评分的评论数

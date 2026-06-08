@@ -218,7 +218,11 @@ func TestLoggedInPageByURL(t *testing.T) {
 
 func mustReadFixture(t *testing.T, parts ...string) string {
 	t.Helper()
-	fixturePath := filepath.Join(append([]string{"..", "..", "..", "..", "..", "ccnu-mvp", "probe-artifacts"}, parts...)...)
+	fixtureRoot := os.Getenv("FORUM_CCNU_FIXTURE_DIR")
+	if fixtureRoot == "" {
+		t.Skip("set FORUM_CCNU_FIXTURE_DIR to run legacy CCNU page parser fixtures")
+	}
+	fixturePath := filepath.Join(append([]string{fixtureRoot}, parts...)...)
 	content, err := os.ReadFile(fixturePath)
 	if err != nil {
 		t.Fatalf("read fixture %s: %v", fixturePath, err)

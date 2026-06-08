@@ -148,6 +148,23 @@ func (a *Api) ListEntryRatings(c *gin.Context) {
 		return &userInfo{ID: id}
 	}
 
+	isRatingLiked := func(ratingID uint32) bool {
+		if ratingID == 0 {
+			return false
+		}
+		key := "like:" + constvar.SipScoreEntryCommentRating + "_list:" + strconv.Itoa(int(ratingID))
+		ok, err := model.SIsmembersFromRedis(key, userID)
+		if err != nil {
+			log.Error("Failed to get sip score rating like state",
+				zap.Uint32("ratingId", ratingID),
+				zap.Uint32("userId", userID),
+				zap.Error(err),
+			)
+			return false
+		}
+		return ok
+	}
+
 	httpRatings := make([]*SipScoreEntryCommentRatingInfo, len(rpcRatings))
 	for i, r := range rpcRatings {
 		if r == nil {
@@ -189,6 +206,7 @@ func (a *Api) ListEntryRatings(c *gin.Context) {
 			Content:         r.Content,
 			CommentID:       r.CommentId,
 			LikeNum:         r.LikeNum,
+			IsLiked:         isRatingLiked(r.Id),
 			ImgUrl:          r.ImgUrl,
 			CreatedAt:       r.CreatedAt.AsTime().Format(time.DateTime),
 			UpdatedAt:       r.UpdatedAt.AsTime().Format(time.DateTime),

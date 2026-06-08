@@ -22,7 +22,7 @@ import (
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body CreateRequest true "create_report_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /report [post]
 func (a *Api) Create(c *gin.Context) {
 	log.Info("Report Create function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -62,6 +62,8 @@ func (a *Api) Create(c *gin.Context) {
 		TypeName: req.TypeName,
 		Category: req.Category,
 		Cause:    req.Cause,
+		Contact:  req.Contact,
+		ImgUrl:   req.ImgURL,
 	}
 
 	_, err = client.PostClient.CreateReport(c.Request.Context(), &createReq)

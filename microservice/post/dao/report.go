@@ -14,6 +14,8 @@ type ReportModel struct {
 	TypeName   string
 	Cause      string
 	Category   string
+	Contact    string
+	ImgURL     string `gorm:"column:img_url"`
 }
 
 func (ReportModel) TableName() string {
@@ -125,7 +127,7 @@ func (d Dao) InValidReport(id uint32, typeName string, targetId uint32) error {
 func (d *Dao) ListReport(offset, limit, lastId uint32, pagination bool) ([]*pb.Report, error) {
 	var reports []*pb.Report
 
-	query := d.DB.Table("reports").Select("reports.id id, reports.target_id, reports.user_id, reports.create_time, reports.category, cause, reports.type_name, u.name user_name, u.avatar user_avatar").Joins("join users u on u.id = reports.user_id")
+	query := d.DB.Table("reports").Select("reports.id id, reports.target_id, reports.user_id, reports.create_time, reports.category, cause, reports.type_name, reports.contact, reports.img_url, u.name user_name, u.avatar user_avatar").Joins("join users u on u.id = reports.user_id")
 
 	if pagination {
 		if limit == 0 {
@@ -168,7 +170,7 @@ func (d *Dao) GetReportNumByTypeNameAndId(typeName string, id uint32) (uint32, e
 
 func (d *Dao) IsUserHadReportTarget(userId uint32, typeName string, id uint32) (bool, error) {
 	var count int64
-	if err := d.DB.Table("reports").Where("user_id = ? AND type_name = ? AND id = ?", userId, typeName, id).Count(&count).Error; err != nil {
+	if err := d.DB.Table("reports").Where("user_id = ? AND type_name = ? AND target_id = ?", userId, typeName, id).Count(&count).Error; err != nil {
 		return false, err
 	}
 

@@ -23,7 +23,7 @@ var ErrType = errors.New("type can only be (like/comment/collection/reply_commen
 // @Produce application/json
 // @Param Authorization header string true "token 用户令牌"
 // @Param object body CreateMessageRequest true "create_message_request"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /user/message [post]
 func CreateMessage(c *gin.Context) {
 	log.Info("User CreateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
@@ -57,7 +57,7 @@ func CreateMessage(c *gin.Context) {
 // @Param Type body string true "type can only be (like/comment/collection/reply_comment)"
 // @Param CommentId body int false "comment_id 只有当type为reply_comment时需要传这个参数"
 // @Param CommentContent body string false "comment_content 指被回复的评论内容"
-// @Success 200 {object} handler.Response
+// @Success 200 {object} Response
 // @Router /user/private_message [post]
 func CreatePrivateMessage(c *gin.Context) {
 	log.Info("User CreatePrivateMessage function called.", zap.String("X-Request-Id", util.GetReqID(c)))
