@@ -126,13 +126,6 @@ func main() {
 		middleware.Metrics(),
 	)
 
-	// Start metrics server on internal port (not exposed to public).
-	metricsG := gin.New()
-	router.LoadMetrics(metricsG)
-	go func() {
-		log.Info(http.ListenAndServe(":9091", metricsG).Error())
-	}()
-
 	// Ping the server to make sure the router is working.
 	go func() {
 		if err := pingServer(); err != nil {

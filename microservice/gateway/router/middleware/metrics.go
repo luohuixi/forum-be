@@ -97,6 +97,12 @@ func Metrics() gin.HandlerFunc {
 			return
 		}
 
+		// Skip metrics endpoint (avoid self-counting on Prometheus scrape)
+		if path == "/api/v1/metrics" {
+			c.Next()
+			return
+		}
+
 		// Skip websocket requests
 		if len(path) >= 3 && path[len(path)-3:] == "/ws" {
 			c.Next()
