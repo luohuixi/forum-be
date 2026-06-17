@@ -49,6 +49,7 @@ var (
 	ErrAuthToken            = &Errno{Code: 20005, Message: "Error occurred while handling the auth token"}
 	ErrPermissionDenied     = &Errno{Code: 20006, Message: "Permission denied."}
 	ErrExceededTrafficLimit = &Errno{Code: 20006, Message: "Exceeded traffic limit"}
+	ErrSensitiveContent     = &Errno{Code: 20007, Message: "含敏感词无法发表"}
 
 	// user
 	ErrUserNotExisted    = &Errno{Code: 20101, Message: "User not existed"}
