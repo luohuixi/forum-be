@@ -139,7 +139,10 @@ BEGIN
           FROM `sensitive_words`
          WHERE `enabled` = 1
            AND `word` <> ''
-           AND INSTR(p_content, `word`) > 0
+           AND INSTR(
+               CONVERT(p_content USING utf8mb4) COLLATE utf8mb4_unicode_ci,
+               CONVERT(`word` USING utf8mb4) COLLATE utf8mb4_unicode_ci
+           ) > 0
          LIMIT 1
     )
       INTO v_hit
