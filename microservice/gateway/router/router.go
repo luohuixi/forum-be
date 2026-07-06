@@ -4,6 +4,7 @@ import (
 	"forum-gateway/dao"
 	_ "forum-gateway/docs"
 	"forum-gateway/handler"
+	"forum-gateway/handler/audit"
 	"forum-gateway/handler/chat"
 	"forum-gateway/handler/collection"
 	"forum-gateway/handler/comment"
@@ -57,6 +58,12 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		authRouter.POST("/set_role/:id", adminRequired, user.SetRole)
 	}
 
+	auditRouter := g.Group("api/v1/audit")
+	auditApi := audit.New(dao.GetDao())
+	{
+		auditRouter.POST("/webhook", middleware.WebhookGuard(), auditApi.Webhook)
+	}
+
 	// user 模块
 	userRouter := g.Group("api/v1/user")
 	userRouter.Use(normalRequired)
@@ -92,7 +99,7 @@ func Load(g *gin.Engine, mw ...gin.HandlerFunc) *gin.Engine {
 		postRouter.GET("/list/:domain", postApi.ListMainPost)
 		postRouter.GET("/published/:user_id", postApi.ListUserPost)
 		postRouter.GET("/:post_id", postApi.Get)
-		postRouter.POST("", postApi.Create)
+		postRouter.POST("", middleware.Audit(auditApi), postApi.Create)
 		postRouter.DELETE("/:post_id", postApi.Delete)
 		postRouter.PUT("", postApi.UpdateInfo)
 		postRouter.GET("/popular_tag", postApi.ListPopularTag)

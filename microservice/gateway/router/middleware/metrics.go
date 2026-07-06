@@ -90,7 +90,7 @@ func Metrics() gin.HandlerFunc {
 			return
 		}
 
-		if path == "/api/v1/metrics" || path == "/api/v1/ws" {
+		if path == "/api/v1/metrics" || path == "/api/v1/ws" || path == "/api/v1/webhook" {
 			c.Next()
 			return
 		}

@@ -40,6 +40,9 @@ var (
 	ErrListPostInfoByPostIds = &Errno{Code: 10404, Message: "Error list post info by post_ids"}
 	ErrRepeatReport          = &Errno{Code: 10405, Message: "Error repeat report the same post"}
 
+	// aduit
+	ErrAuditService = &Errno{Code: 10501, Message: "Error auditing service"}
+
 	// ---------------------------------------------------------------------------
 
 	ErrBadRequest           = &Errno{Code: 20001, Message: "Request error"}

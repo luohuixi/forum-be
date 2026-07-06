@@ -9,6 +9,7 @@ import (
 	forumclient "forum/client"
 	"forum/config"
 	"forum/log"
+	"forum/pkg/audit"
 	"forum/pkg/handler"
 	"forum/pkg/tracer"
 	"net/http"
@@ -107,6 +108,9 @@ func main() {
 	forumclient.ChatInit(service)
 	forumclient.PostInit(service)
 	forumclient.FeedInit(service)
+
+	audit.InitAuditClient(viper.GetString("audit.audit_api_key"), viper.GetString("audit.hook_url"), viper.GetString("audit.region"), viper.GetInt("audit.connect_timeout"))
+
 	dao.Init()
 	// Set gin mode.
 	gin.SetMode(viper.GetString("runmode"))
